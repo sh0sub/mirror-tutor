@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+/* primitive → semantic tokens (docs/design.md). UI code uses the semantic names only. */
+@theme {
+  --color-primary: #c8325b;
+  --color-primary-strong: #a8264a;
+  --color-on-primary: #ffffff;
+  --color-canvas: #fbf7f4;
+  --color-panel: #ffffff;
+  --color-panel-2: #f5eee9;
+  --color-ink: #1f1b1a;
+  --color-muted: #6b605c;
+  --color-line: #eadfd8;
+  --color-line-strong: #8a7f7a;
+  --color-peach: #f6c9b6;
+  --color-peach-soft: #fcebe3;
+  --color-success: #3f8a6c;
+  --color-success-soft: #e4f2ec;
+  --color-warning: #9a560c;
+  --color-warning-soft: #fbefdf;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fbe9e7;
+
+  --font-sans: var(--font-noto), "Noto Sans KR", system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-manrope), var(--font-noto), system-ui, sans-serif;
+
+  --radius-panel: 16px;
+  --radius-button: 16px;
+  --radius-input: 8px;
+  --radius-sheet: 22px;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.num {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes mt-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-panel-2), var(--color-line), var(--color-panel-2));
+  background-size: 200% 100%;
+  animation: mt-shimmer 1.4s linear infinite;
+}
