@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "status": "draft-llm-needs-human-review",
+  "notes": "Face Analyzer attributes → Makeup VTO parameters. Pattern names are labels from lib/catalog/patterns.json (public catalog, fetched 2026-10-27). eye.shadow patterns are all 2-color (colorNum 2); eye.liner/blush are 1-color. intensityDelta is added to the lesson's base intensity and clamped to 0..100.",
+  "eye": {
+    "monolid": {
+      "label": { "ko": "가로 그라데이션 + 보이는 라인", "en": "Horizontal gradient + visible liner" },
+      "why": {
+        "ko": "홑꺼풀은 눈을 뜨면 눈두덩이 접히지 않아요. 섀도는 위로 쌓지 말고 가로로 넓게, 라인은 눈 뜬 상태에서 1.5mm 보이게 그리고 꼬리는 가로로 3mm 빼요.",
+        "en": "Monolids have no crease to hide color, so spread shadow sideways instead of up, draw liner so 1.5 mm shows with eyes open, and extend the tail 3 mm straight out."
+      },
+      "shadow": { "pattern": "2colors1", "intensityDelta": 0 },
+      "liner": { "pattern": "Upper6", "intensityDelta": 0 }
+    },
+    "inner_double": {
+      "label": { "ko": "라인 위 얇은 그라데이션", "en": "Thin gradient above an inner crease" },
+      "why": {
+        "ko": "속쌍꺼풀은 주름이 눈 안쪽에 숨어 있어요. 라인은 주름 위로 살짝 보이게 얇게, 섀도는 주름보다 2mm 높게 연하게 펴요.",
+        "en": "An inner crease hides near the lash line. Keep liner thin so it peeks above the fold, and blend shadow 2 mm above the crease, lightly."
+      },
+      "shadow": { "pattern": "2colors2", "intensityDelta": -5 },
+      "liner": { "pattern": "Upper10", "intensityDelta": -5 }
+    },
+    "double": {
+      "label": { "ko": "주름 따라 음영 + 얇은 라인", "en": "Crease shading + thin liner" },
+      "why": {
+        "ko": "쌍꺼풀은 주름이 뚜렷해 그대로 음영 가이드가 돼요. 진한 색은 주름선까지만, 라인은 얇게 그리고 꼬리는 살짝 위로 올려요.",
+        "en": "A defined crease is a built-in guide: stop the deeper shade at the crease, keep liner thin, and lift the tail slightly."
+      },
+      "shadow": { "pattern": "2colors3", "intensityDelta": -5 },
+      "liner": { "pattern": "Upper11", "intensityDelta": -10 }
+    },
+    "hooded": {
+      "label": { "ko": "높게 놓는 섀도 + 눈 뜬 상태 라인", "en": "Shadow placed higher + eyes-open liner" },
+      "why": {
+        "ko": "눈두덩이 덮이는 눈(처진·깊은 눈)은 감은 채 그리면 뜨는 순간 사라져요. 눈을 뜬 상태에서 보이는 높이에 섀도를 놓고, 라인은 점막 쪽으로 채워요.",
+        "en": "Hooded or deep-set lids hide what you draw with eyes closed. Place shadow where it shows with eyes open, and tightline instead of a thick top line."
+      },
+      "shadow": { "pattern": "2colors5", "intensityDelta": 5 },
+      "liner": { "pattern": "Upper30", "intensityDelta": 0 }
+    }
+  },
+  "eyeShape": {
+    "almond": {
+      "label": { "ko": "기본 꼬리", "en": "Standard tail" },
+      "why": { "ko": "아몬드형 눈은 기본 라인 그대로 잘 어울려요.", "en": "Almond eyes suit the standard line as is." }
+    },
+    "round": {
+      "label": { "ko": "길게 뺀 꼬리", "en": "Elongated wing" },
+      "why": { "ko": "동그란 눈은 꼬리를 가로로 길게 빼면 눈매가 길어 보여요.", "en": "Round eyes look longer with a horizontally extended wing." },
+      "liner": { "pattern": "OpenWings1", "intensityDelta": 0 }
+    },
+    "narrow": {
+      "label": { "ko": "가운데 두껍게", "en": "Thicker at the center" },
+      "why": { "ko": "가는 눈은 라인 가운데를 조금 두껍게 하면 눈이 커 보여요.", "en": "Narrow eyes open up when the liner is slightly thicker at the center." },
+      "liner": { "intensityDelta": 5 }
+    }
+  },
+  "lip": {
+    "thin": {
+      "label": { "ko": "안쪽에서 번지는 그라데이션", "en": "Inside-out gradient" },
+      "why": {
+        "ko": "얇은 입술은 라인을 넘겨 그리지 말고 안쪽만 톡톡, 바깥은 손가락으로 펴서 중앙에 볼륨을 줘요.",
+        "en": "For thin lips, don't overline: dab color in the center and blur outward with a finger for volume."
+      },
+      "style": { "type": "ombre", "innerColorRatio": 40, "blendStrength": 60 },
+      "texture": "gloss",
+      "textureParams": { "gloss": 60, "transparencyIntensity": 30 },
+      "morphology": { "fullness": 15 },
+      "intensityDelta": 0
+    },
+    "average": {
+      "label": { "ko": "입술선 따라 꽉 채우기", "en": "Fill to the lip line" },
+      "why": {
+        "ko": "보통 입술은 입술선을 따라 꽉 채우고 가운데만 한 번 더 덧발라요.",
+        "en": "Average lips: fill to the natural line, then add one more layer in the center."
+      },
+      "style": { "type": "full" },
+      "texture": "satin",
+      "textureParams": {},
+      "intensityDelta": 0
+    },
+    "full": {
+      "label": { "ko": "선 안쪽 매트", "en": "Matte inside the line" },
+      "why": {
+        "ko": "도톰한 입술은 선 1mm 안쪽까지만 채우고 매트로 마무리하면 단정해 보여요.",
+        "en": "Full lips look polished with matte color kept 1 mm inside the line."
+      },
+      "style": { "type": "full" },
+      "texture": "matte",
+      "textureParams": {},
+      "intensityDelta": -5
+    }
+  },
+  "cheek": {
+    "oval": { "pattern": "Circle1", "label": { "ko": "광대 위 동그랗게", "en": "Round on the apples" }, "why": { "ko": "달걀형은 광대 위에 동그랗게 올리면 균형이 유지돼요.", "en": "Oval faces stay balanced with round color on the apples." } },
+    "round": { "pattern": "Oblique1", "label": { "ko": "광대에서 귀 쪽으로 사선", "en": "Diagonal toward the ears" }, "why": { "ko": "둥근 얼굴은 블러셔를 귀 쪽으로 사선으로 올리면 갸름해 보여요.", "en": "Round faces look slimmer with blush swept diagonally toward the ears." } },
+    "oblong": { "pattern": "Oblong1", "label": { "ko": "가로로 넓게", "en": "Wide and horizontal" }, "why": { "ko": "긴 얼굴은 블러셔를 가로로 넓게 펴면 길이가 짧아 보여요.", "en": "Long faces look shorter with blush spread horizontally." } },
+    "square": { "pattern": "Round1", "label": { "ko": "광대 중앙 동그랗게", "en": "Soft circle mid-cheek" }, "why": { "ko": "각진 얼굴은 동그란 블러셔가 턱선을 부드럽게 해요.", "en": "Square faces soften with a round blush shape." } },
+    "heart": { "pattern": "Heart1", "label": { "ko": "광대 아래로 낮게", "en": "Low under the cheekbone" }, "why": { "ko": "하트형은 블러셔를 조금 낮게 두면 넓은 이마와 균형이 맞아요.", "en": "Heart faces balance a wider forehead with blush placed slightly lower." } },
+    "diamond": { "pattern": "Round2", "label": { "ko": "광대 안쪽 동그랗게", "en": "Round, inside the cheekbone" }, "why": { "ko": "다이아몬드형은 광대 바깥보다 안쪽에 동그랗게 넣어요.", "en": "Diamond faces: keep round color inside the widest point of the cheekbone." } },
+    "triangle": { "pattern": "Triangle1", "label": { "ko": "광대 위쪽으로", "en": "High on the cheekbone" }, "why": { "ko": "삼각형 얼굴은 블러셔를 위쪽에 두면 시선이 위로 가요.", "en": "Triangle faces draw the eye up with blush placed high." } }
+  },
+  "contour": {
+    "oval": { "pattern": "OvalFace6", "label": { "ko": "광대 아래 가볍게", "en": "Light under the cheekbone" }, "why": { "ko": "달걀형은 광대 아래만 가볍게 음영을 줘요.", "en": "Oval faces need only a light shade under the cheekbone." } },
+    "round": { "pattern": "RoundFace4", "label": { "ko": "옆선 세로 음영", "en": "Vertical side shading" }, "why": { "ko": "둥근 얼굴은 귀 앞에서 턱 쪽으로 세로 음영을 넣어요.", "en": "Round faces: shade vertically from in front of the ear toward the jaw." } },
+    "oblong": { "pattern": "OvalFace10", "label": { "ko": "이마·턱 끝 음영", "en": "Forehead and chin tips" }, "why": { "ko": "긴 얼굴은 이마 끝과 턱 끝에 음영을 넣어 길이를 줄여요.", "en": "Long faces shorten with shade at the top of the forehead and the chin tip." } },
+    "square": { "pattern": "OvalFace11", "label": { "ko": "턱 모서리 음영", "en": "Jaw corners" }, "why": { "ko": "각진 얼굴은 턱 모서리만 음영으로 둥글게 깎아요.", "en": "Square faces round off by shading only the jaw corners." } },
+    "heart": { "pattern": "HeartFace2", "label": { "ko": "이마 양옆 음영", "en": "Forehead sides" }, "why": { "ko": "하트형은 이마 양옆에 음영을 줘 위쪽 폭을 줄여요.", "en": "Heart faces narrow the top with shade at the sides of the forehead." } },
+    "diamond": { "pattern": "Invtriangle1", "label": { "ko": "광대 끝 음영", "en": "Cheekbone tips" }, "why": { "ko": "다이아몬드형은 가장 넓은 광대 끝만 음영을 줘요.", "en": "Diamond faces shade only the widest tips of the cheekbones." } },
+    "triangle": { "pattern": "TriangleFace2", "label": { "ko": "턱선 음영", "en": "Jawline shading" }, "why": { "ko": "삼각형 얼굴은 넓은 턱선을 따라 음영을 넣어요.", "en": "Triangle faces shade along the wider jawline." } }
+  },
+  "brow": {
+    "straight": { "pattern": "Straight1", "label": { "ko": "일자 유지, 꼬리만 2mm 내리기", "en": "Keep straight, tail down 2 mm" }, "why": { "ko": "일자 눈썹은 모양을 살리고 꼬리만 2mm 내려 부드럽게 해요.", "en": "Keep a straight brow and drop only the tail 2 mm to soften it." } },
+    "soft_angled": { "pattern": "SoftArch1", "label": { "ko": "부드러운 아치 유지", "en": "Keep the soft arch" }, "why": { "ko": "부드러운 아치는 빈 곳만 채워요.", "en": "A soft arch only needs the gaps filled." } },
+    "hard_angled": { "pattern": "SoftArch2", "label": { "ko": "꺾인 곳 둥글게", "en": "Round off the peak" }, "why": { "ko": "각진 눈썹은 꺾이는 부분 아래를 채워 둥글게 만들어요.", "en": "Angled brows soften when you fill just under the peak." } },
+    "rounded": { "pattern": "Curved7", "label": { "ko": "둥근 결 그대로", "en": "Follow the curve" }, "why": { "ko": "둥근 눈썹은 결을 따라 앞머리만 연하게 그려요.", "en": "Rounded brows: follow the curve and keep the front light." } },
+    "obscured": { "pattern": "Original2", "label": { "ko": "기본 모양으로 채우기", "en": "Fill a natural shape" }, "why": { "ko": "눈썹이 잘 안 보이면 기본 모양으로 연하게 채워요.", "en": "If the brow is hard to see, fill a natural shape lightly." } }
+  }
+}
