@@ -1,0 +1,256 @@
+{
+  "_note": "Request bodies that returned task_status=success on the live API (2026-10-27, npm run spike -- face,vto, SPIKE_VTO_MODE=seq). src_file_id redacted.",
+  "lesson": "daily-k",
+  "profile": {
+    "eyelid": "monolid",
+    "eyeShape": "almond",
+    "lipShape": "thin",
+    "faceShape": "oval",
+    "eyebrowShape": "straight"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "body": {
+        "src_file_id": "[redacted]",
+        "effects": [
+          {
+            "category": "skin_smooth",
+            "skinSmoothStrength": 40,
+            "skinSmoothColorIntensity": 40
+          },
+          {
+            "category": "foundation",
+            "palettes": [
+              {
+                "color": "#F1D4C0",
+                "colorIntensity": 60,
+                "glowIntensity": 40,
+                "coverageIntensity": 50
+              }
+            ]
+          }
+        ],
+        "version": "1.0"
+      }
+    },
+    {
+      "step": 2,
+      "body": {
+        "src_file_id": "[redacted]",
+        "effects": [
+          {
+            "category": "skin_smooth",
+            "skinSmoothStrength": 40,
+            "skinSmoothColorIntensity": 40
+          },
+          {
+            "category": "foundation",
+            "palettes": [
+              {
+                "color": "#F1D4C0",
+                "colorIntensity": 60,
+                "glowIntensity": 40,
+                "coverageIntensity": 50
+              }
+            ]
+          },
+          {
+            "category": "eyebrows",
+            "palettes": [
+              {
+                "color": "#6B4A3A",
+                "colorIntensity": 55,
+                "texture": "matte"
+              }
+            ],
+            "pattern": {
+              "type": "shape",
+              "name": "Straight1",
+              "curvature": 0,
+              "thickness": 0,
+              "definition": 50
+            }
+          }
+        ],
+        "version": "1.0"
+      }
+    },
+    {
+      "step": 3,
+      "body": {
+        "src_file_id": "[redacted]",
+        "effects": [
+          {
+            "category": "skin_smooth",
+            "skinSmoothStrength": 40,
+            "skinSmoothColorIntensity": 40
+          },
+          {
+            "category": "foundation",
+            "palettes": [
+              {
+                "color": "#F1D4C0",
+                "colorIntensity": 60,
+                "glowIntensity": 40,
+                "coverageIntensity": 50
+              }
+            ]
+          },
+          {
+            "category": "eyebrows",
+            "palettes": [
+              {
+                "color": "#6B4A3A",
+                "colorIntensity": 55,
+                "texture": "matte"
+              }
+            ],
+            "pattern": {
+              "type": "shape",
+              "name": "Straight1",
+              "curvature": 0,
+              "thickness": 0,
+              "definition": 50
+            }
+          },
+          {
+            "category": "eye_shadow",
+            "palettes": [
+              {
+                "color": "#D9A58E",
+                "colorIntensity": 50,
+                "texture": "matte"
+              },
+              {
+                "color": "#8C5A4A",
+                "colorIntensity": 50,
+                "texture": "matte"
+              }
+            ],
+            "pattern": {
+              "name": "2colors1"
+            }
+          },
+          {
+            "category": "eye_liner",
+            "palettes": [
+              {
+                "color": "#2B1B17",
+                "colorIntensity": 40,
+                "texture": "matte"
+              }
+            ],
+            "pattern": {
+              "name": "Upper6"
+            }
+          }
+        ],
+        "version": "1.0"
+      }
+    },
+    {
+      "step": 4,
+      "body": {
+        "src_file_id": "[redacted]",
+        "effects": [
+          {
+            "category": "skin_smooth",
+            "skinSmoothStrength": 40,
+            "skinSmoothColorIntensity": 40
+          },
+          {
+            "category": "foundation",
+            "palettes": [
+              {
+                "color": "#F1D4C0",
+                "colorIntensity": 60,
+                "glowIntensity": 40,
+                "coverageIntensity": 50
+              }
+            ]
+          },
+          {
+            "category": "eyebrows",
+            "palettes": [
+              {
+                "color": "#6B4A3A",
+                "colorIntensity": 55,
+                "texture": "matte"
+              }
+            ],
+            "pattern": {
+              "type": "shape",
+              "name": "Straight1",
+              "curvature": 0,
+              "thickness": 0,
+              "definition": 50
+            }
+          },
+          {
+            "category": "eye_shadow",
+            "palettes": [
+              {
+                "color": "#D9A58E",
+                "colorIntensity": 50,
+                "texture": "matte"
+              },
+              {
+                "color": "#8C5A4A",
+                "colorIntensity": 50,
+                "texture": "matte"
+              }
+            ],
+            "pattern": {
+              "name": "2colors1"
+            }
+          },
+          {
+            "category": "eye_liner",
+            "palettes": [
+              {
+                "color": "#2B1B17",
+                "colorIntensity": 40,
+                "texture": "matte"
+              }
+            ],
+            "pattern": {
+              "name": "Upper6"
+            }
+          },
+          {
+            "category": "lip_color",
+            "palettes": [
+              {
+                "color": "#C94F5E",
+                "colorIntensity": 18,
+                "texture": "gloss",
+                "gloss": 60,
+                "transparencyIntensity": 30
+              },
+              {
+                "color": "#C94F5E",
+                "colorIntensity": 45,
+                "texture": "gloss",
+                "gloss": 60,
+                "transparencyIntensity": 30
+              }
+            ],
+            "shape": {
+              "name": "original"
+            },
+            "style": {
+              "type": "ombre",
+              "innerColorRatio": 40,
+              "blendStrength": 60
+            },
+            "morphology": {
+              "fullness": 15
+            }
+          }
+        ],
+        "version": "1.0"
+      }
+    }
+  ]
+}

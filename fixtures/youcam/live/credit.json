@@ -1,0 +1,19 @@
+{
+  "status": 200,
+  "results": [
+    {
+      "id": "[redacted]",
+      "type": "ApiPaygToken",
+      "amount": 996,
+      "amount_dec": 996,
+      "expiry": 1800835199000
+    },
+    {
+      "id": "[redacted]",
+      "type": "ApiPaygToken",
+      "amount": 40,
+      "amount_dec": 40,
+      "expiry": 1824595199000
+    }
+  ]
+}

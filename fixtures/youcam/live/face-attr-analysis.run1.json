@@ -1,0 +1,28 @@
+{
+  "nose": {},
+  "agegender": {},
+  "eyelid": {
+    "left_eyelid": "Double-lid",
+    "right_eyelid": "Double-lid",
+    "left_shape": "Almond",
+    "right_shape": "Almond"
+  },
+  "eyebrow": {
+    "left_shape": "Rounded",
+    "right_shape": "Hard Angled"
+  },
+  "color": {},
+  "face_quality": {
+    "has_face": true,
+    "area": "good",
+    "frontal": "good",
+    "lighting": "good",
+    "faceangle": "good"
+  },
+  "cheekbone": {},
+  "faceshape": "Triangle",
+  "facialratio": {},
+  "lipshape": [
+    "Average"
+  ]
+}
