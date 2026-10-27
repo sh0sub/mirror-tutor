@@ -1,0 +1,18 @@
+{
+  "note": "Demo catalog: pseudonymous brand 'MT Select' with generic product names only (trademark rule). Prices and stock are demo data. Replace with a partner SKU feed for production.",
+  "currency": ["KRW", "USD"],
+  "products": [
+    { "sku": "MT-CU-21N", "category": "foundation", "name": { "ko": "MT Select 쿠션 21N", "en": "MT Select Cushion 21N" }, "shades": ["#F0D3BF"], "texture": null, "priceKrw": 18000, "priceUsd": 13 },
+    { "sku": "MT-BR-02", "category": "eyebrows", "name": { "ko": "MT Select 브로우 펜슬 소프트 브라운", "en": "MT Select Brow Pencil Soft Brown" }, "shades": ["#6E4C3B"], "texture": "matte", "priceKrw": 8000, "priceUsd": 6 },
+    { "sku": "MT-BR-03", "category": "eyebrows", "name": { "ko": "MT Select 브로우 펜슬 라이트 브라운", "en": "MT Select Brow Pencil Light Brown" }, "shades": ["#7C5846"], "texture": "matte", "priceKrw": 8000, "priceUsd": 6 },
+    { "sku": "MT-SD-03", "category": "eye_shadow", "name": { "ko": "MT Select 소프트 섀도 듀오 03 로지 샌드", "en": "MT Select Soft Shadow Duo 03 Rosy Sand" }, "shades": ["#D6A08A", "#8A5848"], "texture": "matte", "priceKrw": 16000, "priceUsd": 11.5 },
+    { "sku": "MT-SD-05", "category": "eye_shadow", "name": { "ko": "MT Select 소프트 섀도 듀오 05 모카", "en": "MT Select Soft Shadow Duo 05 Mocha" }, "shades": ["#BA8B74", "#6C4A3C"], "texture": "matte", "priceKrw": 16000, "priceUsd": 11.5 },
+    { "sku": "MT-GL-01", "category": "eye_liner", "name": { "ko": "MT Select 젤 라이너 다크 브라운", "en": "MT Select Gel Liner Dark Brown" }, "shades": ["#2D1C18"], "texture": "matte", "priceKrw": 9800, "priceUsd": 7 },
+    { "sku": "MT-GL-02", "category": "eye_liner", "name": { "ko": "MT Select 젤 라이너 브라운", "en": "MT Select Gel Liner Brown" }, "shades": ["#3B2722"], "texture": "matte", "priceKrw": 9800, "priceUsd": 7 },
+    { "sku": "MT-VT-07", "category": "lip_color", "name": { "ko": "MT Select 벨벳 틴트 07 피그 로즈", "en": "MT Select Velvet Tint 07 Fig Rose" }, "shades": ["#C6505F"], "texture": "matte", "priceKrw": 12000, "priceUsd": 9 },
+    { "sku": "MT-GT-02", "category": "lip_color", "name": { "ko": "MT Select 글로이 틴트 02 로즈", "en": "MT Select Glowy Tint 02 Rose" }, "shades": ["#CB4E5E"], "texture": "gloss", "priceKrw": 13000, "priceUsd": 9.5 },
+    { "sku": "MT-GT-04", "category": "lip_color", "name": { "ko": "MT Select 글로이 틴트 04 체리", "en": "MT Select Glowy Tint 04 Cherry" }, "shades": ["#D0425B"], "texture": "gloss", "priceKrw": 13000, "priceUsd": 9.5 },
+    { "sku": "MT-SL-11", "category": "lip_color", "name": { "ko": "MT Select 새틴 립 11 누드 브릭", "en": "MT Select Satin Lip 11 Nude Brick" }, "shades": ["#B66C5F"], "texture": "satin", "priceKrw": 14000, "priceUsd": 10 },
+    { "sku": "MT-BL-01", "category": "blush", "name": { "ko": "MT Select 치크 블러셔 피치 핑크", "en": "MT Select Cheek Blush Peach Pink" }, "shades": ["#E59B9A"], "texture": "matte", "priceKrw": 11000, "priceUsd": 8 }
+  ]
+}
