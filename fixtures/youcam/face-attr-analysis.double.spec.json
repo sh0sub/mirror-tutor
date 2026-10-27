@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "data": {
+    "task_status": "success",
+    "results": {
+      "face_quality": { "has_face": true, "area": "good", "frontal": "good", "lighting": "good", "faceangle": "good" },
+      "eyelid": { "left_eyelid": "Double-lid", "right_eyelid": "Double-lid", "left_shape": "Round", "right_shape": "Round" },
+      "eyebrow": { "left_shape": "Soft Angled", "right_shape": "Soft Angled" },
+      "faceshape": "Round",
+      "lipshape": ["Full", "Bow"]
+    }
+  }
+}

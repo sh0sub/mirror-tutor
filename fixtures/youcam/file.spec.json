@@ -1,0 +1,15 @@
+{
+  "status": 200,
+  "data": {
+    "files": [
+      {
+        "content_type": "image/jpeg",
+        "file_name": "selfie.jpg",
+        "file_id": "mock-file-id",
+        "requests": [
+          { "url": "mock://upload/mock-file-id", "method": "PUT", "headers": { "Content-Type": "image/jpeg", "Content-Length": 0 } }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "result": {
+    "next_token": null,
+    "skus": [
+      { "description": "AI Face Analyzer 1~5 features", "amount": 10, "unit": "result_image", "proc_unit": 1, "run_task_url": "https://yce-api-01.makeupar.com/s2s/v2.0/task/face-attr-analysis" },
+      { "description": "AI Makeup Virtual Try-On", "amount": 1, "unit": "result_image", "proc_unit": 1, "run_task_url": "https://yce-api-01.makeupar.com/s2s/v2.0/task/makeup-vto" }
+    ]
+  }
+}
