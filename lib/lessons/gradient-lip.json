@@ -1,0 +1,39 @@
+{
+  "id": "gradient-lip",
+  "title": { "ko": "그라데이션 립", "en": "Gradient lips" },
+  "summary": { "ko": "안쪽에서 번지는 K-그라데이션 립과 어울리는 볼", "en": "The inside-out K gradient lip with matching cheeks" },
+  "minutes": 5,
+  "steps": [
+    {
+      "id": "base",
+      "title": { "ko": "베이스", "en": "Base" },
+      "region": "base",
+      "instruction": { "ko": "입술 경계까지 베이스로 살짝 덮어요.", "en": "Lightly cover up to the lip edges." },
+      "effects": [
+        { "category": "skin_smooth", "skinSmoothStrength": 40, "skinSmoothColorIntensity": 40 },
+        { "category": "foundation", "palettes": [{ "color": "#F1D4C0", "colorIntensity": 55, "glowIntensity": 45, "coverageIntensity": 45 }] }
+      ]
+    },
+    {
+      "id": "brow",
+      "title": { "ko": "눈썹", "en": "Brows" },
+      "region": "brow",
+      "instruction": { "ko": "립이 주인공이라 눈썹은 연하게.", "en": "Lips are the star, so keep brows soft." },
+      "effects": [{ "category": "eyebrows", "slot": "brow", "palettes": [{ "color": "#7A5644", "colorIntensity": 45, "texture": "matte" }] }]
+    },
+    {
+      "id": "cheek",
+      "title": { "ko": "블러셔", "en": "Blush" },
+      "region": "cheek",
+      "instruction": { "ko": "립과 같은 계열로 아주 연하게.", "en": "Same family as the lip, very sheer." },
+      "effects": [{ "category": "blush", "slot": "cheek", "palettes": [{ "color": "#E79A9A", "colorIntensity": 40, "texture": "matte" }] }]
+    },
+    {
+      "id": "lip",
+      "title": { "ko": "그라데이션 립", "en": "Gradient lip" },
+      "region": "lip",
+      "instruction": { "ko": "안쪽에 톡톡, 바깥은 손가락으로 흐리게.", "en": "Dab inside, blur outward with a finger." },
+      "effects": [{ "category": "lip_color", "slot": "lip", "forceOmbre": true, "palettes": [{ "color": "#D2405A", "colorIntensity": 60 }] }]
+    }
+  ]
+}

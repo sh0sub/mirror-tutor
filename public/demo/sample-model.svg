@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Illustrated sample model for demo mode (not a real person). Face fills ~66% of the width inside the guide oval. -->
+  <rect width="600" height="800" fill="#F3E6DD"/>
+  <path d="M90 300 C90 120 510 120 510 300 L520 560 C470 470 130 470 80 560 Z" fill="#2E211C"/>
+  <rect x="245" y="600" width="110" height="140" fill="#DDB59A"/>
+  <path d="M110 800 C130 690 470 690 490 800 Z" fill="#E9D9CF"/>
+  <ellipse cx="300" cy="360" rx="198" ry="262" fill="#E6C2A8"/>
+  <path d="M120 260 C160 150 440 150 480 260 C430 200 170 200 120 260 Z" fill="#2E211C"/>
+  <path d="M190 254 Q232 246 272 254" stroke="#5A4134" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M328 254 Q368 246 410 254" stroke="#5A4134" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M196 318 Q232 304 268 318" stroke="#3A2A24" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M332 318 Q368 304 404 318" stroke="#3A2A24" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="232" cy="322" rx="15" ry="7" fill="#3A2A24"/>
+  <ellipse cx="368" cy="322" rx="15" ry="7" fill="#3A2A24"/>
+  <path d="M300 340 Q292 400 300 420 Q310 425 316 418" stroke="#C99C82" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M258 506 Q300 494 342 506 Q300 530 258 506 Z" fill="#C98C83"/>
+</svg>

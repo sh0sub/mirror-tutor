@@ -1,0 +1,45 @@
+{
+  "id": "shading",
+  "title": { "ko": "음영 메이크업", "en": "Soft shading look" },
+  "summary": { "ko": "얼굴형에 맞춘 음영과 브라운 아이로 차분한 입체감", "en": "Contour for your face shape and brown eyes for calm depth" },
+  "minutes": 8,
+  "steps": [
+    {
+      "id": "base",
+      "title": { "ko": "베이스", "en": "Base" },
+      "region": "base",
+      "instruction": { "ko": "커버는 가볍게, 피부 결은 매끈하게.", "en": "Light coverage, smooth texture." },
+      "effects": [
+        { "category": "skin_smooth", "skinSmoothStrength": 45, "skinSmoothColorIntensity": 40 },
+        { "category": "foundation", "palettes": [{ "color": "#EBCBB4", "colorIntensity": 55, "glowIntensity": 25, "coverageIntensity": 55 }] }
+      ]
+    },
+    {
+      "id": "contour",
+      "title": { "ko": "음영", "en": "Contour" },
+      "region": "contour",
+      "instruction": { "ko": "브러시에 남은 양만 써서 경계 없이 펴요.", "en": "Use what's left on the brush and blend with no edges." },
+      "effects": [{ "category": "contour", "slot": "contour", "palettes": [{ "color": "#A47864", "colorIntensity": 40 }] }]
+    },
+    {
+      "id": "eye",
+      "title": { "ko": "브라운 아이", "en": "Brown eyes" },
+      "region": "eye_lid",
+      "instruction": { "ko": "브라운 두 톤을 겹쳐 깊이를 만들어요.", "en": "Layer two browns to build depth." },
+      "effects": [
+        { "category": "eye_shadow", "slot": "eye.shadow", "palettes": [
+          { "color": "#B98A72", "colorIntensity": 55, "texture": "matte" },
+          { "color": "#6E4B3E", "colorIntensity": 55, "texture": "matte" }
+        ] },
+        { "category": "eye_liner", "slot": "eye.liner", "palettes": [{ "color": "#3A2620", "colorIntensity": 45, "texture": "matte" }] }
+      ]
+    },
+    {
+      "id": "lip",
+      "title": { "ko": "누드 립", "en": "Nude lips" },
+      "region": "lip",
+      "instruction": { "ko": "음영 룩은 입술을 차분하게 마무리해요.", "en": "A calm nude finishes the shading look." },
+      "effects": [{ "category": "lip_color", "slot": "lip", "palettes": [{ "color": "#B86B5E", "colorIntensity": 50 }] }]
+    }
+  ]
+}

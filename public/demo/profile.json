@@ -1,0 +1,5 @@
+{
+  "note": "Sample model profile for demo mode (illustration, not a real person).",
+  "profile": { "eyelid": "monolid", "eyeShape": "almond", "lipShape": "thin", "faceShape": "oval", "eyebrowShape": "straight" },
+  "source": { "eyelid": "Single-lid / Single-lid", "eyeShape": "Almond", "lipShape": "Thin", "faceShape": "Oval", "eyebrowShape": "Straight" }
+}

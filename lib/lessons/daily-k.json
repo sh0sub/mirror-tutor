@@ -1,0 +1,45 @@
+{
+  "id": "daily-k",
+  "title": { "ko": "데일리 K-룩", "en": "Daily K-look" },
+  "summary": { "ko": "맑은 베이스에 결 살린 눈썹, 내 눈에 맞춘 아이, 생기 있는 립", "en": "Clear base, natural brows, eyes adapted to you, fresh lips" },
+  "minutes": 6,
+  "steps": [
+    {
+      "id": "base",
+      "title": { "ko": "베이스", "en": "Base" },
+      "region": "base",
+      "instruction": { "ko": "얇게 두 번. 광은 T존만.", "en": "Two thin layers. Glow on the T-zone only." },
+      "effects": [
+        { "category": "skin_smooth", "skinSmoothStrength": 40, "skinSmoothColorIntensity": 40 },
+        { "category": "foundation", "palettes": [{ "color": "#F1D4C0", "colorIntensity": 60, "glowIntensity": 40, "coverageIntensity": 50 }] }
+      ]
+    },
+    {
+      "id": "brow",
+      "title": { "ko": "눈썹", "en": "Brows" },
+      "region": "brow",
+      "instruction": { "ko": "빈 곳만 결 방향으로 채워요.", "en": "Fill only the gaps, following the hair direction." },
+      "effects": [{ "category": "eyebrows", "slot": "brow", "palettes": [{ "color": "#6B4A3A", "colorIntensity": 55, "texture": "matte" }] }]
+    },
+    {
+      "id": "eye",
+      "title": { "ko": "아이", "en": "Eyes" },
+      "region": "eye_lid",
+      "instruction": { "ko": "밝은 색을 넓게, 진한 색은 눈꼬리 쪽에만.", "en": "Light shade wide, deeper shade only toward the outer corner." },
+      "effects": [
+        { "category": "eye_shadow", "slot": "eye.shadow", "palettes": [
+          { "color": "#D9A58E", "colorIntensity": 50, "texture": "matte" },
+          { "color": "#8C5A4A", "colorIntensity": 50, "texture": "matte" }
+        ] },
+        { "category": "eye_liner", "slot": "eye.liner", "palettes": [{ "color": "#2B1B17", "colorIntensity": 40, "texture": "matte" }] }
+      ]
+    },
+    {
+      "id": "lip",
+      "title": { "ko": "립", "en": "Lips" },
+      "region": "lip",
+      "instruction": { "ko": "마지막으로 입술에 생기를 더해요.", "en": "Finish with a fresh lip color." },
+      "effects": [{ "category": "lip_color", "slot": "lip", "palettes": [{ "color": "#C94F5E", "colorIntensity": 45 }] }]
+    }
+  ]
+}
