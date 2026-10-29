@@ -18,7 +18,10 @@ export interface GradeResult {
   confidence: Confidence;
   confidenceReason: Text | null;
   regions: RegionGrade[];
-  grader: "local" | "claude";
+  /** local = fixed-box ΔE · claude = LLM vision rubric · landmark = S1 landmark-polygon ΔE (scores are numeric). */
+  grader: "local" | "claude" | "landmark";
+  /** landmark grader only: who wrote the tips — Claude interpreting the numbers, or the rule table. */
+  explainer?: "claude" | "rules";
   /** Grading never spends YouCam units (re-grading is free). */
   units: 0;
 }

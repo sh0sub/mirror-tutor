@@ -3,6 +3,7 @@
 import type { AnalyzeResult } from "../services/analyze";
 import type { RenderSummary, StepResult } from "../services/render";
 import type { GradeResult } from "../grade/types";
+import type { LandmarkMeasure } from "../grade/landmarks";
 import type { FaceProfile } from "../profile";
 
 export interface CreditInfo {
@@ -42,12 +43,14 @@ export async function streamRender(
   profile: FaceProfile,
   onEvent: (e: RenderEvent) => void,
   steps?: number[],
+  stepScales?: Record<number, number>,
 ): Promise<void> {
   const form = new FormData();
   form.set("image", image, "selfie.jpg");
   form.set("lessonId", lessonId);
   form.set("profile", JSON.stringify(profile));
   if (steps?.length) form.set("steps", steps.join(","));
+  if (stepScales && Object.keys(stepScales).length) form.set("stepScales", JSON.stringify(stepScales));
   const res = await fetch("/api/render", { method: "POST", body: form });
   if (!res.ok || !res.body) {
     onEvent({ type: "fatal", code: `http_${res.status}` });
@@ -69,10 +72,11 @@ export async function streamRender(
   }
 }
 
-export async function postGrade(answer: Blob, attempt: Blob): Promise<GradeResult | { error: string }> {
+export async function postGrade(answer: Blob, attempt: Blob, landmarks?: LandmarkMeasure | null): Promise<GradeResult | { error: string }> {
   const form = new FormData();
   form.set("answer", answer, "answer.jpg");
   form.set("attempt", attempt, "attempt.jpg");
+  if (landmarks) form.set("landmarks", JSON.stringify(landmarks)); // numbers only (S1)
   try {
     const res = await fetch("/api/grade", { method: "POST", body: form });
     return (await res.json()) as GradeResult | { error: string };

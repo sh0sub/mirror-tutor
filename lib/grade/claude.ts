@@ -112,3 +112,63 @@ export async function gradeWithClaude(input: ClaudeGradeInput, create: CreateMes
   const msg = await create(buildGradeRequest(input, model));
   return parseGradeResponse(msg, input.measure);
 }
+
+/* ── S1: numbers in, sentences out (Claude never sets the score) ───────────── */
+
+export const EXPLAIN_SYSTEM = `You write coaching tips for a makeup practice app. The scores are already computed from measured colors; never change or mention a different score.
+For each face region you get: the score (0-100), CIEDE2000 ΔE between the answer and the attempt, and the mean CIELAB of each (L* lightness, a* red(+)/green(-), b* yellow(+)/blue(-)), sampled on face-landmark polygons.
+Interpret only these numbers: attempt L* higher than answer → too little product / too light; lower → too much / too dark; a*/b* differences → hue shift (e.g. more orange, cooler pink). Small ΔE (≤ 5) → say it matches.
+"tip_ko"/"tip_en": one short, kind next action (max 40 characters in Korean, 70 in English). Talk about the makeup only, never the person's appearance.`;
+
+const ExplainSchema = z.object({
+  regions: z.array(z.object({ region: z.enum(["eye_line", "eye_lid", "cheek", "lip"]), tip_ko: z.string().min(1).max(80), tip_en: z.string().min(1).max(140) })).length(4),
+});
+
+export const EXPLAIN_JSON_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["regions"],
+  properties: {
+    regions: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["region", "tip_ko", "tip_en"],
+        properties: { region: { type: "string", enum: ["eye_line", "eye_lid", "cheek", "lip"] }, tip_ko: { type: "string" }, tip_en: { type: "string" } },
+      },
+    },
+  },
+} as const;
+
+export interface ExplainRegion {
+  region: GradeRegion;
+  score: number;
+  deltaE: number;
+  answerLab: [number, number, number];
+  attemptLab: [number, number, number];
+}
+
+/** Text-only request: no images leave the server for this call, only the measured numbers. */
+export function buildExplainRequest(regions: ExplainRegion[], model: string): Anthropic.Beta.MessageCreateParamsNonStreaming {
+  const lines = regions.map(
+    (r) => `${r.region} (${REGION_NAME[r.region].en}): score ${r.score}, ΔE2000 ${r.deltaE}, answer Lab [${r.answerLab.join(", ")}], attempt Lab [${r.attemptLab.join(", ")}]`,
+  );
+  return {
+    model,
+    max_tokens: 2000,
+    system: EXPLAIN_SYSTEM,
+    messages: [{ role: "user", content: `${lines.join("\n")}\nReturn tips for all four regions.` }],
+    output_config: { effort: "low", format: { type: "json_schema", schema: EXPLAIN_JSON_SCHEMA as unknown as Record<string, unknown> } },
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",
+  };
+}
+
+export async function explainWithClaude(regions: ExplainRegion[], create: CreateMessage, model: string): Promise<Map<GradeRegion, { ko: string; en: string }>> {
+  const msg = await create(buildExplainRequest(regions, model));
+  if (msg.stop_reason === "refusal") throw new Error("explainer refused");
+  const text = msg.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
+  const parsed = ExplainSchema.parse(JSON.parse(text));
+  return new Map(parsed.regions.map((r) => [r.region, { ko: r.tip_ko, en: r.tip_en }]));
+}

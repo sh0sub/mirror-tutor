@@ -4,6 +4,7 @@ import { deltaE2000, rgbToLab, type Lab } from "../color";
 import { estimateFace, luma } from "../quality/gate";
 import type { Text } from "../rules/engine";
 import type { Confidence, GradeResult, RegionGrade } from "./types";
+import type { LandmarkMeasure } from "./landmarks";
 
 /**
  * Deterministic MVP grader (no LLM, no units): compares the mean CIELAB color of each region crop
@@ -117,16 +118,40 @@ export async function measure(answer: Uint8Array, attempt: Uint8Array): Promise<
   const confidenceReason: Text | null =
     confidence === "high" ? null : { ko: "조명이 정답 촬영과 달라요", en: "Lighting differs from the answer photo" };
 
-  const regions = GRADE_REGIONS.map((region): RegionGrade => {
-    const la = meanLab(a, region);
-    const lb = meanLab(b, region);
-    const dE = deltaE2000(la, lb);
-    const score = scoreFromDeltaE(dE);
-    let kind: TipKind = "good";
-    if (score < 80) kind = lb[0] > la[0] + 3 ? "more" : lb[0] < la[0] - 3 ? "less" : "hue";
-    return { region, score, tip: TIPS[region][kind], deltaE: Math.round(dE * 10) / 10 };
-  });
+  const regions = GRADE_REGIONS.map((region) => regionGrade(region, meanLab(a, region), meanLab(b, region)));
   return { comparable, confidence, confidenceReason, regions };
+}
+
+/** Score + rule tip for one region from the answer/attempt mean colors (shared by box and landmark measures). */
+export function regionGrade(region: GradeRegion, la: Lab, lb: Lab): RegionGrade {
+  const dE = deltaE2000(la, lb);
+  const score = scoreFromDeltaE(dE);
+  let kind: TipKind = "good";
+  // attempt lighter than the answer → not enough product ("more"); darker → too much ("less")
+  if (score < 80) kind = lb[0] > la[0] + 3 ? "more" : lb[0] < la[0] - 3 ? "less" : "hue";
+  return { region, score, tip: TIPS[region][kind], deltaE: Math.round(dE * 10) / 10 };
+}
+
+/**
+ * S1: grade from browser-measured landmark polygons. ΔE is recomputed here from the submitted Lab
+ * means (the client's own ΔE is not trusted). Lighting confidence still comes from the images.
+ */
+export async function measureWithLandmarks(answer: Uint8Array, attempt: Uint8Array, lm: LandmarkMeasure): Promise<LocalMeasure> {
+  const a = await prepare(answer);
+  const b = await prepare(attempt, a.width, a.height);
+  const lumaDiff = Math.abs(frameLuma(a) - frameLuma(b));
+  const confidence: Confidence = lumaDiff > 30 ? "low" : lumaDiff > 14 ? "medium" : "high";
+  const byRegion = new Map(lm.regions.map((r) => [r.region, r]));
+  const regions = GRADE_REGIONS.map((region) => {
+    const r = byRegion.get(region)!;
+    return regionGrade(region, r.answerLab, r.attemptLab);
+  });
+  return {
+    comparable: true, // both faces were found by the landmarker
+    confidence,
+    confidenceReason: confidence === "high" ? null : { ko: "조명이 정답 촬영과 달라요", en: "Lighting differs from the answer photo" },
+    regions,
+  };
 }
 
 export async function gradeLocal(answer: Uint8Array, attempt: Uint8Array): Promise<GradeResult> {

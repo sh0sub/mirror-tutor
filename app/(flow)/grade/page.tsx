@@ -6,6 +6,7 @@ import { AppBar, BottomBar, ButtonLink, Chip, Icon, ModeBanner, Screen } from "@
 import { useFlow } from "@/components/FlowProvider";
 import { t } from "@/lib/i18n";
 import { postGrade } from "@/lib/client/api";
+import { measureLandmarksInBrowser } from "@/lib/client/landmarker";
 import { urlToBlob } from "@/lib/client/image";
 import { REGION_NAME, scoreBand, type GradeResult } from "@/lib/grade/types";
 
@@ -30,7 +31,10 @@ function GradeInner() {
     setGrade(null);
     setError(null);
     void (async () => {
-      const r = await postGrade(await urlToBlob(answer), attempt.blob);
+      const answerBlob = await urlToBlob(answer);
+      // S1: landmark-aligned ΔE measured on this device; null (no face / offline / unsupported) → F6 grader.
+      const landmarks = await measureLandmarksInBrowser(answerBlob, attempt.blob);
+      const r = await postGrade(answerBlob, attempt.blob, landmarks);
       if ("error" in r) setError(r.error);
       else {
         setGrade(r);
@@ -132,7 +136,7 @@ function GradeInner() {
                 </li>
               ))}
             </ul>
-            <p className="text-center text-xs text-muted">{t("gradeFootnote", lang)}</p>
+            <p className="text-center text-xs text-muted">{t(result?.grader === "landmark" ? "gradeFootnoteLandmark" : "gradeFootnote", lang)}</p>
           </>
         )}
       </main>
