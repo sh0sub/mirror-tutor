@@ -7,16 +7,16 @@
       "label": { "ko": "가로 그라데이션 + 보이는 라인", "en": "Horizontal gradient + visible liner" },
       "why": {
         "ko": "홑꺼풀은 눈을 뜨면 눈두덩이 접히지 않아요. 섀도는 위로 쌓지 말고 가로로 넓게, 라인은 눈 뜬 상태에서 1.5mm 보이게 그리고 꼬리는 가로로 3mm 빼요.",
-        "en": "Monolids have no crease to hide color, so spread shadow sideways instead of up, draw liner so 1.5 mm shows with eyes open, and extend the tail 3 mm straight out."
+        "en": "Monolids don't fold when your eyes are open, so spread shadow sideways instead of stacking it up, draw liner so 1.5 mm shows with eyes open, and extend the tail 3 mm straight out."
       },
       "shadow": { "pattern": "2colors1", "intensityDelta": 0 },
       "liner": { "pattern": "Upper6", "intensityDelta": 0 }
     },
     "inner_double": {
-      "label": { "ko": "라인 위 얇은 그라데이션", "en": "Thin gradient above an inner crease" },
+      "label": { "ko": "라인 위 얇은 그라데이션", "en": "Thin gradient above the liner" },
       "why": {
         "ko": "속쌍꺼풀은 주름이 눈 안쪽에 숨어 있어요. 라인은 주름 위로 살짝 보이게 얇게, 섀도는 주름보다 2mm 높게 연하게 펴요.",
-        "en": "An inner crease hides near the lash line. Keep liner thin so it peeks above the fold, and blend shadow 2 mm above the crease, lightly."
+        "en": "With an inner double lid, the crease hides close to the lashes. Keep liner thin so it just peeks above the crease, and blend shadow lightly 2 mm above it."
       },
       "shadow": { "pattern": "2colors2", "intensityDelta": -5 },
       "liner": { "pattern": "Upper10", "intensityDelta": -5 }
@@ -25,7 +25,7 @@
       "label": { "ko": "주름 따라 음영 + 얇은 라인", "en": "Crease shading + thin liner" },
       "why": {
         "ko": "쌍꺼풀은 주름이 뚜렷해 그대로 음영 가이드가 돼요. 진한 색은 주름선까지만, 라인은 얇게 그리고 꼬리는 살짝 위로 올려요.",
-        "en": "A defined crease is a built-in guide: stop the deeper shade at the crease, keep liner thin, and lift the tail slightly."
+        "en": "Double lids have a clear crease that works as a built-in guide: stop the deeper shade at the crease, keep liner thin, and lift the tail slightly."
       },
       "shadow": { "pattern": "2colors3", "intensityDelta": -5 },
       "liner": { "pattern": "Upper11", "intensityDelta": -10 }
@@ -34,7 +34,7 @@
       "label": { "ko": "높게 놓는 섀도 + 눈 뜬 상태 라인", "en": "Shadow placed higher + eyes-open liner" },
       "why": {
         "ko": "눈두덩이 덮이는 눈(처진·깊은 눈)은 감은 채 그리면 뜨는 순간 사라져요. 눈을 뜬 상태에서 보이는 높이에 섀도를 놓고, 라인은 점막 쪽으로 채워요.",
-        "en": "Hooded or deep-set lids hide what you draw with eyes closed. Place shadow where it shows with eyes open, and tightline instead of a thick top line."
+        "en": "With hooded or deep-set lids, what you draw with eyes closed disappears once you open them. Place shadow where it shows with eyes open, and fill liner in close to the waterline."
       },
       "shadow": { "pattern": "2colors5", "intensityDelta": 5 },
       "liner": { "pattern": "Upper30", "intensityDelta": 0 }
@@ -46,8 +46,8 @@
       "why": { "ko": "아몬드형 눈은 기본 라인 그대로 잘 어울려요.", "en": "Almond eyes suit the standard line as is." }
     },
     "round": {
-      "label": { "ko": "길게 뺀 꼬리", "en": "Elongated wing" },
-      "why": { "ko": "동그란 눈은 꼬리를 가로로 길게 빼면 눈매가 길어 보여요.", "en": "Round eyes look longer with a horizontally extended wing." },
+      "label": { "ko": "길게 뺀 꼬리", "en": "Long tail" },
+      "why": { "ko": "동그란 눈은 꼬리를 가로로 길게 빼면 눈매가 길어 보여요.", "en": "Round eyes look longer when the tail extends sideways." },
       "liner": { "pattern": "OpenWings1", "intensityDelta": 0 }
     },
     "narrow": {

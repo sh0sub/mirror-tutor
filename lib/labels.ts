@@ -15,7 +15,7 @@ export const VALUE_LABEL: { [K in ProfileKey]: Record<FaceProfile[K], Text> } = 
     monolid: { ko: "홑꺼풀", en: "Monolid" },
     inner_double: { ko: "속쌍꺼풀", en: "Inner double lid" },
     double: { ko: "쌍꺼풀", en: "Double lid" },
-    hooded: { ko: "덮이는 눈꺼풀(처진·깊은 눈)", en: "Hooded / deep-set" },
+    hooded: { ko: "덮이는 눈꺼풀(처진·깊은 눈)", en: "Hooded lid (deep-set)" },
   },
   eyeShape: {
     almond: { ko: "아몬드형", en: "Almond" },
@@ -49,7 +49,7 @@ export const VALUE_LABEL: { [K in ProfileKey]: Record<FaceProfile[K], Text> } = 
 export const VALUE_HINT: Partial<{ [K in ProfileKey]: Partial<Record<FaceProfile[K], Text>> }> = {
   eyelid: {
     monolid: { ko: "아이라인은 눈 떴을 때 보이는 두께가 기준이에요", en: "Liner thickness is judged with your eyes open" },
-    inner_double: { ko: "주름이 안쪽에 있어 라인을 얇게 잡아요", en: "Your crease sits low, so keep liner thin" },
+    inner_double: { ko: "주름이 안쪽에 있어 라인을 얇게 잡아요", en: "Your crease is tucked in, so keep liner thin" },
     double: { ko: "주름선이 음영의 가이드가 돼요", en: "Your crease is a built-in shading guide" },
     hooded: { ko: "눈 뜬 상태에서 보이는 위치에 색을 놓아요", en: "Place color where it shows with eyes open" },
   },

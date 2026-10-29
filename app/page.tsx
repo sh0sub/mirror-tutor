@@ -84,18 +84,20 @@ export default function Home() {
             <h2 className="text-[28px] font-extrabold leading-tight">{t("tagline", lang)}</h2>
             <p className="text-[16px] leading-relaxed text-muted">{t("heroBody", lang)}</p>
             <ol className="mt-2 flex flex-col gap-3 text-sm">
-              {[
-                { ko: "셀피 1장 → 눈꺼풀·입술·얼굴형 읽기 (10 유닛)", en: "1 selfie → eyelids, lips, face shape (10 units)" },
-                { ko: "내 얼굴에 단계별 정답 그리기 (단계당 1 유닛)", en: "Step-by-step answers on your face (1 unit/step)" },
-                { ko: "내가 그린 결과를 부위별로 채점 (0 유닛)", en: "Grade what you drew, by region (0 units)" },
-              ].map((s, i) => (
+              {(["homeStep1", "homeStep2", "homeStep3"] as const).map((key, i) => (
                 <li key={i} className="flex items-center gap-3 rounded-xl bg-panel p-3">
                   <span className="num flex h-8 w-8 flex-none items-center justify-center rounded-full bg-peach-soft font-extrabold text-primary">{i + 1}</span>
-                  {s[lang]}
+                  {t(key, lang)}
                 </li>
               ))}
             </ol>
           </section>
+        )}
+        {hydrated && (
+          <ButtonLink href="/compare" variant="ghost" className="w-full">
+            <Icon name="sparkle" className="h-4 w-4" />
+            {t("compareEntry", lang)}
+          </ButtonLink>
         )}
         {photo && (
           <button

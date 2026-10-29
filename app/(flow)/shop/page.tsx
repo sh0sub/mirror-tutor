@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AppBar, BottomBar, Button, Chip, Icon, ModeBanner, Screen, Sheet, Swatch } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
-import { t } from "@/lib/i18n";
+import { t, tf } from "@/lib/i18n";
 import { buildLesson, getLesson } from "@/lib/lessons";
 import { INVISIBLE_DELTA, matchStepEffects, storeUrl, type Product } from "@/lib/shop";
 import { CATEGORY_REGION, REGIONS } from "@/lib/regions";
@@ -61,7 +61,7 @@ function ShopInner() {
           </svg>
         </div>
 
-        <div role="tablist" aria-label={lang === "ko" ? "단계" : "Steps"} className="flex gap-1.5 overflow-x-auto">
+        <div role="tablist" aria-label={t("stepsNav", lang)} className="flex gap-1.5 overflow-x-auto">
           {plan.steps.map((s) => (
             <button
               key={s.index}
@@ -81,8 +81,7 @@ function ShopInner() {
 
         <section aria-label={t("colorsUsed", lang)}>
           <p className="mb-1.5 text-xs font-bold text-muted">
-            {k}
-            {lang === "ko" ? "단계" : "."} {step.title[lang]} · {t("colorsUsed", lang)}
+            {tf("stepNumbered", lang, { n: k })} {step.title[lang]} · {t("colorsUsed", lang)}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {matches.map((m, i) => (

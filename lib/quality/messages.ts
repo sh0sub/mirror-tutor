@@ -4,7 +4,7 @@ import type { QualityIssue } from "./gate";
 /** Guide copy: tell the next action, never scold (design direction "따뜻한 코치"). */
 export const ISSUE_MESSAGE: Record<QualityIssue, Text> = {
   no_face: { ko: "얼굴을 타원 안에 맞춰 주세요", en: "Fit your face inside the oval" },
-  face_too_small: { ko: "조금 더 가까이 — 얼굴이 화면 폭의 60% 이상이어야 해요", en: "Come a little closer — your face should fill 60% of the width" },
+  face_too_small: { ko: "조금 더 가까이 — 얼굴이 화면 폭의 60% 이상이어야 해요", en: "Come a little closer — your face should fill at least 60% of the width" },
   too_dark: { ko: "더 밝은 곳으로 — 창가가 좋아요", en: "Find more light — a window works well" },
   too_bright: { ko: "빛이 너무 강해요 — 정면 조명을 조금 피해 주세요", en: "Too much glare — step away from direct light" },
   not_frontal: { ko: "정면을 봐 주세요", en: "Look straight at the camera" },
@@ -18,7 +18,7 @@ const GUIDE: Record<Exclude<GuideKey, QualityIssue>, Text> = {
   turn: { ko: "얼굴을 정면으로 돌려 주세요", en: "Turn your face to the front" },
   tilt: { ko: "고개를 똑바로 세워 주세요", en: "Keep your head level" },
   retry: { ko: "잠시 후 다시 찍어 주세요", en: "Please try again in a moment" },
-  credit: { ko: "지금은 체험 유닛이 부족해요 — 샘플 모델로 볼 수 있어요", en: "Out of trial units — you can try the sample model" },
+  credit: { ko: "지금은 체험 유닛이 부족해요 — 샘플 모델로 볼 수 있어요", en: "Not enough trial units right now — try the sample model" },
 };
 
 /**

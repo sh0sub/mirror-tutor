@@ -1,7 +1,7 @@
 {
   "id": "gradient-lip",
   "title": { "ko": "그라데이션 립", "en": "Gradient lips" },
-  "summary": { "ko": "안쪽에서 번지는 K-그라데이션 립과 어울리는 볼", "en": "The inside-out K gradient lip with matching cheeks" },
+  "summary": { "ko": "안쪽에서 번지는 K-그라데이션 립과 어울리는 볼", "en": "Inside-out K gradient lips with matching blush" },
   "minutes": 5,
   "steps": [
     {
@@ -30,7 +30,7 @@
     },
     {
       "id": "lip",
-      "title": { "ko": "그라데이션 립", "en": "Gradient lip" },
+      "title": { "ko": "그라데이션 립", "en": "Gradient lips" },
       "region": "lip",
       "instruction": { "ko": "안쪽에 톡톡, 바깥은 손가락으로 흐리게.", "en": "Dab inside, blur outward with a finger." },
       "effects": [{ "category": "lip_color", "slot": "lip", "forceOmbre": true, "palettes": [{ "color": "#D2405A", "colorIntensity": 60 }] }]

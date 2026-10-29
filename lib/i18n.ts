@@ -20,8 +20,8 @@ const DICT = {
   close: { ko: "닫기", en: "Close" },
   back: { ko: "뒤로", en: "Back" },
   captureTitle: { ko: "얼굴 맞추기", en: "Line up your face" },
-  captureAttemptTitle: { ko: "내 시도 찍기", en: "Photo of your attempt" },
-  captureHint: { ko: "1장만 찍으면 눈꺼풀·입술에 맞춰 단계별 정답을 보여드려요.", en: "One photo is enough to adapt every step to your eyelids and lips." },
+  captureAttemptTitle: { ko: "내 시도 찍기", en: "Snap your attempt" },
+  captureHint: { ko: "1장만 찍으면 눈꺼풀·입술에 맞춰 단계별 정답을 보여드려요.", en: "Just one photo and we'll show step-by-step answers fitted to your eyelids and lips." },
   captureAttemptHint: { ko: "정답 촬영 때와 같은 자리·같은 조명에서 찍어 주세요.", en: "Use the same spot and light as your first photo." },
   chipFront: { ko: "정면", en: "Front" },
   chipBright: { ko: "밝게", en: "Bright" },
@@ -54,7 +54,7 @@ const DICT = {
   notBilled: { ko: "실패한 분석은 유닛이 차감되지 않아요.", en: "Failed analyses don't use units." },
   sampleModel: { ko: "샘플 모델로 보기", en: "Try the sample model" },
   demoBanner: { ko: "체험 유닛 보호를 위해 샘플 모델로 보여드리고 있어요.", en: "Showing the sample model to protect trial units." },
-  mockBanner: { ko: "모의 모드: YouCam API를 부르지 않고 미리보기 오버레이를 보여 줘요.", en: "Mock mode: preview overlays, no YouCam API calls." },
+  mockBanner: { ko: "데모 모드(유닛 보호): YouCam API를 부르지 않고 미리보기 오버레이로 보여 줘요. 실제 결과는 '두 얼굴 비교'에서 볼 수 있어요.", en: "Demo mode (protecting trial units): preview overlays, no YouCam API calls. See real results in 'Two faces, one lesson'." },
   units: { ko: "유닛", en: "units" },
   remaining: { ko: "남은 유닛", en: "Units left" },
   analyzerCost: { ko: "분석: YouCam Face Analyzer · 10 유닛", en: "Analysis: YouCam Face Analyzer · 10 units" },
@@ -66,21 +66,22 @@ const DICT = {
   stepFailed: { ko: "이 단계 생성 실패", en: "This step failed" },
   retryStep: { ko: "다시 시도(1 유닛)", en: "Retry (1 unit)" },
   blocked: { ko: "세션 유닛 한도에 도달했어요", en: "Session unit limit reached" },
-  whyYou: { ko: "왜 당신은", en: "Why for you" },
+  whyYou: { ko: "왜 당신은", en: "Why this fits you" },
   shopStep: { ko: "이 단계 제품", en: "Shop this step" },
   nextStep: { ko: "다음 단계", en: "Next step" },
-  takeAttempt: { ko: "내 시도 찍기", en: "Photo my attempt" },
+  takeAttempt: { ko: "내 시도 찍기", en: "Snap your attempt" },
   sliderLabel: { ko: "전/후 비교 슬라이더", en: "Before/after slider" },
-  gradeTitle: { ko: "내 시도 확인", en: "Your attempt" },
+  gradeTitle: { ko: "내 시도 확인", en: "Check your attempt" },
   grading: { ko: "비교 중… 약 5초", en: "Comparing… about 5 s" },
   gradeDone: { ko: "채점 완료 · 부위 4곳 비교", en: "Graded · 4 regions compared" },
   confidence: { ko: "신뢰도", en: "Confidence" },
   confHigh: { ko: "높음", en: "High" },
   confMedium: { ko: "중간", en: "Medium" },
   confLow: { ko: "낮음", en: "Low" },
-  notComparable: { ko: "각도가 많이 달라요 — 다시 찍기", en: "The angle is too different — retake" },
-  notComparableBody: { ko: "억지로 점수를 만들지 않아요. 정답 촬영 때와 같은 자리에서 다시 찍어 주세요.", en: "We won't invent a score. Retake from the same position as before." },
+  notComparable: { ko: "각도가 많이 달라요 — 다시 찍기", en: "Angle is quite different — retake" },
+  notComparableBody: { ko: "억지로 점수를 만들지 않아요. 정답 촬영 때와 같은 자리에서 다시 찍어 주세요.", en: "We won't force a score. Please retake from the same spot as your first photo." },
   gradeFootnote: { ko: "채점: 부위별 비교(LLM 비전 루브릭 + 색차 ΔE) · YouCam 유닛 0 · 조명·각도에 따라 오차 있음", en: "Grading: per-region comparison (LLM vision rubric + ΔE) · 0 YouCam units · lighting and angle affect accuracy" },
+  gradeFootnoteLandmark: { ko: "채점: 얼굴 랜드마크로 맞춘 부위별 색차 ΔE(이 기기에서 측정) · 문장은 수치 해석 · YouCam 유닛 0 · 조명에 따라 오차 있음", en: "Grading: per-region ΔE on face-landmark areas (measured on this device) · tips explain the numbers · 0 YouCam units · lighting affects accuracy" },
   seeProducts: { ko: "이 단계 제품 보기", en: "See products" },
   makeCard: { ko: "공유 카드 만들기", en: "Make a share card" },
   noAttempt: { ko: "내 시도를 찍으면 여기 들어가요", en: "Your attempt photo goes here" },
@@ -99,7 +100,7 @@ const DICT = {
   textureMismatch: { ko: "다른 제형", en: "Different finish" },
   shareTitle: { ko: "공유하기", en: "Share" },
   original: { ko: "원본", en: "Original" },
-  attempt: { ko: "내 시도", en: "Attempt" },
+  attempt: { ko: "내 시도", en: "My attempt" },
   blurFaces: { ko: "얼굴 흐리기", en: "Blur faces" },
   hideScore: { ko: "점수 숨기기", en: "Hide score" },
   save: { ko: "이미지 저장", en: "Save image" },
@@ -108,11 +109,11 @@ const DICT = {
   progress: { ko: "내 레슨 진도", en: "Lesson progress" },
   cardLocal: { ko: "카드는 이 기기에서 만들어지고 서버로 보내지 않아요.", en: "The card is made on this device and never uploaded." },
   points: { ko: "점", en: "pts" },
-  homeGreeting: { ko: "오늘도 5분, 거울 앞에서 연습해요", en: "Five minutes in front of the mirror today" },
+  homeGreeting: { ko: "오늘도 5분, 거울 앞에서 연습해요", en: "Another 5 minutes of mirror practice today" },
   profileLabel: { ko: "프로파일", en: "Profile" },
   deviceOnly: { ko: "기기에만 저장", en: "saved on this device only" },
   todayLesson: { ko: "오늘의 레슨", en: "Today's lesson" },
-  newSelfieNote: { ko: "새 셀피 1장 → 프로파일로 바로 분기 · 약 4 유닛", en: "One new selfie → straight to your techniques · about 4 units" },
+  newSelfieNote: { ko: "새 셀피 1장 → 프로파일로 바로 분기 · 약 4 유닛", en: "1 new selfie → uses your saved profile · about 4 units" },
   deleteProfile: { ko: "프로파일 삭제", en: "Delete profile" },
   deleted: { ko: "프로파일을 지웠어요", en: "Profile deleted" },
   reanalyze: { ko: "다시 분석하기", en: "Analyze again" },
@@ -123,10 +124,70 @@ const DICT = {
   minutes: { ko: "분", en: "min" },
   of: { ko: "/", en: "/" },
   variant: { ko: "버전", en: "version" },
+  homeStep1: { ko: "셀피 1장 → 눈꺼풀·입술·얼굴형 읽기 (10 유닛)", en: "1 selfie → eyelids, lips, face shape (10 units)" },
+  homeStep2: { ko: "내 얼굴에 단계별 정답 그리기 (단계당 1 유닛)", en: "Step-by-step answers on your face (1 unit/step)" },
+  homeStep3: { ko: "내가 그린 결과를 부위별로 채점 (0 유닛)", en: "Grade what you drew, by region (0 units)" },
+  stepsNav: { ko: "단계", en: "Steps" },
+  answerCumulative: { ko: "{n}단계 누적", en: "steps 1–{n}" },
+  stepNumbered: { ko: "{n}단계", en: "Step {n}" },
+  langGroup: { ko: "언어", en: "Language" },
+  compareTitle: { ko: "두 얼굴 비교", en: "Two faces, one lesson" },
+  compareEntry: { ko: "두 얼굴 비교 보기 · 0 유닛", en: "Compare two faces · 0 units" },
+  compareIntro: { ko: "같은 레슨인데 얼굴이 다르면 기법이 달라져요. 미리 만들어 둔 결과라 유닛을 쓰지 않아요.", en: "Same lesson, different faces, different techniques. These results were made in advance, so no units are used." },
+  modelN: { ko: "모델 {n}", en: "Model {n}" },
+  showBefore: { ko: "원본 보기", en: "Show original" },
+  showAfter: { ko: "정답 보기", en: "Show answer" },
+  compareRules: { ko: "이 단계의 기법 차이 (규칙표)", en: "Technique differences in this step (rule table)" },
+  same: { ko: "같음", en: "Same" },
+  different: { ko: "다름", en: "Different" },
+  compareSameEyelid: { ko: "두 모델의 눈꺼풀이 같은 유형이라 눈 기법 차이는 보이지 않아요.", en: "Both models have the same eyelid type, so the eye technique doesn't differ here." },
+  compareInnerNote: { ko: "Face Analyzer가 한쪽 눈은 홑꺼풀, 다른 쪽은 쌍꺼풀로 읽어 속쌍꺼풀 기법을 골랐어요.", en: "Face Analyzer read one eye as a monolid and the other as a double lid, so the inner double lid technique was picked." },
+  compareCredit: { ko: "사진: Pexels 무료 스톡(상업 이용 가능, 실제 사용자 아님) · YouCam Face Analyzer + Makeup VTO로 {date} 사전 생성 · 지금 화면은 유닛 0", en: "Photos: Pexels free stock (commercial use allowed, not real users) · pre-generated on {date} with YouCam Face Analyzer + Makeup VTO · this screen uses 0 units" },
+  sampleTitle: { ko: "테스트용 샘플 사진", en: "Sample photos for testing" },
+  sampleBody: { ko: "셀피 대신 이 사진을 내려받아 '사진 올리기'로 써 보세요.", en: "Download one and use it with 'Upload photo' instead of a selfie." },
+  downloadSample: { ko: "{name} 사진 받기", en: "Get {name} photo" },
+  tryMyFace: { ko: "내 얼굴로 해보기", en: "Try it on my face" },
+  intensityLabel: { ko: "진하기", en: "Intensity" },
+  intensityLighter: { ko: "−20% 연하게", en: "−20% lighter" },
+  intensityBase: { ko: "기본", en: "Base" },
+  intensityStronger: { ko: "+20% 진하게", en: "+20% bolder" },
+  intensityCost: { ko: "바꾸면 이 단계만 다시 그려요 · 1 유닛", en: "Changing it redraws this step only · 1 unit" },
 } as const;
 
 export type MsgKey = keyof typeof DICT;
 
 export function t(key: MsgKey, lang: Lang): string {
   return DICT[key][lang];
+}
+
+/** t() with {name} placeholders, e.g. tf("stepNumbered", "en", { n: 2 }) → "Step 2". */
+export function tf(key: MsgKey, lang: Lang, vars: Record<string, string | number>): string {
+  return t(key, lang).replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m));
+}
+
+/** All entries (tests check every key has non-empty ko/en and that en has no Hangul). */
+export const MESSAGES: Readonly<Record<MsgKey, { ko: string; en: string }>> = DICT;
+
+/* ── S5 language toggle: remembered per device ─────────────── */
+export const LANG_STORAGE_KEY = "mt.lang";
+type KV = Pick<Storage, "getItem" | "setItem">;
+
+/** Saved choice first; otherwise follow the browser (non-Korean browsers start in English). */
+export function loadLang(storage: KV | null | undefined, browserLang?: string): Lang {
+  try {
+    const v = storage?.getItem(LANG_STORAGE_KEY);
+    if (v === "ko" || v === "en") return v;
+  } catch {
+    /* storage blocked (private mode) → fall through */
+  }
+  if (browserLang && !browserLang.toLowerCase().startsWith("ko")) return "en";
+  return "ko";
+}
+
+export function saveLang(storage: KV | null | undefined, lang: Lang): void {
+  try {
+    storage?.setItem(LANG_STORAGE_KEY, lang);
+  } catch {
+    /* best effort */
+  }
 }

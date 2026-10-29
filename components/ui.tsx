@@ -96,7 +96,7 @@ export function AppBar({ title, backHref, right }: { title: string; backHref?: s
       )}
       <h1 className="min-w-0 flex-1 truncate text-[17px] font-extrabold">{title}</h1>
       {right}
-      <div role="group" aria-label="Language" className="flex rounded-full bg-panel-2 p-0.5 text-xs font-bold">
+      <div role="group" aria-label={t("langGroup", lang)} className="flex rounded-full bg-panel-2 p-0.5 text-xs font-bold">
         {(["ko", "en"] as const).map((l) => (
           <button
             key={l}
