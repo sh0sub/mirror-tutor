@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, Swatch, UnitLine } from "@/components/ui";
 import { CompareSlider } from "@/components/CompareSlider";
 import { useFlow, type StepState } from "@/components/FlowProvider";
-import { t } from "@/lib/i18n";
-import { buildLesson, getLesson } from "@/lib/lessons";
+import { t, tf } from "@/lib/i18n";
+import { buildLesson, getLesson, INTENSITY_SCALES, type StepScales } from "@/lib/lessons";
 import { ATTR_NAME } from "@/lib/labels";
 import { guideText } from "@/lib/quality/messages";
 import { REGIONS } from "@/lib/regions";
@@ -20,7 +20,7 @@ function dotClass(s: StepState | undefined, current: boolean) {
 
 /** M3 lesson player: skeleton → sequential reveal, before/after slider, step card with "왜 당신은" reasons and hex swatches. */
 function LessonInner() {
-  const { lang, photo, stored, renders, render, mode } = useFlow();
+  const { lang, photo, stored, renders, render, mode, scales, setStepScale } = useFlow();
   const router = useRouter();
   const id = useSearchParams().get("id") ?? "daily-k";
   const lesson = getLesson(id);
@@ -28,7 +28,11 @@ function LessonInner() {
   const [whyOpen, setWhyOpen] = useState(true);
   const started = useRef<string | null>(null);
 
-  const plan = useMemo(() => (stored && lesson ? buildLesson(lesson.id, stored.profile) : null), [stored, lesson]);
+  const lessonScales = scales[id];
+  const plan = useMemo(
+    () => (stored && lesson ? buildLesson(lesson.id, stored.profile, { stepScales: lessonScales as StepScales | undefined }) : null),
+    [stored, lesson, lessonScales],
+  );
   const steps = renders[id] ?? {};
 
   useEffect(() => {
@@ -67,7 +71,7 @@ function LessonInner() {
           after={after}
           label={t("sliderLabel", lang)}
           beforeLabel={t("myFace", lang)}
-          afterLabel={`${t("answer", lang)} · ${k}${lang === "ko" ? "단계 누적" : " steps"}`}
+          afterLabel={`${t("answer", lang)} · ${tf("answerCumulative", lang, { n: k })}`}
           overlay={
             // 3:4 photo shown object-cover in a 4:5 box → 6.25% of the height is cropped (3.125% top)
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
@@ -78,7 +82,7 @@ function LessonInner() {
           }
         />
 
-        <nav aria-label={lang === "ko" ? "단계" : "Steps"} className="flex items-center justify-between gap-1 px-4 py-3">
+        <nav aria-label={t("stepsNav", lang)} className="flex items-center justify-between gap-1 px-4 py-3">
           {plan.steps.map((s) => {
             const st = steps[s.index];
             return (
@@ -105,9 +109,7 @@ function LessonInner() {
           {(!state || state.status === "pending") && (
             <p className="flex items-center gap-2 text-sm font-bold text-muted" role="status">
               <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-              {k}
-              {lang === "ko" ? "" : " "}
-              {t("stepWaiting", lang)}
+              {tf("stepNumbered", lang, { n: k })} · {t("stepWaiting", lang)}
             </p>
           )}
           {state?.status === "error" && (
@@ -127,12 +129,35 @@ function LessonInner() {
           )}
           <div>
             <p className="text-xs font-bold text-muted">
-              {k}
-              {lang === "ko" ? "단계" : "."} {step.title[lang]} ·{" "}
+              {tf("stepNumbered", lang, { n: k })} {step.title[lang]} ·{" "}
               <span className="num">{step.effects.filter((e) => e.category !== "skin_smooth").map((e) => `${e.category} ${e.palettes?.[0]?.colorIntensity ?? ""}`).join(" · ")}</span>
             </p>
             <p className="mt-1 text-[16px] font-bold leading-snug">{step.instruction[lang]}</p>
           </div>
+          <fieldset className="flex flex-col gap-1.5">
+            <legend className="mb-1.5 text-xs font-bold text-muted">{t("intensityLabel", lang)}</legend>
+            <div className="grid grid-cols-3 gap-1.5">
+              {INTENSITY_SCALES.map((sc) => {
+                const current = (lessonScales?.[k] ?? 1) === sc;
+                const busy = state?.status === "pending";
+                return (
+                  <button
+                    key={sc}
+                    type="button"
+                    aria-pressed={current}
+                    disabled={busy || current}
+                    onClick={() => void setStepScale(id, k, sc)}
+                    className={`min-h-12 rounded-[var(--radius-button)] px-2 text-sm font-bold transition-colors duration-200 disabled:cursor-not-allowed ${
+                      current ? "bg-peach-soft text-primary-strong ring-2 ring-primary" : "border border-line-strong/50 bg-panel text-ink hover:bg-panel-2 disabled:text-muted"
+                    }`}
+                  >
+                    {t(sc === 1 ? "intensityBase" : sc < 1 ? "intensityLighter" : "intensityStronger", lang)}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted">{t("intensityCost", lang)}</p>
+          </fieldset>
           {step.reasons.length > 0 && (
             <div className="rounded-xl bg-peach-soft p-3">
               <button type="button" onClick={() => setWhyOpen((v) => !v)} aria-expanded={whyOpen} className="flex min-h-10 w-full items-center gap-2 text-left text-sm font-extrabold text-primary-strong">

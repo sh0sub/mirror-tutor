@@ -8,6 +8,7 @@ import { fetchCredit, postEndSession, streamRender, type CreditInfo } from "@/li
 import type { StepResult } from "@/lib/services/render";
 import type { GradeResult } from "@/lib/grade/types";
 import type { ServiceMode } from "@/lib/services/analyze";
+import { loadLang, saveLang } from "@/lib/i18n";
 
 /**
  * Client session state. Photos and rendered images live only in memory (object URLs / data URLs) and
@@ -36,6 +37,9 @@ interface FlowState {
   setMode: (m: ServiceMode) => void;
   renders: Record<string, Record<number, StepState>>;
   render: (lessonId: string, steps?: number[]) => Promise<void>;
+  /** S4: per-lesson step intensity (0.8 / 1 / 1.2). */
+  scales: Record<string, Record<number, number>>;
+  setStepScale: (lessonId: string, step: number, scale: number) => Promise<void>;
   attempt: Photo | null;
   setAttempt: (b: Blob | null) => void;
   grade: GradeResult | null;
@@ -72,7 +76,11 @@ function usePhoto(): [Photo | null, (b: Blob | null) => void] {
 }
 
 export function FlowProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>("ko");
+  const [lang, setLangState] = useState<Lang>("ko");
+  const setLang = useCallback((l: Lang) => {
+    setLangState(l);
+    saveLang(window.localStorage, l); // S5: remember the choice on this device
+  }, []);
   const [consented, setConsented] = useState(false);
   const [photo, setPhoto] = usePhoto();
   const [attempt, setAttempt] = usePhoto();
@@ -80,6 +88,9 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [mode, setMode] = useState<ServiceMode | null>(null);
   const [renders, setRenders] = useState<Record<string, Record<number, StepState>>>({});
+  const [scales, setScales] = useState<Record<string, Record<number, number>>>({});
+  const scalesRef = useRef(scales);
+  scalesRef.current = scales;
   const [grade, setGrade] = useState<GradeResult | null>(null);
   const [gradedLesson, setGradedLesson] = useState<string | null>(null);
   const [cart, setCart] = useState<string[]>([]);
@@ -88,6 +99,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setStoredState(loadProfile(window.localStorage));
+    setLangState(loadLang(window.localStorage, navigator.language));
     setHydrated(true);
     void fetchCredit().then(setCredit);
   }, []);
@@ -122,8 +134,9 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const render = useCallback(
-    async (lessonId: string, steps?: number[]) => {
+    async (lessonId: string, steps?: number[], stepScales?: Record<number, number>) => {
       if (!photo || !stored) return;
+      const lessonScales = stepScales ?? scalesRef.current[lessonId];
       const indexes = steps ?? [1, 2, 3, 4];
       setRenders((r) => ({ ...r, [lessonId]: { ...(r[lessonId] ?? {}), ...Object.fromEntries(indexes.map((i) => [i, { status: "pending" as const }])) } }));
       try {
@@ -146,6 +159,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
             }
           },
           steps,
+          lessonScales,
         );
       } catch {
         setRenders((r) => ({
@@ -159,6 +173,16 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     [photo, stored, refreshCredit],
   );
 
+  const setStepScale = useCallback(
+    async (lessonId: string, step: number, scale: number) => {
+      const next = { ...(scalesRef.current[lessonId] ?? {}), [step]: scale };
+      if (scale === 1) delete next[step];
+      setScales((s) => ({ ...s, [lessonId]: next }));
+      await render(lessonId, [step], next); // one VTO task (1u) unless cached
+    },
+    [render],
+  );
+
   const addToCart = useCallback((sku: string) => setCart((c) => (c.includes(sku) ? c : [...c, sku])), []);
   const markCompleted = useCallback((id: string, score: number) => setCompleted((c) => ({ ...c, [id]: Math.max(score, c[id] ?? 0) })), []);
 
@@ -166,6 +190,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     setPhoto(null);
     setAttempt(null);
     setRenders({});
+    setScales({});
     setGrade(null);
     setGradedLesson(null);
     setCart([]);
@@ -177,10 +202,10 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const value = useMemo<FlowState>(
     () => ({
       lang, setLang, consented, setConsented, photo, setPhoto, stored, hydrated, setStored, editProfile, deleteProfile,
-      mode, setMode, renders, render, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
+      mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
       cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession,
     }),
-    [lang, consented, photo, setPhoto, stored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
+    [lang, setLang, consented, photo, setPhoto, stored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

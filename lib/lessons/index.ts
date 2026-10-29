@@ -122,9 +122,31 @@ function applySlot(t: EffectTemplate, tech: ResolvedTechniques, scale: number): 
   }
 }
 
+/** S4 difficulty: the three intensity choices a step can be re-rendered with (−20% / base / +20%). */
+export const INTENSITY_SCALES = [0.8, 1, 1.2] as const;
+export type IntensityScale = (typeof INTENSITY_SCALES)[number];
+export type StepScales = Partial<Record<number, IntensityScale>>;
+
+export function isIntensityScale(v: unknown): v is IntensityScale {
+  return INTENSITY_SCALES.includes(v as IntensityScale);
+}
+
+/** Parses {"2":1.2} from the client; drops anything that is not a known step index → allowed scale. */
+export function parseStepScales(raw: unknown, stepCount = 4): StepScales {
+  const out: StepScales = {};
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
+  for (const [k, v] of Object.entries(raw)) {
+    const i = Number(k);
+    if (Number.isInteger(i) && i >= 1 && i <= stepCount && isIntensityScale(v) && v !== 1) out[i] = v;
+  }
+  return out;
+}
+
 export interface BuildOptions {
-  /** S4 hook: 0.8 / 1.2 intensity. MVP always 1. */
+  /** Scale applied to every step (default 1). */
   intensityScale?: number;
+  /** S4: per-step override (1-based). Step k's effects use its scale, and later cumulative steps carry it. */
+  stepScales?: StepScales;
 }
 
 /** F4: lesson definition + face profile → per-step VTO effects (cumulative) and reasons. 0 units. */
@@ -132,9 +154,9 @@ export function buildLesson(lessonId: string, profile: FaceProfile, opts: BuildO
   const def = getLesson(lessonId);
   if (!def) throw new Error(`unknown lesson ${lessonId}`);
   const tech = resolveTechniques(profile);
-  const scale = opts.intensityScale ?? 1;
   const cumulative: Effect[] = [];
   const steps = def.steps.map((s, i) => {
+    const scale = opts.stepScales?.[i + 1] ?? opts.intensityScale ?? 1;
     const applied = s.effects.map((t) => applySlot(t, tech, scale));
     const effects = applied.map((a) => a.effect);
     cumulative.push(...effects);
