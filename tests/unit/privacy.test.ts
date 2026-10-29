@@ -109,10 +109,13 @@ describe("⑧ no keys or face images in tracked paths", () => {
     expect(gi).toMatch(/^\.local\/$/m);
   });
 
-  it("contains no raster photos and no key-shaped secrets", () => {
+  it("contains no raster photos (except the licensed S2 demo set) and no key-shaped secrets", () => {
+    // S2 (#18): only the stock-photo files listed in public/demo/compare.json are allowed (EXIF-free, checked in compare.test.ts).
+    const manifest = JSON.parse(readFileSync(path.join(root, "public/demo/compare.json"), "utf8")) as { models: Array<{ original: string; steps: string[] }> };
+    const allowed = new Set(manifest.models.flatMap((m) => [m.original, ...m.steps].map((p) => path.join("public", p))));
     for (const f of walk(root)) {
       const rel = path.relative(root, f);
-      expect(/\.(jpe?g|png|heic|webp)$/i.test(rel) && !rel.startsWith("app/") ? rel : "").toBe("");
+      expect(/\.(jpe?g|png|heic|webp)$/i.test(rel) && !rel.startsWith("app/") && !allowed.has(rel) ? rel : "").toBe("");
       if (/\.(ts|tsx|json|md|mjs|env\.example)$/.test(rel) && statSync(f).size < 2_000_000) {
         const text = readFileSync(f, "utf8");
         expect(/sk-ant-[A-Za-z0-9-]{10,}/.test(text) ? rel : "").toBe("");

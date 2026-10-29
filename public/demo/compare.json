@@ -1,0 +1,56 @@
+{
+  "lessonId": "daily-k",
+  "generatedAt": "2026-10-29",
+  "models": [
+    {
+      "id": "model-a",
+      "profile": {
+        "eyelid": "double",
+        "eyeShape": "almond",
+        "lipShape": "average",
+        "faceShape": "triangle",
+        "eyebrowShape": "rounded"
+      },
+      "source": {
+        "eyelid": "Double-lid / Double-lid",
+        "eyeShape": "Almond",
+        "lipShape": "Average",
+        "faceShape": "Triangle",
+        "eyebrowShape": "Rounded"
+      },
+      "original": "/demo/model-a/original.jpg",
+      "steps": [
+        "/demo/model-a/step-1.jpg",
+        "/demo/model-a/step-2.jpg",
+        "/demo/model-a/step-3.jpg",
+        "/demo/model-a/step-4.jpg"
+      ],
+      "credit": "Pexels stock photo (Pexels License, free for commercial use)"
+    },
+    {
+      "id": "model-b",
+      "profile": {
+        "eyelid": "inner_double",
+        "eyeShape": "almond",
+        "lipShape": "average",
+        "faceShape": "round",
+        "eyebrowShape": "straight"
+      },
+      "source": {
+        "eyelid": "Single-lid / Double-lid",
+        "eyeShape": "Almond",
+        "lipShape": "(not recorded)",
+        "faceShape": "Round",
+        "eyebrowShape": "Straight"
+      },
+      "original": "/demo/model-b/original.jpg",
+      "steps": [
+        "/demo/model-b/step-1.jpg",
+        "/demo/model-b/step-2.jpg",
+        "/demo/model-b/step-3.jpg",
+        "/demo/model-b/step-4.jpg"
+      ],
+      "credit": "Pexels stock photo (Pexels License, free for commercial use)"
+    }
+  ]
+}
