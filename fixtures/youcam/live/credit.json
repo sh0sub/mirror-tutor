@@ -4,8 +4,8 @@
     {
       "id": "[redacted]",
       "type": "ApiPaygToken",
-      "amount": 996,
-      "amount_dec": 996,
+      "amount": 960,
+      "amount_dec": 960,
       "expiry": 1800835199000
     },
     {

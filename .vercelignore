@@ -1,0 +1,11 @@
+# Never upload secrets or face photos to Vercel (env values go through `vercel env`, see scripts/vercel-env.sh)
+.env
+.env.*
+!.env.example
+.local/
+.vercel/
+node_modules/
+.next/
+coverage/
+*.log
+*.tsbuildinfo
