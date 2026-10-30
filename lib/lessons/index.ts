@@ -5,6 +5,7 @@ import { resolveTechniques, type Lang, type Reason, type ResolvedTechniques, typ
 import type { Effect, Palette } from "../youcam/makeupVto";
 import type { FaceProfile } from "../profile";
 import type { RegionId } from "../regions";
+import { getShade, type Shade } from "../skin/shades";
 
 type Slot = "brow" | "eye.shadow" | "eye.liner" | "cheek" | "contour" | "lip";
 
@@ -72,7 +73,7 @@ function scalePalette(p: Palette, delta: number, scale: number): Palette {
   return { ...p, colorIntensity: clamp(((p.colorIntensity ?? 50) + delta) * scale) };
 }
 
-function applySlot(t: EffectTemplate, tech: ResolvedTechniques, scale: number): { effect: Effect; reasons: Reason[] } {
+function applySlot(t: EffectTemplate, tech: ResolvedTechniques, scale: number, skin?: Shade): { effect: Effect; reasons: Reason[] } {
   const { slot, forceOmbre, ...rest } = t;
   const e: Effect = { ...rest, palettes: rest.palettes?.map((p) => ({ ...p })) };
   const pal = (delta: number) => (e.palettes = e.palettes?.map((p) => scalePalette(p, delta, scale)));
@@ -94,7 +95,7 @@ function applySlot(t: EffectTemplate, tech: ResolvedTechniques, scale: number): 
       return { effect: e, reasons: [] }; // reasons already attached via eye.shadow
     case "cheek":
       e.pattern = { name: tech.cheek.pattern };
-      pal(0);
+      pal(skin?.blushDelta ?? 0);
       return { effect: e, reasons: tech.cheek.reasons };
     case "contour":
       e.pattern = { name: tech.contour.pattern };
@@ -117,6 +118,8 @@ function applySlot(t: EffectTemplate, tech: ResolvedTechniques, scale: number): 
     }
     default:
       if (e.category === "skin_smooth") return { effect: e, reasons: [] };
+      // measured skin shade replaces the lesson's fixed base color (same intensity/glow/coverage)
+      if (e.category === "foundation" && skin) e.palettes = e.palettes?.map((p) => ({ ...p, color: skin.hex }));
       pal(0);
       return { effect: e, reasons: [] };
   }
@@ -147,6 +150,8 @@ export interface BuildOptions {
   intensityScale?: number;
   /** S4: per-step override (1-based). Step k's effects use its scale, and later cumulative steps carry it. */
   stepScales?: StepScales;
+  /** Foundation shade id from the skin-tone ladder (lib/skin/shades.json); unknown/absent → the lesson's own color. */
+  skinShade?: string | null;
 }
 
 /** F4: lesson definition + face profile → per-step VTO effects (cumulative) and reasons. 0 units. */
@@ -154,10 +159,11 @@ export function buildLesson(lessonId: string, profile: FaceProfile, opts: BuildO
   const def = getLesson(lessonId);
   if (!def) throw new Error(`unknown lesson ${lessonId}`);
   const tech = resolveTechniques(profile);
+  const skin = opts.skinShade ? getShade(opts.skinShade) : undefined;
   const cumulative: Effect[] = [];
   const steps = def.steps.map((s, i) => {
     const scale = opts.stepScales?.[i + 1] ?? opts.intensityScale ?? 1;
-    const applied = s.effects.map((t) => applySlot(t, tech, scale));
+    const applied = s.effects.map((t) => applySlot(t, tech, scale, skin));
     const effects = applied.map((a) => a.effect);
     cumulative.push(...effects);
     return {

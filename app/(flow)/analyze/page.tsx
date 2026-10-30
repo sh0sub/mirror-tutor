@@ -5,23 +5,28 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, Sheet, UnitLine } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
-import { t } from "@/lib/i18n";
+import { t, tf, type MsgKey } from "@/lib/i18n";
 import { postAnalyze } from "@/lib/client/api";
 import { ATTR_NAME, VALUE_HINT, valueLabel } from "@/lib/labels";
 import { PROFILE_KEYS, PROFILE_OPTIONS, type FaceProfile, type ProfileKey } from "@/lib/profile";
 import { LESSONS, recommendLesson } from "@/lib/lessons";
 import { eyelidRuleRows } from "@/lib/rules/engine";
 import { guideText, type GuideKey } from "@/lib/quality/messages";
+import { getShade, SHADES } from "@/lib/skin/shades";
+import type { SkinWarning } from "@/lib/skin/measure";
+
+const SKIN_WARNING: Record<SkinWarning, MsgKey> = { uneven_light: "skinLowUneven", too_dark: "skinLowDark", too_bright: "skinLowBright" };
 
 type Phase = { kind: "loading"; slow: boolean } | { kind: "done" } | { kind: "error"; guide: GuideKey; demoAvailable: boolean };
 
 /** M2: analyzing (3-step progress, skeleton cards) → result + correction sheet + recommended lesson. */
 export default function AnalyzePage() {
-  const { lang, photo, stored, setStored, editProfile, setMode, mode, refreshCredit } = useFlow();
+  const { lang, photo, stored, setStored, editProfile, setMode, mode, refreshCredit, skin, setSkinShade } = useFlow();
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>(stored && !photo ? { kind: "done" } : { kind: "loading", slow: false });
   const [editing, setEditing] = useState<ProfileKey | null>(null);
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [shadeOpen, setShadeOpen] = useState(false);
   const started = useRef(false);
 
   useEffect(() => {
@@ -48,6 +53,19 @@ export default function AnalyzePage() {
 
   const thumb = mode === "demo" ? "/demo/sample-model.svg" : photo?.url;
   const rec = stored ? recommendLesson(stored.profile) : null;
+  // Skin shade: only for the user's own photo (the demo sample model keeps the lessons' default base color).
+  const showSkin = !!skin && mode !== "demo";
+  const shade = skin?.shadeId ? getShade(skin.shadeId) : undefined;
+  const measuredShade = skin?.measuredId ? getShade(skin.measuredId) : undefined;
+  const skinHint = !skin
+    ? ""
+    : skin.overridden
+      ? measuredShade
+        ? tf("skinPicked", lang, { shade: measuredShade.name[lang] })
+        : t("skinPickedNoMeasure", lang)
+      : measuredShade
+        ? tf("skinWhy", lang, { shade: measuredShade.name[lang] })
+        : t("skinFailed", lang);
 
   return (
     <Screen>
@@ -136,6 +154,38 @@ export default function AnalyzePage() {
               })}
             </ul>
 
+            {showSkin && skin && (
+              <button
+                type="button"
+                onClick={() => setShadeOpen(true)}
+                disabled={skin.detecting}
+                className="flex min-h-[72px] w-full items-center gap-3 rounded-[var(--radius-panel)] bg-panel p-3 text-left hover:bg-panel-2 disabled:hover:bg-panel"
+                aria-label={`${t("skinTitle", lang)}: ${shade?.name[lang] ?? t("skinDefaultValue", lang)}. ${t("skinPickTitle", lang)}`}
+              >
+                <span className={`h-10 w-10 flex-none rounded-full border border-ink/10 ${skin.detecting ? "skeleton" : ""}`} style={shade ? { background: shade.hex } : undefined} aria-hidden />
+                <div className="min-w-0 flex-1" aria-live="polite">
+                  <p className="text-xs font-bold text-muted">{t("skinTitle", lang)}</p>
+                  {skin.detecting ? (
+                    <p className="text-sm text-muted">{t("skinMeasuring", lang)}</p>
+                  ) : (
+                    <>
+                      <p className="text-[16px] font-extrabold">
+                        {shade?.name[lang] ?? t("skinDefaultValue", lang)} {shade && <span className="num text-xs font-medium text-muted">{shade.hex}</span>}
+                      </p>
+                      <p className="text-xs text-muted">{skinHint}</p>
+                      {skin.measured?.warning && !skin.overridden && (
+                        <span className="mt-1 inline-flex">
+                          <Chip tone="warn">{t(SKIN_WARNING[skin.measured.warning], lang)}</Chip>
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
+                {skin.overridden && <Chip tone="accent">{t("edited", lang)}</Chip>}
+                <Icon name="pencil" className="h-4 w-4 flex-none text-muted" />
+              </button>
+            )}
+
             <button type="button" onClick={() => setRulesOpen(true)} className="min-h-12 self-start text-sm font-bold text-primary-strong underline underline-offset-4">
               {t("ruleTable", lang)}
             </button>
@@ -203,6 +253,33 @@ export default function AnalyzePage() {
               </label>
             ))}
             <p className="pt-1 text-xs text-muted">{t("fixHint", lang)}</p>
+          </fieldset>
+        )}
+      </Sheet>
+
+      <Sheet open={shadeOpen} onClose={() => setShadeOpen(false)} title={t("skinPickTitle", lang)}>
+        {skin && (
+          <fieldset className="flex flex-col gap-2">
+            <legend className="sr-only">{t("skinTitle", lang)}</legend>
+            {SHADES.map((s) => (
+              <label key={s.id} className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl px-3 ${skin.shadeId === s.id ? "bg-peach-soft" : "bg-panel-2"}`}>
+                <input
+                  type="radio"
+                  name="skinShade"
+                  checked={skin.shadeId === s.id}
+                  onChange={() => {
+                    setSkinShade(s.id);
+                    setShadeOpen(false);
+                  }}
+                  className="h-5 w-5 accent-[var(--color-primary)]"
+                />
+                <span className="h-7 w-7 flex-none rounded-full border border-ink/10" style={{ background: s.hex }} aria-hidden />
+                <span className="flex-1 text-[15px] font-bold">{s.name[lang]}</span>
+                {skin.measuredId === s.id && <Chip tone="neutral">{t("skinMeasuredTag", lang)}</Chip>}
+              </label>
+            ))}
+            <p className="pt-1 text-xs text-muted">{t("skinCost", lang)}</p>
+            <p className="text-xs text-muted">{t("skinPrivacy", lang)}</p>
           </fieldset>
         )}
       </Sheet>

@@ -224,7 +224,8 @@ function CaptureInner() {
         <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => onFile(e.target.files?.[0])} />
       </BottomBar>
 
-      <Sheet open={!consented && !forAttempt} onClose={() => router.push("/")} title={t("consentTitle", lang)}>
+      {/* dialog "close" also fires when agreeing closes the sheet; only leave when it was dismissed without consent */}
+      <Sheet open={!consented && !forAttempt} onClose={() => !consented && router.push("/")} title={t("consentTitle", lang)}>
         <p className="text-[15px] leading-relaxed">{t("consentBody", lang)}</p>
         <p className="mt-2 text-sm text-muted">{t("consentLocal", lang)}</p>
         <div className="mt-4 flex gap-2">

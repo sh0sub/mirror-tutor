@@ -1,0 +1,12 @@
+{
+  "note": "Foundation shade ladder (K-beauty cushion numbering, light → deep). hex = the VTO foundation color and the catalog shade; 21N is the lessons' old fixed base color. blushDelta = blush colorIntensity offset (deeper skin needs more pigment to show).",
+  "defaultId": "21N",
+  "shades": [
+    { "id": "13N", "name": { "ko": "13호 뉴트럴", "en": "13 Neutral" }, "hex": "#F6DFD0", "blushDelta": -5 },
+    { "id": "17N", "name": { "ko": "17호 뉴트럴", "en": "17 Neutral" }, "hex": "#F3D9C7", "blushDelta": -5 },
+    { "id": "21N", "name": { "ko": "21호 뉴트럴", "en": "21 Neutral" }, "hex": "#F1D4C0", "blushDelta": 0 },
+    { "id": "23N", "name": { "ko": "23호 뉴트럴", "en": "23 Neutral" }, "hex": "#E6C3AA", "blushDelta": 0 },
+    { "id": "25W", "name": { "ko": "25호 웜", "en": "25 Warm" }, "hex": "#D9AE8E", "blushDelta": 5 },
+    { "id": "27W", "name": { "ko": "27호 웜", "en": "27 Warm" }, "hex": "#C99B78", "blushDelta": 10 }
+  ]
+}

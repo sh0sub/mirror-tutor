@@ -35,6 +35,27 @@ export function hexToLab(hex: string): Lab {
   return rgbToLab(...hexToRgb(hex));
 }
 
+/** Inverse of rgbToLab (D65); out-of-gamut values are clamped by rgbToHex. */
+export function labToRgb([L, a, b]: Lab): [number, number, number] {
+  const fy = (L + 16) / 116;
+  const fx = fy + a / 500;
+  const fz = fy - b / 200;
+  const inv = (t: number) => (t ** 3 > 216 / 24389 ? t ** 3 : (116 * t - 16) / (24389 / 27));
+  const x = inv(fx) * 0.95047;
+  const y = inv(fy);
+  const z = inv(fz) * 1.08883;
+  const gam = (c: number) => 255 * (c <= 0.0031308 ? 12.92 * c : 1.055 * Math.max(0, c) ** (1 / 2.4) - 0.055);
+  return [
+    gam(x * 3.2404542 + y * -1.5371385 + z * -0.4985314),
+    gam(x * -0.969266 + y * 1.8760108 + z * 0.041556),
+    gam(x * 0.0556434 + y * -0.2040259 + z * 1.0572252),
+  ];
+}
+
+export function labToHex(lab: Lab): string {
+  return rgbToHex(...labToRgb(lab));
+}
+
 /** CIEDE2000 (Sharma et al. 2005). */
 export function deltaE2000(a: Lab, b: Lab): number {
   const [L1, a1, b1] = a;

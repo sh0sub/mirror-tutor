@@ -12,7 +12,7 @@ Makeup tutorials are filmed on someone else's face. The same eyeshadow looks dif
 ## Solution
 
 1. **Capture** a selfie with a live quality gate (face width at least 60% of the frame, enough light, frontal, zoom) so the YouCam input requirements are met before any unit is spent.
-2. **Analyze** with YouCam Face Attribute & Ratio Analysis: eyelid, eye shape, lip shape, face shape, brow shape. You can correct any value.
+2. **Analyze** with YouCam Face Attribute & Ratio Analysis: eyelid, eye shape, lip shape, face shape, brow shape. You can correct any value. In parallel the browser measures cheek skin tone on MediaPipe landmarks (0 units) and picks a foundation shade from a 6-step ladder (13N to 27W, `lib/skin/shades.json`); you can override it.
 3. **Pick techniques** from a rule table (`lib/rules/techniques.json`, `lib/rules/engine.ts`), for example monolid -> horizontal gradient shadow + liner visible 1.5 mm. Every step shows a "why you" reason.
 4. **Learn** with 3 lessons x 4 steps. YouCam Makeup VTO renders each step cumulatively on your photo (before/after slider).
 5. **Grade** your own attempt photo: per-region score (eye line, eyelid, cheek, lip) plus a one-line correction.
@@ -78,6 +78,7 @@ flowchart LR
 What leaves the device:
 
 - Selfie (EXIF stripped on the server) -> our API route -> YouCam (Face Analyzer, Makeup VTO). YouCam keeps uploaded files for up to 30 days, and the consent screen says so.
+- Skin tone is measured in the browser on the capture photo; only the chosen shade id (e.g. `23N`) is sent to `/api/render`, never the measured color or landmarks.
 - Landmark mesh and pixels of the attempt photo are processed in the browser. The server receives the answer and attempt images (in memory, to sanitize and compute color differences) and 4 region Lab means. In the normal path Claude gets only those numbers (text-only call). If MediaPipe cannot run, the F6 fallback sends fixed-box region crops to Claude vision, or grades locally with no Claude call when no key is set.
 - Share card is drawn on a client canvas and is never uploaded.
 
@@ -144,8 +145,8 @@ npx vercel --prod --yes
 ## Limitations
 
 - **Grading error**: scores depend on lighting, angle and framing. The grader reports a confidence level and lowers it when the two photos are not comparable. Landmark polygon boundaries were checked against standard mesh indices, not exhaustively on real faces. It is a practice aid, not a measurement.
-- **Demo catalog is fictional**: 12 "MT Select" SKUs with demo prices and stock. Real SKUs would be replaced by a partner product feed. No checkout is implemented.
-- **Colors are fixed per lesson**: technique placement adapts to your features, but shade choices are not personalized to your skin tone.
+- **Demo catalog is fictional**: 17 "MT Select" SKUs (one cushion per foundation ladder shade) with demo prices and stock. Real SKUs would be replaced by a partner product feed. No checkout is implemented.
+- **Only the base color is personalized**: foundation shade (and blush intensity) follow the measured skin tone; eye and lip colors are fixed per lesson. The skin measurement is approximate (camera white balance, room light); the app shows a low-confidence hint when the cheeks disagree or the photo is very dark/bright, keeps the lesson default when detection fails, and demo mode keeps the default.
 - **Mock mode overlay is approximate**: it is a local drawing fitted to eye and mouth anchors, not YouCam output. Real results appear in live mode and on `/compare`.
 - Rule-table techniques are hand-written; the YouCam analysis only selects among them. `inner_double` is a user choice in the correction sheet, not an API value.
 - VTO pattern shapes were verified against API acceptance and the pattern catalog; whether each pattern renders exactly as described is judged by eye.

@@ -63,11 +63,12 @@ export async function renderLesson(
   onStep: (r: StepResult) => void,
   poll?: PollOptions,
 ): Promise<RenderSummary> {
-  const plan = buildLesson(req.lessonId, req.profile, req.build);
+  const status0 = await rt.guard.status(sessionId);
+  // The sample model is not the user's face, so demo mode keeps the lessons' default base color.
+  const plan = buildLesson(req.lessonId, req.profile, status0.demo ? { ...req.build, skinShade: null } : req.build);
   const wanted = plan.steps.filter((s) => !req.steps?.length || req.steps.includes(s.index));
   let spent = 0;
 
-  const status0 = await rt.guard.status(sessionId);
   if (status0.demo) {
     // Sample-model mode: no API calls, render the illustration locally (0u).
     const demo = await loadDemoImage();

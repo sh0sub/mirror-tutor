@@ -2,12 +2,13 @@
 
 import { landmarkMeasure, type LandmarkMeasure, type Pt, type RgbaImage } from "../grade/landmarks";
 import type { FaceAnchors } from "../regions";
+import { measureSkin, type SkinMeasure } from "../skin/measure";
 
 /**
  * S1 browser side: MediaPipe Face Landmarker (wasm from the jsDelivr CDN, model from Google's model
- * bucket) runs on the answer and attempt images in this tab. Only the 4 regions' Lab means (and, for the
- * mock renderer, 3 normalized eye/mouth centers) leave the
- * device; the landmark mesh and pixels never do. Any failure (offline, no WebGL/wasm, no face) → null, and
+ * bucket) runs on the capture, answer and attempt images in this tab. Only the 4 regions' Lab means, for the
+ * mock renderer 3 normalized eye/mouth centers, and the skin-shade ladder id (e.g. "23N", picked from the
+ * measured cheek color) leave the device; the landmark mesh, pixels and measured skin color never do. Any failure (offline, no WebGL/wasm, no face) → null, and
  * /api/grade falls back to the F6 grader.
  */
 export const TASKS_VISION_VERSION = "1.1.0"; // keep in sync with package.json
@@ -59,11 +60,18 @@ const mean = (pts: Pt[], idx: number[]) => ({
   y: idx.reduce((s, i) => s + pts[i].y, 0) / idx.length,
 });
 
+export interface FaceDetection {
+  anchors: FaceAnchors;
+  /** null when a cheek patch could not be sampled (the UI then keeps the default shade). */
+  skin: SkinMeasure | null;
+}
+
 /**
- * Eye and mouth centers (normalized 0..1, image-left = leftEye) for fitting the mock overlay regions.
+ * One detection pass on the capture photo → eye and mouth centers (normalized 0..1, image-left = leftEye) for
+ * fitting the mock overlay regions, plus the skin tone sampled on the cheeks/forehead (lib/skin/measure).
  * Canonical mesh: eye corners 33/133 and 362/263, lip corners 61/291 + mid-lips 13/14. null on failure.
  */
-export async function detectFaceAnchors(photo: Blob, timeoutMs = 12_000): Promise<FaceAnchors | null> {
+export async function detectFace(photo: Blob, timeoutMs = 12_000): Promise<FaceDetection | null> {
   try {
     return await withTimeout(
       (async () => {
@@ -73,7 +81,7 @@ export async function detectFaceAnchors(photo: Blob, timeoutMs = 12_000): Promis
         const a = mean(f, [33, 133]);
         const b = mean(f, [362, 263]);
         const [leftEye, rightEye] = a.x <= b.x ? [a, b] : [b, a];
-        return { leftEye, rightEye, mouth: mean(f, [61, 291, 13, 14]) };
+        return { anchors: { leftEye, rightEye, mouth: mean(f, [61, 291, 13, 14]) }, skin: measureSkin(pixels(c), f) };
       })(),
       timeoutMs,
     );

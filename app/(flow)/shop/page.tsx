@@ -12,7 +12,7 @@ import { CATEGORY_REGION, REGIONS } from "@/lib/regions";
 
 /** M6 Shop the step: step hex = product shade. Swatch → highlight region on the answer (0u). External store, no checkout. */
 function ShopInner() {
-  const { lang, stored, renders, photo, cart, addToCart, mode } = useFlow();
+  const { lang, stored, renders, photo, cart, addToCart, mode, skin } = useFlow();
   const params = useSearchParams();
   const lessonId = params.get("lesson") ?? "daily-k";
   const lesson = getLesson(lessonId);
@@ -20,7 +20,8 @@ function ShopInner() {
   const [selected, setSelected] = useState<number | null>(null);
   const [leaving, setLeaving] = useState<Product | null>(null);
 
-  const plan = useMemo(() => (stored && lesson ? buildLesson(lesson.id, stored.profile) : null), [stored, lesson]);
+  const skinShade = mode === "demo" ? null : (skin?.shadeId ?? null); // foundation step → the personalized shade
+  const plan = useMemo(() => (stored && lesson ? buildLesson(lesson.id, stored.profile, { skinShade }) : null), [stored, lesson, skinShade]);
   if (!plan || !lesson) {
     return (
       <Screen>

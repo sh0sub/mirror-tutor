@@ -46,6 +46,7 @@ export async function streamRender(
   steps?: number[],
   stepScales?: Record<number, number>,
   anchors?: FaceAnchors | null,
+  skinShade?: string | null,
 ): Promise<void> {
   const form = new FormData();
   form.set("image", image, "selfie.jpg");
@@ -54,6 +55,7 @@ export async function streamRender(
   if (steps?.length) form.set("steps", steps.join(","));
   if (stepScales && Object.keys(stepScales).length) form.set("stepScales", JSON.stringify(stepScales));
   if (anchors) form.set("anchors", JSON.stringify(anchors));
+  if (skinShade) form.set("skinShade", skinShade); // ladder id only, never the measured color
   const res = await fetch("/api/render", { method: "POST", body: form });
   if (!res.ok || !res.body) {
     onEvent({ type: "fatal", code: `http_${res.status}` });

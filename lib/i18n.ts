@@ -153,6 +153,20 @@ const DICT = {
   intensityBase: { ko: "기본", en: "Base" },
   intensityStronger: { ko: "+20% 진하게", en: "+20% bolder" },
   intensityCost: { ko: "바꾸면 이 단계만 다시 그려요 · 1 유닛", en: "Changing it redraws this step only · 1 unit" },
+  skinTitle: { ko: "베이스 색", en: "Base shade" },
+  skinMeasuring: { ko: "피부색 재는 중…", en: "Measuring your skin tone…" },
+  skinWhy: { ko: "볼 피부색 측정 → {shade}", en: "Cheek skin tone measured → {shade}" },
+  skinPicked: { ko: "직접 고름 · 측정은 {shade}", en: "Your pick · measured {shade}" },
+  skinPickedNoMeasure: { ko: "직접 고름", en: "Your pick" },
+  skinFailed: { ko: "피부색을 재지 못해 레슨 기본 색으로 그려요.", en: "Couldn't measure your skin tone, so lessons use their default shade." },
+  skinDefaultValue: { ko: "레슨 기본 색", en: "Lesson default" },
+  skinLowUneven: { ko: "한쪽 볼이 그늘져 대략적인 값이에요", en: "One cheek is shaded, so this is approximate" },
+  skinLowDark: { ko: "사진이 어두워 대략적인 값이에요", en: "The photo is dark, so this is approximate" },
+  skinLowBright: { ko: "사진이 밝아 대략적인 값이에요", en: "The photo is very bright, so this is approximate" },
+  skinPickTitle: { ko: "베이스 색 고르기", en: "Pick your base shade" },
+  skinMeasuredTag: { ko: "측정", en: "Measured" },
+  skinCost: { ko: "바꾸면 레슨 단계를 다시 그려요 · 단계당 1 유닛", en: "Changing it redraws lesson steps · 1 unit per step" },
+  skinPrivacy: { ko: "피부색은 이 기기에서만 재고, 서버에는 호수만 보내요.", en: "Skin tone is measured on this device; only the shade number is sent." },
 } as const;
 
 export type MsgKey = keyof typeof DICT;

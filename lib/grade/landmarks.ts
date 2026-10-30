@@ -60,12 +60,10 @@ export function pointInPolygon(p: Pt, poly: Pt[]): boolean {
   return inside;
 }
 
-/** Mean CIELAB over every pixel center inside the polygons (minus holes). */
-export function polygonMeanLab(img: RgbaImage, polys: Array<{ outer: Pt[]; holes?: Pt[][] }>): { lab: Lab; pixels: number } {
-  let r = 0;
-  let g = 0;
-  let b = 0;
-  let n = 0;
+export type PixelPolygon = { outer: Pt[]; holes?: Pt[][] };
+
+/** Calls fn(r, g, b) for every pixel center inside the polygons (minus holes). */
+export function forEachPolygonPixel(img: RgbaImage, polys: PixelPolygon[], fn: (r: number, g: number, b: number) => void): void {
   for (const poly of polys) {
     if (poly.outer.length < 3) continue;
     const xs = poly.outer.map((p) => p.x);
@@ -80,13 +78,24 @@ export function polygonMeanLab(img: RgbaImage, polys: Array<{ outer: Pt[]; holes
         if (!pointInPolygon(c, poly.outer)) continue;
         if (poly.holes?.some((h) => pointInPolygon(c, h))) continue;
         const i = (y * img.width + x) * 4;
-        r += img.data[i];
-        g += img.data[i + 1];
-        b += img.data[i + 2];
-        n++;
+        fn(img.data[i], img.data[i + 1], img.data[i + 2]);
       }
     }
   }
+}
+
+/** Mean CIELAB over every pixel center inside the polygons (minus holes). */
+export function polygonMeanLab(img: RgbaImage, polys: PixelPolygon[]): { lab: Lab; pixels: number } {
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let n = 0;
+  forEachPolygonPixel(img, polys, (pr, pg, pb) => {
+    r += pr;
+    g += pg;
+    b += pb;
+    n++;
+  });
   return { lab: n ? rgbToLab(r / n, g / n, b / n) : [0, 0, 0], pixels: n };
 }
 

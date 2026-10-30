@@ -5,6 +5,7 @@ import { getLesson, parseStepScales } from "@/lib/lessons";
 import { isFaceProfile } from "@/lib/profile";
 import { parseAnchors } from "@/lib/regions";
 import { MAX_UPLOAD_BYTES } from "@/lib/privacy/sanitize";
+import { parseShadeId } from "@/lib/skin/shades";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,7 +13,8 @@ export const maxDuration = 60;
 
 /**
  * POST /api/render (multipart: image, lessonId, profile JSON, optional steps "1,3", optional stepScales JSON {"2":1.2},
- * optional anchors JSON {leftEye,rightEye,mouth} — normalized face points for the mock renderer)
+ * optional anchors JSON {leftEye,rightEye,mouth} — normalized face points for the mock renderer, optional skinShade
+ * ladder id "23N" — measured on the device; anything else is ignored → the lesson's default base color)
  * → NDJSON stream: one {"type":"step",...} line per finished step, then {"type":"done",...}.
  */
 export async function POST(req: Request) {
@@ -53,7 +55,8 @@ export async function POST(req: Request) {
   if (!getLesson(lessonId)) return bad("unknown_lesson");
   if (!isFaceProfile(profile)) return bad("bad_profile");
   // S4: per-step intensity (0.8/1.2). Re-rendering one step goes through the same cache key and session guard.
-  const build = { stepScales: parseStepScales(stepScales, getLesson(lessonId)!.steps.length) };
+  // Skin shade changes the foundation effect → a different render cache key, no special casing.
+  const build = { stepScales: parseStepScales(stepScales, getLesson(lessonId)!.steps.length), skinShade: parseShadeId(form.get("skinShade")) };
 
   const image = new Uint8Array(await file.arrayBuffer());
   const encoder = new TextEncoder();

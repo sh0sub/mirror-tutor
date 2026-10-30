@@ -2,7 +2,12 @@
   "note": "Demo catalog: pseudonymous brand 'MT Select' with generic product names only (trademark rule). Prices and stock are demo data. Replace with a partner SKU feed for production.",
   "currency": ["KRW", "USD"],
   "products": [
+    { "sku": "MT-CU-13N", "category": "foundation", "name": { "ko": "MT Select 쿠션 13N", "en": "MT Select Cushion 13N" }, "shades": ["#F5DECF"], "texture": null, "priceKrw": 18000, "priceUsd": 13 },
+    { "sku": "MT-CU-17N", "category": "foundation", "name": { "ko": "MT Select 쿠션 17N", "en": "MT Select Cushion 17N" }, "shades": ["#F2D8C6"], "texture": null, "priceKrw": 18000, "priceUsd": 13 },
     { "sku": "MT-CU-21N", "category": "foundation", "name": { "ko": "MT Select 쿠션 21N", "en": "MT Select Cushion 21N" }, "shades": ["#F0D3BF"], "texture": null, "priceKrw": 18000, "priceUsd": 13 },
+    { "sku": "MT-CU-23N", "category": "foundation", "name": { "ko": "MT Select 쿠션 23N", "en": "MT Select Cushion 23N" }, "shades": ["#E5C2A9"], "texture": null, "priceKrw": 18000, "priceUsd": 13 },
+    { "sku": "MT-CU-25W", "category": "foundation", "name": { "ko": "MT Select 쿠션 25W", "en": "MT Select Cushion 25W" }, "shades": ["#D8AD8D"], "texture": null, "priceKrw": 18000, "priceUsd": 13 },
+    { "sku": "MT-CU-27W", "category": "foundation", "name": { "ko": "MT Select 쿠션 27W", "en": "MT Select Cushion 27W" }, "shades": ["#C89A77"], "texture": null, "priceKrw": 18000, "priceUsd": 13 },
     { "sku": "MT-BR-02", "category": "eyebrows", "name": { "ko": "MT Select 브로우 펜슬 소프트 브라운", "en": "MT Select Brow Pencil Soft Brown" }, "shades": ["#6E4C3B"], "texture": "matte", "priceKrw": 8000, "priceUsd": 6 },
     { "sku": "MT-BR-03", "category": "eyebrows", "name": { "ko": "MT Select 브로우 펜슬 라이트 브라운", "en": "MT Select Brow Pencil Light Brown" }, "shades": ["#7C5846"], "texture": "matte", "priceKrw": 8000, "priceUsd": 6 },
     { "sku": "MT-SD-03", "category": "eye_shadow", "name": { "ko": "MT Select 소프트 섀도 듀오 03 로지 샌드", "en": "MT Select Soft Shadow Duo 03 Rosy Sand" }, "shades": ["#D6A08A", "#8A5848"], "texture": "matte", "priceKrw": 16000, "priceUsd": 11.5 },

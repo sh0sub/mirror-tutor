@@ -10,6 +10,9 @@ import type { FaceAnchors } from "@/lib/regions";
 import type { GradeResult } from "@/lib/grade/types";
 import type { ServiceMode } from "@/lib/services/analyze";
 import { loadLang, saveLang } from "@/lib/i18n";
+import type { FaceDetection } from "@/lib/client/landmarker";
+import type { SkinMeasure } from "@/lib/skin/measure";
+import { nearestShade } from "@/lib/skin/shades";
 
 /**
  * Client session state. Photos and rendered images live only in memory (object URLs / data URLs) and
@@ -22,6 +25,19 @@ export interface Photo {
 
 export type StepState = { status: "pending" } | StepResult;
 
+/** Foundation shade for the current photo (measured in this tab; only the ladder id is sent to /api/render). */
+export interface SkinState {
+  detecting: boolean;
+  /** null when detection failed → lessons keep their default base color unless the user picks a shade. */
+  measured: SkinMeasure | null;
+  /** Ladder shade nearest to the measurement, with its ΔE2000. */
+  measuredId: string | null;
+  deltaE: number | null;
+  /** What lessons render with: the user's pick, else measuredId. null = the lesson's own color. */
+  shadeId: string | null;
+  overridden: boolean;
+}
+
 interface FlowState {
   lang: Lang;
   setLang: (l: Lang) => void;
@@ -31,6 +47,10 @@ interface FlowState {
   setPhoto: (b: Blob | null) => void;
   /** Eye/mouth centers of `photo` (MediaPipe, in this tab). null until detected or on failure. */
   anchors: FaceAnchors | null;
+  /** null without a photo. */
+  skin: SkinState | null;
+  /** Override the measured shade (0 units; lessons re-render on next open, 1 unit per uncached step). */
+  setSkinShade: (id: string) => void;
   stored: StoredProfile | null;
   hydrated: boolean;
   setStored: (p: StoredProfile | null) => void;
@@ -87,25 +107,44 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const [consented, setConsented] = useState(false);
   const [photo, setPhoto] = usePhoto();
   const [attempt, setAttempt] = usePhoto();
-  // Face anchors for the current photo: detected once per photo, awaited by render() (mock overlay fit).
-  const [anchors, setAnchors] = useState<FaceAnchors | null>(null);
-  const anchorsRef = useRef<{ blob: Blob; promise: Promise<FaceAnchors | null> } | null>(null);
-  const anchorsFor = useCallback((blob: Blob) => {
-    if (anchorsRef.current?.blob !== blob) {
-      const promise = import("@/lib/client/landmarker").then((m) => m.detectFaceAnchors(blob)).catch(() => null);
-      anchorsRef.current = { blob, promise };
+  // One MediaPipe pass per photo (eye/mouth anchors + skin tone), awaited by render().
+  const [detection, setDetection] = useState<{ blob: Blob; result: FaceDetection | null } | null>(null);
+  const [shadeOverride, setShadeOverride] = useState<string | null>(null);
+  const shadeOverrideRef = useRef(shadeOverride);
+  shadeOverrideRef.current = shadeOverride;
+  const detectRef = useRef<{ blob: Blob; promise: Promise<FaceDetection | null> } | null>(null);
+  const detectFor = useCallback((blob: Blob) => {
+    if (detectRef.current?.blob !== blob) {
+      const promise = import("@/lib/client/landmarker").then((m) => m.detectFace(blob)).catch(() => null);
+      detectRef.current = { blob, promise };
     }
-    return anchorsRef.current.promise;
+    return detectRef.current.promise;
   }, []);
   useEffect(() => {
-    setAnchors(null);
+    setDetection(null);
+    setShadeOverride(null);
     if (!photo) return;
     let live = true;
-    void anchorsFor(photo.blob).then((a) => live && setAnchors(a));
+    void detectFor(photo.blob).then((result) => live && setDetection({ blob: photo.blob, result }));
     return () => {
       live = false;
     };
-  }, [photo, anchorsFor]);
+  }, [photo, detectFor]);
+  const anchors = detection?.result?.anchors ?? null;
+  const skin = useMemo<SkinState | null>(() => {
+    if (!photo) return null;
+    const measured = detection?.blob === photo.blob ? (detection.result?.skin ?? null) : null;
+    const near = measured ? nearestShade(measured.lab) : null;
+    const measuredId = near?.shade.id ?? null;
+    return {
+      detecting: detection?.blob !== photo.blob,
+      measured,
+      measuredId,
+      deltaE: near?.deltaE ?? null,
+      shadeId: shadeOverride ?? measuredId,
+      overridden: shadeOverride !== null && shadeOverride !== measuredId,
+    };
+  }, [photo, detection, shadeOverride]);
   const [stored, setStoredState] = useState<StoredProfile | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [mode, setMode] = useState<ServiceMode | null>(null);
@@ -161,7 +200,8 @@ export function FlowProvider({ children }: { children: ReactNode }) {
       const lessonScales = stepScales ?? scalesRef.current[lessonId];
       const indexes = steps ?? [1, 2, 3, 4];
       setRenders((r) => ({ ...r, [lessonId]: { ...(r[lessonId] ?? {}), ...Object.fromEntries(indexes.map((i) => [i, { status: "pending" as const }])) } }));
-      const fit = await anchorsFor(photo.blob);
+      const det = await detectFor(photo.blob);
+      const shade = shadeOverrideRef.current ?? (det?.skin ? nearestShade(det.skin.lab).shade.id : null);
       try {
         await streamRender(
           photo.blob,
@@ -183,7 +223,8 @@ export function FlowProvider({ children }: { children: ReactNode }) {
           },
           steps,
           lessonScales,
-          fit,
+          det?.anchors ?? null,
+          shade,
         );
       } catch {
         setRenders((r) => ({
@@ -194,7 +235,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
         refreshCredit();
       }
     },
-    [photo, stored, refreshCredit, anchorsFor],
+    [photo, stored, refreshCredit, detectFor],
   );
 
   const setStepScale = useCallback(
@@ -206,6 +247,11 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     },
     [render],
   );
+
+  const setSkinShade = useCallback((id: string) => {
+    setShadeOverride(id);
+    setRenders({}); // base color changed → lessons re-render on next open (cache hits are free)
+  }, []);
 
   const addToCart = useCallback((sku: string) => setCart((c) => (c.includes(sku) ? c : [...c, sku])), []);
   const markCompleted = useCallback((id: string, score: number) => setCompleted((c) => ({ ...c, [id]: Math.max(score, c[id] ?? 0) })), []);
@@ -226,10 +272,10 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const value = useMemo<FlowState>(
     () => ({
       lang, setLang, consented, setConsented, photo, setPhoto, stored, hydrated, setStored, editProfile, deleteProfile,
-      anchors, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
+      anchors, skin, setSkinShade, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
       cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession,
     }),
-    [lang, setLang, consented, photo, setPhoto, anchors, stored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
+    [lang, setLang, consented, photo, setPhoto, anchors, skin, setSkinShade, stored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

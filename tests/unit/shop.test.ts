@@ -23,8 +23,8 @@ describe("color science", () => {
 });
 
 describe("F7 Shop the step", () => {
-  it("uses a 12-SKU pseudonymous catalog (MT Select, generic names only)", () => {
-    expect(PRODUCTS).toHaveLength(12);
+  it("uses a 17-SKU pseudonymous catalog (MT Select, generic names only)", () => {
+    expect(PRODUCTS).toHaveLength(17);
     for (const p of PRODUCTS) {
       expect(p.name.ko.startsWith("MT Select")).toBe(true);
       expect(p.name.en.startsWith("MT Select")).toBe(true);

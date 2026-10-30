@@ -20,7 +20,7 @@ function dotClass(s: StepState | undefined, current: boolean) {
 
 /** M3 lesson player: skeleton → sequential reveal, before/after slider, step card with "왜 당신은" reasons and hex swatches. */
 function LessonInner() {
-  const { lang, photo, anchors, stored, renders, render, mode, scales, setStepScale } = useFlow();
+  const { lang, photo, anchors, skin, stored, renders, render, mode, scales, setStepScale } = useFlow();
   const router = useRouter();
   const id = useSearchParams().get("id") ?? "daily-k";
   const lesson = getLesson(id);
@@ -29,9 +29,11 @@ function LessonInner() {
   const started = useRef<string | null>(null);
 
   const lessonScales = scales[id];
+  // same options as /api/render so the swatches match the answer (demo mode keeps the default base color)
+  const skinShade = mode === "demo" ? null : (skin?.shadeId ?? null);
   const plan = useMemo(
-    () => (stored && lesson ? buildLesson(lesson.id, stored.profile, { stepScales: lessonScales as StepScales | undefined }) : null),
-    [stored, lesson, lessonScales],
+    () => (stored && lesson ? buildLesson(lesson.id, stored.profile, { stepScales: lessonScales as StepScales | undefined, skinShade }) : null),
+    [stored, lesson, lessonScales, skinShade],
   );
   const steps = renders[id] ?? {};
 
