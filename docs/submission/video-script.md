@@ -1,0 +1,56 @@
+# 데모 영상 스크립트 (150초)
+
+이슈 #28 시나리오를 현재 앱 라우트(`/capture` `/analyze` `/lesson` `/compare` `/grade` `/shop` `/share`)에 맞춘 촬영안. 영상은 1~3분, YouTube 공개, 제3자 상표·음악 없음, 실기기 구동 장면 포함. 나레이션은 영어(Devpost 심사용), 자막은 한국어를 기본으로 하고 영어 자막은 나레이션과 같은 문장을 쓴다.
+
+## 시작 전 필수
+
+- Vercel을 `YOUCAM_MODE=live`로 바꾸고 재배포한 뒤 촬영한다. mock 모드로 찍으면 VTO 결과가 YouCam 결과가 아니라 로컬 오버레이다.
+- 유닛 잔량이 250 이상인지 먼저 본다(홈의 잔량 표시 또는 `/api/credit`).
+- 영상에 나오는 얼굴은 본인 또는 동의받은 모델뿐이다. `public/demo/model-a|b`는 스톡 사진(Pexels License)이다.
+- "저는 홑꺼풀이에요"는 #28 원문 대사다. 본인 눈이 실제로 홑꺼풀이고 API가 Single-lid로 읽는지 확인 필요. 다르게 읽히면 분석 결과 화면의 수정 시트에서 고칠 수 있다(0 유닛). 거짓 대사가 되지 않게 대사를 실제 결과에 맞춘다.
+- 채점 점수 "78"은 시나리오의 예시 값이다. 화면에 실제로 나온 값을 말하고 자막도 그 값으로 쓴다.
+
+## 샷 리스트
+
+시간은 편집 후 기준. 화면: 데스크톱 = OBS 녹화(브라우저 폭 390 모바일 뷰), 폰 = 갤럭시 화면 녹화.
+
+| # | 시간 | 화면 / 라우트 | 폰에서 할 일 | 나레이션 (EN) | 자막 (KO) |
+|---|---|---|---|---|---|
+| 1 | 0:00-0:08 | 폰: 튜토리얼 따라 하는 손(제3자 영상 화면 노출 금지, 손거울이나 빈 화면만) -> 내 눈 클로즈업 | 거울 보며 눈에 라인 긋는 장면 직접 촬영 | "Tutorials are filmed on someone else's face. I have monolids." | 튜토리얼은 그 사람 얼굴 기준이에요. 저는 홑꺼풀이에요. |
+| 2 | 0:08-0:15 | `/grade` 결과 화면(이전 테이크의 결과를 먼저 보여 줌). 부위별 점수, 신뢰도 | 결과 화면 스크롤 없이 점수와 한 줄 교정을 보여 줌 | "Mirror Tutor builds the answer on my own face, then grades what I actually drew." | Mirror Tutor는 내 얼굴로 정답을 만들고, 내가 그린 걸 채점합니다. |
+| 3 | 0:15-0:30 | `/capture` 가이드 실패(어두움 또는 얼굴 작음) -> 통과 | 불을 끈 채로 촬영해 "얼굴 폭 xx% / 필요 60%" 실패 문구를 보이고, 불을 켜서 통과 | "It guides the shot to YouCam's input requirements first, so no unit is wasted," | YouCam 입력 조건에 맞게 촬영을 안내해서 유닛 낭비를 막아요. |
+| 4 | 0:30-0:50 | `/analyze` 분석 중 -> 결과(눈꺼풀, 입술 등) -> 수정 시트 열기 -> "규칙표 보기" 잠깐 노출 | 결과 칩을 탭해 수정 시트를 열었다 닫고, 규칙표(눈꺼풀 -> 기법)를 2초 보여 줌 | "YouCam Face Analyzer reads eyelid, eye shape, lips, face and brows, 10 units. If it's wrong, I can correct it, and a rule table maps each feature to a technique." | Face Analyzer가 눈꺼풀·눈·입술·얼굴형·눈썹을 읽어요(10 유닛). 틀리면 고치고, 규칙표가 기법을 정해요. |
+| 5 | 0:50-1:25 | `/lesson?lesson=daily-k` 단계 1 -> 4, 전/후 슬라이더, "왜 당신은" 근거 칩 확대 | 단계마다 다음 탭, 단계 3(눈)에서 슬라이더를 50%로 두고 근거 칩 확대 | "Makeup VTO draws each step on my face as the answer key, one unit per step. Because these are monolids, the liner goes sideways and the shadow spreads horizontally. The rules change with the face." | Makeup VTO가 단계마다 내 얼굴에 정답을 그려요(단계당 1 유닛). 홑꺼풀이라 섀도는 가로로, 라인은 눈을 뜨고 보이게. 얼굴이 다르면 규칙도 달라져요. |
+| 6 | 1:25-1:40 | `/compare` 두 얼굴 비교(model-a 쌍꺼풀, model-b 속쌍). 단계 탭 전환, 규칙 차이 표 | 단계 4 탭, 같음/다름 표시 보여 줌 | "Same look, two faces, two techniques." | 같은 룩, 다른 얼굴, 다른 기법. |
+| 7 | 1:40-2:00 | 폰: 실제로 그리는 컷(빠르게) -> `/grade` 시도 촬영 -> 채점 -> 한 줄 교정 | 그린 얼굴을 촬영하고 채점 결과의 신뢰도 문구를 보여 줌 | "Then I draw it for real. Per-region scores, a one-line correction, and a confidence level that drops when my lighting differs." | 직접 그린 뒤 채점해요. 부위별 점수와 한 줄 교정, 조명이 다르면 신뢰도도 같이 보여 줘요. |
+| 8 | 2:00-2:15 | `/shop` 단계 스와치 hex -> 제품 카드, 색차 ΔE | 스와치 탭, ΔE 표시와 "데모 데이터" 문구 | "The exact colors from each step map to products by color difference. The tutorial becomes the cart. The catalog is a demo; real SKUs would come from a partner feed." | 단계에서 쓴 색이 그대로 제품이 돼요. 카탈로그는 데모이고, 실제 SKU는 제휴 피드로 교체합니다. |
+| 9 | 2:15-2:30 | `/share` 공유 카드 -> `docs/architecture.svg` 1장(3초) -> 로고 카드 | 공유 카드 저장 후 아키텍처 이미지 | "Photos are never stored, units are capped per session. Mirror Tutor: learn K-beauty on your own face." | 사진은 저장하지 않고 유닛은 세션당 상한. Mirror Tutor, 내 얼굴로 배우는 K-메이크업. |
+
+총 150초. 나레이션이 시간보다 길면 4번과 5번 문장부터 줄인다(심사 기준: API를 어떻게 쓰는지가 보여야 하므로 8번보다 4·5번을 남긴다).
+
+## 테이크와 유닛 예산
+
+기본값: 세션 상한 20u, 일일 상한 120u(`DAILY_UNIT_CAP`, 서버 인스턴스 메모리 기준). 한 테이크 = 분석 10 + VTO 4단계 4 + 진하기 조절 재생성 2 = 16u.
+
+| 테이크 | 내용 | 유닛 |
+|---|---|---|
+| 1 | 폰 전체 플로우(샷 3-5, 7-9). 가장 중요. 라이트 켠 상태, 정면 | 16 |
+| 2 | 1이 실패했을 때 재촬영(조명, 표정) | 16 |
+| 3 | 샷 7용 시도 재촬영(분석은 프로필 재사용이라 VTO만) | 4 |
+| 4 | 예비 | 16 |
+| 합계 | 최대 4테이크 | 52 (이슈 상한 70 이내) |
+
+- 샷 2(결과 먼저 보여 주기)와 스크린샷은 테이크 1의 결과를 재사용한다(0u).
+- 샷 6 `/compare`는 사전 생성 이미지라 0u.
+- 일일 상한 120u에 가까워지면 세션이 막힌다. 막히면 Vercel의 `DAILY_UNIT_CAP`을 올리고 재배포하거나 서버가 재시작된 뒤 다시 찍는다.
+- 세션 상한 20u를 넘기 전에 홈의 "세션 종료"로 세션을 끊으면 새 세션으로 시작할 수 있다. 같은 테이크 안에서 끊으면 정답 이미지가 사라지니 테이크 사이에서만 한다.
+
+## 촬영 팁
+
+- 데스크톱 샷(5, 6, 8, 9): Mac에서 OBS로 녹화. 브라우저를 폭 390 내외 모바일 뷰로 맞추고 북마크바·확장 아이콘·알림을 숨긴다. 해상도 1080p, 30fps.
+- 폰 샷(1, 3, 4, 7): 갤럭시 기본 화면 녹화(빠른 설정 > 화면 녹화). 방해 금지 모드를 켜서 알림이 안 뜨게 한다. 카카오톡 등 다른 앱 알림, 상단 상태바의 통신사·앱 아이콘이 보이면 편집에서 잘라낸다.
+- 제3자 상표 금지: 화장품 실물, 파우치, 튜토리얼 영상 화면, 로고가 보이지 않게 한다. 제품은 앱의 "MT Select"와 일반명만 노출한다.
+- 음악: 무음 + 자막. 음악을 넣어야 하면 YouTube 오디오 라이브러리의 저작권 프리 곡만 쓴다.
+- 얼굴: 본인만 나오게 한다. 샷 6의 샘플 모델은 스톡 사진이므로 공개 가능 라이선스(Pexels)지만 인물 사진이라는 점을 설명란에 출처로 적는다.
+- 나레이션은 한 번에 읽지 말고 샷별로 녹음해 길이를 맞춘다. 영어 자막은 나레이션과 같은 문장으로 넣는다.
+- 업로드: YouTube 공개(Unlisted 아님), 제목에 "Mirror Tutor - YouCam API VTO Hackathon", 설명에 라이브 URL과 저장소 URL.
