@@ -55,8 +55,9 @@ export function estimateFace(px: Pixels): { width: number; center: number; skinR
   let skin = 0;
   let total = 0;
   for (let y = y0; y < y1; y += 2) {
-    let best = 0;
-    let bestStart = 0;
+    // Collect skin runs, then keep the one closest to the frame center (ties → longer). Picking the
+    // longest run let warm lamps / wood / walls at the edge win and dragged the center sideways.
+    const runs: Array<[number, number]> = [];
     let run = 0;
     let runStart = 0;
     for (let x = 0; x < width; x++) {
@@ -67,10 +68,7 @@ export function estimateFace(px: Pixels): { width: number; center: number; skinR
         skin++;
         if (run === 0) runStart = x;
         run++;
-        if (run > best) {
-          best = run;
-          bestStart = runStart;
-        }
+        if (x === width - 1) runs.push([runStart, run]);
       } else {
         // tolerate small gaps (eyes, shadows) up to 2% of the width
         if (run > 0) {
@@ -85,8 +83,22 @@ export function estimateFace(px: Pixels): { width: number; center: number; skinR
             x += gap - 1;
             continue;
           }
+          runs.push([runStart, run]);
         }
         run = 0;
+      }
+    }
+    const minRun = width * 0.08; // ignore specks
+    let best = 0;
+    let bestStart = 0;
+    let bestDist = Infinity;
+    for (const [start, len] of runs) {
+      if (len < minRun) continue;
+      const dist = start <= width / 2 && start + len >= width / 2 ? 0 : Math.min(Math.abs(start - width / 2), Math.abs(start + len - width / 2));
+      if (dist < bestDist || (dist === bestDist && len > best)) {
+        best = len;
+        bestStart = start;
+        bestDist = dist;
       }
     }
     if (best > 0) {
@@ -140,6 +152,41 @@ export function checkQuality(px: Pixels): QualityResult {
     brightness: Math.round(mean),
     offset: Math.round((face.center - 0.5) * 100) / 100,
   };
+}
+
+export interface CropRect {
+  sx: number;
+  sy: number;
+  sw: number;
+  sh: number;
+}
+
+/** YouCam rejects small inputs (error_below_min_image_size); SD skin analysis needs short side ≥ 480. */
+export const MIN_SHORT_SIDE = 480;
+export const MAX_ZOOM = 2;
+
+/**
+ * The part of a w×h camera frame that the preview shows: `object-cover` into a box of `aspect`
+ * (width/height, 3/4 for the capture box), then a centered digital zoom. Quality checks and the upload
+ * use this rect so "face width" means width of what the user sees (a landscape 16:9 stream used to be
+ * measured on the full, uncropped frame → face looked ~half as wide).
+ */
+export function visibleCrop(w: number, h: number, aspect = 3 / 4, zoom = 1): CropRect {
+  let sw = w;
+  let sh = h;
+  if (w / h > aspect) sw = h * aspect;
+  else sh = w / aspect;
+  const z = Math.max(1, zoom);
+  sw /= z;
+  sh /= z;
+  return { sx: (w - sw) / 2, sy: (h - sh) / 2, sw, sh };
+}
+
+/** Highest digital zoom that keeps the cropped short side ≥ MIN_SHORT_SIDE (1 = no zoom possible). */
+export function maxDigitalZoom(w: number, h: number, aspect = 3 / 4): number {
+  const c = visibleCrop(w, h, aspect, 1);
+  const z = Math.min(MAX_ZOOM, Math.min(c.sw, c.sh) / MIN_SHORT_SIDE);
+  return Math.max(1, Math.floor(z * 10) / 10);
 }
 
 /** Long side → 1600 px (plan), and always < 1920 (Makeup VTO limit). */

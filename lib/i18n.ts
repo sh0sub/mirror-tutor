@@ -27,6 +27,7 @@ const DICT = {
   chipBright: { ko: "밝게", en: "Bright" },
   chipForehead: { ko: "이마 보이게", en: "Forehead visible" },
   faceWidth: { ko: "얼굴 폭", en: "Face width" },
+  zoom: { ko: "배율", en: "Zoom" },
   need60: { ko: "필요 60% 이상", en: "Need 60%+" },
   looksGood: { ko: "좋아요", en: "Looks good" },
   shutter: { ko: "촬영", en: "Take photo" },

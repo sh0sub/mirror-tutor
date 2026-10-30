@@ -6,7 +6,7 @@ import { AppBar, BottomBar, Button, Chip, Icon, ModeBanner, Screen, Sheet } from
 import { useFlow } from "@/components/FlowProvider";
 import { t } from "@/lib/i18n";
 import { ISSUE_MESSAGE } from "@/lib/quality/messages";
-import { MIN_FACE_WIDTH, type QualityResult } from "@/lib/quality/gate";
+import { MIN_FACE_WIDTH, maxDigitalZoom, visibleCrop, type QualityResult } from "@/lib/quality/gate";
 import { blobToBitmap, qualityOf, toUploadJpeg } from "@/lib/client/image";
 
 /** M1 촬영 가이드: live quality gate on the camera preview (face width ≥ 60%, light, frontal); upload fallback. */
@@ -22,6 +22,12 @@ function CaptureInner() {
   const [q, setQ] = useState<QualityResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [uploadIssue, setUploadIssue] = useState<QualityResult | null>(null);
+  // Zoom: hardware (MediaStreamTrack `zoom` capability) when the camera has it, else a centered digital crop
+  // capped so the uploaded crop keeps a short side ≥ 480 px.
+  const trackRef = useRef<MediaStreamTrack | null>(null);
+  const [zoomRange, setZoomRange] = useState<{ min: number; max: number; step: number; hw: boolean } | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const digitalZoom = zoomRange && !zoomRange.hw ? zoom : 1;
 
   useEffect(() => {
     if (!consented && !forAttempt) return;
@@ -35,6 +41,17 @@ function CaptureInner() {
         if (v) {
           v.srcObject = stream;
           await v.play();
+          const track = stream.getVideoTracks()[0] ?? null;
+          trackRef.current = track;
+          const caps = (track?.getCapabilities?.() ?? {}) as { zoom?: { min: number; max: number; step?: number } };
+          if (caps.zoom && caps.zoom.max > caps.zoom.min) {
+            const max = Math.min(caps.zoom.max, caps.zoom.min * 3);
+            setZoomRange({ min: caps.zoom.min, max, step: caps.zoom.step || 0.1, hw: true });
+            setZoom(caps.zoom.min);
+          } else {
+            const max = maxDigitalZoom(v.videoWidth, v.videoHeight);
+            setZoomRange(max > 1 ? { min: 1, max, step: 0.1, hw: false } : null);
+          }
           setCamera("on");
         }
       } catch {
@@ -43,6 +60,7 @@ function CaptureInner() {
     })();
     return () => {
       cancelled = true;
+      trackRef.current = null;
       stream?.getTracks().forEach((tr) => tr.stop());
     };
   }, [consented, forAttempt]);
@@ -52,10 +70,19 @@ function CaptureInner() {
     if (camera !== "on") return;
     const id = window.setInterval(() => {
       const v = videoRef.current;
-      if (v && v.videoWidth) setQ(qualityOf(v, v.videoWidth, v.videoHeight));
+      if (v && v.videoWidth) setQ(qualityOf(v, v.videoWidth, v.videoHeight, visibleCrop(v.videoWidth, v.videoHeight, 3 / 4, digitalZoom)));
     }, 500);
     return () => window.clearInterval(id);
-  }, [camera]);
+  }, [camera, digitalZoom]);
+
+  const changeZoom = (value: number) => {
+    setZoom(value);
+    if (zoomRange?.hw) {
+      const track = trackRef.current;
+      // `zoom` is not in the TS lib's MediaTrackConstraintSet yet
+      track?.applyConstraints({ advanced: [{ zoom: value } as MediaTrackConstraintSet] }).catch(() => undefined);
+    }
+  };
 
   const accept = useCallback(
     (jpeg: Blob) => {
@@ -75,9 +102,10 @@ function CaptureInner() {
     const v = videoRef.current;
     if (!v || !v.videoWidth) return;
     setBusy(true);
-    const result = qualityOf(v, v.videoWidth, v.videoHeight);
+    const crop = visibleCrop(v.videoWidth, v.videoHeight, 3 / 4, digitalZoom);
+    const result = qualityOf(v, v.videoWidth, v.videoHeight, crop);
     setQ(result);
-    if (result.pass) accept(await toUploadJpeg(v, v.videoWidth, v.videoHeight));
+    if (result.pass) accept(await toUploadJpeg(v, v.videoWidth, v.videoHeight, crop));
     setBusy(false);
   };
 
@@ -108,7 +136,14 @@ function CaptureInner() {
       <ModeBanner />
       <main className="flex flex-1 flex-col">
         <div className="relative mx-auto mt-3 aspect-[3/4] w-full overflow-hidden bg-ink">
-          <video ref={videoRef} playsInline muted className="h-full w-full -scale-x-100 object-cover" aria-label={t("captureTitle", lang)} />
+          <video
+            ref={videoRef}
+            playsInline
+            muted
+            className="h-full w-full object-cover"
+            style={{ transform: `scale(${-digitalZoom}, ${digitalZoom})` }} /* mirrored preview + digital zoom */
+            aria-label={t("captureTitle", lang)}
+          />
           {camera !== "on" && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center text-canvas">
               <Icon name="camera" className="h-10 w-10" />
@@ -131,6 +166,21 @@ function CaptureInner() {
               />
             )}
           </svg>
+          {camera === "on" && zoomRange && (
+            <label className="absolute right-2 top-14 flex h-44 w-12 flex-col items-center gap-1 rounded-full bg-panel/90 py-2 text-xs font-bold">
+              <span className="num">{(zoomRange.hw ? zoom / zoomRange.min : zoom).toFixed(1)}×</span>
+              <input
+                type="range"
+                min={zoomRange.min}
+                max={zoomRange.max}
+                step={zoomRange.step}
+                value={zoom}
+                onChange={(e) => changeZoom(Number(e.target.value))}
+                aria-label={t("zoom", lang)}
+                className="h-32 w-8 cursor-pointer accent-[var(--color-primary)] [writing-mode:vertical-lr] [direction:rtl]"
+              />
+            </label>
+          )}
           <div className="absolute inset-x-0 top-3 flex justify-center gap-1.5">
             <Chip tone="neutral">{t("chipFront", lang)}</Chip>
             <Chip tone="neutral">{t("chipBright", lang)}</Chip>

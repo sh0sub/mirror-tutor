@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import sharp from "sharp";
-import { checkQuality, isSkin, targetSize, type Pixels } from "@/lib/quality/gate";
+import { checkQuality, estimateFace, isSkin, maxDigitalZoom, targetSize, visibleCrop, type Pixels } from "@/lib/quality/gate";
 import { ERROR_CODE_GUIDE, guideForErrorCode, guideText } from "@/lib/quality/messages";
 import { syntheticSelfie } from "../helpers";
 
@@ -68,5 +68,44 @@ describe("API error code → guide copy", () => {
       expect(guideText(key, "ko").length).toBeGreaterThan(3);
       expect(guideText(key, "en").length).toBeGreaterThan(3);
     }
+  });
+});
+
+describe("visible crop & zoom (capture preview parity)", () => {
+  it("crops a landscape stream to the 3:4 box the preview shows", () => {
+    const c = visibleCrop(1280, 720);
+    expect(c).toEqual({ sx: 370, sy: 0, sw: 540, sh: 720 });
+  });
+  it("leaves a 3:4 portrait stream whole and zooms around the center", () => {
+    expect(visibleCrop(1200, 1600)).toEqual({ sx: 0, sy: 0, sw: 1200, sh: 1600 });
+    expect(visibleCrop(1200, 1600, 3 / 4, 2)).toEqual({ sx: 300, sy: 400, sw: 600, sh: 800 });
+  });
+  it("caps digital zoom so the short side stays ≥ 480 px", () => {
+    expect(maxDigitalZoom(1280, 720)).toBe(1.1); // 540 / 480
+    expect(maxDigitalZoom(1200, 1600)).toBe(2);
+    expect(maxDigitalZoom(640, 480)).toBe(1);
+  });
+});
+
+describe("face run selection", () => {
+  it("prefers the skin run at the center over a wider warm patch at the edge", () => {
+    const width = 200;
+    const height = 100;
+    const data = new Uint8ClampedArray(width * height * 4);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const i = (y * width + x) * 4;
+        const face = x >= 70 && x < 130; // 60 px centered
+        const lamp = x >= 136; // 64 px at the right edge (wider than the face), 6 px gap > 2% tolerance
+        const [r, g, b] = face || lamp ? [210, 160, 130] : [40, 60, 90];
+        data[i] = r;
+        data[i + 1] = g;
+        data[i + 2] = b;
+        data[i + 3] = 255;
+      }
+    }
+    const f = estimateFace({ width, height, data });
+    expect(f.center).toBeCloseTo(0.5, 1);
+    expect(f.width).toBeCloseTo(0.3, 1);
   });
 });
