@@ -5,6 +5,7 @@ import type { RenderSummary, StepResult } from "../services/render";
 import type { GradeResult } from "../grade/types";
 import type { LandmarkMeasure } from "../grade/landmarks";
 import type { FaceProfile } from "../profile";
+import type { FaceAnchors } from "../regions";
 
 export interface CreditInfo {
   mode: "mock" | "live";
@@ -44,6 +45,7 @@ export async function streamRender(
   onEvent: (e: RenderEvent) => void,
   steps?: number[],
   stepScales?: Record<number, number>,
+  anchors?: FaceAnchors | null,
 ): Promise<void> {
   const form = new FormData();
   form.set("image", image, "selfie.jpg");
@@ -51,6 +53,7 @@ export async function streamRender(
   form.set("profile", JSON.stringify(profile));
   if (steps?.length) form.set("steps", steps.join(","));
   if (stepScales && Object.keys(stepScales).length) form.set("stepScales", JSON.stringify(stepScales));
+  if (anchors) form.set("anchors", JSON.stringify(anchors));
   const res = await fetch("/api/render", { method: "POST", body: form });
   if (!res.ok || !res.body) {
     onEvent({ type: "fatal", code: `http_${res.status}` });

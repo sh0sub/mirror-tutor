@@ -3,6 +3,7 @@ import { ensureSession } from "@/lib/session";
 import { renderLesson } from "@/lib/services/render";
 import { getLesson, parseStepScales } from "@/lib/lessons";
 import { isFaceProfile } from "@/lib/profile";
+import { parseAnchors } from "@/lib/regions";
 import { MAX_UPLOAD_BYTES } from "@/lib/privacy/sanitize";
 
 export const runtime = "nodejs";
@@ -10,7 +11,8 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 /**
- * POST /api/render (multipart: image, lessonId, profile JSON, optional steps "1,3", optional stepScales JSON {"2":1.2})
+ * POST /api/render (multipart: image, lessonId, profile JSON, optional steps "1,3", optional stepScales JSON {"2":1.2},
+ * optional anchors JSON {leftEye,rightEye,mouth} — normalized face points for the mock renderer)
  * → NDJSON stream: one {"type":"step",...} line per finished step, then {"type":"done",...}.
  */
 export async function POST(req: Request) {
@@ -41,6 +43,12 @@ export async function POST(req: Request) {
   } catch {
     stepScales = null;
   }
+  let anchors = null;
+  try {
+    anchors = parseAnchors(JSON.parse(String(form.get("anchors") ?? "null")));
+  } catch {
+    anchors = null;
+  }
   if (!(file instanceof Blob) || file.size === 0 || file.size > MAX_UPLOAD_BYTES) return bad("missing_image");
   if (!getLesson(lessonId)) return bad("unknown_lesson");
   if (!isFaceProfile(profile)) return bad("bad_profile");
@@ -53,7 +61,7 @@ export async function POST(req: Request) {
     async start(controller) {
       const send = (obj: unknown) => controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
       try {
-        const summary = await renderLesson(getRuntime(), session.id, { image, lessonId, profile: profile as never, steps, build }, (r) =>
+        const summary = await renderLesson(getRuntime(), session.id, { image, lessonId, profile: profile as never, steps, build, anchors }, (r) =>
           send({ type: "step", ...r }),
         );
         send({ type: "done", ...summary });

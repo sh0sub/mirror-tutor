@@ -6,7 +6,8 @@ import { sanitizeImage } from "../privacy/sanitize";
 import { renderCacheKey, sha256 } from "../cache";
 import { uploadImage } from "../youcam/file";
 import { runMakeupVto } from "../youcam/makeupVto";
-import { mockRenderEffects } from "../youcam/mockRender";
+import { mockRenderEffects, registerMockAnchors } from "../youcam/mockRender";
+import type { FaceAnchors } from "../regions";
 import { YouCamHttpError } from "../youcam/client";
 import { YouCamTaskError, YouCamTimeoutError, type PollOptions } from "../youcam/poll";
 import { MAKEUP_VTO_COST } from "../units";
@@ -28,6 +29,8 @@ export interface RenderRequest {
   /** 1-based step indexes to render (default all). Used for "다시 시도(1 유닛)". */
   steps?: number[];
   build?: BuildOptions;
+  /** Browser-detected eye/mouth centers; only the mock renderer uses them (live YouCam finds the face itself). */
+  anchors?: FaceAnchors | null;
 }
 
 export interface RenderSummary {
@@ -77,6 +80,7 @@ export async function renderLesson(
   const image = (await sanitizeImage(req.image)).bytes;
   const imageHash = sha256(image);
   trackSessionImage(rt, sessionId, imageHash);
+  if (req.anchors && rt.transport.kind === "mock") registerMockAnchors(imageHash, req.anchors);
   const misses = [];
   for (const s of wanted) {
     const key = renderCacheKey(imageHash, s.cumulativeEffects);

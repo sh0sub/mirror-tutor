@@ -6,6 +6,7 @@ import type { FaceProfile, ProfileKey, StoredProfile } from "@/lib/profile";
 import { clearProfile, loadProfile, saveProfile } from "@/lib/privacy/profileStore";
 import { fetchCredit, postEndSession, streamRender, type CreditInfo } from "@/lib/client/api";
 import type { StepResult } from "@/lib/services/render";
+import type { FaceAnchors } from "@/lib/regions";
 import type { GradeResult } from "@/lib/grade/types";
 import type { ServiceMode } from "@/lib/services/analyze";
 import { loadLang, saveLang } from "@/lib/i18n";
@@ -28,6 +29,8 @@ interface FlowState {
   setConsented: (v: boolean) => void;
   photo: Photo | null;
   setPhoto: (b: Blob | null) => void;
+  /** Eye/mouth centers of `photo` (MediaPipe, in this tab). null until detected or on failure. */
+  anchors: FaceAnchors | null;
   stored: StoredProfile | null;
   hydrated: boolean;
   setStored: (p: StoredProfile | null) => void;
@@ -84,6 +87,25 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const [consented, setConsented] = useState(false);
   const [photo, setPhoto] = usePhoto();
   const [attempt, setAttempt] = usePhoto();
+  // Face anchors for the current photo: detected once per photo, awaited by render() (mock overlay fit).
+  const [anchors, setAnchors] = useState<FaceAnchors | null>(null);
+  const anchorsRef = useRef<{ blob: Blob; promise: Promise<FaceAnchors | null> } | null>(null);
+  const anchorsFor = useCallback((blob: Blob) => {
+    if (anchorsRef.current?.blob !== blob) {
+      const promise = import("@/lib/client/landmarker").then((m) => m.detectFaceAnchors(blob)).catch(() => null);
+      anchorsRef.current = { blob, promise };
+    }
+    return anchorsRef.current.promise;
+  }, []);
+  useEffect(() => {
+    setAnchors(null);
+    if (!photo) return;
+    let live = true;
+    void anchorsFor(photo.blob).then((a) => live && setAnchors(a));
+    return () => {
+      live = false;
+    };
+  }, [photo, anchorsFor]);
   const [stored, setStoredState] = useState<StoredProfile | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [mode, setMode] = useState<ServiceMode | null>(null);
@@ -139,6 +161,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
       const lessonScales = stepScales ?? scalesRef.current[lessonId];
       const indexes = steps ?? [1, 2, 3, 4];
       setRenders((r) => ({ ...r, [lessonId]: { ...(r[lessonId] ?? {}), ...Object.fromEntries(indexes.map((i) => [i, { status: "pending" as const }])) } }));
+      const fit = await anchorsFor(photo.blob);
       try {
         await streamRender(
           photo.blob,
@@ -160,6 +183,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
           },
           steps,
           lessonScales,
+          fit,
         );
       } catch {
         setRenders((r) => ({
@@ -170,7 +194,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
         refreshCredit();
       }
     },
-    [photo, stored, refreshCredit],
+    [photo, stored, refreshCredit, anchorsFor],
   );
 
   const setStepScale = useCallback(
@@ -202,10 +226,10 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const value = useMemo<FlowState>(
     () => ({
       lang, setLang, consented, setConsented, photo, setPhoto, stored, hydrated, setStored, editProfile, deleteProfile,
-      mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
+      anchors, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
       cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession,
     }),
-    [lang, setLang, consented, photo, setPhoto, stored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
+    [lang, setLang, consented, photo, setPhoto, anchors, stored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -1,13 +1,27 @@
 import sharp from "sharp";
 import type { Effect } from "./makeupVto";
-import { CATEGORY_REGION, REGIONS } from "../regions";
+import { CATEGORY_REGION, regionBoxes, type FaceAnchors } from "../regions";
+import { sha256 } from "../cache";
+
+/**
+ * Face anchors per image hash, set by /api/render from the browser's MediaPipe result, so the mock
+ * paints on the actual eyes/lips instead of fixed boxes. Geometry only (6 numbers), memory only, bounded.
+ */
+const anchorsByImage = new Map<string, FaceAnchors>();
+const MAX_ANCHORS = 64;
+export function registerMockAnchors(imageHash: string, anchors: FaceAnchors) {
+  anchorsByImage.delete(imageHash);
+  anchorsByImage.set(imageHash, anchors);
+  while (anchorsByImage.size > MAX_ANCHORS) anchorsByImage.delete(anchorsByImage.keys().next().value!);
+}
 
 /**
  * Mock-mode stand-in for Makeup VTO: paints soft colored overlays on the user's own photo at the
- * fixed face regions, so UI work and tests run without spending units. It is visibly a mock
+ * face regions (fitted to the face anchors when known, else fixed boxes), so UI work and tests run without spending units. It is visibly a mock
  * (flat blurred ellipses), never shown as a real VTO result in demo videos.
  */
-export async function mockRenderEffects(source: Uint8Array, effects: Effect[]): Promise<Uint8Array> {
+export async function mockRenderEffects(source: Uint8Array, effects: Effect[], anchors?: FaceAnchors | null): Promise<Uint8Array> {
+  const fit = anchors ?? anchorsByImage.get(sha256(source)) ?? null;
   const img = sharp(source);
   const { width = 600, height = 800 } = await img.metadata();
   const shapes: string[] = [];
@@ -17,7 +31,7 @@ export async function mockRenderEffects(source: Uint8Array, effects: Effect[]): 
     if (!region || e.category === "skin_smooth") continue;
     const palettes = e.palettes ?? [];
     if (!palettes.length) continue;
-    const boxes = REGIONS[region];
+    const boxes = regionBoxes(region, fit);
     boxes.forEach((b) => {
       palettes.forEach((p, i) => {
         // Multi-color patterns: spread colors horizontally across the box (inner → outer).

@@ -9,7 +9,7 @@ import { t, tf } from "@/lib/i18n";
 import { buildLesson, getLesson, INTENSITY_SCALES, type StepScales } from "@/lib/lessons";
 import { ATTR_NAME } from "@/lib/labels";
 import { guideText } from "@/lib/quality/messages";
-import { REGIONS } from "@/lib/regions";
+import { regionBoxes } from "@/lib/regions";
 
 function dotClass(s: StepState | undefined, current: boolean) {
   if (current) return "bg-primary text-on-primary";
@@ -20,7 +20,7 @@ function dotClass(s: StepState | undefined, current: boolean) {
 
 /** M3 lesson player: skeleton → sequential reveal, before/after slider, step card with "왜 당신은" reasons and hex swatches. */
 function LessonInner() {
-  const { lang, photo, stored, renders, render, mode, scales, setStepScale } = useFlow();
+  const { lang, photo, anchors, stored, renders, render, mode, scales, setStepScale } = useFlow();
   const router = useRouter();
   const id = useSearchParams().get("id") ?? "daily-k";
   const lesson = getLesson(id);
@@ -51,7 +51,8 @@ function LessonInner() {
   const before = mode === "demo" ? "/demo/sample-model.svg" : photo.url;
   const after = state?.status === "done" ? state.image : null;
   const last = k === plan.steps.length;
-  const boxes = REGIONS[step.region] ?? [];
+  // demo mode shows the sample model (canonical position); otherwise fit the boxes to this photo's face
+  const boxes = regionBoxes(step.region, mode === "demo" ? null : anchors);
 
   return (
     <Screen>

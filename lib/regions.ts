@@ -41,6 +41,53 @@ export const REGIONS: Record<RegionId, Box[]> = {
   lip: [{ x: 0.41, y: 0.6, w: 0.18, h: 0.07 }],
 };
 
+/** Eye centers and mouth center in normalized photo coordinates (from MediaPipe in the browser). */
+export interface FaceAnchors {
+  leftEye: { x: number; y: number };
+  rightEye: { x: number; y: number };
+  mouth: { x: number; y: number };
+}
+
+/** Where REGIONS assumes those points are (face centered in the guide oval). */
+export const CANONICAL_ANCHORS: FaceAnchors = {
+  leftEye: { x: 0.385, y: 0.395 },
+  rightEye: { x: 0.615, y: 0.395 },
+  mouth: { x: 0.5, y: 0.635 },
+};
+
+const isPt = (p: unknown): p is { x: number; y: number } =>
+  !!p && typeof p === "object" && [(p as { x: unknown }).x, (p as { y: unknown }).y].every((v) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 1);
+
+/** Validates untrusted anchors (form field). Rejects degenerate faces (eyes swapped / mouth above eyes). */
+export function parseAnchors(v: unknown): FaceAnchors | null {
+  if (!v || typeof v !== "object") return null;
+  const a = v as Record<string, unknown>;
+  if (!isPt(a.leftEye) || !isPt(a.rightEye) || !isPt(a.mouth)) return null;
+  const eyeDist = a.rightEye.x - a.leftEye.x;
+  const eyeY = (a.leftEye.y + a.rightEye.y) / 2;
+  if (eyeDist < 0.05 || a.mouth.y - eyeY < 0.05) return null;
+  return { leftEye: { ...a.leftEye }, rightEye: { ...a.rightEye }, mouth: { ...a.mouth } };
+}
+
+/**
+ * Moves and scales a canonical region box onto the detected face: horizontal scale from the eye
+ * distance, vertical scale from the eye → mouth distance, origin at the eyes' midpoint. No anchors →
+ * the canonical box (the old fixed-position behavior).
+ */
+export function fitBox(b: Box, anchors?: FaceAnchors | null): Box {
+  if (!anchors) return b;
+  const c = CANONICAL_ANCHORS;
+  const cMid = { x: (c.leftEye.x + c.rightEye.x) / 2, y: (c.leftEye.y + c.rightEye.y) / 2 };
+  const mid = { x: (anchors.leftEye.x + anchors.rightEye.x) / 2, y: (anchors.leftEye.y + anchors.rightEye.y) / 2 };
+  const sx = (anchors.rightEye.x - anchors.leftEye.x) / (c.rightEye.x - c.leftEye.x);
+  const sy = (anchors.mouth.y - mid.y) / (c.mouth.y - cMid.y);
+  return { x: mid.x + (b.x - cMid.x) * sx, y: mid.y + (b.y - cMid.y) * sy, w: b.w * sx, h: b.h * sy };
+}
+
+export function regionBoxes(region: RegionId, anchors?: FaceAnchors | null): Box[] {
+  return REGIONS[region].map((b) => fitBox(b, anchors));
+}
+
 /** VTO category → region it paints. */
 export const CATEGORY_REGION: Record<string, RegionId> = {
   foundation: "base",
