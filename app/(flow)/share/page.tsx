@@ -4,7 +4,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AppBar, BottomBar, Button, Icon, Screen } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
-import { t } from "@/lib/i18n";
+import { t, tf } from "@/lib/i18n";
 import { CARD, drawShareCard, type CardContext } from "@/lib/share/card";
 import { loadHtmlImage } from "@/lib/client/image";
 import { getLesson, LESSONS } from "@/lib/lessons";
@@ -80,6 +80,7 @@ function ShareInner() {
   };
 
   const done = LESSONS.filter((l) => completed[l.id]).length;
+  const nextLesson = LESSONS.find((l) => !completed[l.id] && l.id !== lessonId) ?? LESSONS.find((l) => !completed[l.id]);
 
   return (
     <Screen>
@@ -115,6 +116,7 @@ function ShareInner() {
               </li>
             ))}
           </ul>
+          <p className="mt-2 text-sm text-muted">{nextLesson ? tf("nextLesson", lang, { title: nextLesson.title[lang] }) : t("allLessonsDone", lang)}</p>
         </section>
         {toast && (
           <p role="status" className="rounded-xl bg-ink px-3 py-2 text-center text-sm font-bold text-canvas">

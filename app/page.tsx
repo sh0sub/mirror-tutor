@@ -20,7 +20,10 @@ export default function Home() {
     else setConsentOpen(true);
   };
 
-  const rec = stored ? recommendLesson(stored.profile) : null;
+  // Today's lesson: the profile's recommendation until it is done this session, then the next lesson not yet done.
+  const base = stored ? recommendLesson(stored.profile) : null;
+  const pending = base && completed[base.lessonId] ? LESSONS.find((l) => !completed[l.id]) : undefined;
+  const rec = base && pending ? { lessonId: pending.id, reason: pending.summary } : base;
   const next = rec ? `/capture?lesson=${rec.lessonId}` : "/capture";
 
   return (

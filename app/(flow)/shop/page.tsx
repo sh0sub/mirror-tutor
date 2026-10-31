@@ -136,6 +136,18 @@ function ShopInner() {
             </li>
           ))}
         </ul>
+        {k < plan.steps.length && (
+          <Button
+            variant="ghost"
+            className="w-full"
+            onClick={() => {
+              setK(k + 1);
+              setSelected(null);
+            }}
+          >
+            {t("nextStep", lang)} · {k + 1} {plan.steps[k].title[lang]}
+          </Button>
+        )}
         <p className="text-xs text-muted">{t("deltaNote", lang)}</p>
       </main>
       <BottomBar>

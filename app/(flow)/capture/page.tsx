@@ -166,6 +166,9 @@ function CaptureInner() {
               />
             )}
           </svg>
+          <span className="pointer-events-none absolute left-1/2 top-[12%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink/70 px-2 py-0.5 text-xs font-bold text-canvas" aria-hidden>
+            {t("target60", lang)}
+          </span>
           {camera === "on" && zoomRange && (
             <label className="absolute right-2 top-14 flex h-44 w-12 flex-col items-center gap-1 rounded-full bg-panel/90 py-2 text-xs font-bold">
               <span className="num">{(zoomRange.hw ? zoom / zoomRange.min : zoom).toFixed(1)}×</span>
@@ -205,11 +208,11 @@ function CaptureInner() {
             </div>
           )}
         </div>
-        <p className="px-4 pt-4 text-center text-sm text-muted">{forAttempt ? t("captureAttemptHint", lang) : t("captureHint", lang)}</p>
+        <p className="break-keep px-4 pt-4 text-center text-sm text-muted">{forAttempt ? t("captureAttemptHint", lang) : t("captureHint", lang)}</p>
       </main>
       <BottomBar>
         <div className="flex gap-2">
-          <Button variant="ghost" className="flex-1" onClick={() => fileRef.current?.click()} disabled={busy}>
+          <Button variant="ghost" className="flex-1 whitespace-nowrap px-3" onClick={() => fileRef.current?.click()} disabled={busy}>
             <Icon name="upload" className="h-4 w-4" />
             {t("upload", lang)}
           </Button>

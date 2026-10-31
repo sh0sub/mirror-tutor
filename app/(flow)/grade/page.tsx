@@ -96,7 +96,10 @@ function GradeInner() {
                   <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-panel-2)" strokeWidth="3.5" />
                   <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-primary)" strokeWidth="3.5" strokeDasharray={`${(result.total / 100) * 97.4} 97.4`} strokeLinecap="round" />
                 </svg>
-                <span className="num absolute inset-0 flex items-center justify-center text-2xl font-extrabold">{result.total}</span>
+                <span className="num absolute inset-0 flex flex-col items-center justify-center leading-none">
+                  <span className="text-2xl font-extrabold">{result.total}</span>
+                  <span className="mt-0.5 text-xs font-bold text-muted">{t("outOf100", lang)}</span>
+                </span>
               </div>
               <div className="flex min-w-0 flex-col gap-1">
                 <p className="text-xs font-bold text-muted">{t("gradeDone", lang)}</p>

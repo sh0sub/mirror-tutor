@@ -7,7 +7,7 @@ import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, 
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf, type MsgKey } from "@/lib/i18n";
 import { postAnalyze } from "@/lib/client/api";
-import { ATTR_NAME, VALUE_HINT, valueLabel } from "@/lib/labels";
+import { ATTR_NAME, VALUE_HINT, profileSummary, valueLabel } from "@/lib/labels";
 import { PROFILE_KEYS, PROFILE_OPTIONS, type FaceProfile, type ProfileKey } from "@/lib/profile";
 import { LESSONS, recommendLesson } from "@/lib/lessons";
 import { eyelidRuleRows } from "@/lib/rules/engine";
@@ -100,6 +100,7 @@ export default function AnalyzePage() {
             {phase.kind === "done" && stored && (
               <>
                 <Chip tone="ok">{t("analyzeDone", lang)}</Chip>
+                <p className="text-[15px] font-bold leading-snug">{profileSummary(stored.profile, lang)}</p>
                 <p className="text-sm text-muted">{t("fixHint", lang)}</p>
               </>
             )}
@@ -115,6 +116,9 @@ export default function AnalyzePage() {
 
         {phase.kind === "loading" && (
           <div className="flex flex-col gap-2" aria-hidden>
+            <p className="flex items-baseline justify-between text-sm font-bold">
+              {t("readingItems", lang)} <span className="text-xs font-medium text-muted">{t("attrCount", lang)}</span>
+            </p>
             {PROFILE_KEYS.map((k) => (
               <div key={k} className="skeleton h-[72px] rounded-[var(--radius-panel)]" />
             ))}
