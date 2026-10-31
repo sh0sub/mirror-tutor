@@ -10,7 +10,7 @@
 | README (문제·해결·API·아키텍처·실행·개인정보·한계·MIT·api-notes 링크) | 완료 | `README.md` 재작성. 읽어 보고 어색한 문장만 알려 주면 Claude가 고친다. |
 | MIT 라이선스 파일 | 완료 | `LICENSE` 존재. |
 | 아키텍처 그림 | 완료 | `docs/architecture.svg` + README의 Mermaid. 스크린샷 ⑩은 브라우저로 SVG를 열어 캡처(아래 참고). |
-| 저장소 공개 | 남음(사용자) | 현재 PRIVATE. 공개 여부는 사용자가 결정한다. 공개 전 점검: `.env`·`.local/`이 커밋 이력에 없는지(`git log --all -- .env .local`), 사람 얼굴 사진 라이선스. 공개하지 않으려면 Devpost 안내대로 testing@devpost.com 에 저장소를 공유한다. |
+| 저장소 공개 | 완료 (10/31 공개) | 현재 PRIVATE. 공개 여부는 사용자가 결정한다. 공개 전 점검: `.env`·`.local/`이 커밋 이력에 없는지(`git log --all -- .env .local`), 사람 얼굴 사진 라이선스. 공개하지 않으려면 Devpost 안내대로 testing@devpost.com 에 저장소를 공유한다. |
 | 문서 커밋·푸시 | 남음(사용자) | 요청하면 Claude가 커밋한다. 이번에는 하지 않음. |
 
 ## 배포·데모
@@ -32,7 +32,7 @@
 | 트랙 선택 | 남음(사용자) | eCommerce VTO 선택. Skin AI는 고르지 않는다. |
 | Built with 태그 | 완료(초안) | devpost.md 하단. |
 | Try it out 링크 | 남음(사용자) | 라이브 URL, 저장소 URL(공개 후), YouTube URL. |
-| 소스 저장소 URL | 남음(사용자) | 공개 결정 후 입력. |
+| 소스 저장소 URL | 완료 | https://github.com/sh0sub/mirror-tutor |
 | 수상 시 인터뷰·블로그 협조 동의 확인 | 남음(사용자) | Devpost/대회 규정 페이지에서 동의 항목 확인. |
 
 ## 영상 (이슈 #28) — 2026-10-31 갱신
