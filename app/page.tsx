@@ -2,15 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, Sheet } from "@/components/ui";
+import Link from "next/link";
+import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, Sheet, TabBar } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
-import { t } from "@/lib/i18n";
-import { profileSummary } from "@/lib/labels";
+import { t, tf } from "@/lib/i18n";
+import { profileSummary, valueLabel } from "@/lib/labels";
 import { LESSONS, recommendLesson } from "@/lib/lessons";
+import { streakDays, weekDots } from "@/lib/practice";
 
 /** Onboarding (M1 entry, consent) and the returning-user home (flow B: profile → lesson, no re-analysis). */
 export default function Home() {
-  const { lang, consented, setConsented, stored, hydrated, deleteProfile, completed, photo, endSession } = useFlow();
+  const { lang, consented, setConsented, stored, hydrated, deleteProfile, completed, photo, endSession, practice, attempt, gradedLesson } = useFlow();
   const router = useRouter();
   const [consentOpen, setConsentOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -26,16 +28,36 @@ export default function Home() {
   const rec = base && pending ? { lessonId: pending.id, reason: pending.summary } : base;
   const next = rec ? `/capture?lesson=${rec.lessonId}` : "/capture";
 
+  const returning = hydrated && !!stored && !!rec;
+  const streak = streakDays(practice);
+  const dots = weekDots(practice);
+  const dayNames = t("weekdays", lang).split(",");
+  const score = (id: string) => practice.scores[id] ?? completed[id];
+
   return (
     <Screen>
-      <AppBar title={t("appName", lang)} />
+      <AppBar
+        title={t("appName", lang)}
+        right={
+          returning ? (
+            <>
+              <button type="button" aria-label={t("notifications", lang)} onClick={() => setToast(t("noNotifications", lang))} className="inline-flex h-12 w-10 items-center justify-center rounded-full text-muted hover:bg-panel-2">
+                <Icon name="bell" />
+              </button>
+              <Link href="/#profile" aria-label={t("profileMenu", lang)} className="mr-1 inline-flex h-9 w-9 flex-none items-center justify-center rounded-full bg-peach-soft text-sm font-extrabold text-primary-strong">
+                {lang === "ko" ? "나" : "Me"}
+              </Link>
+            </>
+          ) : undefined
+        }
+      />
       <ModeBanner />
       <main className="flex flex-1 flex-col gap-6 px-4 py-6">
         {!hydrated ? (
           <div className="skeleton h-40 rounded-[var(--radius-panel)]" aria-busy="true" />
         ) : stored && rec ? (
           <>
-            <section aria-labelledby="greet" className="flex flex-col gap-2">
+            <section id="profile" aria-labelledby="greet" className="flex scroll-mt-16 flex-col gap-2">
               <h2 id="greet" className="text-[22px] font-extrabold leading-snug">
                 {t("homeGreeting", lang)}
               </h2>
@@ -50,16 +72,60 @@ export default function Home() {
               <p className="mt-1 text-lg font-extrabold">{LESSONS.find((l) => l.id === rec.lessonId)!.title[lang]}</p>
               <p className="text-sm text-muted">{rec.reason[lang]}</p>
               <p className="mt-2 text-xs text-muted">{t("newSelfieNote", lang)}</p>
+              <Button className="mt-3 w-full" onClick={() => begin(next)}>
+                {t("startLesson", lang)}
+              </Button>
             </section>
-            <section aria-label={t("progress", lang)} className="flex flex-col gap-2">
-              <p className="text-sm font-bold">{t("progress", lang)}</p>
-              <ul className="grid grid-cols-3 gap-2">
-                {LESSONS.map((l) => (
-                  <li key={l.id} className={`rounded-xl p-3 text-xs ${completed[l.id] ? "bg-panel" : "border border-dashed border-line-strong/40"}`}>
-                    <p className="font-bold">{l.title[lang]}</p>
-                    {completed[l.id] ? <p className="num mt-1 text-lg font-extrabold text-primary">{completed[l.id]}</p> : <p className="mt-1 text-muted">—</p>}
+            <section aria-label={t("streakLabel", lang)} className="rounded-[var(--radius-panel)] bg-panel p-4">
+              <p className="text-sm font-extrabold">{streak > 0 ? tf("streakDays", lang, { n: streak }) : t("streakStart", lang)}</p>
+              {streak > 0 && <p className="text-xs text-muted">{tf("streakNext", lang, { n: streak + 1 })}</p>}
+              <ul className="mt-3 grid grid-cols-7 gap-1 text-center text-[11px] font-bold text-muted">
+                {dots.map((d) => (
+                  <li key={d.weekday} className="flex flex-col items-center gap-1">
+                    <span aria-hidden>{d.today ? t("streakToday", lang) : dayNames[d.weekday]}</span>
+                    <span
+                      role="img"
+                      aria-label={`${dayNames[d.weekday]}${d.done ? " ✓" : ""}`}
+                      className={`flex h-7 w-7 items-center justify-center rounded-full ${d.done ? "bg-primary text-on-primary" : d.today ? "border-2 border-primary" : "border-2 border-dashed border-line-strong/40"}`}
+                    >
+                      {d.done && <Icon name="check" className="h-4 w-4" />}
+                    </span>
                   </li>
                 ))}
+              </ul>
+            </section>
+            <section aria-label={t("pastResults", lang)} className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-bold">{t("pastResults", lang)}</p>
+                <Link href="/record" className="inline-flex min-h-10 items-center text-xs font-bold text-primary-strong">
+                  {t("seeAll", lang)}
+                </Link>
+              </div>
+              <ul className="grid grid-cols-3 gap-2">
+                {LESSONS.map((l) => {
+                  const sc = score(l.id);
+                  const shot = sc !== undefined && attempt && gradedLesson === l.id ? attempt.url : null;
+                  return (
+                    <li key={l.id}>
+                      <Link
+                        href={sc !== undefined ? `/record?lesson=${l.id}` : `/capture?lesson=${l.id}`}
+                        className={`flex min-h-[132px] flex-col justify-between rounded-xl p-2 text-xs ${sc !== undefined ? "bg-panel" : "border border-dashed border-line-strong/40"}`}
+                      >
+                        <span className="relative flex h-16 items-center justify-center overflow-hidden rounded-lg bg-panel-2">
+                          {/* eslint-disable-next-line @next/next/no-img-element -- in-memory image */}
+                          {shot && <img src={shot} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+                          {sc !== undefined ? (
+                            <span className="num relative rounded-full bg-canvas/90 px-2 py-0.5 text-base font-extrabold text-primary">{sc}</span>
+                          ) : (
+                            <span className="text-muted">—</span>
+                          )}
+                        </span>
+                        <span className="mt-1 font-bold leading-snug">{l.title[lang]}</span>
+                        <span className="text-muted">{sc !== undefined ? (stored ? `${valueLabel("eyelid", stored.profile.eyelid, lang)} ${t("variant", lang)}` : "") : t("notAttempted", lang)}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </section>
             <div className="flex flex-wrap gap-2">
@@ -120,11 +186,15 @@ export default function Home() {
           </p>
         )}
       </main>
-      <BottomBar>
-        <Button className="w-full" onClick={() => begin(stored ? next : "/capture")}>
-          {stored ? t("startLesson", lang) : t("start", lang)}
-        </Button>
-      </BottomBar>
+      {returning ? (
+        <TabBar active="home" lessonId={rec!.lessonId} />
+      ) : (
+        <BottomBar>
+          <Button className="w-full" onClick={() => begin("/capture")}>
+            {t("start", lang)}
+          </Button>
+        </BottomBar>
+      )}
 
       <Sheet open={consentOpen} onClose={() => setConsentOpen(false)} title={t("consentTitle", lang)}>
         <p className="text-[15px] leading-relaxed">{t("consentBody", lang)}</p>

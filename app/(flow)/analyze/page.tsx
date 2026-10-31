@@ -9,7 +9,7 @@ import { PhotoPins, type PhotoPin } from "@/components/PhotoPins";
 import { estimateLabelWidth } from "@/lib/pinLayout";
 import { t, tf, type MsgKey } from "@/lib/i18n";
 import { postAnalyze } from "@/lib/client/api";
-import { ATTR_NAME, VALUE_HINT, profileSummary, valueLabel } from "@/lib/labels";
+import { ATTR_NAME, VALUE_HINT, profileSummary, sourceCaption, valueLabel } from "@/lib/labels";
 import { PROFILE_KEYS, PROFILE_OPTIONS, type FaceProfile, type ProfileKey } from "@/lib/profile";
 import { LESSONS, recommendLesson } from "@/lib/lessons";
 import { eyelidRuleRows } from "@/lib/rules/engine";
@@ -174,7 +174,7 @@ export default function AnalyzePage() {
                           {ATTR_NAME[k][lang]} <span className="font-normal">· {k}</span>
                         </p>
                         <p className="text-[16px] font-extrabold leading-snug">{valueLabel(k, v, lang)}</p>
-                        {stored.source?.[k] && !stored.edited.includes(k) && <p className="text-xs text-muted">({stored.source[k]})</p>}
+                        {stored.source?.[k] && !stored.edited.includes(k) && <p className="text-xs text-muted">({sourceCaption(stored.source[k])})</p>}
                         {stored.edited.includes(k) && (
                           <span className="mt-1 inline-flex">
                             <Chip tone="accent">{t("edited", lang)}</Chip>

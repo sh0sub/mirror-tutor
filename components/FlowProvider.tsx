@@ -14,6 +14,7 @@ import type { FaceDetection } from "@/lib/client/landmarker";
 import type { FacePins } from "@/lib/facePins";
 import type { SkinMeasure } from "@/lib/skin/measure";
 import { nearestShade } from "@/lib/skin/shades";
+import { EMPTY_LOG, clearPractice, loadConsent, loadPractice, recordPractice, saveConsent, savePractice, type PracticeLog } from "@/lib/practice";
 
 /**
  * Client session state. Photos and rendered images live only in memory (object URLs / data URLs) and
@@ -44,6 +45,8 @@ interface FlowState {
   setLang: (l: Lang) => void;
   consented: boolean;
   setConsented: (v: boolean) => void;
+  /** X4 practice log (days + best scores), persisted locally. */
+  practice: PracticeLog;
   photo: Photo | null;
   setPhoto: (b: Blob | null) => void;
   /** Eye/mouth centers of `photo` (MediaPipe, in this tab). null until detected or on failure. */
@@ -107,7 +110,12 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     setLangState(l);
     saveLang(window.localStorage, l); // S5: remember the choice on this device
   }, []);
-  const [consented, setConsented] = useState(false);
+  const [consented, setConsentedState] = useState(false);
+  const setConsented = useCallback((v: boolean) => {
+    setConsentedState(v);
+    saveConsent(window.localStorage, v); // F1: ask once per device
+  }, []);
+  const [practice, setPractice] = useState<PracticeLog>(EMPTY_LOG);
   const [photo, setPhoto] = usePhoto();
   const [attempt, setAttempt] = usePhoto();
   // One MediaPipe pass per photo (eye/mouth anchors + skin tone), awaited by render().
@@ -164,6 +172,8 @@ export function FlowProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setStoredState(loadProfile(window.localStorage));
+    setConsentedState(loadConsent(window.localStorage));
+    setPractice(loadPractice(window.localStorage));
     setLangState(loadLang(window.localStorage, navigator.language));
     setHydrated(true);
     void fetchCredit().then(setCredit);
@@ -194,6 +204,8 @@ export function FlowProvider({ children }: { children: ReactNode }) {
 
   const deleteProfile = useCallback(() => {
     clearProfile(window.localStorage);
+    clearPractice(window.localStorage);
+    setPractice(EMPTY_LOG);
     setStoredState(null);
     setRenders({});
   }, []);
@@ -258,7 +270,14 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addToCart = useCallback((sku: string) => setCart((c) => (c.includes(sku) ? c : [...c, sku])), []);
-  const markCompleted = useCallback((id: string, score: number) => setCompleted((c) => ({ ...c, [id]: Math.max(score, c[id] ?? 0) })), []);
+  const markCompleted = useCallback((id: string, score: number) => {
+    setCompleted((c) => ({ ...c, [id]: Math.max(score, c[id] ?? 0) }));
+    setPractice((log) => {
+      const next = recordPractice(log, id, score);
+      savePractice(window.localStorage, next);
+      return next;
+    });
+  }, []);
 
   const endSession = useCallback(async () => {
     setPhoto(null);
@@ -275,11 +294,11 @@ export function FlowProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<FlowState>(
     () => ({
-      lang, setLang, consented, setConsented, photo, setPhoto, stored, hydrated, setStored, editProfile, deleteProfile,
+      lang, setLang, consented, setConsented, practice, photo, setPhoto, stored, hydrated, setStored, editProfile, deleteProfile,
       anchors, facePins, skin, setSkinShade, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
       cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession,
     }),
-    [lang, setLang, consented, photo, setPhoto, anchors, facePins, skin, setSkinShade, stored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
+    [lang, setLang, consented, setConsented, practice, photo, setPhoto, anchors, facePins, skin, setSkinShade, stored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

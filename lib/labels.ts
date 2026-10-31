@@ -68,3 +68,8 @@ export function profileSummary(p: FaceProfile, lang: Lang): string {
     .map((k) => valueLabel(k, p[k], lang))
     .join(" · ");
 }
+
+/** Raw Face Analyzer caption: left/right labels collapse when identical ("Single-lid / Single-lid" → "Single-lid"). */
+export function sourceCaption(raw: string): string {
+  return Array.from(new Set(raw.split("/").map((s) => s.trim()).filter(Boolean))).join(" / ");
+}

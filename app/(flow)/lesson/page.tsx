@@ -57,7 +57,7 @@ function LessonInner() {
   const boxes = regionBoxes(step.region, mode === "demo" ? null : anchors);
 
   return (
-    <Screen>
+    <Screen wide>
       <AppBar
         title={lesson.title[lang]}
         backHref="/analyze"
@@ -68,7 +68,8 @@ function LessonInner() {
         }
       />
       <ModeBanner />
-      <main className="flex flex-1 flex-col">
+      <main className="flex flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)] lg:content-start lg:items-start lg:gap-x-8 lg:px-6 lg:pt-4">
+        <div className="lg:col-start-1 lg:row-start-1">
         <CompareSlider
           before={before}
           after={after}
@@ -107,8 +108,9 @@ function LessonInner() {
             );
           })}
         </nav>
+        </div>
 
-        <section className="mx-4 flex flex-col gap-3 rounded-[var(--radius-panel)] bg-panel p-4" aria-live="polite">
+        <section className="mx-4 flex flex-col gap-3 lg:col-start-2 lg:row-start-1 lg:mx-0 rounded-[var(--radius-panel)] bg-panel p-4" aria-live="polite">
           {(!state || state.status === "pending") && (
             <p className="flex items-center gap-2 text-sm font-bold text-muted" role="status">
               <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />

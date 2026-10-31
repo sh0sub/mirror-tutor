@@ -5,7 +5,7 @@ import { AppBar, BottomBar, ButtonLink, Chip, Icon, Screen } from "@/components/
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { buildLesson } from "@/lib/lessons";
-import { ATTR_NAME, valueLabel } from "@/lib/labels";
+import { ATTR_NAME, sourceCaption, valueLabel } from "@/lib/labels";
 import { compareStep, sameEyelid, type CompareManifest } from "@/lib/demo/compare";
 import manifestJson from "@/public/demo/compare.json";
 
@@ -64,7 +64,7 @@ export default function ComparePage() {
               <figcaption className="flex flex-col items-start gap-1">
                 <span className="text-sm font-extrabold">{tf("modelN", lang, { n: letter(i) })}</span>
                 <Chip tone="accent">{valueLabel("eyelid", m.profile.eyelid, lang)}</Chip>
-                <span className="num text-xs text-muted">{m.source.eyelid}</span>
+                <span className="num text-xs text-muted">{sourceCaption(m.source.eyelid)}</span>
               </figcaption>
             </figure>
           ))}

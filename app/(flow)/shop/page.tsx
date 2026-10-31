@@ -38,6 +38,9 @@ function ShopInner() {
   const hiCategory = selected !== null ? matches[selected]?.category : null;
   const boxes = hiCategory ? (REGIONS[CATEGORY_REGION[hiCategory]] ?? []) : [];
 
+  // keep the highlighted region (or the eyes) centered in the visible strip of the answer image
+  const focusY = boxes.length ? boxes.reduce((a, b) => a + b.y + b.h / 2, 0) / boxes.length : 0.4;
+
   return (
     <Screen>
       <AppBar
@@ -51,16 +54,23 @@ function ShopInner() {
         }
       />
       <ModeBanner />
-      <main className="flex flex-1 flex-col gap-4 px-4 py-4">
-        <div className="relative mx-auto aspect-[3/4] w-40 overflow-hidden rounded-xl bg-panel-2">
-          {/* eslint-disable-next-line @next/next/no-img-element -- in-memory image */}
-          {answer && <img src={answer} alt={`${t("answer", lang)} · ${k}`} className="h-full w-full object-cover" />}
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
-            {boxes.map((b, i) => (
-              <rect key={i} x={b.x * 100 - 2} y={b.y * 100 - 2} width={b.w * 100 + 4} height={b.h * 100 + 4} rx="3" fill="white" fillOpacity="0.25" stroke="white" strokeWidth="1" />
-            ))}
-          </svg>
+      <main className="flex flex-1 flex-col">
+        {/* answer image behind the sheet; cover-fit with the face kept in view, so the overlay shares the image's box */}
+        <div className="relative h-[30dvh] flex-none overflow-hidden bg-panel-2 [container-type:inline-size]">
+          <div className="absolute inset-x-0 aspect-[3/4]" style={{ top: `max(calc(30dvh - 133.333cqw), min(0px, calc(15dvh - ${focusY.toFixed(3)} * 133.333cqw)))` }}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- in-memory image */}
+            {answer && <img src={answer} alt={`${t("answer", lang)} · ${k}`} className="h-full w-full object-cover" />}
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
+              {boxes.map((b, i) => (
+                <rect key={i} x={b.x * 100 - 2} y={b.y * 100 - 2} width={b.w * 100 + 4} height={b.h * 100 + 4} rx="3" fill="white" fillOpacity="0.3" stroke="white" strokeWidth="0.8" />
+              ))}
+            </svg>
+          </div>
         </div>
+
+        <div className="relative z-[1] -mt-5 flex min-h-[70dvh] flex-1 flex-col gap-4 rounded-t-[var(--radius-sheet)] bg-panel px-4 pb-6 pt-3 shadow-[0_-8px_24px_rgba(31,27,26,0.12)]">
+        <div className="mx-auto h-1.5 w-10 rounded-full bg-line" aria-hidden />
+        <h2 className="text-lg font-extrabold">{t("shopTitle", lang)}</h2>
 
         <div role="tablist" aria-label={t("stepsNav", lang)} className="flex gap-1.5 overflow-x-auto">
           {plan.steps.map((s) => (
@@ -99,8 +109,8 @@ function ShopInner() {
               {m.matches.map(({ product: p, deltaE, textureMatch }) => {
                 const inCart = cart.includes(p.sku);
                 return (
-                  <article key={p.sku} className="flex items-center gap-3 rounded-[var(--radius-panel)] bg-panel p-3">
-                    <div className="flex h-16 w-16 flex-none overflow-hidden rounded-xl" aria-hidden>
+                  <article key={p.sku} className="flex items-center gap-3 rounded-[var(--radius-panel)] bg-panel-2 p-3">
+                    <div className="flex h-20 w-20 flex-none overflow-hidden rounded-xl" aria-hidden>
                       {p.shades.map((h) => (
                         <span key={h} className="flex-1" style={{ background: h }} />
                       ))}
@@ -113,7 +123,9 @@ function ShopInner() {
                           <span className="num">ΔE {deltaE.toFixed(1)}</span>
                         </Chip>
                         {!textureMatch && <Chip tone="warn">{t("textureMismatch", lang)}</Chip>}
-                        <span className="num text-sm font-bold">{lang === "ko" ? `₩${p.priceKrw.toLocaleString("ko-KR")}` : `$${p.priceUsd}`}</span>
+                        <span className="num text-sm font-bold">
+                          ₩{p.priceKrw.toLocaleString("ko-KR")} <span className="font-normal text-muted">· ${p.priceUsd}</span>
+                        </span>
                       </div>
                     </div>
                     <div className="flex flex-col gap-1">
@@ -149,6 +161,7 @@ function ShopInner() {
           </Button>
         )}
         <p className="text-xs text-muted">{t("deltaNote", lang)}</p>
+        </div>
       </main>
       <BottomBar>
         <Button className="w-full" disabled={cart.length === 0} onClick={() => cart[0] && setLeaving({ sku: cart[0] } as Product)}>

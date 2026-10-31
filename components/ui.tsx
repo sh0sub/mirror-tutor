@@ -22,6 +22,11 @@ const paths = {
   info: "M12 8v.5 M12 11v6 M12 21a9 9 0 100-18 9 9 0 000 18z",
   sparkle: "M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z",
   trash: "M5 7h14 M9 7V4h6v3 M7 7l1 13h8l1-13",
+  home: "M4 11l8-7 8 7 M6 10v10h12V10",
+  book: "M5 4h10a3 3 0 013 3v13H8a3 3 0 01-3-3z M5 17a3 3 0 013-3h10",
+  clock: "M12 21a9 9 0 100-18 9 9 0 000 18z M12 7v5l3 2",
+  user: "M12 12a4 4 0 100-8 4 4 0 000 8z M4 20a8 8 0 0116 0",
+  bell: "M6 17V11a6 6 0 0112 0v6l2 2H4z M10 21h4",
 };
 export type IconName = keyof typeof paths;
 
@@ -114,8 +119,9 @@ export function AppBar({ title, backHref, right }: { title: string; backHref?: s
 }
 
 /* ── layout helpers ───────────────────────────────────────── */
-export function Screen({ children }: { children: ReactNode }) {
-  return <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col bg-canvas">{children}</div>;
+export function Screen({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
+  // wide: on desktop the photo and the explanation sit side by side so the "why" card is above the fold
+  return <div className={`mx-auto flex min-h-dvh w-full max-w-[480px] flex-col bg-canvas ${wide ? "lg:max-w-[1040px]" : ""}`}>{children}</div>;
 }
 
 export function BottomBar({ children }: { children: ReactNode }) {
@@ -123,6 +129,33 @@ export function BottomBar({ children }: { children: ReactNode }) {
     <div className="sticky bottom-0 z-10 mt-auto border-t border-line bg-canvas/95 px-4 pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 backdrop-blur">
       {children}
     </div>
+  );
+}
+
+/* ── 5-tab bar (home shell, s4) ─────────────────────────────── */
+export type TabId = "home" | "lesson" | "capture" | "record" | "me";
+export function TabBar({ active, lessonId = "daily-k" }: { active: TabId; lessonId?: string }) {
+  const { lang } = useFlow();
+  const tabs: { id: TabId; href: string; icon: IconName; label: string }[] = [
+    { id: "home", href: "/", icon: "home", label: t("tabHome", lang) },
+    { id: "lesson", href: `/lesson?id=${lessonId}`, icon: "book", label: t("tabLesson", lang) },
+    { id: "capture", href: "/capture", icon: "camera", label: t("tabCapture", lang) },
+    { id: "record", href: "/record", icon: "clock", label: t("tabRecord", lang) },
+    { id: "me", href: "/#profile", icon: "user", label: t("tabMe", lang) },
+  ];
+  return (
+    <nav aria-label={t("tabsLabel", lang)} className="sticky bottom-0 z-10 mt-auto border-t border-line bg-canvas/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+      <ul className="grid grid-cols-5">
+        {tabs.map((tab) => (
+          <li key={tab.id}>
+            <Link href={tab.href} aria-current={tab.id === active ? "page" : undefined} className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-bold ${tab.id === active ? "text-primary" : "text-muted"}`}>
+              <Icon name={tab.icon} className="h-5 w-5" />
+              {tab.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
 

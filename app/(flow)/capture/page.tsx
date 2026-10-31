@@ -11,7 +11,7 @@ import { blobToBitmap, qualityOf, toUploadJpeg } from "@/lib/client/image";
 
 /** M1 촬영 가이드: live quality gate on the camera preview (face width ≥ 60%, light, frontal); upload fallback. */
 function CaptureInner() {
-  const { lang, consented, setConsented, setPhoto, setAttempt, stored } = useFlow();
+  const { lang, consented, setConsented, setPhoto, setAttempt, stored, hydrated } = useFlow();
   const router = useRouter();
   const params = useSearchParams();
   const forAttempt = params.get("for") === "attempt";
@@ -30,7 +30,7 @@ function CaptureInner() {
   const digitalZoom = zoomRange && !zoomRange.hw ? zoom : 1;
 
   useEffect(() => {
-    if (!consented && !forAttempt) return;
+    if (!hydrated || (!consented && !forAttempt)) return;
     let stream: MediaStream | null = null;
     let cancelled = false;
     (async () => {
@@ -63,7 +63,7 @@ function CaptureInner() {
       trackRef.current = null;
       stream?.getTracks().forEach((tr) => tr.stop());
     };
-  }, [consented, forAttempt]);
+  }, [hydrated, consented, forAttempt]);
 
   // live check every 500 ms
   useEffect(() => {
@@ -228,7 +228,7 @@ function CaptureInner() {
       </BottomBar>
 
       {/* dialog "close" also fires when agreeing closes the sheet; only leave when it was dismissed without consent */}
-      <Sheet open={!consented && !forAttempt} onClose={() => !consented && router.push("/")} title={t("consentTitle", lang)}>
+      <Sheet open={hydrated && !consented && !forAttempt} onClose={() => !consented && router.push("/")} title={t("consentTitle", lang)}>
         <p className="text-[15px] leading-relaxed">{t("consentBody", lang)}</p>
         <p className="mt-2 text-sm text-muted">{t("consentLocal", lang)}</p>
         <div className="mt-4 flex gap-2">
