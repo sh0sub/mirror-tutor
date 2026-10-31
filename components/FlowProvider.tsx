@@ -11,6 +11,7 @@ import type { GradeResult } from "@/lib/grade/types";
 import type { ServiceMode } from "@/lib/services/analyze";
 import { loadLang, saveLang } from "@/lib/i18n";
 import type { FaceDetection } from "@/lib/client/landmarker";
+import type { FacePins } from "@/lib/facePins";
 import type { SkinMeasure } from "@/lib/skin/measure";
 import { nearestShade } from "@/lib/skin/shades";
 
@@ -47,6 +48,8 @@ interface FlowState {
   setPhoto: (b: Blob | null) => void;
   /** Eye/mouth centers of `photo` (MediaPipe, in this tab). null until detected or on failure. */
   anchors: FaceAnchors | null;
+  /** M2 attribute pin points of `photo` (MediaPipe, in this tab). null until detected or on failure. */
+  facePins: FacePins | null;
   /** null without a photo. */
   skin: SkinState | null;
   /** Override the measured shade (0 units; lessons re-render on next open, 1 unit per uncached step). */
@@ -131,6 +134,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     };
   }, [photo, detectFor]);
   const anchors = detection?.result?.anchors ?? null;
+  const facePins = photo && detection?.blob === photo.blob ? (detection.result?.pins ?? null) : null;
   const skin = useMemo<SkinState | null>(() => {
     if (!photo) return null;
     const measured = detection?.blob === photo.blob ? (detection.result?.skin ?? null) : null;
@@ -272,10 +276,10 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const value = useMemo<FlowState>(
     () => ({
       lang, setLang, consented, setConsented, photo, setPhoto, stored, hydrated, setStored, editProfile, deleteProfile,
-      anchors, skin, setSkinShade, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
+      anchors, facePins, skin, setSkinShade, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
       cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession,
     }),
-    [lang, setLang, consented, photo, setPhoto, anchors, skin, setSkinShade, stored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
+    [lang, setLang, consented, photo, setPhoto, anchors, facePins, skin, setSkinShade, stored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

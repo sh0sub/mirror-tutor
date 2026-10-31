@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, Sheet, UnitLine } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
+import { PhotoPins, type PhotoPin } from "@/components/PhotoPins";
+import { estimateLabelWidth } from "@/lib/pinLayout";
 import { t, tf, type MsgKey } from "@/lib/i18n";
 import { postAnalyze } from "@/lib/client/api";
 import { ATTR_NAME, VALUE_HINT, profileSummary, valueLabel } from "@/lib/labels";
@@ -17,11 +19,16 @@ import type { SkinWarning } from "@/lib/skin/measure";
 
 const SKIN_WARNING: Record<SkinWarning, MsgKey> = { uneven_light: "skinLowUneven", too_dark: "skinLowDark", too_bright: "skinLowBright" };
 
+/** Mockup order: eyelid full width, then 2×2 (eye shape, face shape / lips, brows). */
+const CARD_ORDER: ProfileKey[] = ["eyelid", "eyeShape", "faceShape", "lipShape", "eyebrowShape"];
+/** Pin chips stay short: drop the parenthetical ("덮이는 눈꺼풀(처진·깊은 눈)" → "덮이는 눈꺼풀"). */
+const short = (s: string) => s.replace(/\s*\(.*\)\s*$/, "");
+
 type Phase = { kind: "loading"; slow: boolean } | { kind: "done" } | { kind: "error"; guide: GuideKey; demoAvailable: boolean };
 
 /** M2: analyzing (3-step progress, skeleton cards) → result + correction sheet + recommended lesson. */
 export default function AnalyzePage() {
-  const { lang, photo, stored, setStored, editProfile, setMode, mode, refreshCredit, skin, setSkinShade } = useFlow();
+  const { lang, photo, stored, setStored, editProfile, setMode, mode, refreshCredit, skin, setSkinShade, facePins } = useFlow();
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>(stored && !photo ? { kind: "done" } : { kind: "loading", slow: false });
   const [editing, setEditing] = useState<ProfileKey | null>(null);
@@ -53,6 +60,24 @@ export default function AnalyzePage() {
 
   const thumb = mode === "demo" ? "/demo/sample-model.svg" : photo?.url;
   const rec = stored ? recommendLesson(stored.profile) : null;
+  // Pins only on the user's own photo with real landmarks (demo sample / failed detection → photo only).
+  const ownPins = mode !== "demo" ? facePins : null;
+  const focus = useMemo(() => (ownPins ? { x: (ownPins.eye.x + ownPins.lip.x) / 2, y: (ownPins.brow.y + ownPins.lip.y) / 2 } : null), [ownPins]);
+  const pins = useMemo<PhotoPin[] | null>(() => {
+    if (!ownPins || phase.kind !== "done" || !stored) return null;
+    const p = stored.profile;
+    return [
+      { id: "eye", at: ownPins.eye, prefer: "left", text: `${short(valueLabel("eyelid", p.eyelid, lang))} · ${short(valueLabel("eyeShape", p.eyeShape, lang))}` },
+      { id: "brow", at: ownPins.brow, prefer: "right", text: short(valueLabel("eyebrowShape", p.eyebrowShape, lang)) },
+      { id: "cheek", at: ownPins.cheek, prefer: "left", text: short(valueLabel("faceShape", p.faceShape, lang)) },
+      { id: "lip", at: ownPins.lip, prefer: "right", text: short(valueLabel("lipShape", p.lipShape, lang)) },
+    ];
+  }, [ownPins, phase.kind, stored, lang]);
+  const doneChip = phase.kind === "done" && !!stored;
+  const badge = useMemo(
+    () => (doneChip ? { node: <Chip tone="ok">{t("analyzeDone", lang)}</Chip>, w: estimateLabelWidth(t("analyzeDone", lang), 12, 10) + 18, h: 24 } : undefined),
+    [doneChip, lang],
+  );
   // Skin shade: only for the user's own photo (the demo sample model keeps the lessons' default base color).
   const showSkin = !!skin && mode !== "demo";
   const shade = skin?.shadeId ? getShade(skin.shadeId) : undefined;
@@ -72,12 +97,9 @@ export default function AnalyzePage() {
       <AppBar title={t("analyzeTitle", lang)} backHref="/capture" />
       <ModeBanner />
       <main className="flex flex-1 flex-col gap-4 px-4 py-4">
-        <section className="flex gap-4">
-          {thumb ? (
-            // eslint-disable-next-line @next/next/no-img-element -- in-memory object URL, not optimizable
-            <img src={thumb} alt={t("myFace", lang)} className="h-40 w-30 flex-none rounded-xl object-cover" width={120} height={160} />
-          ) : (
-            <div className="h-40 w-30 flex-none rounded-xl bg-panel-2" />
+        <section className="flex flex-col gap-3">
+          {thumb && (
+            <PhotoPins src={thumb} alt={t("myFace", lang)} pins={pins} focus={focus} badge={badge} className="aspect-[3/2] w-full rounded-[var(--radius-panel)]" />
           )}
           <div className="flex min-w-0 flex-col gap-2">
             {phase.kind === "loading" && (
@@ -99,14 +121,20 @@ export default function AnalyzePage() {
             )}
             {phase.kind === "done" && stored && (
               <>
-                <Chip tone="ok">{t("analyzeDone", lang)}</Chip>
-                <p className="text-[15px] font-bold leading-snug">{profileSummary(stored.profile, lang)}</p>
+                {!thumb && (
+                  <span className="inline-flex">
+                    <Chip tone="ok">{t("analyzeDone", lang)}</Chip>
+                  </span>
+                )}
+                <p className="text-[16px] font-extrabold leading-snug">{profileSummary(stored.profile, lang)}</p>
                 <p className="text-sm text-muted">{t("fixHint", lang)}</p>
               </>
             )}
             {phase.kind === "error" && (
               <div role="alert" className="flex flex-col gap-2">
-                <Chip tone="bad">{t("analyzeFailed", lang)}</Chip>
+                <span className="inline-flex">
+                  <Chip tone="bad">{t("analyzeFailed", lang)}</Chip>
+                </span>
                 <p className="text-[15px] font-bold">{guideText(phase.guide, lang)}</p>
                 <p className="text-xs text-muted">{t("notBilled", lang)}</p>
               </div>
@@ -128,30 +156,35 @@ export default function AnalyzePage() {
 
         {phase.kind === "done" && stored && (
           <>
-            <ul className="flex flex-col gap-2">
-              {PROFILE_KEYS.map((k) => {
+            <ul className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2">
+              {CARD_ORDER.map((k) => {
                 const v = stored.profile[k];
                 const hint = (VALUE_HINT[k] as Record<string, { ko: string; en: string }> | undefined)?.[v as string];
+                const wide = k === "eyelid";
                 return (
-                  <li key={k}>
+                  <li key={k} className={wide ? "min-[380px]:col-span-2" : undefined}>
                     <button
                       type="button"
                       onClick={() => setEditing(k)}
-                      className="flex min-h-[72px] w-full items-center gap-3 rounded-[var(--radius-panel)] bg-panel p-3 text-left hover:bg-panel-2"
+                      className={`flex h-full min-h-[72px] w-full items-center gap-2 rounded-[var(--radius-panel)] border bg-panel p-3 text-left hover:bg-panel-2 ${wide ? "border-peach" : "border-transparent"}`}
                       aria-label={`${ATTR_NAME[k][lang]}: ${valueLabel(k, v, lang)}. ${t("editTitle", lang)}`}
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-muted">
                           {ATTR_NAME[k][lang]} <span className="font-normal">· {k}</span>
                         </p>
-                        <p className="text-[16px] font-extrabold">
-                          {valueLabel(k, v, lang)}{" "}
-                          {stored.source?.[k] && !stored.edited.includes(k) && <span className="text-xs font-medium text-muted">({stored.source[k]})</span>}
-                        </p>
-                        {hint && <p className="text-xs text-muted">{hint[lang]}</p>}
+                        <p className="text-[16px] font-extrabold leading-snug">{valueLabel(k, v, lang)}</p>
+                        {stored.source?.[k] && !stored.edited.includes(k) && <p className="text-xs text-muted">({stored.source[k]})</p>}
+                        {stored.edited.includes(k) && (
+                          <span className="mt-1 inline-flex">
+                            <Chip tone="accent">{t("edited", lang)}</Chip>
+                          </span>
+                        )}
+                        {hint && <p className="mt-0.5 text-xs text-muted">{hint[lang]}</p>}
                       </div>
-                      {stored.edited.includes(k) && <Chip tone="accent">{t("edited", lang)}</Chip>}
-                      <Icon name="pencil" className="h-4 w-4 flex-none text-muted" />
+                      <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-panel-2 text-muted" aria-hidden>
+                        <Icon name="pencil" className="h-4 w-4" />
+                      </span>
                     </button>
                   </li>
                 );

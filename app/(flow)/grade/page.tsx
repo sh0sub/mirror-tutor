@@ -1,14 +1,17 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppBar, BottomBar, ButtonLink, Chip, Icon, ModeBanner, Screen } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
+import { PhotoPins, type PhotoPin } from "@/components/PhotoPins";
 import { t } from "@/lib/i18n";
 import { postGrade } from "@/lib/client/api";
 import { measureLandmarksInBrowser } from "@/lib/client/landmarker";
 import { urlToBlob } from "@/lib/client/image";
 import { REGION_NAME, scoreBand, type GradeResult } from "@/lib/grade/types";
+import type { GradePins } from "@/lib/facePins";
+import { estimateLabelWidth } from "@/lib/pinLayout";
 
 /** M4: answer (step 4) vs my attempt → per-region scores, one-line tips, confidence. 0 YouCam units. */
 function GradeInner() {
@@ -19,6 +22,8 @@ function GradeInner() {
   const answer = answerState?.status === "done" ? answerState.image : null;
   const [error, setError] = useState<string | null>(null);
   const [focus, setFocus] = useState<string | null>(null);
+  // Score-label points from the attempt photo's own landmarks (never the first photo's). null → no overlay.
+  const [attemptPins, setAttemptPins] = useState<{ blob: Blob; pins: GradePins | null } | null>(null);
   const started = useRef<Blob | null>(null);
 
   useEffect(() => {
@@ -33,8 +38,9 @@ function GradeInner() {
     void (async () => {
       const answerBlob = await urlToBlob(answer);
       // S1: landmark-aligned ΔE measured on this device; null (no face / offline / unsupported) → F6 grader.
-      const landmarks = await measureLandmarksInBrowser(answerBlob, attempt.blob);
-      const r = await postGrade(answerBlob, attempt.blob, landmarks);
+      const { measure, attemptPins: pins } = await measureLandmarksInBrowser(answerBlob, attempt.blob);
+      setAttemptPins({ blob: attempt.blob, pins });
+      const r = await postGrade(answerBlob, attempt.blob, measure);
       if ("error" in r) setError(r.error);
       else {
         setGrade(r);
@@ -45,6 +51,33 @@ function GradeInner() {
   }, [attempt, answer, lessonId, router, setGrade, setGradedLesson, markCompleted]);
 
   const result: GradeResult | null = gradedLesson === lessonId ? grade : null;
+  const pinsNow = attempt && attemptPins?.blob === attempt.blob ? attemptPins.pins : null;
+  const scorePins = useMemo<PhotoPin[] | null>(() => {
+    if (!result?.comparable || !pinsNow) return null;
+    const out = result.regions.flatMap((r) => {
+      const at = pinsNow[r.region];
+      if (!at) return [];
+      const ok = r.score >= 80;
+      const name = REGION_NAME[r.region][lang];
+      return [
+        {
+          id: r.region,
+          at,
+          prefer: "center" as const,
+          text: `${name} ${r.score}`,
+          extraW: 18,
+          content: (
+            <>
+              <Icon name={ok ? "check" : "warn"} className={`h-3.5 w-3.5 flex-none ${ok ? "text-success" : "text-warning"}`} />
+              {name} <span className="num">{r.score}</span>
+            </>
+          ),
+        },
+      ];
+    });
+    return out.length ? out : null;
+  }, [result, pinsNow, lang]);
+  const captionReserve = useMemo(() => [{ corner: "top-left" as const, w: estimateLabelWidth(t("attempt", lang)), h: 20 }], [lang]);
   const confLabel = result ? t(result.confidence === "high" ? "confHigh" : result.confidence === "medium" ? "confMedium" : "confLow", lang) : "";
 
   return (
@@ -56,13 +89,19 @@ function GradeInner() {
           {[
             { src: answer, label: `${t("answer", lang)} · 4` },
             { src: attempt?.url ?? null, label: t("attempt", lang) },
-          ].map((p, i) => (
-            <figure key={i} className="relative aspect-[3/4] overflow-hidden rounded-xl bg-panel-2">
-              {/* eslint-disable-next-line @next/next/no-img-element -- in-memory images */}
-              {p.src && <img src={p.src} alt={p.label} className="h-full w-full object-cover" />}
-              <figcaption className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-xs font-bold ${i === 0 ? "bg-primary text-on-primary" : "bg-ink/70 text-canvas"}`}>{p.label}</figcaption>
-            </figure>
-          ))}
+          ].map((p, i) =>
+            i === 1 && p.src ? (
+              <PhotoPins key={i} src={p.src} alt={p.label} pins={scorePins} dots={false} reserve={captionReserve} className="aspect-[3/4] rounded-xl">
+                <figcaption className="absolute left-2 top-2 rounded-full bg-ink/70 px-2 py-0.5 text-xs font-bold text-canvas">{p.label}</figcaption>
+              </PhotoPins>
+            ) : (
+              <figure key={i} className="relative aspect-[3/4] overflow-hidden rounded-xl bg-panel-2">
+                {/* eslint-disable-next-line @next/next/no-img-element -- in-memory images */}
+                {p.src && <img src={p.src} alt={p.label} className="h-full w-full object-cover" />}
+                <figcaption className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-xs font-bold ${i === 0 ? "bg-primary text-on-primary" : "bg-ink/70 text-canvas"}`}>{p.label}</figcaption>
+              </figure>
+            ),
+          )}
         </div>
 
         {!result && !error && (

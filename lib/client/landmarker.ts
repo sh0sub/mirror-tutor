@@ -3,6 +3,7 @@
 import { landmarkMeasure, type LandmarkMeasure, type Pt, type RgbaImage } from "../grade/landmarks";
 import type { FaceAnchors } from "../regions";
 import { measureSkin, type SkinMeasure } from "../skin/measure";
+import { facePinsFromLandmarks, gradePinsFromLandmarks, type FacePins, type GradePins } from "../facePins";
 
 /**
  * S1 browser side: MediaPipe Face Landmarker (wasm from the jsDelivr CDN, model from Google's model
@@ -64,6 +65,8 @@ export interface FaceDetection {
   anchors: FaceAnchors;
   /** null when a cheek patch could not be sampled (the UI then keeps the default shade). */
   skin: SkinMeasure | null;
+  /** M2 attribute pin points (stay on this device). null when the mesh is incomplete. */
+  pins: FacePins | null;
 }
 
 /**
@@ -81,7 +84,7 @@ export async function detectFace(photo: Blob, timeoutMs = 12_000): Promise<FaceD
         const a = mean(f, [33, 133]);
         const b = mean(f, [362, 263]);
         const [leftEye, rightEye] = a.x <= b.x ? [a, b] : [b, a];
-        return { anchors: { leftEye, rightEye, mouth: mean(f, [61, 291, 13, 14]) }, skin: measureSkin(pixels(c), f) };
+        return { anchors: { leftEye, rightEye, mouth: mean(f, [61, 291, 13, 14]) }, skin: measureSkin(pixels(c), f), pins: facePinsFromLandmarks(f) };
       })(),
       timeoutMs,
     );
@@ -90,20 +93,28 @@ export async function detectFace(photo: Blob, timeoutMs = 12_000): Promise<FaceD
   }
 }
 
+export interface GradeLandmarks {
+  /** null (no face in either photo / offline / unsupported) → the F6 grader. Sent to /api/grade. */
+  measure: LandmarkMeasure | null;
+  /** M4 score-label points from the ATTEMPT photo's own landmarks (stay on this device). null → no overlay. */
+  attemptPins: GradePins | null;
+}
+
 /** answer: data URL / object URL of the VTO answer; attempt: the attempt photo blob. */
-export async function measureLandmarksInBrowser(answer: Blob | string, attempt: Blob | string, timeoutMs = 12_000): Promise<LandmarkMeasure | null> {
+export async function measureLandmarksInBrowser(answer: Blob | string, attempt: Blob | string, timeoutMs = 12_000): Promise<GradeLandmarks> {
   try {
     return await withTimeout(
       (async () => {
         const [lm, ca, cb] = await Promise.all([getLandmarker(), toCanvas(answer), toCanvas(attempt)]);
         const fa = lm.detect(ca).faceLandmarks[0];
         const fb = lm.detect(cb).faceLandmarks[0];
-        if (!fa || !fb) return null;
-        return landmarkMeasure(pixels(ca), fa, pixels(cb), fb);
+        const attemptPins = fb ? gradePinsFromLandmarks(fb) : null;
+        if (!fa || !fb) return { measure: null, attemptPins };
+        return { measure: landmarkMeasure(pixels(ca), fa, pixels(cb), fb), attemptPins };
       })(),
       timeoutMs,
     );
   } catch {
-    return null;
+    return { measure: null, attemptPins: null };
   }
 }
