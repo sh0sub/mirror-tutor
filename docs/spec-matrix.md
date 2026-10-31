@@ -1,6 +1,6 @@
 # Spec matrix (planning artifact `youcam*` vs running product)
 
-Round 1 and 2 audit, 2026-11-01, mock mode, 390px and 1440px. Round 2: tests 178/178, typecheck and lint clean.
+Round 1, 2 and 3 audit, 2026-11-01, mock mode, 390px and 1440px. Round 2: tests 178/178, typecheck and lint clean.
 Screenshots: scratchpad `converge/mirror-tutor/shots/` (r1) and `shots-r2/` (r2).
 
 | id | artifact section | expected | status | evidence |
@@ -34,3 +34,7 @@ Screenshots: scratchpad `converge/mirror-tutor/shots/` (r1) and `shots-r2/` (r2)
 | M2-note | s1 M2 | Analyzing screen shows "사진은 저장하지 않아요" privacy line | match | 120x160 thumbnail beside progress, privacy line directly under steps, skeleton cards above fold (fix-r2/m-analyzing) |
 | WIN-home | s4 Home / M1 | First screen shows value visually | match | Before/after sample (original vs answer) at top, links to /compare; desktop two-column hero (fix-r2/m-home, d-home) |
 | WIN-mock | mock mode | Mock answer image looks like a real render | match | Base/cheek/contour overlays much fainter, fainter still without face anchors; test in anchors.test.ts (fix-r2/m-shop). A faint patch may remain on close-ups; live mode unaffected |
+| R3-run | all screens | Full flow driven at 390px and 1440px (home, consent, capture, analyzing, result, edit sheet, lesson, shop, grade, share, record, compare) | match | r3: shots-r3 (scratchpad), tests 180/180, typecheck and lint clean |
+| R3-win-mock | lesson/share mock | Mock answer images show a gray smudge under the eye (step 3) and the share-card "original" panel carries a pale base patch | gap | Mock-only overlay artifact (m-lesson3, m-share); live mode and the /compare pre-generated images are unaffected. Low severity |
+| R4-run | all screens | Round 4 confirmation: home, consent, capture, analyzing, result, lesson re-driven at 390px and 1440px (model-b, mock mode) | match | scratchpad converge/mirror-tutor/shots/r4-*; tests 180/180, typecheck and lint clean |
+| R4-stepper | s2 M3 | Stepper shows done / active / pending dots | gap | While on step 1 the three later steps already show green checks (reads as "completed" although not yet viewed). Likely means "rendered", but a judge may read it as a bug. Low severity |
