@@ -22,6 +22,9 @@ export function registerMockAnchors(imageHash: string, anchors: FaceAnchors) {
 function maxOpacity(region: string, fitted: boolean): number {
   if (region === "base") return fitted ? 0.08 : 0.05;
   if (region === "cheek" || region === "contour") return fitted ? 0.4 : 0.2;
+  // Thin eye regions: a blurred dark liner/shadow reads as a gray smudge, so keep them subtle.
+  if (region === "eye_line") return fitted ? 0.3 : 0.15;
+  if (region === "eye_lid") return fitted ? 0.45 : 0.3;
   return 0.75;
 }
 

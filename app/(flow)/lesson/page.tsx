@@ -10,11 +10,12 @@ import { buildLesson, getLesson, INTENSITY_SCALES, type StepScales } from "@/lib
 import { ATTR_NAME } from "@/lib/labels";
 import { guideText } from "@/lib/quality/messages";
 import { regionBoxes } from "@/lib/regions";
+import { stepDotKind, type StepDotKind } from "@/lib/stepper";
 
-function dotClass(s: StepState | undefined, current: boolean) {
-  if (current) return "bg-primary text-on-primary";
-  if (s?.status === "done") return "bg-success text-white";
+function dotClass(s: StepState | undefined, kind: StepDotKind) {
+  if (kind === "active") return "bg-primary text-on-primary";
   if (s?.status === "error" || s?.status === "blocked") return "bg-danger-soft text-danger";
+  if (kind === "done") return "bg-success text-white";
   return "border-2 border-dashed border-line-strong/60 text-muted";
 }
 
@@ -89,6 +90,7 @@ function LessonInner() {
         <nav aria-label={t("stepsNav", lang)} className="flex items-center justify-between gap-1 px-4 py-3">
           {plan.steps.map((s) => {
             const st = steps[s.index];
+            const kind = stepDotKind(s.index, k);
             return (
               <button
                 key={s.index}
@@ -97,8 +99,8 @@ function LessonInner() {
                 aria-current={s.index === k ? "step" : undefined}
                 className="flex min-h-12 flex-1 flex-col items-center gap-1 text-xs font-bold"
               >
-                <span className={`flex h-8 w-8 items-center justify-center rounded-full ${dotClass(st, s.index === k)}`}>
-                  {st?.status === "done" && s.index !== k ? <Icon name="check" className="h-4 w-4" /> : st?.status === "error" ? <Icon name="warn" className="h-4 w-4" /> : s.index}
+                <span className={`flex h-8 w-8 items-center justify-center rounded-full ${dotClass(st, kind)}`}>
+                  {st?.status === "error" && kind !== "active" ? <Icon name="warn" className="h-4 w-4" /> : kind === "done" ? <Icon name="check" className="h-4 w-4" /> : s.index}
                 </span>
                 <span className={s.index === k ? "text-ink" : "text-muted"}>
                   {s.title[lang]}

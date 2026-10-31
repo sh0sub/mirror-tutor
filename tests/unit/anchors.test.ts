@@ -72,4 +72,16 @@ describe("mock renderer uses registered anchors", () => {
     for (let i = 0; i < data.length; i += 3) max = Math.max(max, data[i] - data[i + 1]);
     expect(max).toBeLessThan(80); // red-green delta; the old 0.75 opacity gave ~190
   });
+
+  it("keeps eye liner and shadow overlays subtle so no gray smudge sits under the eye", async () => {
+    const src = new Uint8Array(await sharp(await gray()).jpeg({ quality: 60 }).toBuffer());
+    const out = await mockRenderEffects(src, [
+      { category: "eye_liner", palettes: [{ color: "#000000", colorIntensity: 100 }] },
+      { category: "eye_shadow", palettes: [{ color: "#000000", colorIntensity: 100 }] },
+    ] as never);
+    const { data } = await sharp(out).raw().toBuffer({ resolveWithObject: true });
+    let min = 255;
+    for (let i = 0; i < data.length; i += 3) min = Math.min(min, data[i]);
+    expect(min).toBeGreaterThan(70); // flat gray 128 darkened by at most ~45%; the old 0.75 opacity went near 30
+  });
 });
