@@ -50,4 +50,13 @@ describe("S2 two-face compare (#18)", () => {
     expect(eyeKo.patterns).toEqual(eyeEn.patterns);
     expect(sameEyelid({ ...manifest, models: manifest.models.map((m) => ({ ...m, profile: { ...m.profile, eyelid: "double" } })) })).toBe(true);
   });
+
+  it("what-if (monolid + thin lips vs Model A) shows visible technique differences on the eye and lip steps", () => {
+    const a = manifest.models[0].profile;
+    const what = { ...a, eyelid: "monolid", lipShape: "thin" } as const;
+    const eye = compareStep(manifest.lessonId, a, what, 3, "ko").find((r) => r.attr === "eyelid");
+    expect(eye?.same).toBe(false);
+    const lip = compareStep(manifest.lessonId, a, what, 4, "ko").find((r) => r.attr === "lipShape");
+    expect(lip?.same).toBe(false);
+  });
 });

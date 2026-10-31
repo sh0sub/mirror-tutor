@@ -9,6 +9,10 @@ import { t, tf } from "@/lib/i18n";
 import { profileSummary, valueLabel } from "@/lib/labels";
 import { LESSONS, recommendLesson } from "@/lib/lessons";
 import { streakDays, weekDots } from "@/lib/practice";
+import type { CompareManifest } from "@/lib/demo/compare";
+import manifestJson from "@/public/demo/compare.json";
+
+const heroModel = (manifestJson as CompareManifest).models[0];
 
 /** Onboarding (M1 entry, consent) and the returning-user home (flow B: profile → lesson, no re-analysis). */
 export default function Home() {
@@ -35,7 +39,7 @@ export default function Home() {
   const score = (id: string) => practice.scores[id] ?? completed[id];
 
   return (
-    <Screen>
+    <Screen wide={!returning}>
       <AppBar
         title={t("appName", lang)}
         right={
@@ -146,20 +150,37 @@ export default function Home() {
             </div>
           </>
         ) : (
-          <section className="flex flex-col gap-4">
-            <Chip tone="accent" icon="sparkle">
-              YouCam Face Analyzer + Makeup VTO
-            </Chip>
-            <h2 className="text-[28px] font-extrabold leading-tight">{t("tagline", lang)}</h2>
-            <p className="text-[16px] leading-relaxed text-muted">{t("heroBody", lang)}</p>
-            <ol className="mt-2 flex flex-col gap-3 text-sm">
-              {(["homeStep1", "homeStep2", "homeStep3"] as const).map((key, i) => (
-                <li key={i} className="flex items-center gap-3 rounded-xl bg-panel p-3">
-                  <span className="num flex h-8 w-8 flex-none items-center justify-center rounded-full bg-peach-soft font-extrabold text-primary">{i + 1}</span>
-                  {t(key, lang)}
-                </li>
-              ))}
-            </ol>
+          <section className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-center lg:gap-10">
+            <div className="flex flex-col gap-4">
+              <Chip tone="accent" icon="sparkle">
+                YouCam Face Analyzer + Makeup VTO
+              </Chip>
+              <h2 className="text-[28px] font-extrabold leading-tight lg:text-[36px]">{t("tagline", lang)}</h2>
+              <p className="text-[16px] leading-relaxed text-muted">{t("heroBody", lang)}</p>
+              <ol className="mt-2 flex flex-col gap-3 text-sm">
+                {(["homeStep1", "homeStep2", "homeStep3"] as const).map((key, i) => (
+                  <li key={i} className="flex items-center gap-3 rounded-xl bg-panel p-3">
+                    <span className="num flex h-8 w-8 flex-none items-center justify-center rounded-full bg-peach-soft font-extrabold text-primary">{i + 1}</span>
+                    {t(key, lang)}
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <Link href="/compare" aria-label={t("compareEntry", lang)} className="order-first flex flex-col gap-2 lg:order-none">
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { src: heroModel.original, label: t("original", lang) },
+                  { src: heroModel.steps[heroModel.steps.length - 1], label: t("answer", lang) },
+                ].map((im) => (
+                  <div key={im.label} className="relative aspect-[3/4] overflow-hidden rounded-xl bg-panel-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- static pre-generated demo asset */}
+                    <img src={im.src} alt="" width={600} height={800} className="h-full w-full object-cover" />
+                    <span className="absolute left-2 top-2 rounded-full bg-ink/70 px-2 py-0.5 text-xs font-bold text-canvas">{im.label}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-center text-xs font-bold text-primary-strong">{t("heroSampleCaption", lang)}</p>
+            </Link>
           </section>
         )}
         {hydrated && (

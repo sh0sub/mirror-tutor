@@ -4,20 +4,55 @@ import { useMemo, useState } from "react";
 import { AppBar, BottomBar, ButtonLink, Chip, Icon, Screen } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
+import type { Lang } from "@/lib/rules/engine";
+import { EYELIDS, LIP_SHAPES, type Eyelid, type LipShape } from "@/lib/profile";
 import { buildLesson } from "@/lib/lessons";
 import { ATTR_NAME, sourceCaption, valueLabel } from "@/lib/labels";
-import { compareStep, sameEyelid, type CompareManifest } from "@/lib/demo/compare";
+import { compareStep, sameEyelid, type CompareManifest, type TechniqueRow } from "@/lib/demo/compare";
 import manifestJson from "@/public/demo/compare.json";
 
 const manifest = manifestJson as CompareManifest;
 const letter = (i: number) => String.fromCharCode(65 + i);
 
+function RuleList({ rows, lang, names }: { rows: TechniqueRow[]; lang: Lang; names: [string, string] }) {
+  return (
+    <ul className="flex flex-col gap-3">
+              {rows.map((r) => (
+                <li key={r.attr} className="flex flex-col gap-1.5 border-b border-line pb-3 last:border-0 last:pb-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-bold">{ATTR_NAME[r.attr][lang]}</span>
+                    <Chip tone={r.same ? "neutral" : "accent"} icon={r.same ? "check" : "sparkle"}>
+                      {r.same ? t("same", lang) : t("different", lang)}
+                    </Chip>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    {[0, 1].map((i) => (
+                      <div key={i} className="flex flex-col gap-0.5">
+                        <span className="text-xs text-muted">
+                          {names[i]} · {r.values[i]}
+                        </span>
+                        <span className="font-bold leading-snug">{r.techniques[i]}</span>
+                        <span className="num text-xs text-muted">{r.patterns[i]}</span>
+                      </div>
+                    ))}
+                  </div>
+                </li>
+              ))}
+            </ul>
+  );
+}
+
 /** S2 "두 얼굴 비교": two pre-generated models, same lesson, side by side + the rule-table branch each took. 0 live units. */
 export default function ComparePage() {
   const { lang } = useFlow();
+  const [a, b] = manifest.models;
   const [k, setK] = useState(4);
   const [before, setBefore] = useState(false);
-  const [a, b] = manifest.models;
+  // What-if: the rule table's other branches (monolid, thin lips…) vs Model A. Rule-table text only, no images (0 units).
+  const [wiEyelid, setWiEyelid] = useState<Eyelid>("monolid");
+  const [wiLip, setWiLip] = useState<LipShape>("thin");
+  const wiProfile = useMemo(() => ({ ...a.profile, eyelid: wiEyelid, lipShape: wiLip }), [a.profile, wiEyelid, wiLip]);
+  const wiRows = useMemo(() => compareStep(manifest.lessonId, a.profile, wiProfile, k, lang), [a.profile, wiProfile, k, lang]);
   const plan = useMemo(() => buildLesson(manifest.lessonId, a.profile), [a.profile]);
   const rows = useMemo(() => compareStep(manifest.lessonId, a.profile, b.profile, k, lang), [a.profile, b.profile, k, lang]);
   const step = plan.steps[k - 1];
@@ -86,31 +121,37 @@ export default function ComparePage() {
           {rows.length === 0 ? (
             <p className="text-sm text-muted">—</p>
           ) : (
-            <ul className="flex flex-col gap-3">
-              {rows.map((r) => (
-                <li key={r.attr} className="flex flex-col gap-1.5 border-b border-line pb-3 last:border-0 last:pb-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-bold">{ATTR_NAME[r.attr][lang]}</span>
-                    <Chip tone={r.same ? "neutral" : "accent"} icon={r.same ? "check" : "sparkle"}>
-                      {r.same ? t("same", lang) : t("different", lang)}
-                    </Chip>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    {[0, 1].map((i) => (
-                      <div key={i} className="flex flex-col gap-0.5">
-                        <span className="text-xs text-muted">
-                          {tf("modelN", lang, { n: letter(i) })} · {r.values[i]}
-                        </span>
-                        <span className="font-bold leading-snug">{r.techniques[i]}</span>
-                        <span className="num text-xs text-muted">{r.patterns[i]}</span>
-                      </div>
-                    ))}
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <RuleList rows={rows} lang={lang} names={[tf("modelN", lang, { n: "A" }), tf("modelN", lang, { n: "B" })]} />
           )}
           {b.profile.eyelid === "inner_double" && rows.some((r) => r.attr === "eyelid") && <p className="text-xs text-muted">{t("compareInnerNote", lang)}</p>}
+        </section>
+
+        <section aria-labelledby="whatif" className="flex flex-col gap-3 rounded-[var(--radius-panel)] border border-peach bg-panel p-4">
+          <h2 id="whatif" className="text-sm font-extrabold">
+            {t("whatIfTitle", lang)}
+          </h2>
+          <p className="text-xs text-muted">{t("whatIfBody", lang)}</p>
+          {(
+            [
+              { key: "eyelid", options: EYELIDS, value: wiEyelid, set: setWiEyelid as (v: string) => void },
+              { key: "lipShape", options: LIP_SHAPES, value: wiLip, set: setWiLip as (v: string) => void },
+            ] as const
+          ).map((g) => (
+            <div key={g.key} role="group" aria-label={ATTR_NAME[g.key][lang]} className="flex flex-wrap gap-1.5">
+              {g.options.map((o) => (
+                <button
+                  key={o}
+                  type="button"
+                  aria-pressed={g.value === o}
+                  onClick={() => g.set(o)}
+                  className={`min-h-10 rounded-full px-3 text-xs font-bold ${g.value === o ? "bg-primary text-on-primary" : "bg-panel-2 text-muted"}`}
+                >
+                  {valueLabel(g.key, o as never, lang)}
+                </button>
+              ))}
+            </div>
+          ))}
+          {wiRows.length === 0 ? <p className="text-sm text-muted">—</p> : <RuleList rows={wiRows} lang={lang} names={[tf("modelN", lang, { n: "A" }), t("whatIfName", lang)]} />}
         </section>
 
         <section aria-labelledby="samples" className="flex flex-col gap-2">

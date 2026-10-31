@@ -8,6 +8,7 @@ const DICT = {
     ko: "튜토리얼은 그 사람 얼굴 기준이에요. 사진 1장이면 내 눈꺼풀·입술에 맞춘 단계별 정답을 보여 주고, 내가 그린 결과를 채점해요.",
     en: "Tutorials are filmed on someone else's face. One photo and we show step-by-step answers adapted to your eyelids and lips — then grade what you drew.",
   },
+  heroSampleCaption: { ko: "샘플 모델 · 같은 룩이 얼굴마다 다르게 보여요 →", en: "Sample model · the same look differs by face →" },
   start: { ko: "시작하기", en: "Get started" },
   consentTitle: { ko: "시작하기 전에", en: "Before you start" },
   consentBody: {
@@ -171,6 +172,9 @@ const DICT = {
   showBefore: { ko: "원본 보기", en: "Show original" },
   showAfter: { ko: "정답 보기", en: "Show answer" },
   compareRules: { ko: "이 단계의 기법 차이 (규칙표)", en: "Technique differences in this step (rule table)" },
+  whatIfTitle: { ko: "내 눈꺼풀이 홑꺼풀이라면? (규칙표 미리보기)", en: "What if your lid is a monolid? (rule-table preview)" },
+  whatIfBody: { ko: "같은 룩, 같은 단계를 모델 A와 비교해요. 사진은 미리 만든 두 모델뿐이고, 여기는 규칙표의 다른 분기만 글로 보여 줘요.", en: "Same look, same step, compared with Model A. Photos exist only for the two pre-made models; this shows other rule-table branches as text." },
+  whatIfName: { ko: "가정", en: "What-if" },
   same: { ko: "같음", en: "Same" },
   different: { ko: "다름", en: "Different" },
   compareSameEyelid: { ko: "두 모델의 눈꺼풀이 같은 유형이라 눈 기법 차이는 보이지 않아요.", en: "Both models have the same eyelid type, so the eye technique doesn't differ here." },

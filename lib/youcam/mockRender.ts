@@ -16,6 +16,16 @@ export function registerMockAnchors(imageHash: string, anchors: FaceAnchors) {
 }
 
 /**
+ * Overlay strength per region. Large soft regions (base, cheek, contour) stay faint so they read as a tint, never a
+ * bruise; without face anchors the fixed boxes can land on the nose bridge of a close-up, so they are fainter still.
+ */
+function maxOpacity(region: string, fitted: boolean): number {
+  if (region === "base") return fitted ? 0.08 : 0.05;
+  if (region === "cheek" || region === "contour") return fitted ? 0.4 : 0.2;
+  return 0.75;
+}
+
+/**
  * Mock-mode stand-in for Makeup VTO: paints soft colored overlays on the user's own photo at the
  * face regions (fitted to the face anchors when known, else fixed boxes), so UI work and tests run without spending units. It is visibly a mock
  * (flat blurred ellipses), never shown as a real VTO result in demo videos.
@@ -41,7 +51,7 @@ export async function mockRenderEffects(source: Uint8Array, effects: Effect[], a
         const rx = ((palettes.length > 1 ? slice : b.w) / 2) * width;
         const ry = (b.h / 2) * height;
         const intensity = typeof p.colorIntensity === "number" ? p.colorIntensity : 50;
-        const opacity = (region === "base" ? 0.18 : 0.75) * (intensity / 100);
+        const opacity = maxOpacity(region, !!fit) * (intensity / 100);
         shapes.push(
           `<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" fill="${p.color}" fill-opacity="${opacity.toFixed(3)}"/>`,
         );

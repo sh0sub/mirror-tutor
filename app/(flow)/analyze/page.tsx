@@ -97,9 +97,16 @@ export default function AnalyzePage() {
       <AppBar title={t("analyzeTitle", lang)} backHref="/capture" />
       <ModeBanner />
       <main className="flex flex-1 flex-col gap-4 px-4 py-4">
-        <section className="flex flex-col gap-3">
+        <section className={phase.kind === "loading" ? "flex items-start gap-3" : "flex flex-col gap-3"}>
           {thumb && (
-            <PhotoPins src={thumb} alt={t("myFace", lang)} pins={pins} focus={focus} badge={badge} className="aspect-[3/2] w-full rounded-[var(--radius-panel)]" />
+            <PhotoPins
+              src={thumb}
+              alt={t("myFace", lang)}
+              pins={pins}
+              focus={focus}
+              badge={badge}
+              className={phase.kind === "loading" ? "aspect-[3/4] w-[120px] flex-none rounded-[var(--radius-panel)]" : "aspect-[3/2] w-full rounded-[var(--radius-panel)]"}
+            />
           )}
           <div className="flex min-w-0 flex-col gap-2">
             {phase.kind === "loading" && (
@@ -117,6 +124,7 @@ export default function AnalyzePage() {
                     </li>
                   ))}
                 </ol>
+                <p className="text-xs leading-relaxed text-muted">{t("noStore", lang)}</p>
               </>
             )}
             {phase.kind === "done" && stored && (
@@ -150,7 +158,6 @@ export default function AnalyzePage() {
             {PROFILE_KEYS.map((k) => (
               <div key={k} className="skeleton h-[72px] rounded-[var(--radius-panel)]" />
             ))}
-            <p className="pt-1 text-center text-xs text-muted">{t("noStore", lang)}</p>
           </div>
         )}
 

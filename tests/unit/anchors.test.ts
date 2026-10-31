@@ -60,4 +60,16 @@ describe("mock renderer uses registered anchors", () => {
     const out = await mockRenderEffects(src, lipstick);
     expect(await redAt(out, 0.5, 0.635)).toBeGreaterThan(40);
   });
+
+  it("keeps cheek and foundation overlays faint so mock answers never look like a bruise", async () => {
+    const src = new Uint8Array(await sharp(await gray()).jpeg({ quality: 60 }).toBuffer());
+    const out = await mockRenderEffects(src, [
+      { category: "blush", palettes: [{ color: "#ff0000", colorIntensity: 100 }] },
+      { category: "foundation", palettes: [{ color: "#ff0000", colorIntensity: 100 }] },
+    ] as never);
+    const { data } = await sharp(out).raw().toBuffer({ resolveWithObject: true });
+    let max = 0;
+    for (let i = 0; i < data.length; i += 3) max = Math.max(max, data[i] - data[i + 1]);
+    expect(max).toBeLessThan(80); // red-green delta; the old 0.75 opacity gave ~190
+  });
 });
