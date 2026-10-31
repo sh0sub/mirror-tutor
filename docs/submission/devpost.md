@@ -15,9 +15,9 @@ Makeup tutorials are filmed on someone else's face. A gradient eyeshadow that wo
 ## What it does
 
 1. Capture: a live quality gate (face width at least 60% of the frame, light, frontal, zoom) checks the photo against YouCam's input requirements before any API unit is spent.
-2. Analyze: YouCam Face Attribute & Ratio Analysis reads eyelid, eye shape, lip shape, face shape and brow shape. The user can correct any value, with no re-analysis.
+2. Analyze: YouCam Face Attribute & Ratio Analysis reads eyelid, eye shape, lip shape, face shape and brow shape. The user can correct any value, with no re-analysis. The base shade is measured on the device from the cheeks and forehead and mapped to one of six foundation shades (13N to 27W); only the shade id leaves the browser.
 3. Technique selection: a hand-written rule table maps each feature to a technique and a plain-language reason. Example: monolid -> horizontal gradient shadow + liner visible 1.5 mm.
-4. Lesson: three lessons (Daily K-look, Soft shading, Gradient lips) of four steps each. YouCam Makeup VTO renders each step cumulatively on the user's own photo as the answer key, with a before/after slider and "why this fits you" reasons.
+4. Lesson: three lessons (Daily K-look, Soft shading, Gradient lips) of four steps each. YouCam Makeup VTO renders each step cumulatively on the user's own photo as the answer key, with the foundation color set to the measured shade, with a before/after slider and "why this fits you" reasons.
 5. Grade: the user does the makeup and photographs the result. Per-region scores (eye line, eyelid, cheek, lip) come from color differences, with a one-line correction and a confidence level.
 6. Shop the step: the exact hex colors of a step are matched to catalog products by CIEDE2000 (<= 5). Then a share card.
 7. Compare: a page with two pre-generated demo faces (double vs inner-double eyelid) showing the same look with different techniques.
@@ -31,7 +31,8 @@ Also: Korean and English UI, a per-session unit cap, and a demo mode that serves
 - **YouCam Makeup VTO** (`POST /s2s/v2.0/task/makeup-vto`, 1 unit per image): a lesson step k sends effects 1..k in one call on the same uploaded `file_id`, so each step is a cumulative answer image. Effects used: `skin_smooth`, `foundation`, `eyebrows`, `eye_shadow`, `eye_liner`, `blush`, `contour`, `lip_color`. Pattern labels come from the public pattern catalog and are checked against it in tests. Live calls corrected several details versus the docs (for example, eyebrow shape patterns require curvature, thickness and definition; ombre lips need two palettes and different field names). Request builders are tested against recorded live response bodies. All of it is in `docs/api-notes.md`.
 - **Unit guard**: units are reserved before a task and released on error; session cap 20, a daily cap, balance read from the credit endpoint, and a render cache keyed on image + effects.
 - **Grading**: MediaPipe Face Landmarker runs in the browser and computes per-region CIELAB means, so the same face area is compared even when framing differs. The server computes CIEDE2000 against the answer and Claude (claude-opus-5-5) writes the one-line corrections from those numbers (text only). If MediaPipe cannot run, a fixed-box fallback grader is used.
-- **Shop the step**: a demo catalog of 12 fictional "MT Select" SKUs, matched by color difference and texture.
+- **Skin shade**: the browser trims the brightest and darkest 20% of cheek and forehead pixels, averages them in CIELAB and picks the nearest of six shades by CIEDE2000. Confidence drops when the two cheeks disagree or the photo is too dark or bright, and the user can pick the shade by hand.
+- **Shop the step**: a demo catalog of 17 fictional "MT Select" SKUs, matched by color difference and texture.
 - **Privacy**: no image stored server-side, nothing logged, localStorage keeps only five attributes, share card drawn on the device.
 
 ## Challenges we ran into
@@ -57,7 +58,7 @@ Also: Korean and English UI, a per-session unit cap, and a demo mode that serves
 ## What's next
 
 - Replace the demo catalog with a partner product feed so each step links to real SKUs and shades.
-- Personalize shade choices to skin tone (the current colors are fixed per lesson).
+- Extend skin-tone personalization from foundation and blush to lip and shadow palettes.
 - Let brands and creators publish their own lessons as JSON.
 - More lessons and a practice history with score trends.
 
