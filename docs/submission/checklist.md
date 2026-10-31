@@ -17,9 +17,9 @@
 
 | 항목 | 상태 | 방법 / 메모 |
 |---|---|---|
-| 배포 URL (Vercel) | 완료 | https://mirror-tutor.vercel.app (현재 mock 모드). live 동작 자체는 10/31 로컬 live 녹화에서 확인(분석·VTO 4단계·채점, 잔량 972u). |
-| Vercel을 `YOUCAM_MODE=live`로 전환 + 재배포 | 남음(사용자) | 심사 전에 반드시. 키를 `.env`에 둔 뒤 `bash scripts/vercel-env.sh` -> `npx vercel --prod --yes`. 커밋 작성자 권한 때문에 Blocked 되면 README의 Deploy 절 참고. 영상 촬영도 이 전환 이후에 한다. |
-| 라이브 전환 후 동작 확인 | 남음(Claude) | 사용자가 전환하면 Claude가 `/api/credit`, 분석 1회, 데모 모드 폴백(잔량 임계 이하일 때 샘플 모델)을 확인한다. 유닛을 쓰므로 요청 시에만. |
+| 배포 URL (Vercel) | 완료 | https://mirror-tutor.vercel.app — 10/31 live 모드 전환·재배포. `/api/credit` mode=live, 운영에서 model-b 분석 1회 성공(10u, 잔량 962u). |
+| Vercel을 `YOUCAM_MODE=live`로 전환 + 재배포 | 완료 (10/31) | |
+| 라이브 전환 후 동작 확인 | 완료 (10/31) | 분석 API 운영 호출 성공. VTO·채점은 같은 코드의 로컬 live 녹화에서 확인. |
 | 유닛 잔량 250 이상 확인 | 완료 (10/31 972u) | 마지막으로 기록된 값은 10/28 스파이크의 1000u(이후 사용량은 확인 필요). 홈 화면 잔량 또는 YouCam 콘솔에서 확인. 150 미만이면 앱이 자동으로 데모 모드가 된다. |
 | 테스트용 샘플 이미지 2장 | 완료(확인 필요) | `public/demo/model-a`, `model-b`가 있다. 둘 다 Pexels 스톡 사진(Pexels License)이다. 규칙은 "본인 또는 동의받은 모델"이므로 스톡 사진을 그대로 써도 되는지 사용자가 판단하거나 본인 사진으로 교체한다. |
 | 데모 모드 안내(유닛 보호) | 완료 | 앱 배너와 README의 "Demo mode and unit guard" 절. |
