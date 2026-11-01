@@ -9,7 +9,8 @@ const DICT = {
     en: "Tutorials are filmed on someone else's face. One photo and we show step-by-step answers adapted to your eyelids and lips — then grade what you drew.",
   },
   heroSampleCaption: { ko: "홑꺼풀 vs 쌍꺼풀 · 같은 룩, 다른 기법 →", en: "Monolid vs double lid · same look, different technique →" },
-  start: { ko: "시작하기", en: "Get started" },
+  start: { ko: "내 셀카로 시작하기", en: "Use my own selfie" },
+  sampleNoSelfie: { ko: "셀카 없이 - 30초 둘러보기", en: "No selfie needed - 30 s walk-through" },
   consentTitle: { ko: "시작하기 전에", en: "Before you start" },
   consentBody: {
     ko: "사진은 분석 중 메모리에서만 처리되고 저장하지 않습니다. 분석을 위해 Perfect Corp. YouCam API로 전송되며 해당 서비스는 파일을 최대 30일 보관합니다.",
@@ -66,6 +67,12 @@ const DICT = {
     en: "You're trying a sample model (stock photo). Pre-generated YouCam results play back; no units are spent. Edits and other lessons use a preview overlay.",
   },
   sampleCost: { ko: "샘플 모델 · 미리 만든 YouCam 결과 · 0 유닛", en: "Sample model · pre-generated YouCam results · 0 units" },
+  sampleAttemptNote: {
+    ko: "시뮬레이션된 샘플 시도예요. 정답 이미지의 부위별 색을 일부러 어긋나게 만든 사진이라, 실제 셀카 시도가 아니에요(0 유닛). 점수는 정답과 이 사진의 부위별 평균 색 차이(CIEDE2000)예요.",
+    en: "This is a simulated sample attempt: the answer image with each region deliberately off-shade, not a real selfie (0 units). Each score is the CIEDE2000 difference between the answer's and this photo's mean color in that region.",
+  },
+  gradeAnswerSwatch: { ko: "정답", en: "Answer" },
+  gradeAttemptSwatch: { ko: "시도", en: "Attempt" },
   sampleFace: { ko: "샘플 모델", en: "Sample model" },
   sampleAttempt: { ko: "샘플 시도로 채점", en: "Grade a sample try" },
   samplePreviewCost: { ko: "샘플 모델은 미리보기 오버레이로 다시 그려요 · 0 유닛", en: "On the sample model this redraws as a preview overlay · 0 units" },

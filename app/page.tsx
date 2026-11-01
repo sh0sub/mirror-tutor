@@ -47,6 +47,13 @@ export default function Home() {
       {t("sampleTry", lang)}
     </Button>
   );
+  // First visit: the 0-unit sample walk-through is the filled primary action (no selfie, no consent); the own-selfie path is secondary.
+  const samplePrimary = (
+    <Button className="w-full px-3 leading-tight" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-noselfie">
+      <Icon name="user" className="h-4 w-4" />
+      {t("sampleTry", lang)}
+    </Button>
+  );
   // Retailer/business value is a first-class secondary action next to the sample trial (Impact criterion), not a text link.
   const retailerButton = (
     <ButtonLink href="/partner" variant="ghost" className="min-w-0 flex-1 border border-line-strong/50 px-3 text-center leading-tight" aria-label={t("partnerEntry", lang)}>
@@ -270,14 +277,23 @@ export default function Home() {
       ) : (
         <BottomBar>
           <div className="flex flex-col gap-2">
-            <Button className="w-full" onClick={() => begin("/capture")}>
-              {t("start", lang)}
-            </Button>
-            {hydrated && (
-              <div className="flex gap-2">
-                {sampleButton}
-                {retailerButton}
-              </div>
+            {hydrated ? (
+              <>
+                {samplePrimary}
+                <p id="sample-noselfie" className="text-center text-xs font-bold text-primary-strong">
+                  {t("sampleNoSelfie", lang)}
+                </p>
+                <div className="flex gap-2">
+                  <Button variant="ghost" className="min-w-0 flex-[1.5] px-3 leading-tight" onClick={() => begin("/capture")}>
+                    {t("start", lang)}
+                  </Button>
+                  {retailerButton}
+                </div>
+              </>
+            ) : (
+              <Button className="w-full" onClick={() => begin("/capture")}>
+                {t("start", lang)}
+              </Button>
             )}
           </div>
         </BottomBar>

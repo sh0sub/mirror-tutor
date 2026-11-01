@@ -67,7 +67,7 @@ interface FlowState {
   sample: boolean;
   /** Load the sample model as the photo and enter sample mode (0 units; the server never calls YouCam for it). */
   startSample: () => Promise<void>;
-  /** Sample mode: use the stock attempt photo instead of a new selfie. */
+  /** Sample mode: use the simulated attempt photo instead of a new selfie. */
   loadSampleAttempt: () => Promise<void>;
   mode: ServiceMode | null;
   setMode: (m: ServiceMode) => void;

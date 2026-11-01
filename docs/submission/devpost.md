@@ -14,6 +14,8 @@ Shoppers buy a shade, try the look from a tutorial filmed on someone else's face
 
 Face Analyzer read our monolid stock model as double-lid on both eyes. The app lets you correct it (marked "Edited") and the whole lesson changes. **/compare** puts both faces side by side with the analyzer's raw reading and the corrected value, plus the same monolid eye drawn with a horizontal and a vertical gradient (both real YouCam renders).
 
+**YouCam VTO output is the answer key we grade your real attempt against, per region with CIEDE2000.**
+
 ## What it does for shoppers and retailers
 
 - **Shoppers:** fewer shade regrets. You see each step on your own face, your attempt is scored per region, and every step links to the product in that exact color.
@@ -24,7 +26,7 @@ We claim no pilot, no retailer test and no measured lift. No conversion, revenue
 
 ## Try it in 30 seconds (0 units, no selfie)
 
-Open https://mirror-tutor.vercel.app, tap "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛"), and walk analysis, the 4-step lesson, grading and shop the step. Then open /compare and "Retailer view (concept)".
+No selfie needed - 30 s walk-through. Open https://mirror-tutor.vercel.app and tap the filled button "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛"), then walk analysis, the 4-step lesson, grading and shop the step. Then open /compare and "Retailer view (concept)". To use your own photo instead, tap "Use my own selfie" (asks for consent).
 
 ## How it works
 
@@ -53,7 +55,7 @@ Demand context, not proof for our app: PYMNTS (27 Feb 2024, citing National Reta
 
 - The loop is closed: analyze -> technique -> answer image -> your attempt -> score -> product.
 - Techniques depend on the face and the rule table is visible, with its reason in plain words and labelled a rule of thumb.
-- 205 tests (27 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
+- 206 tests (27 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
 
 ## How we built it
 
@@ -81,7 +83,8 @@ Pipeline (`docs/pipeline.svg`): Face Analyzer (10 units, once) -> rule table (0)
 
 ## Honest notes
 
-- The analysis and the four Makeup VTO renders of the first lesson are real YouCam API calls (14 units, captured live). The sample trial, the compare view and the grade scene in the video play back pre-generated results at 0 units (the grade scene scores a stock "attempt"); a banner says so on every screen.
+- The analysis and the four Makeup VTO renders of the first lesson are real YouCam API calls (14 units, captured live). The sample trial, the compare view and the grade scene in the video play back pre-generated results at 0 units (the grade scene scores a simulated attempt, see the next point); a banner says so on every screen.
+- The sample grading screen scores a simulated attempt, labelled as such on screen: the lesson's answer image with each graded region deliberately shifted off-shade by a script (`scripts/demo/make-sample-attempt.ts`, 0 units). The scores (eyeliner 77, eyelid 85, cheeks 93, lips 62, total 79) are real CIEDE2000 differences between those two images, with the delta-E value and the answer/attempt color pair shown for each region, but the attempt is not a real selfie.
 - Face Analyzer read our monolid stock model as double-lid; we corrected the eyelid in the app's edit sheet and the lesson changed.
 - All faces are Pexels or Unsplash License stock photos, not real users.
 
@@ -95,4 +98,4 @@ Next.js, React, TypeScript, Tailwind CSS, YouCam API (Face Attribute & Ratio Ana
 - Retailer view (concept): https://mirror-tutor.vercel.app/partner
 - Source code: https://github.com/sh0sub/mirror-tutor (public, MIT)
 - Video: YouTube link (add after upload). About 2:54, faceless (stock photos only); what is live and what is pre-generated is listed under "Honest notes".
-- Test images: `public/demo/model-a`, `model-b` (Pexels License), `model-c` (Unsplash License)
+- Test images: `public/demo/model-a`, `model-b` (Pexels License), `model-c` (Unsplash License); `model-a/sample-attempt.jpg` is a simulated attempt derived from model-a's answer image

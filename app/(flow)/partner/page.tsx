@@ -40,15 +40,15 @@ export default function PartnerPage() {
     <Screen wide>
       <AppBar title={t("partnerTitle", lang)} backHref="/" />
       <main className="flex flex-1 flex-col gap-6 px-4 py-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
-        <div className="flex flex-col gap-3 lg:col-span-2">
-          <Chip tone="warn" icon="info">
+        <div className="flex min-w-0 flex-col gap-3 lg:col-span-2">
+          <Chip tone="warn" icon="info" wrap>
             {t("partnerConcept", lang)}
           </Chip>
           <p className="max-w-[720px] text-[15px] leading-relaxed text-muted">{t("partnerIntro", lang)}</p>
         </div>
 
         {/* fictional product page with the embedded widget */}
-        <section aria-label="MT Select" className="flex flex-col gap-4 rounded-[var(--radius-panel)] border border-line bg-panel p-4">
+        <section aria-label="MT Select" className="flex min-w-0 flex-col gap-4 rounded-[var(--radius-panel)] border border-line bg-panel p-4">
           <div className="flex items-center gap-4">
             <ProductArt category={product.category} shades={product.shades} texture={product.texture} className="h-24 w-24 flex-none" />
             <div className="flex min-w-0 flex-col gap-1">
@@ -91,12 +91,12 @@ export default function PartnerPage() {
           </div>
         </section>
 
-        <div className="flex flex-col gap-6">
-          <section aria-labelledby="snippet" className="flex flex-col gap-2 rounded-[var(--radius-panel)] bg-panel p-4">
+        <div className="flex min-w-0 flex-col gap-6">
+          <section aria-labelledby="snippet" className="flex min-w-0 flex-col gap-2 rounded-[var(--radius-panel)] bg-panel p-4">
             <h2 id="snippet" className="text-[17px] font-extrabold">
               {t("partnerSnippetTitle", lang)}
             </h2>
-            <pre className="overflow-x-auto rounded-xl bg-ink p-3 text-[12px] leading-relaxed text-canvas">
+            <pre className="max-w-full overflow-x-auto whitespace-pre-wrap break-all rounded-xl bg-ink p-3 text-[12px] leading-relaxed text-canvas">
               <code>{INTEGRATION_SNIPPET}</code>
             </pre>
             <p className="text-xs text-muted">{t("partnerSnippetNote", lang)}</p>

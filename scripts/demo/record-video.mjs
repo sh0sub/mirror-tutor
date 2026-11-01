@@ -423,9 +423,9 @@ async function record(cdp) {
 
   if (args.setup === "full" || args.setup === "full91") {
     // mock-mode upload flow (own photo path, a stored profile and a graded try), so `home` shows a returning user.
-    // full91 (C6): first seed the on-device practice log with the sample score 91, so the "best score" past result matches the grade and share scenes.
+    // full91 (C6): first seed the on-device practice log with the sample score 79 (SAMPLE_SCORE, C9), so the "best score" past result matches the grade and share scenes.
     if (args.setup === "full91") {
-      await evaluate(`localStorage.setItem('mirror-tutor:practice:v1', JSON.stringify({ days: [], scores: { 'daily-k': 91 } })); location.reload()`).catch(() => null);
+      await evaluate(`localStorage.setItem('mirror-tutor:practice:v1', JSON.stringify({ days: [], scores: { 'daily-k': 79 } })); location.reload()`).catch(() => null);
       await sleep(2500);
     }
     for (const a of FULL_SETUP) await act(a, null, false);

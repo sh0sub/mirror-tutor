@@ -56,7 +56,7 @@ export const SEGMENTS = [
     // (a shutter tap starts the 10-unit analysis); the analyze shot opens on the finished result from the live take.
     actions: [
       { sleep: 0.6 },
-      { tap: { sel: "button", text: "^Get started$" } },
+      { tap: { sel: "button", text: "^Use my own selfie$" } },
       { sleep: 1.4 },
       { tap: { sel: "dialog[open] button", text: "Agree and start" } },
       { wait: "location.pathname === '/capture'" },
@@ -307,7 +307,7 @@ export const SAMPLE_SETUP = [...SAMPLE_SETUP_LESSON, ...SAMPLE_SETUP_GRADE];
 /** `record-video.mjs --mode mock --setup full --only home`: the upload flow in mock mode (0 units), ending on a graded try. */
 export const FULL_SETUP = [
   { wait: "document.querySelector('main h2')", timeout: 30000 },
-  { tap: { sel: "button", text: "^Get started$" }, quiet: true },
+  { tap: { sel: "button", text: "^Use my own selfie$" }, quiet: true },
   { sleep: 1.0 },
   { tap: { sel: "dialog[open] button", text: "Agree and start" }, quiet: true },
   { wait: "location.pathname === '/capture'" },

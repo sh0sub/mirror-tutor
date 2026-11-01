@@ -9,6 +9,9 @@ export interface RegionGrade {
   tip: Text;
   /** Measured CIEDE2000 between answer and attempt crops (numeric evidence shown with the score). */
   deltaE: number;
+  /** Mean region colors behind the score (answer vs attempt), shown as a swatch pair next to ΔE. */
+  answerHex?: string;
+  attemptHex?: string;
 }
 
 export interface GradeResult {

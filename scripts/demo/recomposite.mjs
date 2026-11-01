@@ -342,7 +342,7 @@ const SEGMENTS = [
       {
         heading: "Try it yourself",
         chip: "Live YouCam API · sample trial 0 units",
-        callout: "<b>Try it now</b> · no sign-up<br><span class=\"url\">mirror-tutor.vercel.app</span>Tap <b>Try with a sample model</b> · 0 units",
+        callout: "<b>No selfie needed</b> · 30 s walk-through<br><span class=\"url\">mirror-tutor.vercel.app</span>Tap <b>Try with a sample model</b> · 0 units",
       },
     ],
     // C5 source (work-c5 frames-share, mock --sample, banner scrolled away, score 91 = the grade scene): hold 0.13-5.6 s, scroll 5.6-5.9 s, then the "Next: retailer view" card below the progress section

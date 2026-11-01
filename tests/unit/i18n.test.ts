@@ -67,6 +67,6 @@ describe("S5 language toggle (#21)", () => {
     };
     expect(loadLang(blocked, "en")).toBe("en");
     expect(() => saveLang(blocked, "ko")).not.toThrow();
-    expect(t("start", "en")).toBe("Get started");
+    expect(t("start", "en")).toBe("Use my own selfie");
   });
 });

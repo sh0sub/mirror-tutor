@@ -104,6 +104,12 @@ function GradeInner() {
           )}
         </div>
 
+        {sample && (
+          <p data-testid="sample-attempt-note" className="rounded-xl border border-primary/30 bg-peach-soft p-3 text-xs font-bold text-primary-strong">
+            {t("sampleAttemptNote", lang)}
+          </p>
+        )}
+
         {!result && !error && (
           <div className="flex flex-col gap-2" role="status" aria-live="polite">
             <p className="text-sm font-bold text-muted">{t("grading", lang)}</p>
@@ -172,7 +178,17 @@ function GradeInner() {
                         <span className={`block h-1.5 rounded-full ${r.score >= 80 ? "bg-success" : "bg-warning"}`} style={{ width: `${r.score}%`, transition: "width 400ms" }} />
                       </span>
                       <span className="mt-1.5 block text-sm">{r.tip[lang]}</span>
-                      {focus === r.region && <span className="num mt-1 block text-xs text-muted">ΔE2000 {r.deltaE}</span>}
+                      <span className="num mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
+                        <span className="font-bold">ΔE2000 {r.deltaE}</span>
+                        {r.answerHex && r.attemptHex && (
+                          <span className="flex items-center gap-1" data-testid={`swatch-${r.region}`}>
+                            <span className="h-4 w-4 flex-none rounded-full border border-line-strong/50" style={{ background: r.answerHex }} role="img" aria-label={`${t("gradeAnswerSwatch", lang)} ${r.answerHex}`} />
+                            <span aria-hidden>vs</span>
+                            <span className="h-4 w-4 flex-none rounded-full border border-line-strong/50" style={{ background: r.attemptHex }} role="img" aria-label={`${t("gradeAttemptSwatch", lang)} ${r.attemptHex}`} />
+                            <span>{r.answerHex} / {r.attemptHex}</span>
+                          </span>
+                        )}
+                      </span>
                     </span>
                   </button>
                 </li>

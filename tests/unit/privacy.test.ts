@@ -113,6 +113,7 @@ describe("⑧ no keys or face images in tracked paths", () => {
     // S2 (#18): only the stock-photo files listed in public/demo/compare.json are allowed (EXIF-free, checked in compare.test.ts).
     const manifest = JSON.parse(readFileSync(path.join(root, "public/demo/compare.json"), "utf8")) as { models: Array<{ original: string; steps: string[]; gradientPair?: { horizontal: string; vertical: string } }> };
     const allowed = new Set(manifest.models.flatMap((m) => [m.original, ...m.steps, ...(m.gradientPair ? [m.gradientPair.horizontal, m.gradientPair.vertical] : [])].map((p) => path.join("public", p))));
+    allowed.add("public/demo/model-a/sample-attempt.jpg"); // C9 simulated attempt derived from model-a's step 4 (scripts/demo/make-sample-attempt.ts)
     for (const f of walk(root)) {
       const rel = path.relative(root, f);
       expect(/\.(jpe?g|png|heic|webp)$/i.test(rel) && !rel.startsWith("app/") && !allowed.has(rel) ? rel : "").toBe("");

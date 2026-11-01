@@ -1,6 +1,6 @@
 import sharp from "sharp";
 import { GRADE_REGIONS, gradeCropBox, toPixels, type GradeRegion } from "../regions";
-import { deltaE2000, rgbToLab, type Lab } from "../color";
+import { deltaE2000, labToHex, rgbToLab, type Lab } from "../color";
 import { estimateFace, luma } from "../quality/gate";
 import type { Text } from "../rules/engine";
 import type { Confidence, GradeResult, RegionGrade } from "./types";
@@ -129,7 +129,7 @@ export function regionGrade(region: GradeRegion, la: Lab, lb: Lab): RegionGrade 
   let kind: TipKind = "good";
   // attempt lighter than the answer → not enough product ("more"); darker → too much ("less")
   if (score < 80) kind = lb[0] > la[0] + 3 ? "more" : lb[0] < la[0] - 3 ? "less" : "hue";
-  return { region, score, tip: TIPS[region][kind], deltaE: Math.round(dE * 10) / 10 };
+  return { region, score, tip: TIPS[region][kind], deltaE: Math.round(dE * 10) / 10, answerHex: labToHex(la), attemptHex: labToHex(lb) };
 }
 
 /**

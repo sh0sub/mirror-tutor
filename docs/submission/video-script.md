@@ -154,3 +154,10 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - home(스트릭·지난 결과): 두 줄을 한 줄로 줄여 11.3 -> 9.0초(새 TTS 한 줄).
 - 마지막 5.5-8초 구간: 6.5초 무음 마감 카드(제목 "Learn makeup, on your own face", 칩 "4 VTO calls per lesson" / "Retailer SKUs at the end" / "No pilot claimed", URL과 해커톤 프로토타입 표기). 360p 크기에서도 칩과 자막이 읽힘을 확인.
 - 검증: 장면 전환 감지 24곳은 세그먼트 경계, 의도한 디졸브, compare 스크롤 구간뿐. 스켈레톤/빈/배너 프레임 없음.
+
+## 2026-11-02 C9 앱 변경 (영상 장면 영향)
+
+- 홈: 첫 방문 하단 바가 바뀌었다(채운 기본 버튼 "Try with a sample model · 0 units", 한 줄 "No selfie needed - 30 s walk-through", 보조 "Use my own selfie" + "Retailer view (concept)"). 기존 영상의 intro/home 장면은 이전 하단 바(Get started 기본 버튼)를 보여 준다. `video-shots.mjs`의 탭 대상은 새 라벨로 바꿨다.
+- grade/share/home 점수: 샘플 시도가 시뮬레이션 사진(`sample-attempt.jpg`)으로 바뀌어 점수가 91 -> 79(눈 라인 77, 눈두덩 85, 볼 93, 립 62)가 됐고 부위마다 ΔE와 색 스와치가 보인다. 기존 영상의 91, 입술 63 장면은 오래된 값이다. 다시 녹화 시 `--setup full91`은 이제 79를 심는다. 영상 끝 카드 문구는 `recomposite.mjs`에서 "No selfie needed · 30 s walk-through"로 바꿨다.
+- /partner 390폭 가로 넘침을 고쳤다(스니펫 줄바꿈). 영상 partner 장면은 넘침이 있던 판이다.
+

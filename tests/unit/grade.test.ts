@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import sharp from "sharp";
-import { gradeLocal, scoreFromDeltaE } from "@/lib/grade/local";
+import { gradeLocal, regionGrade, scoreFromDeltaE } from "@/lib/grade/local";
+import { landmarkMeasure } from "@/lib/grade/landmarks";
+import { SAMPLE_SCORE } from "@/lib/demo/sample";
 import { buildGradeRequest, parseGradeResponse } from "@/lib/grade/claude";
 import { gradeAttempt } from "@/lib/services/grade";
 import { mockRenderEffects } from "@/lib/youcam/mockRender";
@@ -129,5 +131,32 @@ describe("POST /api/grade", () => {
     const res = await POST(new Request("http://x/api/grade", { method: "POST", body: form }));
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({ grader: "local", comparable: true, units: 0 });
+  });
+});
+
+describe("C9 simulated sample attempt", () => {
+  it("every graded landmark region is visibly off-shade (no scripted 100s), lips worst, at the app's working width", async () => {
+    const { readFileSync } = await import("node:fs");
+    const dir = new URL("../../public/demo/model-a/", import.meta.url);
+    const lm = JSON.parse(readFileSync(new URL("../../scripts/demo/model-a-landmarks.json", import.meta.url), "utf8")) as { x: number; y: number }[];
+    const prep = async (f: string) => {
+      const r = await sharp(readFileSync(new URL(f, dir))).resize({ width: 480 }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+      return { data: new Uint8Array(r.data), width: r.info.width, height: r.info.height };
+    };
+    const m = landmarkMeasure(await prep("step-4.jpg"), lm, await prep("sample-attempt.jpg"), lm)!;
+    expect(m).not.toBeNull();
+    const rows = m.regions.map((r) => regionGrade(r.region, r.answerLab, r.attemptLab));
+    const score = Object.fromEntries(rows.map((r) => [r.region, r.score]));
+    for (const r of rows) {
+      expect(r.score).toBeLessThan(97);
+      expect(r.deltaE).toBeGreaterThan(1);
+      expect(r.answerHex).toMatch(/^#[0-9A-F]{6}$/);
+      expect(r.attemptHex).toMatch(/^#[0-9A-F]{6}$/);
+      expect(r.answerHex).not.toBe(r.attemptHex);
+    }
+    expect(score.lip).toBeLessThan(70);
+    expect(score.lip).toBeLessThan(Math.min(score.eye_line, score.eye_lid, score.cheek));
+    const total = Math.round(rows.reduce((s, r) => s + r.score, 0) / rows.length);
+    expect(Math.abs(total - SAMPLE_SCORE)).toBeLessThanOrEqual(4); // browser canvas resampling differs slightly from sharp
   });
 });

@@ -8,10 +8,14 @@ import type { CompareManifest, CompareModel } from "./compare";
 const manifest = manifestJson as CompareManifest;
 export const SAMPLE_MODEL: CompareModel = manifest.models[0];
 export const SAMPLE_LESSON = manifest.lessonId;
-/** Stand-in "my attempt" for grading: eyes done, lips skipped → the grade shows a real correction (same as the demo video). */
-export const SAMPLE_ATTEMPT = SAMPLE_MODEL.steps[2];
 /**
- * The grade of SAMPLE_ATTEMPT against the lesson answer (deterministic: real CIELAB/landmark scoring of the two pre-generated photos).
+ * Stand-in "my attempt" for grading: a SIMULATED attempt, the lesson answer (step 4) with a deterministic, deliberately off-shade CIELAB
+ * shift inside each graded region (liner too faint, shadow a little deep, base a touch light, lips lighter and more orange).
+ * Made offline at 0 units by scripts/demo/make-sample-attempt.ts; the grade screen labels it as simulated.
+ */
+export const SAMPLE_ATTEMPT = "/demo/model-a/sample-attempt.jpg";
+/**
+ * The grade of SAMPLE_ATTEMPT (eyeliner 77, eyelid 85, cheeks 93, lips 62 → 79; read from the app grade screen in headless Chrome, C9) against the lesson answer (deterministic: real CIELAB/landmark scoring of the two photos).
  * The demo video (record-video.mjs `full91`, recomposite.mjs notes) and docs quote this one number on the grade, share and home scenes.
  */
-export const SAMPLE_SCORE = 91;
+export const SAMPLE_SCORE = 79;

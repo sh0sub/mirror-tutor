@@ -58,8 +58,8 @@ describe("sample model (chosen by the visitor, 0 units)", () => {
     expect(r.profile).toEqual(SAMPLE_MODEL.profile);
     expect(r.recommendation.lessonId).toBe(SAMPLE_LESSON);
     expect(r.units.spent).toBe(0);
-    expect(SAMPLE_ATTEMPT).toBe("/demo/model-a/step-3.jpg");
-    expect(SAMPLE_SCORE).toBe(91); // one sample score on the grade, share and home scenes (video + docs quote it)
+    expect(SAMPLE_ATTEMPT).toBe("/demo/model-a/sample-attempt.jpg");
+    expect(SAMPLE_SCORE).toBe(79); // one sample score on the grade, share and home scenes (video + docs quote it)
   });
 
   it("POST /api/analyze sample=1 needs no image and never touches the YouCam transport (even in live mode)", async () => {
