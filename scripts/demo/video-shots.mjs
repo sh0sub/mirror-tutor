@@ -14,6 +14,7 @@
  *   { drag: { sel, from, to, dur? } }                  horizontal drag across an element (fractions)
  *   { route: "/path" }             client-side navigation (keeps in-memory photo/renders)
  *   { key: "Escape" }
+ *   { js: "expr" }                 evaluate a page expression (awaited), e.g. an animated range-input change
  *   { save: { name, js } }         store a page value; "{name}" in later route strings is replaced
  *   { scrollPast: "selector" }     scroll that element up behind the sticky app bar (no-op if absent); later
  *                                  { scroll: { y } } in the segment are offset by the same amount
@@ -50,16 +51,25 @@ export const SEGMENTS = [
       "A quality gate checks face width, light and angle before any unit is spent.",
       "For this demo, we upload a licensed stock photo.",
     ],
+    // C3: recorded with --fake-cam (a stock photo shown small, as the camera feed): consent, then the real quality gate
+    // fails ("face too small"), the digital zoom brings the face past 60%, the gate turns green. Stops before the shutter
+    // (a shutter tap starts the 10-unit analysis); the analyze shot opens on the finished result from the live take.
     actions: [
       { sleep: 0.6 },
       { tap: { sel: "button", text: "^Get started$" } },
-      { at: 1, plus: 0.2 },
+      { sleep: 1.4 },
       { tap: { sel: "dialog[open] button", text: "Agree and start" } },
       { wait: "location.pathname === '/capture'" },
-      { at: 2, plus: 1.0 },
-      { tap: { sel: "button", text: "Upload photo" }, noClick: true },
-      { upload: PHOTO },
-      { wait: "location.pathname === '/analyze'", timeout: 20000 },
+      { wait: bodyHas("Face width"), timeout: 20000 },
+      { sleep: 3.0 },
+      {
+        js: `(async () => { const el = document.querySelector('input[type=range]'); if (!el) throw new Error('no zoom slider');
+          const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set; const a = Number(el.value), b = Math.min(Number(el.max), 1.75);
+          for (let i = 1; i <= 36; i++) { set.call(el, String(a + ((b - a) * i) / 36)); el.dispatchEvent(new Event('input', { bubbles: true })); await new Promise((r) => setTimeout(r, 40)); } })()`,
+      },
+      { wait: bodyHas("Looks good"), timeout: 8000 },
+      { sleep: 2.2 },
+      { tap: { sel: "button", text: "Take photo|Shutter|Capture" }, noClick: true },
       { sleep: 0.8 },
     ],
   },
@@ -156,6 +166,21 @@ export const SEGMENTS = [
       { tap: { sel: "nav[aria-label] button:nth-child(4)" }, quiet: true },
       { sleep: 0.8 },
     ],
+    // C3: with --sample the attempt is the sample model's stock try ("Grade a sample try"), so the dark "camera unavailable"
+    // capture screen of the headless live take is skipped
+    sample: {
+      prep: [],
+      actions: [
+        { sleep: 0.8 },
+        { tap: { sel: "button", text: "^Grade a sample try" } },
+        { wait: "location.pathname === '/grade'", timeout: 20000 },
+        { wait: bodyHas("Graded") + " || " + bodyHas("Angle is quite different"), fail: bodyHas("Analysis failed"), timeout: 60000 },
+        { scrollPast: "header ~ p[role=status]" },
+        { sleep: 2.5 },
+        { scroll: { y: 360 }, dur: 1.6 },
+        { sleep: 3.0 },
+      ],
+    },
     actions: [
       { sleep: 0.6 },
       { tap: { sel: "a", text: "Snap your attempt" } },
@@ -197,6 +222,27 @@ export const SEGMENTS = [
     ],
   },
   {
+    // C3: the retailer view (/partner, concept screen). Static page, 0 units, no API call.
+    id: "partner",
+    kicker: "For retailers",
+    heading: "The lesson as a product-page widget",
+    chip: "Concept screen · fictional store",
+    lines: [
+      "For retailers, the lesson drops into a product page. A concept screen, with a fictional store.",
+      "First lesson, fourteen units. Then four. Capped per session.",
+    ],
+    prep: [{ route: "/partner" }, { wait: "!!document.querySelector('[data-testid=partner-widget]')" }, { sleep: 1.0 }],
+    actions: [
+      { sleep: 1.2 },
+      { tap: { sel: "[data-testid=partner-widget] button", text: "^3 " } },
+      { sleep: 1.4 },
+      { scroll: { sel: "h2", text: "YouCam units per session", offset: 240 }, dur: 1.4 },
+      { sleep: 2.4 },
+      { scroll: { sel: "h2", text: "measured on", offset: 300 }, dur: 1.2 },
+      { sleep: 1.5 },
+    ],
+  },
+  {
     id: "home",
     kicker: "Come back tomorrow",
     heading: "Practice streak and past results",
@@ -228,7 +274,7 @@ export const SEGMENTS = [
  * (the sample model's pre-generated live results, 0 units) instead of the live capture/analyze/lesson/grade shots.
  * Ends where the live "grade" shot ends (daily-k, step 4, graded, scrolled to the shop button).
  */
-export const SAMPLE_SETUP = [
+export const SAMPLE_SETUP_LESSON = [
   { wait: "document.querySelector('main h2')", timeout: 30000 },
   { tap: { sel: "button", text: "^Try with a sample model" }, quiet: true },
   { wait: "location.pathname === '/analyze'", timeout: 20000 },
@@ -238,6 +284,8 @@ export const SAMPLE_SETUP = [
   { wait: "document.querySelectorAll('nav[aria-label] button').length >= 4 && !!document.querySelector('img[alt^=\"Answer\"]') && !document.body.innerText.includes('Rendering')", fail: bodyHas("This step failed"), timeout: 60000 },
   { tap: { sel: "nav[aria-label] button:nth-child(4)" }, quiet: true },
   { sleep: 1.0 },
+];
+const SAMPLE_SETUP_GRADE = [
   { tap: { sel: "button", text: "^Grade a sample try" }, quiet: true },
   { wait: "location.pathname === '/grade'", timeout: 20000 },
   { wait: bodyHas("Graded") + " || " + bodyHas("Angle is quite different"), fail: bodyHas("Analysis failed"), timeout: 60000 },
@@ -245,3 +293,5 @@ export const SAMPLE_SETUP = [
   { scroll: { y: 360 }, dur: 1.2 },
   { sleep: 0.8 },
 ];
+
+export const SAMPLE_SETUP = [...SAMPLE_SETUP_LESSON, ...SAMPLE_SETUP_GRADE];

@@ -102,3 +102,13 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - compare: "Here's the proof" 줄을 빼고, 첫 줄을 "The analyzer missed the monolid, so we let the user correct it and the lesson changes."로 바꿈. 칩 "Analyzer read Double-lid, corrected to Monolid"이 줄 내내(약 6초) 확대 창에 보이고 두 얼굴의 눈 단계 결과가 나란히 나온다. 나머지 줄은 그대로.
 - 새 marin TTS 줄 3개(hook 2줄, compare 1줄), 센트 단위. 길이 175.9초(< 180초).
 - 한계: 캡처/채점 장면의 어두운 "Camera unavailable" 프레임은 이전 판과 같다(이번 변경 범위 밖).
+
+## 2026-11-02 C3 영상 (약 168초, /partner 장면 포함)
+
+- 소스 폴더: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c3` (work-c2를 복사한 뒤 capture·grade·partner만 다시 녹화, 나머지 장면은 기존 프레임 그대로). 재합성 작업 폴더 `recomp-oai`(TTS 캐시 공유), 출력은 `.local/video/mirror-tutor-demo-live.mp4`(직전 판 `-c3prev.mp4`). YouCam 유닛 0.
+- 도입 압축: hook 한 줄("Same look, different lids, different technique.") + intro 한 줄(결과 문장: Face Analyzer가 읽고, Makeup VTO가 단계마다 그리고, 한 레슨은 14유닛)로 줄였다. 첫 15초 안에 문제·결과·비용이 다 나온다.
+- 모든 장면에 배지 "YouCam Face Analyzer + Makeup VTO, live"와 유닛 카운터("YouCam units used n / 20 cap")를 확대 패널 아래에 고정했다. 값은 장면별 `units`(hook·intro·capture 0, analyze 10, 이후 14)이고 실제 live 테이크의 사용량(분석 10 + 렌더 4)과 같다.
+- capture: 어두운 "Camera unavailable" 화면을 없앴다. `record-video.mjs --mode live --only capture --fake-cam <mjpeg>`(live 모드 로컬 서버, API 호출 0)로 Chrome 가짜 카메라에 스톡 사진(`public/demo/model-a/original.jpg`, Pexels License)을 작게 넣어 실제 품질 게이트를 보여 준다. 얼굴 폭 44%("Come a little closer")에서 디지털 줌으로 74%("Looks good")가 된다. 셔터는 누르지 않는다(누르면 10유닛 분석). 화면 노트에 "카메라 피드는 스톡 사진"이라고 밝힌다.
+- grade: `--mode mock --sample --only grade`(0 유닛). 레슨 4단계에서 "Grade a sample try"로 샘플 시도를 채점한다(점수 91, 입술 63 교정). 카메라 화면 없이 결과로 바로 간다. 이전 live 판의 87점과 다른 값이며 샘플 모델 결과다.
+- partner(신규, 약 8.5초): `--mode live --only partner --base <로컬 live 서버>`(정적 페이지, 0 유닛). 위젯과 유닛 미터("첫 레슨 14, 다음 4")를 보여 주고 "concept widget on a fictional product page"라고 밝힌다. FLOW 목록은 9단계(Retailer 추가).
+- `record-video.mjs` 추가 옵션: `--fake-cam`, 액션 `{ js }`, 세그먼트별 `sample: { prep, actions }`(샘플 변형). 새 marin TTS는 intro 1줄과 partner 2줄 등 센트 단위.

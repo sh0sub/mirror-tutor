@@ -22,7 +22,7 @@
 import { spawn, execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, openSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { SEGMENTS as ALL_SEGMENTS, SAMPLE_SETUP } from "./video-shots.mjs";
+import { SEGMENTS as ALL_SEGMENTS, SAMPLE_SETUP, SAMPLE_SETUP_LESSON } from "./video-shots.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "../..");
 const args = Object.fromEntries(
@@ -36,6 +36,8 @@ const OUT = path.resolve(args.out ?? path.join(ROOT, `.local/video/mirror-tutor-
 const VOICE = args.voice ?? "Samantha";
 const ONLY = args.only ? String(args.only).split(",") : null;
 const SAMPLE = !!args.sample;
+// --fake-cam <mjpeg/y4m>: Chrome plays that file as the camera (a licensed stock photo), so /capture shows the real quality gate
+const FAKE_CAM = args["fake-cam"] ? path.resolve(args["fake-cam"]) : null;
 if (SAMPLE && (!ONLY || MODE !== "mock")) throw new Error("--sample needs --only and --mode mock");
 const SEGMENTS = ONLY ? ALL_SEGMENTS.filter((s) => ONLY.includes(s.id)) : ALL_SEGMENTS;
 const RATE = Number(args.rate ?? 150);
@@ -119,7 +121,7 @@ async function launchChrome() {
   const port = 9400 + Math.floor(Math.random() * 400);
   const profile = path.join(WORK, "chrome-profile");
   rmSync(profile, { recursive: true, force: true }); // fresh: no stored profile, no consent
-  const proc = spawn(CHROME, ["--headless=new", "--hide-scrollbars", "--mute-audio", "--no-first-run", "--no-default-browser-check", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, `--window-size=${VW},${VH}`, "--lang=en-US", "about:blank"], { stdio: "ignore" });
+  const proc = spawn(CHROME, ["--headless=new", "--hide-scrollbars", "--mute-audio", "--no-first-run", "--no-default-browser-check", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, `--window-size=${VW},${VH}`, "--lang=en-US", ...(FAKE_CAM ? ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream", `--use-file-for-fake-video-capture=${FAKE_CAM}`] : []), "about:blank"], { stdio: "ignore" });
   cleanup.push(() => proc.kill("SIGKILL"));
   let wsUrl;
   for (let i = 0; i < 100 && !wsUrl; i++) {
@@ -392,6 +394,8 @@ async function record(cdp) {
       const p = a.route.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
       await evaluate(`window.next.router.push(${JSON.stringify(p)})`);
       await sleep(500);
+    } else if (a.js) {
+      await evaluate(a.js);
     } else if (a.key) {
       await cdp.send("Input.dispatchKeyEvent", { type: "keyDown", key: a.key, code: a.key, windowsVirtualKeyCode: a.key === "Escape" ? 27 : 0 });
       await cdp.send("Input.dispatchKeyEvent", { type: "keyUp", key: a.key, code: a.key, windowsVirtualKeyCode: a.key === "Escape" ? 27 : 0 });
@@ -403,18 +407,19 @@ async function record(cdp) {
 
   // not part of any segment's timeline: frames before segStart are never used
   if (SAMPLE) {
-    for (const a of SAMPLE_SETUP) await act(a, null, false);
+    // a segment with a `sample` variant starts from the lesson (step 4), the others from the graded state
+    for (const a of SEGMENTS.some((x) => x.sample) ? SAMPLE_SETUP_LESSON : SAMPLE_SETUP) await act(a, null, false);
     log("sample setup done:", await evaluate("location.pathname + location.search"));
   }
 
   for (const seg of SEGMENTS) {
-    for (const a of seg.prep ?? []) await act(a, seg, false);
+    for (const a of (SAMPLE && seg.sample?.prep) || seg.prep || []) await act(a, seg, false);
     await sleep(400);
     cuts = [];
     vars.__yoff = 0;
     segStart = Date.now();
     const seed = frames.at(-1); // screen as it is when the segment starts
-    for (const a of seg.actions) await act(a, seg, true);
+    for (const a of (SAMPLE && seg.sample?.actions) || seg.actions) await act(a, seg, true);
     const target = seg.audioDur;
     if (visible() > target) log(`  WARN ${seg.id}: actions took ${visible().toFixed(2)}s > narration ${target.toFixed(2)}s (silence padded)`);
     while (visible() < target) await sleep(30);

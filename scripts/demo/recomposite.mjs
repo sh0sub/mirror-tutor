@@ -73,44 +73,34 @@ const SEGMENTS = [
     heading: "Different lids, different technique",
     chip: "YouCam Makeup VTO · pre-generated · 0 units now",
     note: "Both faces are Pexels and Unsplash License stock photos",
-    lines: ["Same look, different lids, different technique.", "Watch the shadow and liner change with the eyelid."],
-    ui: [
-      { callout: "<b>Monolid</b> and <b>double lid</b>, same eye step, answers side by side." },
-      { callout: "Shadow + liner differ per lid: <b>2colors1 · Upper6</b> vs <b>2colors3 · Upper11</b>" },
-    ],
-    timeline: [{ at: 0, src: [0, 3.1] }, { at: { cue: 1, plus: 0.2 }, src: 5 }],
+    // C3: one hook line only (the second line moved out; the outcome line is the intro)
+    units: 0,
+    lines: ["Same look, different lids, different technique."],
+    ui: [{ callout: "<b>Monolid</b> and <b>double lid</b>, same eye step: <b>2colors1 · Upper6</b> vs <b>2colors3 · Upper11</b>" }],
+    timeline: [{ at: 0, src: [0, 3.1] }, { at: { plus: -0.5 }, src: 5 }],
     zoom: [{ at: 0, y: 252 }],
   },
   {
     id: "intro",
     lead: 0.5,
-    kicker: "The problem",
+    kicker: "What it does",
     heading: "Tutorials fit someone else's eyes",
     chip: "YouCam AI Face Analyzer + Makeup Virtual Try-On",
-    lines: [
-      "Every makeup tutorial is filmed on someone else's eyes. If you have monolids? It just doesn't fit.",
-      "So we built Mirror Tutor. Makeup lessons, on your own face.",
-      "YouCam's Face Analyzer reads your features. A rule table picks the technique. And Makeup Virtual Try-On paints every step right on your photo.",
-    ],
-    speak: [
-      "Every makeup tutorial [[slnc 120]] is filmed on [[emph +]] someone else's [[emph -]] eyes. [[slnc 380]] If you have monolids? [[slnc 320]] [[rate 135]] It just doesn't fit.",
-      "[[rate 168; pbas +2]] So we built Mirror Tutor. [[slnc 260]] [[rate 148; pbas -2]] Makeup lessons, [[slnc 160]] on [[emph +]] your own [[emph -]] face.",
-    ],
-    ui: [
-      { heading: "Your eyelid → your technique", callout: "<b>Monolid</b> or <b>double lid</b>: same look, different technique. A tutorial never says what to change for <b>your</b> eyelid." },
-      { heading: "Makeup lessons on your own face", callout: "One selfie in, a lesson built on <b>your</b> face out." },
-      { heading: "Makeup lessons on your own face", callout: "<b>Face Analyzer</b> reads features<br><b>Rule table</b> picks the technique<br><b>Makeup VTO</b> renders each step" },
-    ],
+    // C3: one outcome line (the problem is carried by the hook): what it does, the YouCam calls, the unit cost
+    units: 0,
+    lines: ["Mirror Tutor: Face Analyzer reads your face, Makeup Virtual Try-On paints each step on it, and a full lesson costs fourteen units."],
+    ui: [{ heading: "Makeup lessons on your own face", callout: "<b>Face Analyzer</b> reads features · 10 units<br><b>Rule table</b> picks the technique<br><b>Makeup VTO</b> renders each step · 4 units" }],
     // source = the hero (monolid face vs double-lid face) at the top of the home page, then the scroll to the three steps
-    timeline: [{ at: 0, src: 3 }, { at: { cue: 2, plus: -0.1 }, src: [7.0, 7.45] }, { at: { cue: 2, plus: 0.9 }, src: 9 }],
-    zoom: [{ at: 0, y: 40 }, { at: { cue: 2, plus: -0.1 }, y: 40 }, { at: { cue: 2, plus: 0.9 }, y: 300 }],
+    timeline: [{ at: 0, src: 3 }, { at: { cue: 0, plus: 3.4 }, src: [7.0, 7.45] }, { at: { cue: 0, plus: 4.4 }, src: 9 }],
+    zoom: [{ at: 0, y: 40 }, { at: { cue: 0, plus: 3.4 }, y: 40 }, { at: { cue: 0, plus: 4.4 }, y: 300 }],
   },
   {
     id: "capture",
     kicker: "Step 1 · Capture",
     heading: "Consent, then a quality gate",
     chip: "Quality gate · 0 units",
-    note: "Stock photo (Pexels License) — no real user face",
+    note: "The camera feed here is a licensed stock photo (Pexels License), no real user face",
+    units: 0,
     lines: [
       "First, consent. Your photo is processed in memory, and never stored.",
       "Then a quality gate checks light, angle and framing, before a single unit is spent.",
@@ -121,21 +111,22 @@ const SEGMENTS = [
       { callout: "Gate checks: <b>front</b> · <b>bright</b> · <b>forehead visible</b> · face width <b>at least 60%</b>" },
       { callout: "The photo is sent to the analyzer with EXIF removed." },
     ],
+    // C3 source (work-c3 frames-capture): consent sheet 0-1.9 s, then the quality gate on a camera feed that is a stock photo:
+    // "face too small" (44%) 2.9-6.6 s, digital zoom 6.7-8.5 s, "Looks good" (74%) from 8.8 s. The dark "checking photo" frame (~2.0 s) is skipped.
     timeline: [
-      { at: 0, src: [0, 6.8] },
-      { at: { cue: 1, plus: 1.5 }, src: 9 },
-      // after the upload tap the source shows the analyzer's loading skeleton: stay on the capture screen,
-      // play the tap just before the cut, and let the analyze shot open on the finished result
-      { at: { cue: 2 }, src: 12.5 },
-      { at: { plus: -0.8 }, src: [12.53, 12.87] },
+      { at: 0, src: [0, 0.55] },
+      { at: 0.9, src: [0.55, 1.9] },
+      { at: { cue: 1, plus: -0.1 }, src: [2.9, 6.6] },
+      { at: { cue: 1, plus: 2.2 }, src: [6.6, 10.5] },
     ],
-    zoom: [{ at: 0, y: 470 }, { at: { cue: 1, plus: 1.2 }, y: 30 }, { at: { cue: 2 }, y: 30 }],
+    zoom: [{ at: 0, y: 40 }, { at: { cue: 1, plus: -0.1 }, y: 267 }],
   },
   {
     id: "analyze",
     kicker: "Step 2 · Analyze",
     heading: "Five features, one call",
     chip: "YouCam AI Face Analyzer · 10 units",
+    units: 10,
     lines: [
       "One call to YouCam's Face Analyzer reads five features: eyelid, eye shape, lips, face shape and brows.",
       "That's ten units. And if it gets something wrong? Just tap to fix it.",
@@ -161,6 +152,7 @@ const SEGMENTS = [
     kicker: "Step 3 · Learn",
     heading: "Every step rendered on your photo",
     chip: "YouCam Makeup Virtual Try-On · 1 unit per step",
+    units: 14,
     lines: [
       "Now the fun part. Makeup Virtual Try-On renders each step on your photo, one layer at a time.",
       "One unit per step. Each render becomes your answer key, and the stepper shows what's done, and what's next.",
@@ -186,6 +178,7 @@ const SEGMENTS = [
     heading: "Same look, different technique",
     chip: "Pre-generated with the live API · 0 units now",
     note: "Both faces are Pexels and Unsplash License stock photos",
+    units: 14,
     lines: [
       "The analyzer missed the monolid, so we let the user correct it and the lesson changes.",
       "A monolid gets a horizontal gradient and a visible liner. A double lid gets crease shading. Same look, different technique.",
@@ -218,6 +211,7 @@ const SEGMENTS = [
     heading: "Score your real attempt",
     chip: "0 YouCam units",
     note: "A stock image stands in for a real attempt",
+    units: 14,
     lines: [
       "Now it's your turn. Do the look for real, and snap your attempt. Here, a stock image stands in.",
       "Each region is checked against the answer by color difference: liner, lid, cheeks and lips.",
@@ -228,17 +222,21 @@ const SEGMENTS = [
       { callout: "Per-region color difference: <b>eyeliner · eyelid · cheeks · lips</b>" },
       { callout: "Score + <b>one-line correction</b> + confidence" },
     ],
+    // C3 source (work-c3 frames-grade, --sample: "Grade a sample try", no camera screen): skeleton 0-1.7 s (skipped),
+    // result from 1.8 s, scroll 4.1-5.0 s to the lips row, hold after
     timeline: [
-      { at: 0, src: [0, 2.6] },
-      { at: { cue: 0, plus: 3.4 }, src: [3.9, 19.6] },
+      { at: 0, src: 2.4 },
+      { at: { cue: 2, plus: -0.3 }, src: [4.0, 5.2] },
+      { at: { cue: 2, plus: 0.9 }, src: 8 },
     ],
-    zoom: [{ at: 0, y: 150 }, { at: { cue: 0, plus: 3.4 }, y: 120 }, { at: { cue: 1 }, y: 120 }, { at: { cue: 2 }, y: 330 }],
+    zoom: [{ at: 0, y: 60 }, { at: { cue: 1 }, y: 200 }, { at: { cue: 2 }, y: 330 }],
   },
   {
     id: "shop",
     kicker: "Step 5 · Shop the step",
     heading: "Exact colors to products",
     chip: "CIEDE2000 matching · demo catalog",
+    units: 14,
     lines: [
       "Love a color? Shop the step matches its exact shade to products, using CIEDE2000 color science.",
       "This catalog is demo data. A partner feed would plug in real products.",
@@ -249,10 +247,29 @@ const SEGMENTS = [
     zoom: [{ at: 0, y: 304 }, { at: 4.2, y: 480 }, { at: 6.6, y: 304 }, { at: { cue: 1 }, y: 170 }], // 4.2-6.6 s: "View in store" sheet
   },
   {
+    // C3: the /partner retailer view (concept screen, static page, 0 units). Source: work-c3 frames-partner.
+    id: "partner",
+    kicker: "For retailers",
+    heading: "The lesson as a product-page widget",
+    chip: "Concept screen · fictional store · 0 units",
+    units: 14,
+    lines: [
+      "For retailers: a concept widget on a fictional product page.",
+      "First lesson, fourteen units. Then four.",
+    ],
+    ui: [
+      { callout: "Widget on a product page: the <b>real YouCam result</b> of the lesson step, stock model." },
+      { callout: "<b>14</b> units first lesson · <b>4</b> after · <b>20</b>-unit session cap" },
+    ],
+    timeline: [{ at: 0, src: 2.0 }, { at: { cue: 1, plus: -0.2 }, src: 5.0 }],
+    zoom: [{ at: 0, y: 150 }, { at: { cue: 1, plus: -0.2 }, y: 300 }],
+  },
+  {
     id: "home",
     kicker: "Come back tomorrow",
     heading: "Practice streak and past results",
     chip: "Stored on this device only · 0 units",
+    units: 14,
     lines: [
       "Come back tomorrow, and your streak and past results are waiting, saved only on this device.",
       "Returning users skip the analysis, so a new lesson costs just four units.",
@@ -267,6 +284,7 @@ const SEGMENTS = [
     kicker: "Share",
     heading: "Private by default",
     chip: "Photos never stored · units capped per session",
+    units: 14,
     lines: [
       "Share your result with a card drawn on your device, faces blurred by default.",
       "Private by design. Nothing is stored, and every session is capped at twenty units.",
@@ -383,7 +401,7 @@ function frameAt(items, t) {
 
 // left-column step list (one entry per segment after the intro)
 const HEAD_SEGS = 1; // the hook shifts the step numbering by one
-const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Streak", "Share"];
+const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Retailer", "Streak", "Share"];
 
 function stageHtml(seg, si0, ci) {
   const si = Math.max(si0 - HEAD_SEGS, 0);
@@ -394,7 +412,11 @@ function stageHtml(seg, si0, ci) {
   html,body{margin:0;width:${W}px;height:${H}px;background:#fbf7f4;overflow:hidden;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1f1b1a;-webkit-font-smoothing:antialiased}
   .phone{position:absolute;left:${SCR_X}px;top:${SCR_Y}px;width:${SCR_W}px;height:${SCR_H}px;border-radius:34px;box-shadow:0 0 0 14px #1f1b1a,0 0 0 15px #3a3331,0 30px 60px 14px rgba(31,27,26,.28);background:#000}
   .zoom{position:absolute;left:${ZX}px;top:${ZY}px;width:${ZW}px;height:${ZH}px;border-radius:26px;box-shadow:0 0 0 6px #c8325b,0 18px 44px 6px rgba(31,27,26,.2);background:#000}
-  .zlabel{position:absolute;left:${ZX}px;top:${ZY + ZH + 18}px;font-size:19px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a8264a}
+  .badges{position:absolute;left:${ZX}px;top:${ZY + ZH + 16}px;width:${ZW}px;display:flex;align-items:center;gap:12px}
+  .live{display:flex;align-items:center;gap:9px;background:#c8325b;color:#fff;border-radius:24px;padding:9px 18px;font-size:19px;font-weight:800;line-height:1.1;white-space:nowrap}
+  .live i{width:11px;height:11px;border-radius:6px;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.35)}
+  .units{margin-left:auto;display:flex;align-items:baseline;gap:8px;background:#fff;border:2px solid #c8325b;border-radius:24px;padding:6px 18px;font-size:17px;font-weight:700;color:#4a403d;white-space:nowrap}
+  .units b{font-size:27px;font-weight:800;color:#a8264a;font-variant-numeric:tabular-nums}
   .left{position:absolute;left:64px;top:60px;width:${SCR_X - 64 - 52}px;display:flex;flex-direction:column;gap:22px}
   .kick{font-size:23px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a8264a}
   h1{margin:0;font-size:50px;line-height:1.1;font-weight:800;letter-spacing:-.01em}
@@ -416,7 +438,7 @@ function stageHtml(seg, si0, ci) {
   .flow li.now{background:#c8325b;border-color:#c8325b;color:#fff;box-shadow:0 6px 16px rgba(200,50,91,.25)}.flow li.now i{background:#fff;color:#a8264a}
   .foot{position:absolute;left:64px;width:${SCR_X - 64 - 52}px;bottom:26px;font-size:17px;line-height:1.35;color:#6b605c}
   </style></head><body>
-  <div class="phone"></div><div class="zoom"></div><div class="zlabel">Zoom on the app</div>
+  <div class="phone"></div><div class="zoom"></div><div class="badges"><div class="live"><i></i>YouCam Face Analyzer + Makeup VTO, live</div><div class="units">YouCam units used <b>${seg.units ?? 0}</b> / 20 cap</div></div>
   <div class="left"><div class="kick">${esc(seg.kicker)}</div><h1>${esc(ui.heading)}</h1><div class="chip">${esc(ui.chip)}</div>${ui.callout ? `<div class="callout">${ui.callout}</div>` : ""}${seg.note ? `<div class="note">${esc(seg.note)}</div>` : ""}</div>
   <div class="sub">${esc(cue)}</div>
   <div class="flow"><div class="fh">${si === 0 ? "How it works" : `Step ${Math.min(si, FLOW.length)} of ${FLOW.length}`}</div><ol>${FLOW.map((f, i) => {
