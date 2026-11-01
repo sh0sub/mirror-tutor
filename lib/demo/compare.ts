@@ -1,5 +1,5 @@
 import { buildLesson } from "../lessons";
-import { resolveTechniques, type Lang } from "../rules/engine";
+import { eyelidRuleRows, resolveTechniques, type Lang, type RuleRow } from "../rules/engine";
 import { valueLabel } from "../labels";
 import type { FaceProfile, ProfileKey } from "../profile";
 
@@ -85,6 +85,11 @@ export function patternLabel(kind: PatternKind, name: string, lang: Lang): strin
   if (kind === "shadow" && colors) return lang === "ko" ? `${colors[1]}색 ${KIND_WORD.shadow.ko}, ${style}` : `${colors[1]}-color ${KIND_WORD.shadow.en}, ${style}`;
   const w = PATTERN_WORD[word];
   return w ? `${w[lang]}, ${style}` : name;
+}
+
+/** /analyze rule table: eyelid rows with plain-word patterns (never raw tokens like "2colors1 · Upper6"). */
+export function eyelidRuleRowsLabeled(lang: Lang): RuleRow[] {
+  return eyelidRuleRows(lang).map((r) => ({ ...r, pattern: `${patternLabel("shadow", r.shadowPattern, lang)} · ${patternLabel("liner", r.linerPattern, lang)}` }));
 }
 
 const LIP_STYLE: Record<string, { ko: string; en: string }> = { ombre: T2("그라데이션", "ombre"), full: T2("꽉 채움", "full coverage") };

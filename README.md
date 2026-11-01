@@ -5,6 +5,16 @@
 Entry to the Perfect Corp **YouCam API VTO Hackathon** (track: eCommerce VTO).
 Live demo: https://mirror-tutor.vercel.app (see [Demo mode](#demo-mode-and-unit-guard)).
 
+**Try it in 30 seconds (0 units, no selfie)**
+1. Open https://mirror-tutor.vercel.app and tap "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛").
+2. Walk analysis, the 4-step lesson, grading and shop the step; every image is a real pre-generated YouCam result.
+3. Open /compare for the monolid vs double-lid split, and "Retailer view (concept)" for /partner.
+
+**Why Perfect Corp wants this**
+- One lesson triggers 4 Makeup VTO calls per engaged user (one per step), where a normal product view is 1 try-on.
+- Every lesson ends in shop links: step colors are matched to catalog products with CIEDE2000.
+- The same pipeline extends to eyeshadow, lips and cheeks. We claim no pilot, no retailer test and no measured lift.
+
 **Why this is not a wrapper**
 - Face Analyzer output feeds a rule table (`lib/rules`): monolid and double-lid faces get different techniques.
 - Lesson step k renders effects 1..k cumulatively on one uploaded `file_id` with Makeup VTO.
@@ -121,7 +131,7 @@ YOUCAM_MODE=live npx tsx scripts/demo/generate.ts   # pre-generate public/demo/m
 ## Tests
 
 ```bash
-npm test    # vitest: unit + integration (tests/), no network, no units (203 tests in 27 files)
+npm test    # vitest: unit + integration (tests/), no network, no units (204 tests in 27 files)
 ```
 
 Covers the rule table and lesson labels against the real pattern catalog, quality gate, unit guard, request builders against recorded live response bodies, privacy sanitizing, grading, shop matching, share card layout, i18n and an end-to-end core flow on the mock transport.

@@ -12,7 +12,7 @@ import { postAnalyze } from "@/lib/client/api";
 import { ATTR_NAME, VALUE_HINT, profileSummary, sourceCaption, valueLabel } from "@/lib/labels";
 import { PROFILE_KEYS, PROFILE_OPTIONS, type FaceProfile, type ProfileKey } from "@/lib/profile";
 import { LESSONS, recommendLesson } from "@/lib/lessons";
-import { eyelidRuleRows } from "@/lib/rules/engine";
+import { eyelidRuleRowsLabeled } from "@/lib/demo/compare";
 import { guideText, type GuideKey } from "@/lib/quality/messages";
 import { getShade, SHADES } from "@/lib/skin/shades";
 import type { SkinWarning } from "@/lib/skin/measure";
@@ -332,13 +332,21 @@ export default function AnalyzePage() {
       <Sheet open={rulesOpen} onClose={() => setRulesOpen(false)} title={t("ruleTableTitle", lang)}>
         <table className="w-full text-left text-sm">
           <tbody>
-            {eyelidRuleRows(lang).map((r) => (
+            {eyelidRuleRowsLabeled(lang).map((r) => (
               <tr key={r.value} className={`border-b border-line ${stored?.profile.eyelid === r.value ? "bg-peach-soft font-bold" : ""}`}>
                 <th scope="row" className="py-2 pr-2 font-bold">
                   {valueLabel("eyelid", r.value as FaceProfile["eyelid"], lang)}
                 </th>
-                <td className="py-2 pr-2">{r.technique}</td>
-                <td className="num py-2 text-xs text-muted">{r.pattern}</td>
+                <td className="py-2">
+                  {r.technique}
+                  <span className="mt-1 block text-xs font-normal text-muted">
+                    {r.pattern.split(" · ").map((x) => (
+                      <span key={x} className="block">
+                        {x}
+                      </span>
+                    ))}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>

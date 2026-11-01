@@ -78,7 +78,7 @@ const chipClass: Record<ChipTone, string> = {
 export function Chip({ tone = "neutral", children, icon }: { tone?: ChipTone; children: ReactNode; icon?: IconName }) {
   const auto: IconName | undefined = icon ?? (tone === "ok" ? "check" : tone === "warn" || tone === "bad" ? "warn" : undefined);
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${chipClass[tone]}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap ${chipClass[tone]}`}>
       {auto && <Icon name={auto} className="h-3.5 w-3.5" />}
       {children}
     </span>

@@ -8,20 +8,29 @@ Makeup tutorials fit someone else's face. Mirror Tutor reads your features with 
 
 (Character count: 186.)
 
-**Why it matters to Perfect Corp.** Each lesson is 4 Makeup VTO calls per engaged user (one per step), where a normal product view is one try-on; a retailer widget turns a single look into a repeat-use session that ends on a product.
-
-**The hook.** Face Analyzer read our monolid stock model as double-lid on both eyes. The app lets you correct it (marked "Edited"), and the whole lesson changes. The compare page shows both faces side by side, with the analyzer's raw reading and the corrected value.
-
 **Try it in 30 seconds (0 units, no selfie).**
 1. Open https://mirror-tutor.vercel.app and tap "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛").
 2. Walk analysis, the 4-step lesson, grading and shop the step; every image is a real pre-generated YouCam result.
 3. Open /compare for the monolid vs double-lid split (the technique rows are plain words, not API tokens), and "Retailer view (concept)" for the retailer view (widget, unit cost, KPIs to measure).
+
+**Why Perfect Corp wants this.**
+- One lesson triggers 4 Makeup VTO calls per engaged user (one per step), where a normal product view is 1 try-on.
+- Every lesson ends in shop links: the step colors are matched to catalog products with CIEDE2000, so a retailer's own SKUs close the loop from "how do I wear it" to checkout.
+- The same pipeline extends to eyeshadow, lips and cheeks (our three lessons already combine them). We claim no pilot, no test with a retailer and no measured lift.
+
+**The hook.** Face Analyzer read our monolid stock model as double-lid on both eyes. The app lets you correct it (marked "Edited"), and the whole lesson changes. The compare page shows both faces side by side, with the analyzer's raw reading and the corrected value.
 
 **Why this is not a wrapper.**
 - Face Analyzer output is not displayed, it feeds a rule table: monolid gets a horizontal gradient and a liner visible 1.5 mm, a double lid gets a different technique.
 - A lesson step k is YouCam Makeup VTO with effects 1..k rendered cumulatively on one uploaded `file_id`, so each step is an answer image.
 - That VTO output is the grading reference: your real attempt is compared to it per region with CIEDE2000.
 - The foundation shade is measured on the device from your cheeks and passed into the VTO foundation effect.
+
+**Honest notes.**
+- The analysis and the four Makeup VTO renders of the first lesson are real YouCam API calls (14 units, captured live). The sample trial, the compare view and the grade scene in the video play back pre-generated results at 0 units (the grade scene scores a stock "attempt"); a banner says so on every screen.
+- Face Analyzer read our monolid stock model as double-lid; we corrected the eyelid in the app's edit sheet (marked "Edited") and the lesson changed. The compare page shows the raw reading next to the corrected value.
+- /partner is a static concept page: fictional store, illustrative snippet (no SDK is published), KPIs marked "hypothesis, no data yet".
+- All faces are Pexels or Unsplash License stock photos, not real users.
 
 ## What it does
 
@@ -56,7 +65,7 @@ The /partner page shows this as a screen (reachable from the home screen and fro
 - The loop is closed: analyze -> technique -> answer image -> your attempt -> score -> product. The VTO output is the grading reference, not just a picture.
 - Techniques depend on the face. The rule table is visible in the app, so it is clear that the output changes with the eyelid. The monolid rule also shows its reason in plain words (no visible crease, so a vertical gradient disappears and a horizontal one stays) and is labelled a rule of thumb from public tutorials, not a Perfect Corp result.
 - Per-step answer images cost one unit each, and a first-time flow costs 14 units.
-- 203 tests (27 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
+- 204 tests (27 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
 
 ## How we built it
 
@@ -108,6 +117,6 @@ Next.js, React, TypeScript, Tailwind CSS, YouCam API (Face Attribute & Ratio Ana
 - **For judges (no selfie needed, 0 units):** on the home screen or the camera/consent step, tap **"Try with a sample model · 0 units"** (KO: "샘플 모델로 체험하기 · 0 유닛"). It runs the whole flow on a stock-photo model: analysis → 4-step lesson with the real pre-generated YouCam Makeup VTO results → grading of a stock "attempt" → shop the step → share card. A banner says it is a sample, nothing is uploaded, and the server path for it has no YouCam client, so it cannot spend units. To try it on your own face, tap "Get started" instead.
 - Retailer view (concept): https://mirror-tutor.vercel.app/partner (fictional store, illustrative snippet, KPIs marked hypothesis)
 - Source code: https://github.com/sh0sub/mirror-tutor (public, MIT)
-- Video: YouTube link (add after upload). The demo (about 2:54, 173.8 s) is faceless (stock photos only). What is live and what is not: the analysis and the four Makeup VTO renders are real YouCam API calls (14 units, captured live). The home intro, the compare segment and the grade scene run in sample/mock mode with 0 units; the grade scene scores a stock "attempt" (score 91; the earlier live capture scored 87). The camera segment uses a stock photo fed through a fake camera to show the quality gate (no shutter, no API call), and /partner is a static concept page.
+- Video: YouTube link (add after upload). About 2:54 (173.8 s), faceless (stock photos only); what is live and what is pre-generated is listed under "Honest notes" above. The camera segment feeds a stock photo through a fake camera to show the quality gate (no shutter, no API call).
 - Test images: `public/demo/model-a`, `model-b` (Pexels License) and `model-c` (monolid face, Unsplash License) in the repository; all sample faces are Pexels and Unsplash License stock photos (commercial use allowed, not real users). Or use your own selfie
 - API notes: `docs/api-notes.md` in the repository

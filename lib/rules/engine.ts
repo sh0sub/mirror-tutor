@@ -82,6 +82,9 @@ export interface RuleRow {
   value: string;
   technique: string;
   pattern: string;
+  /** raw VTO pattern names, for callers that label them (lib/demo/compare.ts patternLabel) */
+  shadowPattern: string;
+  linerPattern: string;
 }
 
 /** The eyelid → technique table rendered on screen (risk #34: show the rule table, not a "stylist wrapper"). */
@@ -91,6 +94,8 @@ export function eyelidRuleRows(lang: Lang): RuleRow[] {
     value: k,
     technique: T.eye[k].label[lang],
     pattern: `${T.eye[k].shadow.pattern} · ${T.eye[k].liner.pattern}`,
+    shadowPattern: T.eye[k].shadow.pattern,
+    linerPattern: T.eye[k].liner.pattern,
   }));
 }
 

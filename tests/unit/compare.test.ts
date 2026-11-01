@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
-import { comparePair, compareStep, patternLabel, eyelidStep, sameEyelid, type CompareManifest } from "@/lib/demo/compare";
+import { comparePair, compareStep, eyelidRuleRowsLabeled, patternLabel, eyelidStep, sameEyelid, type CompareManifest } from "@/lib/demo/compare";
 import { t, tf } from "@/lib/i18n";
 import { FACE_NAME, sourceCaption } from "@/lib/labels";
 import { buildLesson } from "@/lib/lessons";
@@ -111,5 +111,14 @@ describe("S2 two-face compare (#18)", () => {
     for (const v of Object.values(table.cheek)) check("cheek", v.pattern);
     for (const v of Object.values(table.contour)) check("contour", v.pattern);
     for (const v of Object.values(table.brow)) check("brow", v.pattern);
+  });
+
+  it("/analyze rule table rows show plain words in both languages, never raw tokens", () => {
+    for (const lang of ["ko", "en"] as const) {
+      const rows = eyelidRuleRowsLabeled(lang);
+      expect(rows.length).toBeGreaterThan(0);
+      for (const r of rows) expect(r.pattern, `${lang} ${r.value}`).not.toMatch(/[A-Za-z]+\d|colors\d/);
+    }
+    expect(eyelidRuleRowsLabeled("en")[0].pattern).toContain("style");
   });
 });
