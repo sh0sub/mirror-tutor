@@ -819,7 +819,7 @@ const stageDir = path.join(WORK, "stage");
 const segDir = path.join(WORK, "segments");
 for (const d of [audioDir, stageDir, segDir]) mkdirSync(d, { recursive: true });
 const maskCache = {};
-function useGeo(g) {
+function applyGeo(g) {
   setGeo(g);
   const key = `${SCR_W}x${SCR_H}-${ZW}x${ZH}`;
   if (!maskCache[key]) {
@@ -839,7 +839,7 @@ for (const [si, seg] of SEGMENTS.entries()) {
   }
   await buildAudio(seg, audioDir);
   if (ONLY && !ONLY.includes(seg.id)) continue;
-  useGeo(seg.geo);
+  applyGeo(seg.geo);
   renderStage(seg, si, stageDir);
   outs.push(encodeSegment(seg, segDir));
   log(`${seg.id}: ${seg.duration.toFixed(2)}s, cues ${seg.cues.map((c) => c.start.toFixed(1)).join("/")}, dissolves ${seg.cutTimes.map((c) => c.toFixed(2)).join("/") || "none"}`);
