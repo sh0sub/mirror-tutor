@@ -35,13 +35,17 @@
 | 소스 저장소 URL | 완료 | https://github.com/sh0sub/mirror-tutor |
 | 수상 시 인터뷰·블로그 협조 동의 확인 | 남음(사용자) | Devpost/대회 규정 페이지에서 동의 항목 확인. |
 
-## 영상 (이슈 #28) — 2026-10-31 갱신
+## 영상 (이슈 #28) — 2026-11-02 재녹화
 
 | 항목 | 상태 | 방법 / 메모 |
 |---|---|---|
-| 데모 영상 (얼굴 없는 버전, 2:12) | 완료 | `.local/video/mirror-tutor-demo-live.mp4`. 로컬 서버를 live 모드로 띄워 실제 YouCam 호출로 녹화(14u). 스톡 사진만 나오고, 영어 나레이션(macOS 음성)과 영어 자막이 들어가며 음악은 없음. 다시 만들려면 `node scripts/demo/record-video.mjs --mode live` (video-script.md "자동 녹화" 절). |
+| 데모 영상 (얼굴 없는 버전, 2:32) | 완료 (11/2 재녹화) | `.local/video/mirror-tutor-demo-live.mp4` (이전 판 `mirror-tutor-demo-live-prev.mp4`). 밤샘 변경(홈 스트릭, 샵 시트, 두 얼굴 비교 + what-if, 단계 표시, 흐린 모의 오버레이)을 모두 담았다. 로컬 서버를 live 모드로 띄워 실제 YouCam 호출로 녹화(14u, 잔량 948 -> 934). 스톡 사진만, 영어 나레이션(macOS 음성)·자막, 음악 없음. 프레임 컨택트 시트로 멈춘/깨진 프레임 없음 확인. 다시 만들려면 `node scripts/demo/record-video.mjs --mode live` (video-script.md "자동 녹화" 절). |
 | YouTube 공개 업로드 | 남음(사용자) | 위 mp4를 **공개**로 업로드. 제목 "Mirror Tutor - YouCam API VTO Hackathon", 설명에 라이브 URL·저장소 URL·"Sample faces: Pexels License stock photos". 링크를 알려 주면 devpost.md에 넣는다. |
 
-## 스크린샷 — 완료
+## 스크린샷 — 완료 (11/2 재생성)
 
-`.local/screenshots/01~10.png` (1920x1080, live 영상 프레임). 순서: 홈 → 촬영 가이드 → 분석 결과 → 규칙표 → 레슨 슬라이더 → 근거 칩 → 두 얼굴 비교 → 채점(88점, 입술 교정) → Shop the step → 공유 카드. Devpost 갤러리에 그대로 올리면 된다.
+`.local/screenshots/01~12-*.png` (1920x1080, 새 live 영상 프레임). 순서: 홈 → 촬영 가이드 → 분석 결과 → 규칙표 → 레슨 슬라이더 → 근거 칩 → 두 얼굴 비교 → what-if 패널 → 채점(87점, 입술 교정) → Shop the step(스토어 시트 전 목록) → 홈 스트릭·지난 결과 → 공유 카드. Devpost 갤러리에 올리면 된다.
+
+## 테스트 현황 (11/2)
+
+vitest 183개 통과(25개 파일), typecheck·lint 오류 0.

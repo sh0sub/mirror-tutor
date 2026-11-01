@@ -12,7 +12,7 @@
  * Without --base it starts `next dev` on --port with YOUCAM_MODE=<mode> on the command line (overrides
  * .env) and stops it at the end. Mock mode also blanks ANTHROPIC_API_KEY so grading uses local rules.
  * Live mode aborts unless GET /api/credit says mode "live", not demo, remaining >= 150; it never retries
- * a failed step, and aborts if the session spends more than 30 units.
+ * a failed step, and aborts if the session spends more than 20 units.
  * Needs: Google Chrome, ffmpeg/ffprobe, macOS `say`. Shot list + narration: scripts/demo/video-shots.mjs.
  */
 import { spawn, execFileSync } from "node:child_process";
@@ -36,7 +36,7 @@ const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const FFMPEG = existsSync("/opt/homebrew/bin/ffmpeg") ? "/opt/homebrew/bin/ffmpeg" : "ffmpeg";
 const FFPROBE = existsSync("/opt/homebrew/bin/ffprobe") ? "/opt/homebrew/bin/ffprobe" : "ffprobe";
 const LIVE_MIN_REMAINING = 150;
-const LIVE_MAX_SPEND = 30;
+const LIVE_MAX_SPEND = 20;
 
 // Layout (1920x1080): phone screen centered, heading on the left, subtitle on the right.
 const W = 1920, H = 1080, FPS = 30;

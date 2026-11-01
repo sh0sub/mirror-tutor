@@ -57,7 +57,7 @@
 
 ## 자동 녹화(얼굴 없는 버전)
 
-실제 얼굴 없이 앱 화면만으로 데모 영상을 만드는 녹화기. 헤드리스 Chrome(CDP, 추가 패키지 없음)이 390폭 모바일 화면에서 실제 플로우(홈 → 동의 → 스톡 사진 업로드 → 분석·베이스 색 → 레슨 슬라이더 → 두 얼굴 비교 → 채점 → 샵 → 공유)를 조작하고, macOS `say`(Samantha) 영어 나레이션과 영어 자막을 입혀 1920x1080 MP4 한 개로 합친다. 음악 없음. 얼굴은 `public/demo/model-a`(Pexels License 스톡 사진)만 쓰고, 채점용 시도 사진은 `model-a/step-4.jpg`가 대신한다(영상 안에 그렇게 표시).
+실제 얼굴 없이 앱 화면만으로 데모 영상을 만드는 녹화기. 헤드리스 Chrome(CDP, 추가 패키지 없음)이 390폭 모바일 화면에서 실제 플로우(홈 → 동의 → 스톡 사진 업로드 → 분석·베이스 색 → 레슨 슬라이더 → 두 얼굴 비교 + what-if → 채점 → 샵(스토어 시트) → 홈 스트릭 → 공유)를 조작하고, macOS `say`(Samantha) 영어 나레이션과 영어 자막을 입혀 1920x1080 MP4 한 개로 합친다. 음악 없음. 얼굴은 `public/demo/model-a`(Pexels License 스톡 사진)만 쓰고, 채점용 시도 사진은 `model-a/step-3.jpg`(눈만 완성, 입술 생략)가 대신한다(영상 안에 그렇게 표시).
 
 - 샷·나레이션: `scripts/demo/video-shots.mjs` (문장 하나 = 자막 하나, 샷 길이는 나레이션 길이를 따른다)
 - 녹화기: `scripts/demo/record-video.mjs` (Chrome, ffmpeg/ffprobe, `say` 필요)
@@ -70,6 +70,6 @@ node scripts/demo/record-video.mjs --mode live
 ```
 
 - 녹화기가 `next dev -p 3611`을 `YOUCAM_MODE=<mode>`로 직접 띄우고 끝나면 끈다(명령줄 env가 `.env`보다 우선). 이미 떠 있는 서버를 쓰려면 `--base http://localhost:3611`. 그 밖의 옵션: `--port`, `--work <작업 폴더>`, `--out <mp4>`, `--voice`, `--rate`, `--stills <장 수>`.
-- live 안전장치: 시작 전에 `/api/credit`이 `mode: "live"`, 데모 모드 아님, 잔량 150 이상이 아니면 중단. 실패한 단계는 재시도하지 않고 바로 중단하며, 세션 사용량이 30유닛을 넘으면 중단(앱 자체 세션 상한 20u도 그대로 적용). 한 번 돌릴 때마다 유닛이 나가므로 live는 꼭 필요할 때 한 번만 돌린다.
+- live 안전장치: 시작 전에 `/api/credit`이 `mode: "live"`, 데모 모드 아님, 잔량 150 이상이 아니면 중단. 실패한 단계는 재시도하지 않고 바로 중단하며, 세션 사용량이 20유닛을 넘으면 중단(앱 자체 세션 상한 20u도 그대로 적용). 한 번 돌릴 때마다 유닛이 나가므로 live는 꼭 필요할 때 한 번만 돌린다.
 - 결과: `.local/video/mirror-tutor-demo-<mode>.mp4` (`.local/`은 gitignore). 프레임·음성·스테이지 이미지·`summary.json`(구간 길이, 시작/끝 잔량)은 기본값 `.local/video/work-<mode>/`에 남는다.
 - 분석·렌더 대기 시간은 영상에서 잘라내고(0.8초만 남김) 각 구간 길이는 나레이션 길이에 맞춘다. 2026-10-31 기준 두 버전 모두 약 2분 12초.

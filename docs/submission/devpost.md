@@ -20,7 +20,8 @@ Makeup tutorials are filmed on someone else's face. A gradient eyeshadow that wo
 4. Lesson: three lessons (Daily K-look, Soft shading, Gradient lips) of four steps each. YouCam Makeup VTO renders each step cumulatively on the user's own photo as the answer key, with the foundation color set to the measured shade, with a before/after slider and "why this fits you" reasons.
 5. Grade: the user does the makeup and photographs the result. Per-region scores (eye line, eyelid, cheek, lip) come from color differences, with a one-line correction and a confidence level.
 6. Shop the step: the exact hex colors of a step are matched to catalog products by CIEDE2000 (<= 5). Then a share card.
-7. Compare: a page with two pre-generated demo faces (double vs inner-double eyelid) showing the same look with different techniques.
+7. Compare: a page with two pre-generated demo faces (double vs inner-double eyelid) showing the same look with different techniques, plus a what-if panel that previews other rule-table branches (monolid, thin lips) as text, for 0 units.
+8. Home: a practice streak, past results and a tab bar for returning users, stored on the device only. Shop the step asks for confirmation in a sheet before leaving for a store.
 
 Also: Korean and English UI, a per-session unit cap, and a demo mode that serves pre-generated results when the API balance is low.
 
@@ -47,7 +48,7 @@ Also: Korean and English UI, a per-session unit cap, and a demo mode that serves
 - The loop is closed: analyze -> technique -> answer image -> your attempt -> score -> product. The VTO output is the grading reference, not just a picture.
 - Techniques depend on the face. The rule table is visible in the app, so it is clear that the output changes with the eyelid.
 - Per-step answer images cost one unit each, and a first-time flow costs 14 units.
-- Tests run offline against the real pattern catalog and recorded API bodies.
+- 183 tests (25 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
 
 ## What we learned
 
@@ -70,6 +71,6 @@ Next.js, React, TypeScript, Tailwind CSS, YouCam API (Face Attribute & Ratio Ana
 
 - Live demo: https://mirror-tutor.vercel.app (if the YouCam balance is low it shows pre-generated sample models and says so)
 - Source code: https://github.com/sh0sub/mirror-tutor (public, MIT)
-- Video: YouTube link (add after upload)
+- Video: YouTube link (add after upload). The 2:32 demo is faceless (stock photos only) and was recorded against the live YouCam API with 14 units.
 - Test images: `public/demo/model-a` and `model-b` in the repository (stock photos, Pexels License), or use your own selfie
 - API notes: `docs/api-notes.md` in the repository
