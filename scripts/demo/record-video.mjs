@@ -9,6 +9,10 @@
  *
  * Options: --port 3611  --work <dir for frames/audio>  --out <mp4>  --base <url of a running server>
  *          --voice Samantha  --rate 150  --stills 6
+ *          --only shop[,id]  record just these segments (re-take one shot for recomposite.mjs); with --sample the
+ *                            state is reached through the "Try with a sample model" flow (Model A's pre-generated
+ *                            live results, 0 units) using SAMPLE_SETUP from video-shots.mjs, recorded nowhere.
+ *                            Writes <work>/frames-<id> + <work>/segments/<id>-phone.txt (no audio/stage/MP4).
  * Without --base it starts `next dev` on --port with YOUCAM_MODE=<mode> on the command line (overrides
  * .env) and stops it at the end. Mock mode also blanks ANTHROPIC_API_KEY so grading uses local rules.
  * Live mode aborts unless GET /api/credit says mode "live", not demo, remaining >= 150; it never retries
@@ -18,7 +22,7 @@
 import { spawn, execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, openSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { SEGMENTS } from "./video-shots.mjs";
+import { SEGMENTS as ALL_SEGMENTS, SAMPLE_SETUP } from "./video-shots.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "../..");
 const args = Object.fromEntries(
@@ -30,6 +34,10 @@ const BASE = args.base ?? `http://localhost:${PORT}`;
 const WORK = path.resolve(args.work ?? path.join(ROOT, `.local/video/work-${MODE}`));
 const OUT = path.resolve(args.out ?? path.join(ROOT, `.local/video/mirror-tutor-demo-${MODE}.mp4`));
 const VOICE = args.voice ?? "Samantha";
+const ONLY = args.only ? String(args.only).split(",") : null;
+const SAMPLE = !!args.sample;
+if (SAMPLE && (!ONLY || MODE !== "mock")) throw new Error("--sample needs --only and --mode mock");
+const SEGMENTS = ONLY ? ALL_SEGMENTS.filter((s) => ONLY.includes(s.id)) : ALL_SEGMENTS;
 const RATE = Number(args.rate ?? 150);
 const STILLS = Number(args.stills ?? 6);
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -234,7 +242,7 @@ async function startServer() {
 
 /* ── 4. recording ──────────────────────────────────────────────────────────── */
 async function record(cdp) {
-  const framesDir = path.join(WORK, "frames");
+  const framesDir = path.join(WORK, ONLY ? `frames-${ONLY.join("-")}` : "frames");
   rmSync(framesDir, { recursive: true, force: true });
   mkdirSync(framesDir, { recursive: true });
   const frames = []; // { file, wall }
@@ -271,10 +279,10 @@ async function record(cdp) {
     throw new Error(`live take aborted: remaining=${before.remaining} demo=${before.demo} (need >= ${LIVE_MIN_REMAINING})`);
   }
 
+  const vars = {};
   await cdp.send("Page.startScreencast", { format: "jpeg", quality: 88, maxWidth: VW * DPR, maxHeight: VH * DPR, everyNthFrame: 1 });
   await sleep(800);
 
-  const vars = {};
   const findJs = (sel, text, parent) => `(() => {
     const re = ${text ? `new RegExp(${JSON.stringify(text)}, 'i')` : "null"};
     const els = [...document.querySelectorAll(${JSON.stringify(sel)})].filter((e) => {
@@ -333,18 +341,27 @@ async function record(cdp) {
     } else if (a.wait) {
       const t0 = Date.now();
       for (;;) {
-        if (await failOn(a.fail)) throw new Error(`failure state while waiting in "${seg.id}" (${a.fail}) — not retrying`);
+        if (await failOn(a.fail)) throw new Error(`failure state while waiting in "${seg?.id ?? "setup"}" (${a.fail}) — not retrying`);
         if (await evaluate(`!!(${a.wait})`)) break;
-        if (Date.now() - t0 > (a.timeout ?? 15000)) throw new Error(`timeout in "${seg.id}": ${a.wait}`);
+        if (Date.now() - t0 > (a.timeout ?? 15000)) throw new Error(`timeout in "${seg?.id ?? "setup"}": ${a.wait}`);
         await sleep(150);
       }
       const t1 = Date.now();
       if (a.cut && recording && t1 - t0 > CUT_KEEP * 1000 + 100) {
         cuts.push([t0 + CUT_KEEP * 1000, t1]);
-        log(`  cut ${((t1 - t0) / 1000 - CUT_KEEP).toFixed(1)}s of waiting in ${seg.id}`);
+        log(`  cut ${((t1 - t0) / 1000 - CUT_KEEP).toFixed(1)}s of waiting in ${seg?.id}`);
       }
+    } else if (a.scrollPast) {
+      // scroll an element (e.g. the mock/sample mode banner) up behind the sticky app bar; no-op when absent
+      const off = await evaluate(`(() => { const e = document.querySelector(${JSON.stringify(a.scrollPast)}); if (!e) return 0;
+        const r = e.getBoundingClientRect(); const bar = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0;
+        return Math.max(0, Math.ceil(r.bottom + scrollY + parseFloat(getComputedStyle(e).marginBottom || 0) - bar)); })()`);
+      vars.__yoff = off;
+      if (off) await evaluate(`window.scrollTo({ top: ${off}, behavior: 'instant' })`);
+      log(`  scrollPast ${a.scrollPast}: ${off}px`);
+      await sleep((a.dur ?? 0) * 1000);
     } else if (a.scroll) {
-      let y = a.scroll.y;
+      let y = a.scroll.y === undefined ? undefined : a.scroll.y + (vars.__yoff ?? 0);
       if (y === undefined) {
         const r = await find(a.scroll.sel, a.scroll.text);
         y = Math.max(0, r.top - VH + (a.scroll.offset ?? 200) + r.h);
@@ -384,10 +401,17 @@ async function record(cdp) {
     } else throw new Error(`unknown action ${JSON.stringify(a)}`);
   }
 
+  // not part of any segment's timeline: frames before segStart are never used
+  if (SAMPLE) {
+    for (const a of SAMPLE_SETUP) await act(a, null, false);
+    log("sample setup done:", await evaluate("location.pathname + location.search"));
+  }
+
   for (const seg of SEGMENTS) {
     for (const a of seg.prep ?? []) await act(a, seg, false);
     await sleep(400);
     cuts = [];
+    vars.__yoff = 0;
     segStart = Date.now();
     const seed = frames.at(-1); // screen as it is when the segment starts
     for (const a of seg.actions) await act(a, seg, true);
@@ -449,6 +473,10 @@ function encode() {
     }
     const phoneList = path.join(dir, `${seg.id}-phone.txt`);
     concatList(phoneList, ticks, dur);
+    if (ONLY) {
+      log(`wrote ${phoneList} (${dur.toFixed(2)}s)`);
+      continue;
+    }
     const bgList = path.join(dir, `${seg.id}-stage.txt`);
     concatList(bgList, seg.stage.map((f, i) => ({ file: f, start: i === 0 ? 0 : seg.cues[i].start })), dur);
     const out = path.join(dir, `${seg.id}.mp4`);
@@ -464,6 +492,7 @@ function encode() {
     outs.push(out);
     log(`encoded ${seg.id} (${dur.toFixed(2)}s)`);
   }
+  if (ONLY) return null;
   mkdirSync(path.dirname(OUT), { recursive: true });
   const list = path.join(dir, "all.txt");
   writeFileSync(list, outs.map((o) => `file '${o}'`).join("\n"));
@@ -494,7 +523,11 @@ try {
   const credit = await record(cdp);
   const total = encode();
   const spent = credit.before.remaining !== null && credit.after.remaining !== null ? credit.before.remaining - credit.after.remaining : null;
-  writeFileSync(path.join(WORK, "summary.json"), JSON.stringify({ mode: MODE, out: OUT, totalSeconds: total, segments: SEGMENTS.map((s) => ({ id: s.id, seconds: s.duration })), credit, spent }, null, 2));
+  if (!ONLY) writeFileSync(path.join(WORK, "summary.json"), JSON.stringify({ mode: MODE, out: OUT, totalSeconds: total, segments: SEGMENTS.map((s) => ({ id: s.id, seconds: s.duration })), credit, spent }, null, 2));
+  if (ONLY) {
+    log(`done (--only ${ONLY.join(",")}): session spent = ${credit.after.sessionSpent}`);
+    await shutdown(0);
+  }
   log(`done: ${total.toFixed(1)}s, units spent (balance diff) = ${spent}, session spent = ${credit.after.sessionSpent}`);
   await shutdown(0);
 } catch (e) {

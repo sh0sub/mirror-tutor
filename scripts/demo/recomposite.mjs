@@ -57,7 +57,7 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
  * lines[i]      narration + subtitle i
  * speak[i]      optional spoken override for line i with hand-placed `say` pauses/emphasis (subtitle stays lines[i])
  * ui[i]         per-line left-column override { heading?, chip?, callout? } (callout = HTML)
- * timeline      [{ at, src }]: from `at` (seconds | { cue, plus }) play source time `src` (number = hold, [a,b] = play a..b)
+ * timeline      [{ at, src }]: from `at` (seconds | { cue, plus } | { plus } = from the segment end) play source time `src` (number = hold, [a,b] = play a..b)
  * zoom          [{ at, y, x? }]: css-pixel top (and left) of the zoom window from `at` on, eased in over 0.7 s
  */
 const SEGMENTS = [
@@ -102,7 +102,10 @@ const SEGMENTS = [
     timeline: [
       { at: 0, src: [0, 6.8] },
       { at: { cue: 1, plus: 1.5 }, src: 9 },
-      { at: { cue: 2 }, src: [13.0, 15.86] },
+      // after the upload tap the source shows the analyzer's loading skeleton: stay on the capture screen,
+      // play the tap just before the cut, and let the analyze shot open on the finished result
+      { at: { cue: 2 }, src: 12.5 },
+      { at: { plus: -0.8 }, src: [12.53, 12.87] },
     ],
     zoom: [{ at: 0, y: 470 }, { at: { cue: 1, plus: 1.2 }, y: 30 }, { at: { cue: 2 }, y: 30 }],
   },
@@ -124,8 +127,7 @@ const SEGMENTS = [
       { callout: "<b>Double lid</b> → crease shading + thin liner<br><span class=\"mono\">2colors3 · Upper11</span>" },
     ],
     timeline: [
-      { at: 0, src: [0, 1.2] },
-      { at: 1.6, src: 3 },
+      { at: 0, src: 3 }, // source 0-1.2 s is the loading skeleton
       { at: { cue: 2 }, src: 11.5 },
       { at: { cue: 3, plus: -0.2 }, src: [18, 19.8] },
       { at: { cue: 3, plus: 1.8 }, src: 20.4 },
@@ -218,7 +220,8 @@ const SEGMENTS = [
     ],
     ui: [{ callout: "Hex colors from the step → closest products (ΔE)" }, { callout: "Demo catalog · real SKUs would come from a partner feed" }],
     timeline: [{ at: 0, src: [0.8, 12.8] }],
-    zoom: [{ at: 0, y: 380 }, { at: { cue: 1 }, y: 170 }],
+    // re-taken with the sample model: the mode banner is scrolled behind the app bar, so the list sits 76 px higher
+    zoom: [{ at: 0, y: 304 }, { at: 4.2, y: 480 }, { at: 6.6, y: 304 }, { at: { cue: 1 }, y: 170 }], // 4.2-6.6 s: "View in store" sheet
   },
   {
     id: "home",
@@ -325,7 +328,7 @@ async function buildAudio(seg, dir) {
   run(FFMPEG, ["-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", list, "-c:a", "pcm_s16le", seg.audio]);
 }
 
-const resolveAt = (seg, at) => (typeof at === "number" ? at : at.cue === undefined ? seg.duration : seg.cues[at.cue].start + (at.plus ?? 0));
+const resolveAt = (seg, at) => (typeof at === "number" ? at : at.cue === undefined ? seg.duration + (at.plus ?? 0) : seg.cues[at.cue].start + (at.plus ?? 0));
 
 function loadSourceFrames(id) {
   const lines = readFileSync(path.join(SRC, "segments", `${id}-phone.txt`), "utf8").split("\n");

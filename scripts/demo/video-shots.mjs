@@ -15,6 +15,8 @@
  *   { route: "/path" }             client-side navigation (keeps in-memory photo/renders)
  *   { key: "Escape" }
  *   { save: { name, js } }         store a page value; "{name}" in later route strings is replaced
+ *   { scrollPast: "selector" }     scroll that element up behind the sticky app bar (no-op if absent); later
+ *                                  { scroll: { y } } in the segment are offset by the same amount
  * `prep` runs before the segment starts recording (not shown).
  * Lines are spoken with macOS `say` and burned in as subtitles; keep them short (one subtitle each).
  */
@@ -182,7 +184,8 @@ export const SEGMENTS = [
     ],
     actions: [
       { tap: { sel: "a", text: "See products" } },
-      { wait: "location.pathname === '/shop'" },
+      { wait: "location.pathname === '/shop' && !!document.querySelector('section[aria-label] button[aria-pressed]')" },
+      { scrollPast: "header ~ p[role=status]" }, // mock/sample banner (absent in live mode) goes behind the app bar
       { sleep: 1.6 },
       { tap: { sel: "section[aria-label] button[aria-pressed]" } },
       { sleep: 1.2 },
@@ -221,4 +224,27 @@ export const SEGMENTS = [
     prep: [{ route: "/share?lesson={lesson}" }, { wait: "location.pathname === '/share'" }, { sleep: 2.0 }],
     actions: [{ sleep: 1.5 }, { at: 1, plus: 0.5 }, { scroll: { y: 300 }, dur: 1.4 }, { sleep: 1.0 }, { scroll: { y: 0 }, dur: 1.2 }],
   },
+];
+
+/**
+ * `record-video.mjs --mode mock --sample --only shop`: reach the graded state through "Try with a sample model"
+ * (Model A's pre-generated live results, 0 units) instead of the live capture/analyze/lesson/grade shots.
+ * Ends where the live "grade" shot ends (daily-k, step 4, graded, scrolled to the shop button).
+ */
+export const SAMPLE_SETUP = [
+  { wait: "document.querySelector('main h2')", timeout: 30000 },
+  { tap: { sel: "button", text: "^Try with a sample model" }, quiet: true },
+  { wait: "location.pathname === '/analyze'", timeout: 20000 },
+  { wait: bodyHas("Analysis done"), fail: bodyHas("Analysis failed"), timeout: 60000 },
+  { tap: { sel: "button", text: "Start this lesson" }, quiet: true },
+  { wait: "location.pathname === '/lesson'" },
+  { wait: "document.querySelectorAll('nav[aria-label] button').length >= 4 && !!document.querySelector('img[alt^=\"Answer\"]') && !document.body.innerText.includes('Rendering')", fail: bodyHas("This step failed"), timeout: 60000 },
+  { tap: { sel: "nav[aria-label] button:nth-child(4)" }, quiet: true },
+  { sleep: 1.0 },
+  { tap: { sel: "button", text: "^Grade a sample try" }, quiet: true },
+  { wait: "location.pathname === '/grade'", timeout: 20000 },
+  { wait: bodyHas("Graded") + " || " + bodyHas("Angle is quite different"), fail: bodyHas("Analysis failed"), timeout: 60000 },
+  { sleep: 1.0 },
+  { scroll: { y: 360 }, dur: 1.2 },
+  { sleep: 0.8 },
 ];
