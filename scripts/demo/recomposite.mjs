@@ -64,6 +64,24 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
  */
 const SEGMENTS = [
   {
+    // C2 hook (0-~9 s): the compare screen first, so judges see the product's point (same look, different lids,
+    // different technique) before the app intro. Reuses the compare recording frames, 0 units.
+    id: "hook",
+    srcId: "compare",
+    lead: 0.35,
+    kicker: "Same look, two eyelids",
+    heading: "Different lids, different technique",
+    chip: "YouCam Makeup VTO · pre-generated · 0 units now",
+    note: "Both faces are Pexels and Unsplash License stock photos",
+    lines: ["Same look, different lids, different technique.", "Watch the shadow and liner change with the eyelid."],
+    ui: [
+      { callout: "<b>Monolid</b> and <b>double lid</b>, same eye step, answers side by side." },
+      { callout: "Shadow + liner differ per lid: <b>2colors1 · Upper6</b> vs <b>2colors3 · Upper11</b>" },
+    ],
+    timeline: [{ at: 0, src: [0, 3.1] }, { at: { cue: 1, plus: 0.2 }, src: 5 }],
+    zoom: [{ at: 0, y: 252 }],
+  },
+  {
     id: "intro",
     lead: 0.5,
     kicker: "The problem",
@@ -169,14 +187,13 @@ const SEGMENTS = [
     chip: "Pre-generated with the live API · 0 units now",
     note: "Both faces are Pexels and Unsplash License stock photos",
     lines: [
-      "Here's the proof. Same lesson, two different faces.",
-      "Face Analyzer read the monolid as a double lid, so we corrected it, just as a user would. Then the rule table picked each face's technique.",
+      "The analyzer missed the monolid, so we let the user correct it and the lesson changes.",
       "A monolid gets a horizontal gradient and a visible liner. A double lid gets crease shading. Same look, different technique.",
     ],
     ui: [
-      { callout: "Same lesson · same eye step · two faces" },
       {
         heading: "Analyzer misread, user corrected",
+        chip: "Analyzer read Double-lid, corrected to Monolid",
         callout: "Face Analyzer read <b>Double-lid</b><br>→ corrected to <b>Monolid</b> in the edit sheet · 0 units",
       },
       {
@@ -186,13 +203,14 @@ const SEGMENTS = [
       },
     ],
     // source: top of /compare on the eye step (0-3.1 s incl. original/answer flip), answer hold, scroll to the rule table
+    // C2: line 0 = the correction chip, held in view for the whole line (> 3 s) with both faces' eye steps beside it
     timeline: [
       { at: 0, src: [0, 3.1] },
-      { at: { cue: 1 }, src: 5 },
-      { at: { cue: 2, plus: -0.1 }, src: [14.4, 14.95] },
-      { at: { cue: 2, plus: 0.9 }, src: 20 },
+      { at: { cue: 0, plus: 3.2 }, src: 5 },
+      { at: { cue: 1, plus: -0.1 }, src: [14.4, 14.95] },
+      { at: { cue: 1, plus: 0.9 }, src: 20 },
     ],
-    zoom: [{ at: 0, y: 220 }, { at: { cue: 1 }, y: 300 }, { at: { cue: 2, plus: -0.1 }, y: 300 }, { at: { cue: 2, plus: 0.9 }, y: 300 }],
+    zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 300 }, { at: { cue: 1, plus: 0.9 }, y: 300 }],
   },
   {
     id: "grade",
@@ -364,9 +382,11 @@ function frameAt(items, t) {
 }
 
 // left-column step list (one entry per segment after the intro)
+const HEAD_SEGS = 1; // the hook shifts the step numbering by one
 const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Streak", "Share"];
 
-function stageHtml(seg, si, ci) {
+function stageHtml(seg, si0, ci) {
+  const si = Math.max(si0 - HEAD_SEGS, 0);
   const ui = { heading: seg.heading, chip: seg.chip, callout: "", ...(seg.ui?.[ci] ?? {}) };
   const total = SEGMENTS.length;
   const cue = seg.cues[ci].text;
@@ -386,7 +406,7 @@ function stageHtml(seg, si, ci) {
   .note{font-size:20px;color:#6b605c;line-height:1.4}
   .sub{position:absolute;left:${ZX}px;width:${ZW}px;top:${ZY + ZH + 62}px;border-left:6px solid #c8325b;padding:4px 0 4px 24px;font-size:35px;line-height:1.33;font-weight:600;box-sizing:border-box}
   .bar{position:absolute;left:64px;bottom:92px;width:${SCR_X - 64 - 52}px;height:6px;border-radius:3px;background:#eadfd8}
-  .bar i{display:block;height:6px;border-radius:3px;background:#c8325b;width:${(((si + 1) / total) * 100).toFixed(1)}%}
+  .bar i{display:block;height:6px;border-radius:3px;background:#c8325b;width:${(((si0 + 1) / total) * 100).toFixed(1)}%}
   .flow{position:absolute;left:64px;bottom:128px;width:${SCR_X - 64 - 52}px}
   .flow .fh{font-size:17px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6b605c;margin-bottom:12px}
   .flow ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
@@ -562,7 +582,7 @@ function concatFrames(file, frames) {
 }
 
 function encodeSegment(seg, dir) {
-  const { items, total } = loadSourceFrames(seg.id);
+  const { items, total } = loadSourceFrames(seg.srcId ?? seg.id);
   const { fr, cuts, N } = planShots(seg, items, total);
   const dur = seg.duration;
   const hN = XF_N / 2;

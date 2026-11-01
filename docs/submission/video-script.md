@@ -94,3 +94,11 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - intro: 데모 모드 배너 없이 찍으려고 YOUCAM_MODE=live 로컬 서버(홈 화면만, API 호출 0)에 `--mode live --only intro --base`로 녹화. 첫 8초 안에 홑꺼풀 vs 쌍꺼풀 히어로가 보이고 왼쪽에 "Your eyelid → your technique". 나레이션은 그대로.
 - home(스트릭) 장면은 실제 프로필이 필요해 work-live2 프레임을 재사용(히어로와 무관).
 - 길이: 장면별 `lead`/`tail` 무음을 줄여(0.5→0.35, 0.9→0.5) 182.9초 → 175.6초. 180초 미만 유지.
+
+## 2026-11-02 C2 영상 (175.9초)
+
+- 소스 폴더: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c2` (work-c1을 복사하고 phone 타임라인 경로를 work-c2로 바꿈, 재녹화 없음 0 유닛). 재합성 작업 폴더 `recomp-oai`, 출력은 `.local/video/mirror-tutor-demo-live.mp4`(직전 판 `-c2prev.mp4`).
+- 새 "hook" 장면(0-7.6초): compare 녹화 프레임을 맨 앞에 두고 자막 "Same look, different lids, different technique."로 시작한 뒤 앱 인트로가 이어진다. 단계 번호(How it works / Step n of 8)는 hook을 세지 않는다.
+- compare: "Here's the proof" 줄을 빼고, 첫 줄을 "The analyzer missed the monolid, so we let the user correct it and the lesson changes."로 바꿈. 칩 "Analyzer read Double-lid, corrected to Monolid"이 줄 내내(약 6초) 확대 창에 보이고 두 얼굴의 눈 단계 결과가 나란히 나온다. 나머지 줄은 그대로.
+- 새 marin TTS 줄 3개(hook 2줄, compare 1줄), 센트 단위. 길이 175.9초(< 180초).
+- 한계: 캡처/채점 장면의 어두운 "Camera unavailable" 프레임은 이전 판과 같다(이번 변경 범위 밖).
