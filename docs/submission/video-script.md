@@ -1,4 +1,4 @@
-# 데모 영상 스크립트 (약 2:57)
+# 데모 영상 스크립트 (약 2:56)
 
 이슈 #28 시나리오를 현재 앱 라우트(`/capture` `/analyze` `/lesson` `/compare` `/grade` `/shop` `/share`)에 맞춘 촬영안. 영상은 1~3분, YouTube 공개, 제3자 상표·음악 없음, 실기기 구동 장면 포함. 나레이션은 영어(Devpost 심사용), 자막은 한국어를 기본으로 하고 영어 자막은 나레이션과 같은 문장을 쓴다.
 
@@ -26,7 +26,7 @@
 | 8 | 2:00-2:15 | `/shop` 단계 스와치 hex -> 제품 카드, 색차 ΔE | 스와치 탭, ΔE 표시와 "데모 데이터" 문구 | "The exact colors from each step map to products by color difference. The tutorial becomes the cart. The catalog is a demo; real SKUs would come from a partner feed." | 단계에서 쓴 색이 그대로 제품이 돼요. 카탈로그는 데모이고, 실제 SKU는 제휴 피드로 교체합니다. |
 | 9 | 2:15-2:30 | `/share` 공유 카드 -> `docs/architecture.svg` 1장(3초) -> 로고 카드 | 공유 카드 저장 후 아키텍처 이미지 | "Photos are never stored, units are capped per session. Mirror Tutor: learn K-beauty on your own face." | 사진은 저장하지 않고 유닛은 세션당 상한. Mirror Tutor, 내 얼굴로 배우는 K-메이크업. |
 
-원래 촬영안은 150초. 실제 제출용 자동 녹화본은 아래 "자동 녹화"·"재합성" 절(약 2:57)을 따른다. 나레이션이 시간보다 길면 4번과 5번 문장부터 줄인다(심사 기준: API를 어떻게 쓰는지가 보여야 하므로 8번보다 4·5번을 남긴다).
+원래 촬영안은 150초. 실제 제출용 자동 녹화본은 아래 "자동 녹화"·"재합성" 절(약 2:56)을 따른다. 나레이션이 시간보다 길면 4번과 5번 문장부터 줄인다(심사 기준: API를 어떻게 쓰는지가 보여야 하므로 8번보다 4·5번을 남긴다).
 
 ## 테이크와 유닛 예산
 
@@ -57,7 +57,7 @@
 
 ## 자동 녹화(얼굴 없는 버전)
 
-실제 얼굴 없이 앱 화면만으로 데모 영상을 만드는 녹화기. 헤드리스 Chrome(CDP, 추가 패키지 없음)이 390폭 모바일 화면에서 실제 플로우(홈 → 동의 → 스톡 사진 업로드 → 분석·베이스 색 → 레슨 슬라이더 → 두 얼굴 비교 + what-if → 채점 → 샵(스토어 시트) → 홈 스트릭 → 공유)를 조작하고, macOS `say`(Samantha) 영어 나레이션과 영어 자막을 입혀 1920x1080 MP4 한 개로 합친다. 음악 없음. 얼굴은 `public/demo/model-a`(Pexels License 스톡 사진)만 쓰고, 채점용 시도 사진은 `model-a/step-3.jpg`(눈만 완성, 입술 생략)가 대신한다(영상 안에 그렇게 표시).
+실제 얼굴 없이 앱 화면만으로 데모 영상을 만드는 녹화기. 헤드리스 Chrome(CDP, 추가 패키지 없음)이 390폭 모바일 화면에서 실제 플로우(홈 → 동의 → 스톡 사진 업로드 → 분석·베이스 색 → 레슨 슬라이더 → 두 얼굴 비교(홑꺼풀 vs 쌍꺼풀, 분석기 수정 칩) → 채점 → 샵(스토어 시트) → 홈 스트릭 → 공유)를 조작하고, macOS `say`(Samantha) 영어 나레이션과 영어 자막을 입혀 1920x1080 MP4 한 개로 합친다. 음악 없음. 얼굴은 `public/demo/model-a`(Pexels License 스톡 사진)만 쓰고, 채점용 시도 사진은 `model-a/step-3.jpg`(눈만 완성, 입술 생략)가 대신한다(영상 안에 그렇게 표시).
 
 - 샷·나레이션: `scripts/demo/video-shots.mjs` (문장 하나 = 자막 하나, 샷 길이는 나레이션 길이를 따른다)
 - 녹화기: `scripts/demo/record-video.mjs` (Chrome, ffmpeg/ffprobe, `say` 필요)
@@ -86,3 +86,11 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - 타임라인: 장면별 `timeline` 앵커로 원본 구간을 재생하거나 한 프레임을 유지한다. 어두운 "카메라 없음" 구간을 줄이는 데 쓴다.
 - 나레이션(영어, `say`): 첫 장면은 홑꺼풀 문제 제기, 비교 장면은 두 얼굴의 기법 차이(콜아웃 6초), 공유 장면은 사진 미저장·세션 20유닛 상한을 말한다. 저장 프레임이 390x844라 확대는 해상도가 늘지 않는다(unsharp로 보정).
 - 영상 세그먼트별 합계: 인트로 20초, 촬영 16초, 분석 27초, 레슨 24초, 비교 21초, 채점 20초, 샵 13초, 홈 13초, 공유 18초.
+
+## 2026-11-02 C1 재녹화본 (175.6초)
+
+- 소스 폴더: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c1` (work-live2를 복사한 뒤 intro·compare만 다시 녹화, 나머지 장면은 work-live2 프레임 그대로). 재합성 작업 폴더는 `recomp-oai`(TTS 캐시 공유), 출력은 `.local/video/mirror-tutor-demo-live.mp4`(직전 판 `-c1prev.mp4`).
+- compare: `record-video.mjs --mode mock --sample --only compare`(0 유닛). 눈 단계에서 열리고, 분석기 수정 칩("Analyzer read Double-lid → corrected to Monolid")과 규칙표(홑꺼풀 2colors1·Upper6 / 쌍꺼풀 2colors3·Upper11)를 보여 준다. what-if 마무리 문장은 뺐다. 나레이션 2줄만 새 marin TTS(총 4건, 센트 단위).
+- intro: 데모 모드 배너 없이 찍으려고 YOUCAM_MODE=live 로컬 서버(홈 화면만, API 호출 0)에 `--mode live --only intro --base`로 녹화. 첫 8초 안에 홑꺼풀 vs 쌍꺼풀 히어로가 보이고 왼쪽에 "Your eyelid → your technique". 나레이션은 그대로.
+- home(스트릭) 장면은 실제 프로필이 필요해 work-live2 프레임을 재사용(히어로와 무관).
+- 길이: 장면별 `lead`/`tail` 무음을 줄여(0.5→0.35, 0.9→0.5) 182.9초 → 175.6초. 180초 미만 유지.

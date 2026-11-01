@@ -46,7 +46,9 @@ const SCR_W = 462, SCR_H = 1000, SCR_X = 600, SCR_Y = 40;
 const ZX = 1110, ZY = 40, ZW = 750, ZH = 666; // zoom panel
 const CSS_W = 390, CSS_H = 844, FR = 1; // saved screencast frames are 390x844 (1 px per css px)
 const ZOOM_CSS_H = Math.round((CSS_W * ZH) / ZW); // visible css height in the zoom panel
-const LEAD = 0.5, GAP = 0.35, TAIL = 0.9, ZOOM_MOVE = 0.7;
+// LEAD/TAIL: silence before the first and after the last line of a segment (per-segment `lead`/`tail` override).
+// Kept short so the whole video lands at 172-176 s (hard limit 180 s).
+const LEAD = 0.35, GAP = 0.35, TAIL = 0.5, ZOOM_MOVE = 0.7;
 
 const run = (cmd, argv) => execFileSync(cmd, argv, { stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64 << 20 }).toString();
 const probe = (f) => Number(run(FFPROBE, ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f]).trim());
@@ -63,6 +65,7 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 const SEGMENTS = [
   {
     id: "intro",
+    lead: 0.5,
     kicker: "The problem",
     heading: "Tutorials fit someone else's eyes",
     chip: "YouCam AI Face Analyzer + Makeup Virtual Try-On",
@@ -76,12 +79,13 @@ const SEGMENTS = [
       "[[rate 168; pbas +2]] So we built Mirror Tutor. [[slnc 260]] [[rate 148; pbas -2]] Makeup lessons, [[slnc 160]] on [[emph +]] your own [[emph -]] face.",
     ],
     ui: [
-      { heading: "Monolid? Double lid? The technique is different.", callout: "A tutorial filmed on someone else's eyes never says what to change for <b>your</b> eyelid." },
+      { heading: "Your eyelid → your technique", callout: "<b>Monolid</b> or <b>double lid</b>: same look, different technique. A tutorial never says what to change for <b>your</b> eyelid." },
       { heading: "Makeup lessons on your own face", callout: "One selfie in, a lesson built on <b>your</b> face out." },
       { heading: "Makeup lessons on your own face", callout: "<b>Face Analyzer</b> reads features<br><b>Rule table</b> picks the technique<br><b>Makeup VTO</b> renders each step" },
     ],
-    timeline: [{ at: 0, src: 3 }],
-    zoom: [{ at: 0, y: 45 }, { at: { cue: 2 }, y: 330 }],
+    // source = the hero (monolid face vs double-lid face) at the top of the home page, then the scroll to the three steps
+    timeline: [{ at: 0, src: 3 }, { at: { cue: 2, plus: -0.1 }, src: [7.0, 7.45] }, { at: { cue: 2, plus: 0.9 }, src: 9 }],
+    zoom: [{ at: 0, y: 40 }, { at: { cue: 2, plus: -0.1 }, y: 40 }, { at: { cue: 2, plus: 0.9 }, y: 300 }],
   },
   {
     id: "capture",
@@ -163,29 +167,32 @@ const SEGMENTS = [
     kicker: "Two faces, one lesson",
     heading: "Same look, different technique",
     chip: "Pre-generated with the live API · 0 units now",
-    note: "Both models are Pexels License stock photos",
+    note: "Both faces are Pexels and Unsplash License stock photos",
     lines: [
       "Here's the proof. Same lesson, two different faces.",
-      "A double lid gets crease shading. An inner double lid gets a soft gradient above the liner. Same look, different technique.",
-      "Curious about a monolid? The what-if panel shows that branch too, for zero units.",
+      "Face Analyzer read the monolid as a double lid, so we corrected it, just as a user would. Then the rule table picked each face's technique.",
+      "A monolid gets a horizontal gradient and a visible liner. A double lid gets crease shading. Same look, different technique.",
     ],
     ui: [
-      { callout: "Same look · two faces" },
+      { callout: "Same lesson · same eye step · two faces" },
+      {
+        heading: "Analyzer misread, user corrected",
+        callout: "Face Analyzer read <b>Double-lid</b><br>→ corrected to <b>Monolid</b> in the edit sheet · 0 units",
+      },
       {
         heading: "Two eyelids, two techniques",
         callout:
-          "<div class=\"vs\"><div><b>Double-lid face</b>Crease shading + thin liner<span class=\"mono\">2colors3 · Upper11</span></div><div><b>Inner double lid</b>Thin gradient above the liner<span class=\"mono\">2colors2 · Upper10</span></div></div>",
+          "<div class=\"vs\"><div><b>Monolid face</b>Horizontal gradient + visible liner<span class=\"mono\">2colors1 · Upper6</span></div><div><b>Double-lid face</b>Crease shading + thin liner<span class=\"mono\">2colors3 · Upper11</span></div></div>",
       },
-      { heading: "Same look, different technique", callout: "What-if: <b>Monolid</b> → horizontal gradient + liner visible with eyes open" },
     ],
+    // source: top of /compare on the eye step (0-3.1 s incl. original/answer flip), answer hold, scroll to the rule table
     timeline: [
-      { at: 0, src: [0, 5.2] },
-      { at: { cue: 1 }, src: 9.5 },
-      { at: { cue: 1, plus: 1.4 }, src: [10.5, 14.0] },
-      { at: { cue: 1, plus: 3.2 }, src: 15 },
-      { at: { cue: 2 }, src: [15, 18.9] },
+      { at: 0, src: [0, 3.1] },
+      { at: { cue: 1 }, src: 5 },
+      { at: { cue: 2, plus: -0.1 }, src: [14.4, 14.95] },
+      { at: { cue: 2, plus: 0.9 }, src: 20 },
     ],
-    zoom: [{ at: 0, y: 220 }, { at: { cue: 1 }, y: 220 }, { at: { cue: 1, plus: 1.4 }, y: 200 }, { at: { cue: 1, plus: 3.2 }, y: 275 }, { at: { cue: 2 }, y: 470 }],
+    zoom: [{ at: 0, y: 220 }, { at: { cue: 1 }, y: 300 }, { at: { cue: 2, plus: -0.1 }, y: 300 }, { at: { cue: 2, plus: 0.9 }, y: 300 }],
   },
   {
     id: "grade",
@@ -238,6 +245,7 @@ const SEGMENTS = [
   },
   {
     id: "share",
+    tail: 1.0,
     kicker: "Share",
     heading: "Private by default",
     chip: "Photos never stored · units capped per session",
@@ -293,9 +301,10 @@ async function buildAudio(seg, dir) {
   const silence = (sec, f) => run(FFMPEG, ["-y", "-v", "error", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=mono", "-t", sec.toFixed(3), "-c:a", "pcm_s16le", f]);
   const parts = [];
   seg.cues = [];
-  let t = LEAD;
+  const leadS = seg.lead ?? LEAD;
+  let t = leadS;
   const lead = path.join(dir, `${seg.id}-lead.wav`);
-  silence(LEAD, lead);
+  silence(leadS, lead);
   parts.push(lead);
   for (const [i, line] of seg.lines.entries()) {
     const wav = path.join(dir, `${seg.id}-${i}.wav`);
@@ -319,9 +328,10 @@ async function buildAudio(seg, dir) {
     }
   }
   const tail = path.join(dir, `${seg.id}-tail.wav`);
-  silence(TAIL, tail);
+  const tailS = seg.tail ?? TAIL;
+  silence(tailS, tail);
   parts.push(tail);
-  seg.duration = t + TAIL;
+  seg.duration = t + tailS;
   const list = path.join(dir, `${seg.id}-list.txt`);
   writeFileSync(list, parts.map((p) => `file '${p}'`).join("\n"));
   seg.audio = path.join(dir, `${seg.id}.wav`);
@@ -394,7 +404,7 @@ function stageHtml(seg, si, ci) {
     return `<li class="${st}"><i>${st === "done" ? "✓" : i + 1}</i>${esc(f)}</li>`;
   }).join("")}</ol></div>
   <div class="bar"><i></i></div>
-  <div class="foot">Mirror Tutor · recorded against the live YouCam API<br>Sample faces: Pexels License stock photos · demo catalog</div>
+  <div class="foot">Mirror Tutor · recorded against the live YouCam API<br>Sample faces: Pexels and Unsplash License stock photos · demo catalog</div>
   </body></html>`;
 }
 
