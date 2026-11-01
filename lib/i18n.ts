@@ -291,8 +291,20 @@ export const MESSAGES: Readonly<Record<MsgKey, { ko: string; en: string }>> = DI
 export const LANG_STORAGE_KEY = "mt.lang";
 type KV = Pick<Storage, "getItem" | "setItem">;
 
-/** Saved choice first; otherwise follow the browser (non-Korean browsers start in English). */
-export function loadLang(storage: KV | null | undefined, browserLang?: string): Lang {
+/** `?lang=en` / `?lang=ko` in a shared link wins over everything else; anything else is ignored. */
+export function langFromSearch(search?: string): Lang | null {
+  try {
+    const v = new URLSearchParams(search ?? "").get("lang")?.toLowerCase();
+    return v === "ko" || v === "en" ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/** ?lang= first, then the saved choice, otherwise follow the browser (non-Korean browsers start in English). */
+export function loadLang(storage: KV | null | undefined, browserLang?: string, search?: string): Lang {
+  const forced = langFromSearch(search);
+  if (forced) return forced;
   try {
     const v = storage?.getItem(LANG_STORAGE_KEY);
     if (v === "ko" || v === "en") return v;

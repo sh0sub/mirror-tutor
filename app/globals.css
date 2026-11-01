@@ -75,3 +75,9 @@ body {
   background-size: 200% 100%;
   animation: mt-shimmer 1.4s linear infinite;
 }
+
+/* Korean breaks between words, not inside them (long unbroken strings still wrap instead of overflowing). */
+:lang(ko) body {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}

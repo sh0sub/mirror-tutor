@@ -26,7 +26,7 @@ We claim no pilot, no retailer test and no measured lift. No conversion, revenue
 
 ## Try it in 30 seconds (0 units, no selfie)
 
-No selfie needed - 30 s walk-through. Open https://mirror-tutor.vercel.app and tap the filled button "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛"), then walk analysis, the 4-step lesson, grading and shop the step. Then open /compare and "Retailer view (concept)". To use your own photo instead, tap "Use my own selfie" (asks for consent).
+No selfie needed - 30 s walk-through. Open https://mirror-tutor.vercel.app/?lang=en (English UI) and tap the filled button "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛"), then walk analysis, the 4-step lesson, grading and shop the step. Then open /compare and "Retailer view (concept)". To use your own photo instead, tap "Use my own selfie" (asks for consent).
 
 ## How it works
 

@@ -211,16 +211,35 @@ export default function Home() {
                   </li>
                 ))}
               </ol>
-              <p id="sample-hint" className="text-sm text-muted">
+              <p id="sample-hint" className="text-sm text-muted lg:hidden">
                 {t("sampleTryHint", lang)}
               </p>
               {hydrated && (
-                <p id="retailer-pitch" className="rounded-xl border border-line bg-panel p-3 text-sm text-muted">
+                <div className="mt-2 hidden flex-col gap-2 lg:flex" data-testid="desktop-cta">
+                  <Button className="w-full px-3 leading-tight" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-noselfie-d">
+                    <Icon name="user" className="h-4 w-4" />
+                    {t("sampleTry", lang)}
+                  </Button>
+                  <p id="sample-noselfie-d" className="text-center text-xs font-bold text-primary-strong">
+                    {t("sampleNoSelfie", lang)}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" className="min-w-0 flex-1 px-3 leading-tight" onClick={() => begin("/capture")}>
+                      {t("start", lang)}
+                    </Button>
+                    {retailerButton}
+                  </div>
+                  <p className="text-center text-xs text-muted">{t("partnerPitch", lang)}</p>
+                </div>
+              )}
+              {hydrated && (
+                <p id="retailer-pitch" className="rounded-xl border border-line bg-panel p-3 text-sm text-muted lg:hidden">
                   <span className="font-bold text-ink">{t("partnerEntryShort", lang)}</span> · {t("partnerPitch", lang)}
                 </p>
               )}
             </div>
-            <Link href="/compare" aria-label={t("compareEntry", lang)} className="order-first flex flex-col gap-2 lg:order-none">
+            <Link href="/compare" aria-label={t("compareEntry", lang)} className="order-first flex flex-col gap-2 lg:order-none lg:mx-auto lg:w-full lg:max-w-[340px] lg:rounded-[44px] lg:border-[10px] lg:border-ink lg:bg-canvas lg:px-3 lg:pb-4 lg:pt-6 lg:shadow-xl">
+              <span aria-hidden className="mx-auto hidden h-1.5 w-16 rounded-full bg-ink/80 lg:block" />
               <div className="grid grid-cols-2 gap-2">
                 {heroPair
                   .map((m) => ({ src: m.steps[m.steps.length - 1], label: FACE_NAME[m.profile.eyelid][lang] }))
@@ -232,12 +251,12 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <p className="text-center text-xs font-bold text-primary-strong">{t("heroSampleCaption", lang)}</p>
+              <p className="text-center text-xs font-bold leading-snug text-primary-strong">{t("heroSampleCaption", lang)}</p>
             </Link>
           </section>
         )}
         {hydrated && (
-          <ButtonLink href="/compare" variant="ghost" className="w-full">
+          <ButtonLink href="/compare" variant="ghost" className={`w-full ${returning ? "" : "lg:hidden"}`}>
             <Icon name="sparkle" className="h-4 w-4" />
             {t("compareEntry", lang)}
           </ButtonLink>
@@ -275,7 +294,7 @@ export default function Home() {
       {returning ? (
         <TabBar active="home" lessonId={rec!.lessonId} />
       ) : (
-        <BottomBar>
+        <BottomBar className="lg:hidden">
           <div className="flex flex-col gap-2">
             {hydrated ? (
               <>

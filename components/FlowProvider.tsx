@@ -191,7 +191,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     setStoredState(loadProfile(window.localStorage));
     setConsentedState(loadConsent(window.localStorage));
     setPractice(loadPractice(window.localStorage));
-    setLangState(loadLang(window.localStorage, navigator.language));
+    setLangState(loadLang(window.localStorage, navigator.language, window.location.search));
     setHydrated(true);
     void fetchCredit().then(setCredit);
   }, []);

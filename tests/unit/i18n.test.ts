@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LANG_STORAGE_KEY, MESSAGES, loadLang, saveLang, t, tf } from "@/lib/i18n";
+import { LANG_STORAGE_KEY, MESSAGES, langFromSearch, loadLang, saveLang, t, tf } from "@/lib/i18n";
 import { collectEntries } from "@/lib/i18nReview";
 import { eyelidRuleRows } from "@/lib/rules/engine";
 
@@ -47,6 +47,14 @@ describe("S5 language toggle (#21)", () => {
     expect(ko.map((r) => r.pattern)).toEqual(en.map((r) => r.pattern));
     expect(HANGUL.test(ko[0].technique)).toBe(true);
     expect(HANGUL.test(en[0].technique)).toBe(false);
+  });
+
+  it("?lang= overrides the saved choice and the browser; junk is ignored", () => {
+    const saved = memStorage({ [LANG_STORAGE_KEY]: "ko" });
+    expect(loadLang(saved, "ko-KR", "?lang=en")).toBe("en");
+    expect(loadLang(null, "en-US", "?x=1&lang=KO")).toBe("ko");
+    expect(loadLang(saved, "en-US", "?lang=fr")).toBe("ko");
+    expect(langFromSearch(undefined)).toBeNull();
   });
 
   it("remembers the choice; falls back to browser language; survives blocked storage", () => {

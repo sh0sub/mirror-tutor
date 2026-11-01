@@ -8,7 +8,7 @@ Entry to the Perfect Corp **YouCam API VTO Hackathon** (track: eCommerce VTO).
 Live demo: https://mirror-tutor.vercel.app (see [Demo mode](#demo-mode-and-unit-guard)).
 
 **Try it in 30 seconds (0 units, no selfie)**
-1. No selfie needed - 30 s walk-through. Open https://mirror-tutor.vercel.app and tap the filled button "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛"). "Use my own selfie" is the secondary button.
+1. No selfie needed - 30 s walk-through. Open https://mirror-tutor.vercel.app/?lang=en (English UI; non-Korean browsers start in English anyway) and tap the filled button "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛"). "Use my own selfie" is the secondary button.
 2. Walk analysis, the 4-step lesson, grading and shop the step; every image is a real pre-generated YouCam result; the graded attempt is a simulated, deliberately off-shade copy of the answer image (labelled on screen), so the scores are not 100s.
 3. Open /compare for the monolid vs double-lid split, and "Retailer view (concept)" for /partner.
 

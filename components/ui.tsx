@@ -125,9 +125,9 @@ export function Screen({ children, wide = false }: { children: ReactNode; wide?:
   return <div className={`mx-auto flex min-h-dvh w-full max-w-[480px] flex-col bg-canvas ${wide ? "lg:max-w-[1040px]" : ""}`}>{children}</div>;
 }
 
-export function BottomBar({ children }: { children: ReactNode }) {
+export function BottomBar({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <div className="sticky bottom-0 z-10 mt-auto border-t border-line bg-canvas/95 px-4 pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 backdrop-blur">
+    <div className={`${className} sticky bottom-0 z-10 mt-auto border-t border-line bg-canvas/95 px-4 pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 backdrop-blur`}>
       {children}
     </div>
   );
