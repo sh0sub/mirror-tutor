@@ -16,6 +16,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import sharp from "sharp";
 
 const args = Object.fromEntries(
   process.argv.slice(2).reduce((acc, a, i, all) => (a.startsWith("--") ? [...acc, [a.slice(2), all[i + 1] && !all[i + 1].startsWith("--") ? all[i + 1] : "1"]] : acc), []),
@@ -60,6 +61,56 @@ const probe = (f) => Number(run(FFPROBE, ["-v", "error", "-show_entries", "forma
 const log = (...a) => console.log("[recomp]", ...a);
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+/* ── C11 eye close-ups (split beat + compare gradient panel) ─────────────────────────────────────────────
+ * Crops the eye band of a full-size 600x800 YouCam render (pre-generated, public/demo) around the MediaPipe eye landmarks,
+ * scales it to w x h and draws the direction of the shadow gradient on both lids ("h" = horizontal, outer to inner corner;
+ * "v" = vertical, lash line up to the crease). Landmarks: scripts/demo/model-*-landmarks.json (normalized to the 600x800 image).
+ */
+const ROOT = path.resolve(import.meta.dirname, "../..");
+const LM = (name) => JSON.parse(readFileSync(path.join(ROOT, "scripts/demo", `${name}-landmarks.json`), "utf8"));
+async function eyeStrip({ img, lm, w, h, arrow, out, spanX = 1.14, radius = 24 }) {
+  const P = (i) => ({ x: lm[i].x * 600, y: lm[i].y * 800 });
+  const eyes = [
+    { o: P(33), i: P(133), u: P(159), l: P(145) },
+    { o: P(263), i: P(362), u: P(386), l: P(374) },
+  ];
+  const cx = (P(33).x + P(263).x) / 2, cy = (eyes[0].u.y + eyes[1].u.y + eyes[0].l.y + eyes[1].l.y) / 4;
+  const cw = (P(263).x - P(33).x) * spanX, ch = (cw * h) / w;
+  const x0 = Math.max(0, Math.min(600 - cw, cx - cw / 2)), y0 = Math.max(0, Math.min(800 - ch, cy - ch / 2 - ch * 0.04));
+  const k = w / cw;
+  const X = (x) => ((x - x0) * k).toFixed(1), Y = (y) => ((y - y0) * k).toFixed(1);
+  const head = (x, y, dx, dy) => {
+    const L = 15, a = Math.atan2(dy, dx), b = 0.5;
+    return `M${x},${y}L${(x - L * Math.cos(a - b)).toFixed(1)},${(y - L * Math.sin(a - b)).toFixed(1)}M${x},${y}L${(x - L * Math.cos(a + b)).toFixed(1)},${(y - L * Math.sin(a + b)).toFixed(1)}`;
+  };
+  const arrows = arrow
+    ? eyes
+        .map((e) => {
+          const ew = Math.abs(e.i.x - e.o.x), mx = (e.i.x + e.o.x) / 2;
+          let d;
+          if (arrow === "h") {
+            // along the lid, a little above the lash line: outer corner -> inner corner
+            const y = e.u.y - (e.l.y - e.u.y) * 0.55, xa = e.o.x + (e.o.x < e.i.x ? -4 : 4), xb = e.i.x;
+            d = `M${X(xa)},${Y(y)}L${X(xb)},${Y(y)}${head(X(xb), Y(y), Math.sign(xb - xa), 0)}M${X(xa)},${Y(y)}L${X(xa)},${Y(y)}`;
+          } else {
+            // across the lid: from the lash line up toward the brow
+            const yb = e.u.y - 3, yt = e.u.y - ew * 0.42;
+            d = `M${X(mx)},${Y(yb)}L${X(mx)},${Y(yt)}${head(X(mx), Y(yt), 0, -1)}`;
+          }
+          return `<path d="${d}" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/><path d="${d}" fill="none" stroke="#c8325b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
+        })
+        .join("")
+    : "";
+  const mask = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="${w}" height="${h}" rx="${radius}" fill="#fff"/></svg>`;
+  const base = await sharp(path.join(ROOT, "public/demo", img))
+    .extract({ left: Math.round(x0), top: Math.round(y0), width: Math.round(cw), height: Math.round(ch) })
+    .resize(w, h, { kernel: "lanczos3" })
+    .sharpen({ sigma: 1.1 })
+    .toBuffer();
+  const layers = arrows ? [{ input: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">${arrows}</svg>`) }] : [];
+  await sharp(base).composite([...layers, { input: Buffer.from(mask), blend: "dest-in" }]).png().toFile(out);
+}
+
 /* ── shot list ───────────────────────────────────────────────────────────────
  * lines[i]      narration + subtitle i
  * speak[i]      optional spoken override for line i with hand-placed `say` pauses/emphasis (subtitle stays lines[i])
@@ -80,7 +131,7 @@ const SEGMENTS = [
     geo: { SCR_W: 399, SCR_H: 864, SCR_X: 700, SCR_Y: 108, ZX: 1170, ZY: 60, ZW: 690, ZH: 690 },
     badge: "Real YouCam Makeup VTO render",
     kicker: "Mirror Tutor",
-    note: "Sample face: Pexels License stock photo. Pre-generated with the YouCam API, 0 units spent here.",
+    note: "Sample face (monolid): Unsplash License stock photo. Pre-generated with the YouCam API, 0 units spent here.",
     units: 0,
     lines: [
       "Tutorials are filmed on someone else's face. This one is rendered on yours.",
@@ -92,6 +143,21 @@ const SEGMENTS = [
     ],
     timeline: [{ at: 0, src: 2.6 }, { at: 0.9, src: [3.2, 6.45] }, { at: 4.2, src: 7.3 }, { at: { cue: 1, plus: 0.8 }, src: [10.3, 11.9] }, { at: { cue: 1, plus: 2.5 }, src: 12.5 }],
     zoom: [{ at: 0, y: 110 }],
+  },
+  {
+    // C11 split beat (~10-18 s): the same look on the monolid face and the double-lid face, full-size YouCam eye renders (lesson step 3, the
+    // compare assets), the gradient direction marked on each lid. Full-screen still pair (arrows fade in on line 2), no phone.
+    id: "split",
+    split: {
+      kicker: "Same look · two lids",
+      left: { img: "model-c/step-3.jpg", lm: "model-c", arrow: "h", name: "Monolid face", tech: "Horizontal gradient + visible liner" },
+      right: { img: "model-a/step-3.jpg", lm: "model-a", arrow: "v", name: "Double-lid face", tech: "Crease shading + thin liner" },
+      note: "Real YouCam Makeup VTO renders, lesson step 3 (eyes), pre-generated · 0 units now · faces: Unsplash and Pexels License stock",
+    },
+    lead: 0.1,
+    tail: 0.1,
+    units: 0,
+    lines: ["Same look. Different lid. Different technique.", "Monolid: horizontal gradient. Double lid: crease shading."],
   },
   {
     id: "intro",
@@ -118,60 +184,60 @@ const SEGMENTS = [
     chip: "Quality gate · 0 units",
     note: "The camera feed here is a licensed stock photo (Pexels License), no real user face",
     units: 0,
-    lines: [
-      "First, consent. Your photo is processed in memory, and never stored.",
-      "Then a quality gate checks light, angle and framing, before a single unit is spent.",
-    ],
+    // C11: one ~5 s line (was two lines, 12.3 s) to pay for the split beat
+    lines: ["Consent first, nothing stored. Then a quality gate."],
     ui: [
-      { callout: "Consent first. Processed in memory, <b>never stored</b>." },
-      { callout: "Gate checks: <b>front</b> · <b>bright</b> · <b>forehead visible</b> · face width <b>at least 60%</b><br>Demo camera feed: licensed stock photo · EXIF removed before analysis" },
+      { callout: "Consent first. Processed in memory, <b>never stored</b>.<br>Gate: <b>front</b> · <b>bright</b> · <b>forehead visible</b> · face width <b>at least 60%</b>" },
     ],
     // C3 source (work-c3 frames-capture): consent sheet 0-1.9 s, then the quality gate on a camera feed that is a stock photo:
     // "face too small" (44%) 2.9-6.6 s, digital zoom 6.7-8.5 s, "Looks good" (74%) from 8.8 s. The dark "checking photo" frame (~2.0 s) is skipped.
     timeline: [
       { at: 0, src: [0, 0.55] },
-      { at: 0.9, src: [0.55, 1.9] },
-      { at: { cue: 1, plus: -0.1 }, src: [2.9, 6.6] },
-      { at: { cue: 1, plus: 2.2 }, src: [6.6, 10.5] },
+      { at: 0.7, src: [0.55, 1.9] },
+      { at: 1.9, src: 4.6 },
+      { at: 2.7, src: [6.6, 9.0] },
+      { at: 3.9, src: 10.5 },
     ],
-    zoom: [{ at: 0, y: 40 }, { at: { cue: 1, plus: -0.1 }, y: 267 }],
+    zoom: [{ at: 0, y: 40 }, { at: 1.9, y: 267 }],
   },
   {
+    // C11: the monolid sample trial (record-video --mode mock --sample --only analyze, 0 units): Face Analyzer's raw reading is Double-lid,
+    // the app's "Fix the eyelid" callout, the edit sheet, "Corrected to Monolid", then the rule table.
     id: "analyze",
-    live: true,
+    badge: "Sample trial: pre-generated YouCam results (0 units)",
+    pill: "Live call 10 units · here <b>0</b>",
     kicker: "Step 2 · Analyze",
     heading: "Five features, one call",
-    chip: "YouCam AI Face Analyzer · 10 units",
-    units: 10,
+    chip: "YouCam AI Face Analyzer · 10 units per live call",
+    units: 0,
     lines: [
       "One call to YouCam's Face Analyzer reads five features: eyelid, eye shape, lips, face shape and brows.",
       "That's ten units. And if it gets something wrong? Just tap to fix it.",
-      "Skin tone is measured right in the browser, from the cheeks, for free.",
       "Then our rule table turns those features into try-on settings.",
     ],
     ui: [
-      { callout: "Eyelid · eye shape · lips · face shape · brows" },
-      { callout: "<b>10 units</b> per analysis. Tap a card to correct it, <b>0 units</b>." },
-      { callout: "Base shade: measured from the cheeks on the device." },
-      { callout: "<b>Double lid</b> → crease shading + thin liner<br><span class=\"plain\">2-color shadow, style 3 · upper liner, style 11</span>" },
+      { callout: "Eyelid · eye shape · lips · face shape · brows<br><span class=\"plain\">Here the analyzer read this monolid face as <b>Double-lid</b></span>" },
+      { callout: "Face Analyzer read this monolid face as <b>Double-lid</b>.<br>Tap <b>Fix the eyelid</b> → <b>Monolid</b> · <b>0 units</b>" },
+      { callout: "<b>Monolid</b> → horizontal gradient + visible liner<br><span class=\"plain\">2-color shadow, style 1 · upper liner, style 6</span>" },
     ],
-    // C6 source (work-c6 frames-analyze, live mode, 10 units): skeleton 0.8-1.3 s (skipped), result from 1.3 s, scroll to the base shade 10.1-10.3 s,
-    // the "See the rule table" sheet (plain words: "2-color shadow, style 3 · upper liner, style 11") opens at 18.0-18.7 s and holds to 21.5 s
+    // C11 source (work-c11 frames-analyze, mock --sample): raw reading + callout 0-3.2 s; "Fix the eyelid" tap, edit sheet 3.2-5.6 s, Monolid picked 5.6-6.1 s,
+    // confirmation + scroll 8.2 s, the rule-table sheet opens 13.7-14.4 s and closes 17.4 s.
     timeline: [
-      { at: 0, src: 3 },
-      { at: { cue: 2 }, src: 12 },
-      { at: { cue: 3, plus: -0.2 }, src: [17.95, 18.7] },
-      { at: { cue: 3, plus: 0.8 }, src: 20 },
+      { at: 0, src: 1.5 },
+      { at: { cue: 1, plus: 0.9 }, src: [3.0, 8.6] },
+      { at: { cue: 2, plus: -0.2 }, src: [13.4, 14.6] },
+      { at: { cue: 2, plus: 0.9 }, src: 16.5 },
     ],
-    zoom: [{ at: 0, y: 40 }, { at: 1.6, y: 40 }, { at: { cue: 1 }, y: 400 }, { at: { cue: 2 }, y: 400 }, { at: { cue: 3 }, y: 400 }, { at: { cue: 3, plus: 0.8 }, y: 470 }],
+    zoom: [{ at: 0, y: 40 }, { at: { cue: 0, plus: 4.6 }, y: 330 }, { at: { cue: 1, plus: 1.5 }, y: 498 }, { at: { cue: 1, plus: 3.6 }, y: 330 }, { at: { cue: 2, plus: -0.3 }, y: 498 }],
   },
   {
     id: "lesson",
-    live: true,
+    badge: "Sample trial: pre-generated YouCam renders (0 units)",
+    pill: "Live lesson 4 units · here <b>0</b>",
     kicker: "Step 3 · Learn",
     heading: "Every step rendered on your photo",
     chip: "YouCam Makeup Virtual Try-On · 1 unit per step",
-    units: 14,
+    units: 0,
     lines: [
       "Now the fun part. Makeup Virtual Try-On renders each step on your photo, one layer at a time.",
       "One unit per step. Each render becomes your answer key, and the stepper shows what's done, and what's next.",
@@ -208,16 +274,18 @@ const SEGMENTS = [
       {
         heading: "Analyzer misread, user corrected",
         chip: "Analyzer read Double-lid, corrected to Monolid",
-        callout: "Face Analyzer read <b>Double-lid</b><br>→ corrected to <b>Monolid</b> in the edit sheet · 0 units",
+        callout: "Analyzer read <b>Double-lid</b> → corrected to <b>Monolid</b><br><span class=\"plain\">Step 3 now uses the horizontal gradient, a real pre-generated YouCam render (0 units)</span>",
       },
       {
         heading: "Two eyelids, two techniques",
+        note: "", // the licence line is also in the footer; the tall callout leaves no room above the step list
         chip: "Basis: rule of thumb, not validated",
         callout:
           "<div class=\"vs\"><div><b>Monolid face</b>Horizontal gradient + visible liner<span class=\"plain\">2-color shadow, style 1 · upper liner, style 6</span></div><div><b>Double-lid face</b>Crease shading + thin liner<span class=\"plain\">2-color shadow, style 3 · upper liner, style 11</span></div></div>",
       },
       {
         heading: "Horizontal vs vertical gradient",
+        note: "",
         chip: "Same monolid face · 2 pre-generated renders",
         callout:
           "<div class=\"vs\"><div><b>Horizontal</b>Our monolid technique<span class=\"plain\">shadow style 1</span></div><div><b>Vertical</b>Generic tutorial way<span class=\"plain\">shadow style 3</span></div></div>",
@@ -234,6 +302,12 @@ const SEGMENTS = [
       { at: { cue: 2, plus: -0.1 }, src: [17.3, 18.2] },
       { at: { cue: 2, plus: 0.9 }, src: 21 },
     ],
+    // C11: from the third line on, the zoom window shows the two eye crops enlarged with the gradient direction marked (horizontal vs vertical)
+    zoomOverlay: {
+      at: { cue: 2, plus: 0.5 },
+      top: { img: "model-c/eye-horizontal.jpg", arrow: "h", label: "Horizontal gradient · our monolid technique" },
+      bottom: { img: "model-c/eye-vertical.jpg", arrow: "v", label: "Vertical gradient · generic tutorial way" },
+    },
     zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 300 }, { at: { cue: 1, plus: 0.9 }, y: 380 }, { at: { cue: 2, plus: -0.1 }, y: 125 }],
   },
   {
@@ -249,7 +323,7 @@ const SEGMENTS = [
     lines: [
       "Now draw the look, snap it. A simulated attempt stands in.",
       "The YouCam render is our answer key. Each region is compared by color difference.",
-      "Eyeliner: five point eight apart. Make it a bit stronger.",
+      "Eyeliner: six point eight apart. Make it a bit stronger.",
       "You get a score, one clear fix, and an honest confidence level.",
     ],
     ui: [
@@ -258,15 +332,16 @@ const SEGMENTS = [
         callout:
           "<div class=\"key\">YouCam render = answer key</div><span class=\"lgd\"><i style=\"background:#ffd400\"></i>Eyeliner <i style=\"background:#b45cff\"></i>Eyelid <i style=\"background:#19d3ff\"></i>Cheeks <i style=\"background:#3ddc84\"></i>Lips</span>",
       },
-      { callout: "<div class=\"key\">YouCam render = answer key</div>Eyeliner <b>ΔE2000 5.8</b><br><span class=\"mono\">#876250 vs #98715D</span>" },
+      { callout: "<div class=\"key\">YouCam render = answer key</div>Eyeliner <b>ΔE2000 6.8</b><br><span class=\"mono\">#A57D64 vs #BB9074</span>" },
       { callout: "Score + <b>one-line correction</b> + confidence" },
     ],
-    // C10 source (work-c10 frames-grade-share = the C9 grade take, --sample, simulated attempt, score 79): overlay-grade/grade-top.jpg is the top frame (1.97 s) with the
+    // C11: re-taken at the C11 app (work-c11 frames-grade, monolid sample, instant result); overlay-grade made from f000162 (top) and f000200 (scrolled) with model-c landmarks.
+    // C10 (old) source (work-c10 frames-grade-share = the C9 grade take, --sample, simulated attempt, score 79): overlay-grade/grade-top.jpg is the top frame (1.97 s) with the
     // real region polygons drawn on the answer and the attempt thumbnails (scripts/demo/grade-overlay.ts); grade-row.jpg is the scrolled frame (5.73 s) with a box around the
     // Eyeliner delta-E line. The scroll between them is the original frames, 4.2-4.7 s.
     timeline: [
       { at: 0, file: "overlay-grade/grade-top.jpg" },
-      { at: { cue: 2, plus: -0.35 }, src: [4.2, 4.7] },
+      { at: { cue: 2, plus: -0.35 }, src: [3.95, 5.05] },
       { at: { cue: 2, plus: 0.8 }, file: "overlay-grade/grade-row.jpg" },
     ],
     zoom: [{ at: 0, y: 40 }, { at: { cue: 2, plus: -0.35 }, y: 62 }],
@@ -312,7 +387,7 @@ const SEGMENTS = [
     // from 7.2 s the unit meter (14 / 4) and the "Hypothesis · not measured" KPI chip are both on the phone at once.
     // C5 source (work-c5 frames-partner, live mode, 0 units): the scene now starts on the home bottom bar and taps "Retailer view (concept)" (1.6-2.2 s) into the widget (hold from 2.5 s);
     // scroll to the unit meter 5.4 s, to the KPI chip 9.4-9.6 s (meter + KPI chip on the phone together from 9.7 s)
-    timeline: [{ at: 0, src: [0, 2.6] }, { at: 3.3, src: 3.0 }, { at: { cue: 1, plus: -0.3 }, src: [9.25, 9.6] }, { at: { cue: 1, plus: 0.9 }, src: 11.5 }],
+    timeline: [{ at: 0, src: [0, 2.6] }, { at: 3.3, src: 3.0 }, { at: { cue: 1, plus: -0.3 }, src: [8.4, 9.5] }, { at: { cue: 1, plus: 0.9 }, src: 11.5 }],
     zoom: [{ at: 0, y: 507 }, { at: 3.0, y: 300 }, { at: { cue: 1, plus: -0.3 }, y: 240 }],
   },
   {
@@ -470,7 +545,7 @@ function frameAt(items, t) {
 }
 
 // left-column step list (one entry per segment after the intro)
-const HEAD_SEGS = 1; // the hook does not count as a step (C7: the C6 montage and title card are gone)
+const HEAD_SEGS = 2; // the hook and the C11 split beat do not count as steps
 const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Retailer", "Streak", "Share"];
 
 // C10 cold open: no step list or heading, just the thesis as a large caption (it is the subtitle) beside the phone and the face close-up
@@ -522,7 +597,7 @@ function stageHtml(seg, si0, ci) {
   .vs em{font-style:normal;font-weight:800;color:#a8264a}
   .plain{font-size:20px;font-weight:600;color:#6b605c;line-height:1.3}
   .url{display:block;white-space:nowrap;font-size:34px;font-weight:800;color:#a8264a;letter-spacing:-.01em;margin:8px 0 10px}
-  .note{font-size:20px;color:#6b605c;line-height:1.4}
+  .note{font-size:20px;color:#6b605c;line-height:1.4;margin-top:24px}
   .bigtag{align-self:flex-start;background:#1f1b1a;color:#fff;border-radius:14px;padding:10px 22px;font-size:34px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
   .key{font-size:31px;line-height:1.15;font-weight:800;color:#a8264a;margin-bottom:10px}
   .lgd{font-size:21px;font-weight:700;white-space:nowrap}.lgd i{display:inline-block;width:18px;height:18px;border-radius:9px;margin:0 6px -2px 8px;border:2px solid #fff;box-shadow:0 0 0 1px #6b605c}.lgd i:first-child{margin-left:0}
@@ -538,15 +613,15 @@ function stageHtml(seg, si0, ci) {
   .flow li.now{background:#c8325b;border-color:#c8325b;color:#fff;box-shadow:0 6px 16px rgba(200,50,91,.25)}.flow li.now i{background:#fff;color:#a8264a}
   .foot{position:absolute;left:64px;width:${SCR_X - 64 - 52}px;bottom:26px;font-size:17px;line-height:1.35;color:#6b605c}
   </style></head><body>
-  <div class="phone"></div><div class="zoom"></div><div class="badges"><div class="live"><i></i>${esc(seg.badge ?? "YouCam Face Analyzer + Makeup VTO, live")}</div><div class="units">YouCam units used <b>${seg.units ?? 0}</b> / 20 cap</div></div>
-  <div class="left"><div class="kick">${esc(seg.kicker)}</div><h1>${esc(ui.heading)}</h1><div class="chip">${esc(ui.chip)}</div>${seg.tag ? `<div class="bigtag">${esc(seg.tag)}</div>` : ""}${ui.callout ? `<div class="callout">${ui.callout}</div>` : ""}${seg.note ? `<div class="note">${esc(seg.note)}</div>` : ""}</div>
+  <div class="phone"></div><div class="zoom"></div><div class="badges"><div class="live"><i></i>${esc(seg.badge ?? "YouCam results pre-generated with the live API (0 units now)")}</div><div class="units">${seg.pill ? seg.pill : `Units spent here <b>0</b>`}</div></div>
+  <div class="left"><div class="kick">${esc(seg.kicker)}</div><h1>${esc(ui.heading)}</h1><div class="chip">${esc(ui.chip)}</div>${seg.tag ? `<div class="bigtag">${esc(seg.tag)}</div>` : ""}${ui.callout ? `<div class="callout">${ui.callout}</div>` : ""}${seg.note && ui.note !== "" ? `<div class="note">${esc(seg.note)}</div>` : ""}</div>
   <div class="sub">${esc(cue)}</div>
   <div class="flow"><div class="fh">${si === 0 ? "How it works" : `Step ${Math.min(si, FLOW.length)} of ${FLOW.length}`}</div><ol>${FLOW.map((f, i) => {
     const st = i + 1 < si ? "done" : i + 1 === si ? "now" : "";
     return `<li class="${st}"><i>${st === "done" ? "✓" : i + 1}</i>${esc(f)}</li>`;
   }).join("")}</ol></div>
   <div class="bar"><i></i></div>
-  <div class="foot">${esc(seg.live ? "Mirror Tutor · live YouCam API (this scene)" : "Mirror Tutor · sample model, pre-generated YouCam results")}<br>Sample faces: Pexels and Unsplash License stock photos · demo catalog</div>
+  <div class="foot">${esc(seg.live ? "Mirror Tutor · live YouCam API (this scene)" : "Mirror Tutor · sample trial, pre-generated YouCam results (0 units)")}<br>Sample faces: Pexels and Unsplash License stock photos · demo catalog</div>
   </body></html>`;
 }
 
@@ -743,6 +818,7 @@ function encodeSegment(seg, dir) {
   const inputs = [];
   const filter = [];
   const shots = bounds.length - 1;
+  const zoomPanel = seg.zoomPanelFile ?? null; // C11: optional opaque panel laid over the zoom window from seg.zoomOverlay.at on
   for (let k = 0; k < shots; k++) {
     const s0 = bounds[k], s1 = bounds[k + 1];
     const w0 = k === 0 ? 0 : s0 - hN, w1 = k === shots - 1 ? N : s1 + hN;
@@ -775,15 +851,96 @@ function encodeSegment(seg, dir) {
     `[z0][m2]alphamerge[zm]`,
     `[0:v]scale=${W}:${H},fps=${FPS}[bg]`,
     `[bg][scr]overlay=${SCR_X}:${SCR_Y}:eof_action=repeat[b1]`,
-    `[b1][zm]overlay=${ZX}:${ZY}:eof_action=repeat,format=yuv420p[v]`,
+    ...(zoomPanel
+      ? [
+          `[${4 + shots}:v]format=rgba,fade=t=in:st=${resolveAt(seg, seg.zoomOverlay.at).toFixed(3)}:d=0.5:alpha=1[zp]`,
+          `[b1][zm]overlay=${ZX}:${ZY}:eof_action=repeat[b2]`,
+          `[b2][zp]overlay=${ZX}:${ZY}:eof_action=repeat,format=yuv420p[v]`,
+        ]
+      : [`[b1][zm]overlay=${ZX}:${ZY}:eof_action=repeat,format=yuv420p[v]`]),
     `[1:a]apad[a]`,
   );
   const fs = path.join(dir, `${seg.id}-filter.txt`);
   writeFileSync(fs, filter.join(";\n"));
   const out = path.join(dir, `${seg.id}.mp4`);
   const loop = (f) => ["-loop", "1", "-framerate", String(FPS), "-t", (dur + 1).toFixed(2), "-i", f];
-  run(FFMPEG, ["-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", bgList, "-i", seg.audio, ...loop(masks.phone), ...loop(masks.zoom), ...inputs, "-filter_complex_script", fs, "-map", "[v]", "-map", "[a]", "-t", dur.toFixed(3), "-r", String(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", out]);
+  run(FFMPEG, ["-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", bgList, "-i", seg.audio, ...loop(masks.phone), ...loop(masks.zoom), ...inputs, ...(zoomPanel ? loop(zoomPanel) : []), "-filter_complex_script", fs, "-map", "[v]", "-map", "[a]", "-t", dur.toFixed(3), "-r", String(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", out]);
   seg.cutTimes = cutT;
+  return out;
+}
+
+// C11 compare gradient panel: the two eye close-ups of the same monolid face (horizontal vs vertical shadow gradient) at the full zoom-panel size
+// with the gradient direction drawn on each lid, laid over the zoom window while the phone shows the small crops.
+async function makeZoomPanel(seg, dir) {
+  const z = seg.zoomOverlay;
+  const SH = Math.round((ZH - 22) / 2);
+  const files = [];
+  for (const [i, c] of [z.top, z.bottom].entries()) {
+    const f = path.join(dir, `${seg.id}-zoompanel-${i}.png`);
+    await eyeStrip({ img: c.img, lm: LM(c.lm ?? "model-c"), w: ZW, h: SH, arrow: c.arrow, out: f, spanX: 1.2, radius: 20 });
+    files.push(f);
+  }
+  const pill = (y, text) => `<g><rect x="16" y="${y}" width="${Math.round(text.length * 12.6 + 34)}" height="40" rx="20" fill="#1f1b1a" fill-opacity=".86"/><text x="33" y="${y + 27}" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="21" fill="#fff">${esc(text)}</text></g>`;
+  const labels = `<svg xmlns="http://www.w3.org/2000/svg" width="${ZW}" height="${ZH}">${pill(SH - 56, z.top.label)}${pill(SH + 22 + SH - 56, z.bottom.label)}</svg>`;
+  const mask = `<svg xmlns="http://www.w3.org/2000/svg" width="${ZW}" height="${ZH}"><rect width="${ZW}" height="${ZH}" rx="26" fill="#fff"/></svg>`;
+  const out = path.join(dir, `${seg.id}-zoompanel.png`);
+  await sharp({ create: { width: ZW, height: ZH, channels: 4, background: "#fbf7f4" } })
+    .composite([{ input: files[0], top: 0, left: 0 }, { input: files[1], top: SH + 22, left: 0 }, { input: Buffer.from(labels) }, { input: Buffer.from(mask), blend: "dest-in" }])
+    .png()
+    .toFile(out);
+  return out;
+}
+
+// C11 split beat: two stills (eye renders; the arrows and the second line appear with line 2), cross-faded, with the narration audio
+async function makeSplit(seg, dir) {
+  const sp = seg.split;
+  const PW = 860, PH = 540;
+  const strips = {};
+  for (const side of ["left", "right"]) {
+    for (const withArrow of [false, true]) {
+      const f = path.join(dir, `${seg.id}-${side}-${withArrow ? "a" : "n"}.png`);
+      const c = sp[side];
+      await eyeStrip({ img: c.img, lm: LM(c.lm), w: PW, h: PH, arrow: withArrow ? c.arrow : null, out: f });
+      strips[`${side}${withArrow ? "A" : "N"}`] = f;
+    }
+  }
+  const page = (withArrow) => `<!doctype html><html><head><meta charset="utf-8"><style>
+    html,body{margin:0;width:${W}px;height:${H}px;background:#fbf7f4;overflow:hidden;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1f1b1a;-webkit-font-smoothing:antialiased}
+    .k{position:absolute;left:80px;top:48px;font-size:30px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a8264a}
+    .badge{position:absolute;right:80px;top:40px;background:#c8325b;color:#fff;border-radius:26px;padding:10px 22px;font-size:23px;font-weight:800}
+    .p{position:absolute;top:118px;width:${PW}px}
+    .p img{display:block;width:${PW}px;height:${PH}px;border-radius:24px;box-shadow:0 0 0 5px #c8325b,0 16px 40px rgba(31,27,26,.18)}
+    .lab{margin-top:26px;display:flex;flex-direction:column;gap:6px}
+    .lab b{font-size:40px;font-weight:800}.lab span{font-size:30px;font-weight:700;color:#a8264a;opacity:${withArrow ? 1 : 0.35}}
+    .cap{position:absolute;left:80px;right:80px;top:836px;text-align:center;font-size:76px;line-height:1.1;font-weight:800;letter-spacing:-.015em}
+    .cap em{font-style:normal;color:#c8325b}
+    .sub{position:absolute;left:80px;right:80px;top:938px;text-align:center;font-size:38px;font-weight:600;color:#4a403d;min-height:50px}
+    .note{position:absolute;left:80px;right:80px;bottom:22px;text-align:center;font-size:19px;color:#6b605c}
+  </style></head><body>
+  <div class="k">${esc(sp.kicker)}</div><div class="badge">YouCam VTO, pre-generated (0 units)</div>
+  ${["left", "right"]
+    .map((side, i) => `<div class="p" style="left:${80 + i * (PW + 40)}px"><img src="file://${strips[side + (withArrow ? "A" : "N")]}"><div class="lab"><b>${esc(sp[side].name)}</b><span>${esc(sp[side].tech)}</span></div></div>`)
+    .join("")}
+  <div class="cap">Same look. <em>Different lid.</em> Different technique.</div>
+  <div class="sub">${withArrow ? esc(seg.lines[1]) : ""}</div>
+  <div class="note">${esc(sp.note)}</div></body></html>`;
+  const stills = [];
+  for (const withArrow of [false, true]) {
+    const html = path.join(dir, `${seg.id}-${withArrow ? "b" : "a"}.html`);
+    const png = path.join(dir, `${seg.id}-${withArrow ? "b" : "a"}.png`);
+    writeFileSync(html, page(withArrow));
+    screenshot(html, png, W, H);
+    stills.push(png);
+  }
+  const XF = 0.4, t1 = seg.cues[1].start - 0.1; // second still from just before line 2
+  const out = path.join(dir, `${seg.id}.mp4`);
+  const loop = (f, t) => ["-loop", "1", "-framerate", String(FPS), "-t", t.toFixed(3), "-i", f];
+  run(FFMPEG, [
+    "-y", "-v", "error", ...loop(stills[0], t1 + XF), ...loop(stills[1], seg.duration - t1 + 1), "-i", seg.audio,
+    "-filter_complex", `[0:v]format=yuv420p,setsar=1[a];[1:v]format=yuv420p,setsar=1[b];[a][b]xfade=transition=fade:duration=${XF}:offset=${t1.toFixed(3)},fps=${FPS},scale=${W}:${H}:flags=lanczos,format=yuvj420p[v];[2:a]apad[aa]`,
+    "-map", "[v]", "-map", "[aa]", "-t", seg.duration.toFixed(3), "-r", String(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuvj420p", "-color_range", "pc", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", out,
+  ]);
+  seg.cutTimes = [t1];
   return out;
 }
 
@@ -839,7 +996,13 @@ for (const [si, seg] of SEGMENTS.entries()) {
   }
   await buildAudio(seg, audioDir);
   if (ONLY && !ONLY.includes(seg.id)) continue;
+  if (seg.split) {
+    outs.push(await makeSplit(seg, segDir));
+    log(`${seg.id}: split beat, ${seg.duration.toFixed(2)}s, cues ${seg.cues.map((c) => c.start.toFixed(1)).join("/")}`);
+    continue;
+  }
   applyGeo(seg.geo);
+  if (seg.zoomOverlay) seg.zoomPanelFile = await makeZoomPanel(seg, stageDir);
   renderStage(seg, si, stageDir);
   outs.push(encodeSegment(seg, segDir));
   log(`${seg.id}: ${seg.duration.toFixed(2)}s, cues ${seg.cues.map((c) => c.start.toFixed(1)).join("/")}, dissolves ${seg.cutTimes.map((c) => c.toFixed(2)).join("/") || "none"}`);

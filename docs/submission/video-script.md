@@ -178,3 +178,12 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - grade(약 20.6초): 정답/시도 썸네일 위에 앱이 실제로 채점하는 영역 폴리곤(눈 라인·눈두덩·볼·입술)을 겹쳐 그림(`scripts/demo/grade-overlay.ts`, 기존 프레임 재사용, 약 10초). "YouCam render = answer key" 캡션과 큰 "SIMULATED ATTEMPT" 라벨(프레임 안 + 왼쪽 열). 이어서 Eyeliner ΔE2000 5.8, #876250 vs #98715D 줄을 상자로 강조해 약 10초 확대(확대 창 높이 560 px로 줄여 글자 잘림 없음). 나레이션 새 줄 2개("The YouCam render is our answer key. Each region is compared by color difference.", "Eyeliner: five point eight apart. Make it a bit stronger.").
 - 시간 보전: share 꼬리 1.0 -> 0.4초, partner 꼬리 0.35 -> 0.2초.
 - home/intro 등 모바일 폭으로 녹화한 장면은 홈 데스크톱 레이아웃 변경과 무관해 재촬영하지 않았다.
+
+## 사이클 11 재합성 (171.6초, YouCam 유닛 0 사용, 새 TTS 줄 5개, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c11` (work-c10 복사본). 재녹화(전부 0 유닛): `--mode mock --sample --only analyze|lesson|cold|compare|grade|shop|share`, `--mode mock --setup full91 --only home`, `--mode live --only intro|partner`(홈 화면만, API 호출 0). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유), 직전 판 `.local/video/mirror-tutor-demo-live-c11prev.mp4`.
+- 샘플 얼굴: 홈 선택기 기본값이 홑꺼풀(model-c)이라 hook, 분석, 레슨, 채점, 쇼핑, 공유, 홈이 홑꺼풀 샘플로 바뀌었다. `video-shots.mjs`에 `SAMPLE_SETUP_ANALYZE/FIXED`(분석기 오독 "Double-lid" → "Fix the eyelid" → Monolid)를 추가하고 segment의 `sample.setup`으로 시작점을 고른다.
+- 새 분할 장면 `split`(10.4~18.5초, 8.1초): 홑꺼풀 얼굴과 쌍꺼풀 얼굴의 실제 YouCam 눈 렌더(레슨 3단계, compare 자산 model-c/step-3, model-a/step-3)를 크게 놓고 렌즈 위에 그라데이션 방향 화살표(가로 / 세로)를 그림. 캡션 "Same look. Different lid. Different technique." 새 줄 2개.
+- compare: 세 번째 줄부터 확대 창이 같은 홑꺼풀 얼굴의 가로/세로 그라데이션 눈 클로즈업(eye-horizontal / eye-vertical)을 전체 크기로 보여 주고 방향 화살표를 표시. 왼쪽 callout은 앱 문구("Analyzer read Double-lid -> corrected to Monolid", "Step 3 now uses the horizontal gradient, a real pre-generated YouCam render (0 units)")와 맞춤. 노트에 24 px 위 여백, 높은 callout 컷에서는 노트를 숨김(푸터에 같은 라이선스 문구).
+- capture 5.3초(줄 1개로 압축), analyze 19.4초(피부톤 줄 제외: 샘플 모드에는 피부톤 카드가 없다), grade는 앱이 즉시 결과(약 0.5초, 카운트업)를 보여 주므로 스켈레톤 대기가 없고 오버레이 프레임을 새로 만듦(`grade-overlay.ts`에 랜드마크 파일/행 위치 인자 추가, model-c). 새 grade 나레이션 "Eyeliner: six point eight apart."(ΔE 6.8, #A57D64 vs #BB9074). 모든 장면의 배지는 "샘플 체험 · 미리 생성한 실제 YouCam 결과(0 유닛)"으로 바꿨고 오른쪽 위 유닛 알약은 "Units spent here 0"(분석/레슨은 실제 호출 비용 병기).
+- 검증: 장면 전환 감지(gt 0.08) 25곳은 세그먼트 경계, 의도한 디졸브, 앱 스크롤/시트뿐. 스켈레톤/빈/배너 프레임 없음. 자막은 나레이션 줄과 같은 문자열. 길이 171.6초(180초 미만).

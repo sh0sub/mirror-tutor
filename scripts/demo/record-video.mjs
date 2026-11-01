@@ -24,7 +24,7 @@
 import { spawn, execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, openSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { SEGMENTS as ALL_SEGMENTS, SAMPLE_SETUP, SAMPLE_SETUP_LESSON, FULL_SETUP } from "./video-shots.mjs";
+import { SEGMENTS as ALL_SEGMENTS, SAMPLE_SETUP, SAMPLE_SETUP_ANALYZE, SAMPLE_SETUP_FIXED, SAMPLE_SETUP_LESSON, FULL_SETUP } from "./video-shots.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "../..");
 const args = Object.fromEntries(
@@ -410,7 +410,10 @@ async function record(cdp) {
   // not part of any segment's timeline: frames before segStart are never used
   if (SAMPLE) {
     // a segment with a `sample` variant starts from the lesson (step 4), the others from the graded state
-    for (const a of SEGMENTS.some((x) => x.sample) ? SAMPLE_SETUP_LESSON : SAMPLE_SETUP) await act(a, null, false);
+    // C11: a segment's `sample.setup` picks the starting point ("analyze" = the raw reading, "fixed" = eyelid corrected, on /analyze)
+    const sampleSetup = SEGMENTS.find((x) => x.sample?.setup)?.sample.setup;
+    const setup = sampleSetup === "analyze" ? SAMPLE_SETUP_ANALYZE : sampleSetup === "fixed" ? SAMPLE_SETUP_FIXED : SEGMENTS.some((x) => x.sample) ? SAMPLE_SETUP_LESSON : SAMPLE_SETUP;
+    for (const a of setup) await act(a, null, false);
     vars.lesson = "daily-k"; // the sample lesson, for later `{lesson}` routes (home/share/grade)
     log("sample setup done:", await evaluate("location.pathname + location.search"));
   }

@@ -94,6 +94,26 @@ export const SEGMENTS = [
       { sleep: 3.2 },
       { tap: { sel: "dialog[open] button", text: "^Close$" } },
     ],
+    // C11 (--mode mock --sample --only analyze, 0 units): the monolid sample. The analyzer's raw reading is Double-lid, the "Fix the eyelid"
+    // callout asks the visitor to correct it, the edit sheet opens, Monolid is picked, the page confirms and the rest of the flow continues.
+    sample: {
+      setup: "analyze",
+      prep: [],
+      actions: [
+        { js: "document.querySelector('header ~ p[role=status]')?.remove(); window.scrollTo(0, 0)" },
+        { sleep: 3.2 },
+        { tap: { sel: "button", text: "^Fix the eyelid" } },
+        { sleep: 2.0 },
+        { tap: { sel: "label", text: "Monolid" } },
+        { sleep: 3.4 },
+        { scroll: { sel: "button", text: "See the rule table", offset: 420 }, dur: 1.4 },
+        { sleep: 3.0 },
+        { tap: { sel: "button", text: "See the rule table" } },
+        { sleep: 3.4 },
+        { tap: { sel: "dialog[open] button", text: "^Close$" } },
+        { sleep: 0.6 },
+      ],
+    },
   },
   {
     id: "lesson",
@@ -107,11 +127,13 @@ export const SEGMENTS = [
       "Each step explains why it fits this face, and lists the exact colors it uses.",
     ],
     prep: [{ scroll: { y: 0 }, dur: 0.1 }],
+    sample: { setup: "fixed", prep: [{ scroll: { y: 0 }, dur: 0.1 }] }, // C11: same actions, on the corrected monolid sample (0 units)
     actions: [
       { tap: { sel: "button", text: "Start this lesson" } },
       { wait: "location.pathname === '/lesson'" },
       { save: { name: "lesson", js: "new URLSearchParams(location.search).get('id') || 'daily-k'" } },
       { wait: "document.querySelectorAll('nav[aria-label] button').length >= 4 && !!document.querySelector('img[alt^=\"Answer\"]') && !document.body.innerText.includes('Rendering')", fail: bodyHas("This step failed") + " || " + bodyHas("Session unit limit"), cut: true, timeout: 420000 },
+      { js: "document.querySelector('header ~ p[role=status]')?.remove(); window.scrollTo(0, 0)" }, // C11: no sample/mock banner (absent in live)
       { at: 2 },
       { drag: { sel: "[role=slider]", parent: true, from: 0.5, to: 0.12, dur: 0.8 } },
       { drag: { sel: "[role=slider]", parent: true, from: 0.12, to: 0.88, dur: 1.1 } },
@@ -306,11 +328,25 @@ export const SEGMENTS = [
  * (the sample model's pre-generated live results, 0 units) instead of the live capture/analyze/lesson/grade shots.
  * Ends where the live "grade" shot ends (daily-k, step 4, graded, scrolled to the shop button).
  */
-export const SAMPLE_SETUP_LESSON = [
+/** C11: the home picker defaults to the monolid sample, so the trial opens on /analyze with the analyzer's (wrong) Double-lid reading. */
+export const SAMPLE_SETUP_ANALYZE = [
   { wait: "document.querySelector('main h2')", timeout: 30000 },
   { tap: { sel: "button", text: "^Try with a sample model" }, quiet: true },
   { wait: "location.pathname === '/analyze'", timeout: 20000 },
   { wait: bodyHas("Analysis done"), fail: bodyHas("Analysis failed"), timeout: 60000 },
+  { sleep: 0.6 },
+];
+/** C11: the visitor's correction on /analyze (Fix the eyelid → Monolid), ending on the "Corrected to Monolid" state. */
+export const SAMPLE_FIX = [
+  { tap: { sel: "button", text: "^Fix the eyelid" }, quiet: true },
+  { sleep: 0.8 },
+  { tap: { sel: "label", text: "Monolid" }, quiet: true },
+  { wait: bodyHas("Corrected to Monolid"), timeout: 10000 },
+  { sleep: 0.6 },
+];
+export const SAMPLE_SETUP_FIXED = [...SAMPLE_SETUP_ANALYZE, ...SAMPLE_FIX];
+export const SAMPLE_SETUP_LESSON = [
+  ...SAMPLE_SETUP_FIXED,
   { tap: { sel: "button", text: "Start this lesson" }, quiet: true },
   { wait: "location.pathname === '/lesson'" },
   { wait: "document.querySelectorAll('nav[aria-label] button').length >= 4 && !!document.querySelector('img[alt^=\"Answer\"]') && !document.body.innerText.includes('Rendering')", fail: bodyHas("This step failed"), timeout: 60000 },

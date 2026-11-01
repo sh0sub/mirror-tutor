@@ -14,9 +14,11 @@ import sharp from "sharp";
 import { regionPolygons, type Pt } from "../../lib/grade/landmarks";
 import { GRADE_REGIONS, type GradeRegion } from "../../lib/regions";
 
-const [dir, topName, rowName, outDir] = process.argv.slice(2);
-if (!outDir) throw new Error("usage: grade-overlay.ts <frames dir> <top frame> <scrolled frame> <out dir>");
-const lm = JSON.parse(readFileSync(path.join(import.meta.dirname, "model-a-landmarks.json"), "utf8")) as Pt[];
+// C11: optional 5th/6th args pick the landmark file (default model-a; model-c-landmarks.json for the monolid sample) and the top (frame px) of the
+// highlight box around the Eyeliner delta-E line in the scrolled frame (default 309, the C10 layout; 324 in the C11 layout with the note below the ring).
+const [dir, topName, rowName, outDir, lmFile = "model-a-landmarks.json", rowY = "309"] = process.argv.slice(2);
+if (!outDir) throw new Error("usage: grade-overlay.ts <frames dir> <top frame> <scrolled frame> <out dir> [landmarks.json] [row y]");
+const lm = JSON.parse(readFileSync(path.join(import.meta.dirname, lmFile), "utf8")) as Pt[];
 
 const IMG_W = 600, IMG_H = 800;
 const THUMB_W = 175, THUMB_H = (THUMB_W * 4) / 3, THUMB_Y = 72, ANSWER_X = 16, ATTEMPT_X = 199;
@@ -36,7 +38,7 @@ const pill = (x: number, text: string, fill: string, w: number) =>
 
 const topSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844">${masks(ANSWER_X)}${masks(ATTEMPT_X)}${pill(ANSWER_X, "ANSWER KEY", "#c8325b", 112)}${pill(ATTEMPT_X, "SIMULATED ATTEMPT", "#1f1b1a", 160)}</svg>`;
 // delta-E line of the Eyeliner card in the scrolled frame (frame px)
-const rowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844"><rect x="60" y="309" width="268" height="26" rx="8" fill="#c8325b" fill-opacity="0.10" stroke="#c8325b" stroke-width="2.5"/></svg>`;
+const rowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844"><rect x="60" y="${rowY}" width="272" height="26" rx="8" fill="#c8325b" fill-opacity="0.10" stroke="#c8325b" stroke-width="2.5"/></svg>`;
 
 await sharp(path.join(dir, topName)).composite([{ input: Buffer.from(topSvg) }]).jpeg({ quality: 93 }).toFile(path.join(outDir, "grade-top.jpg"));
 await sharp(path.join(dir, rowName)).composite([{ input: Buffer.from(rowSvg) }]).jpeg({ quality: 93 }).toFile(path.join(outDir, "grade-row.jpg"));
