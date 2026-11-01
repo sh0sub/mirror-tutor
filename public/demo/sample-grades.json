@@ -1,0 +1,227 @@
+{
+ "/demo/model-a/sample-attempt.jpg": {
+  "grade": {
+   "comparable": true,
+   "total": 79,
+   "confidence": "high",
+   "confidenceReason": null,
+   "regions": [
+    {
+     "region": "eye_line",
+     "score": 77,
+     "tip": {
+      "ko": "라인이 연해요. 한 번 더 덧그려 진하게 해보세요.",
+      "en": "Liner is a bit light; go over it once more to deepen it."
+     },
+     "deltaE": 5.8,
+     "answerHex": "#876250",
+     "attemptHex": "#98715D"
+    },
+    {
+     "region": "eye_lid",
+     "score": 85,
+     "tip": {
+      "ko": "색감이 잘 맞아요! 지금처럼 유지하세요.",
+      "en": "Shadow matches well! Keep this application."
+     },
+     "deltaE": 3.8,
+     "answerHex": "#A88068",
+     "attemptHex": "#A7765D"
+    },
+    {
+     "region": "cheek",
+     "score": 93,
+     "tip": {
+      "ko": "블러셔가 아주 잘 맞아요. 훌륭해요!",
+      "en": "Blush matches beautifully. Great job!"
+     },
+     "deltaE": 1.9,
+     "answerHex": "#EEC8B0",
+     "attemptHex": "#F8CEB5"
+    },
+    {
+     "region": "lip",
+     "score": 62,
+     "tip": {
+      "ko": "덜 붉고 주황빛이에요. 붉은 톤을 더 발라보세요.",
+      "en": "Lips read lighter and more orange; layer a redder shade."
+     },
+     "deltaE": 9.4,
+     "answerHex": "#A45954",
+     "attemptHex": "#A86B52"
+    }
+   ],
+   "grader": "landmark",
+   "explainer": "claude",
+   "units": 0
+  },
+  "pins": {
+   "eye_line": {
+    "x": 0.2807422222222222,
+    "y": 0.402115
+   },
+   "eye_lid": {
+    "x": 0.6299117647058823,
+    "y": 0.3476388235294118
+   },
+   "cheek": {
+    "x": 0.21398750000000002,
+    "y": 0.55134375
+   },
+   "lip": {
+    "x": 0.48968799999999996,
+    "y": 0.6813840000000001
+   }
+  }
+ },
+ "/demo/model-c/sample-attempt.jpg": {
+  "grade": {
+   "comparable": true,
+   "total": 79,
+   "confidence": "high",
+   "confidenceReason": null,
+   "regions": [
+    {
+     "region": "eye_line",
+     "score": 73,
+     "tip": {
+      "ko": "라인이 연해요. 한 번 더 덧그려 진하게 해보세요",
+      "en": "Liner is a bit light; trace over it once more to deepen it."
+     },
+     "deltaE": 6.8,
+     "answerHex": "#A57D64",
+     "attemptHex": "#BB9074"
+    },
+    {
+     "region": "eye_lid",
+     "score": 86,
+     "tip": {
+      "ko": "색이 잘 맞아요! 지금처럼 유지하세요",
+      "en": "Great match! Keep the eyelid shade just like this."
+     },
+     "deltaE": 3.5,
+     "answerHex": "#DAAF93",
+     "attemptHex": "#DAA487"
+    },
+    {
+     "region": "cheek",
+     "score": 92,
+     "tip": {
+      "ko": "블러셔 색이 잘 맞아요! 아주 좋아요",
+      "en": "Blush matches nicely! Well done."
+     },
+     "deltaE": 2,
+     "answerHex": "#E9C1A8",
+     "attemptHex": "#F3C7AD"
+    },
+    {
+     "region": "lip",
+     "score": 64,
+     "tip": {
+      "ko": "덜 붉고 주황빛이에요. 레드 톤을 더 발라보세요",
+      "en": "Lips are lighter and more orange; layer a redder shade on top."
+     },
+     "deltaE": 9.1,
+     "answerHex": "#BB645B",
+     "attemptHex": "#BF7658"
+    }
+   ],
+   "grader": "landmark",
+   "explainer": "claude",
+   "units": 0
+  },
+  "pins": {
+   "eye_line": {
+    "x": 0.3235761655701531,
+    "y": 0.40796197288566166
+   },
+   "eye_lid": {
+    "x": 0.644876034820781,
+    "y": 0.4082747960791868
+   },
+   "cheek": {
+    "x": 0.2497757486999035,
+    "y": 0.5174475088715553
+   },
+   "lip": {
+    "x": 0.45682538747787477,
+    "y": 0.6530103266239167
+   }
+  }
+ },
+ "/demo/model-c/sample-attempt-raw.jpg": {
+  "grade": {
+   "comparable": true,
+   "total": 79,
+   "confidence": "high",
+   "confidenceReason": null,
+   "regions": [
+    {
+     "region": "eye_line",
+     "score": 72,
+     "tip": {
+      "ko": "라인이 연해요. 한 번 더 덧그려 진하게 해보세요",
+      "en": "Liner is a bit light; add another pass to deepen it."
+     },
+     "deltaE": 7.1,
+     "answerHex": "#9C765E",
+     "attemptHex": "#B3896F"
+    },
+    {
+     "region": "eye_lid",
+     "score": 86,
+     "tip": {
+      "ko": "정답과 잘 맞아요! 지금처럼 유지하세요",
+      "en": "Great match! Keep your eyelid shade just like this."
+     },
+     "deltaE": 3.5,
+     "answerHex": "#D9AE92",
+     "attemptHex": "#D8A386"
+    },
+    {
+     "region": "cheek",
+     "score": 92,
+     "tip": {
+      "ko": "색감이 잘 맞아요! 아주 좋아요",
+      "en": "Cheek color matches nicely. Well done!"
+     },
+     "deltaE": 2,
+     "answerHex": "#E8C0A7",
+     "attemptHex": "#F2C6AC"
+    },
+    {
+     "region": "lip",
+     "score": 64,
+     "tip": {
+      "ko": "덜 붉고 주황빛이에요. 붉은 톤을 더 발라보세요",
+      "en": "Lips read lighter and more orange; layer a redder shade."
+     },
+     "deltaE": 9.1,
+     "answerHex": "#BB645B",
+     "attemptHex": "#BF7658"
+    }
+   ],
+   "grader": "landmark",
+   "explainer": "claude",
+   "units": 0
+  },
+  "pins": {
+   "eye_line": {
+    "x": 0.3235761655701531,
+    "y": 0.40796197288566166
+   },
+   "eye_lid": {
+    "x": 0.644876034820781,
+    "y": 0.4082747960791868
+   },
+   "cheek": {
+    "x": 0.2497757486999035,
+    "y": 0.5174475088715553
+   },
+   "lip": {
+    "x": 0.45682538747787477,
+    "y": 0.6530103266239167
+   }
+  }
+ }
+}

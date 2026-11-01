@@ -18,7 +18,7 @@ describe("S2 two-face compare (#18)", () => {
     const stepCount = buildLesson(manifest.lessonId, manifest.models[0].profile).steps.length;
     for (const m of manifest.models) {
       expect(m.steps).toHaveLength(stepCount);
-      for (const f of [m.original, ...m.steps, ...(m.gradientPair ? [m.gradientPair.horizontal, m.gradientPair.vertical] : [])]) {
+      for (const f of [m.original, ...m.steps, ...(m.rawSteps ?? []), ...(m.gradientPair ? [m.gradientPair.horizontal, m.gradientPair.vertical] : [])]) {
         expect(f.startsWith("/demo/")).toBe(true);
         expect(existsSync(pub(f)), f).toBe(true);
         const meta = await sharp(pub(f)).metadata();

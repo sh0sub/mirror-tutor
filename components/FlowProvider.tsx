@@ -14,7 +14,7 @@ import type { FaceDetection } from "@/lib/client/landmarker";
 import type { FacePins } from "@/lib/facePins";
 import type { SkinMeasure } from "@/lib/skin/measure";
 import { nearestShade } from "@/lib/skin/shades";
-import { SAMPLE_ATTEMPT, SAMPLE_MODEL } from "@/lib/demo/sample";
+import { DEFAULT_SAMPLE, sampleAttemptFor, sampleModelById, SAMPLE_ATTEMPT, type SampleId } from "@/lib/demo/sample";
 import { EMPTY_LOG, clearPractice, loadConsent, loadPractice, recordPractice, saveConsent, savePractice, type PracticeLog } from "@/lib/practice";
 
 /**
@@ -65,10 +65,12 @@ interface FlowState {
   deleteProfile: () => void;
   /** "샘플 모델로 체험하기": the sample model stands in for the selfie; its profile stays in memory (never overwrites the saved one). */
   sample: boolean;
-  /** Load the sample model as the photo and enter sample mode (0 units; the server never calls YouCam for it). */
-  startSample: () => Promise<void>;
-  /** Sample mode: use the simulated attempt photo instead of a new selfie. */
-  loadSampleAttempt: () => Promise<void>;
+  /** Which sample face the trial runs on (double-lid or monolid). */
+  sampleId: SampleId;
+  /** Load a sample model as the photo and enter sample mode (0 units; the server never calls YouCam for it). */
+  startSample: (id?: SampleId) => Promise<void>;
+  /** Sample mode: use the simulated attempt photo (for the lesson's answer image) instead of a new selfie. */
+  loadSampleAttempt: (answerImage?: string | null) => Promise<void>;
   mode: ServiceMode | null;
   setMode: (m: ServiceMode) => void;
   renders: Record<string, Record<number, StepState>>;
@@ -133,6 +135,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const [sample, setSample] = useState(false);
   const sampleRef = useRef(sample);
   sampleRef.current = sample;
+  const [sampleId, setSampleId] = useState<SampleId>(DEFAULT_SAMPLE);
   const [sampleStored, setSampleStored] = useState<StoredProfile | null>(null);
   const [attempt, setAttempt] = usePhoto();
   // One MediaPipe pass per photo (eye/mouth anchors + skin tone), awaited by render().
@@ -272,6 +275,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
           lessonScales,
           det?.anchors ?? null,
           shade,
+          sample ? sampleId : undefined,
         );
       } catch {
         setRenders((r) => ({
@@ -282,7 +286,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
         refreshCredit();
       }
     },
-    [photo, activeStored, sample, refreshCredit, detectFor],
+    [photo, activeStored, sample, sampleId, refreshCredit, detectFor],
   );
 
   const setStepScale = useCallback(
@@ -334,8 +338,9 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     [resetRun, setPhotoRaw],
   );
 
-  const startSample = useCallback(async () => {
-    const blob = await fetchBlob(SAMPLE_MODEL.original);
+  const startSample = useCallback(async (id: SampleId = DEFAULT_SAMPLE) => {
+    const blob = await fetchBlob(sampleModelById(id).original);
+    setSampleId(id);
     resetRun();
     setSampleStored(null);
     setSample(true);
@@ -344,8 +349,8 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     setMode("sample");
   }, [resetRun, setPhotoRaw]);
 
-  const loadSampleAttempt = useCallback(async () => {
-    setAttempt(await fetchBlob(SAMPLE_ATTEMPT));
+  const loadSampleAttempt = useCallback(async (answerImage?: string | null) => {
+    setAttempt(await fetchBlob(sampleAttemptFor(answerImage ?? null) ?? SAMPLE_ATTEMPT));
   }, [setAttempt]);
 
   const endSession = useCallback(async () => {
@@ -366,10 +371,10 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const value = useMemo<FlowState>(
     () => ({
       lang, setLang, consented, setConsented, practice, photo, setPhoto, stored: activeStored, hydrated, setStored, editProfile, deleteProfile,
-      anchors, facePins, skin, setSkinShade, sample, startSample, loadSampleAttempt, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
+      anchors, facePins, skin, setSkinShade, sample, sampleId, startSample, loadSampleAttempt, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
       cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession,
     }),
-    [lang, setLang, consented, setConsented, practice, photo, setPhoto, anchors, facePins, skin, setSkinShade, sample, startSample, loadSampleAttempt, activeStored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
+    [lang, setLang, consented, setConsented, practice, photo, setPhoto, anchors, facePins, skin, setSkinShade, sample, sampleId, startSample, loadSampleAttempt, activeStored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

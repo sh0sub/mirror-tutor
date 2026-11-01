@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, Sheet, TabBar } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
+import { SamplePicker } from "@/components/SamplePicker";
+import type { SampleId } from "@/lib/demo/sample";
 import { t, tf } from "@/lib/i18n";
 import { guideText } from "@/lib/quality/messages";
 import { FACE_NAME, profileSummary, valueLabel } from "@/lib/labels";
@@ -22,13 +24,15 @@ export default function Home() {
   const router = useRouter();
   const [consentOpen, setConsentOpen] = useState(false);
   const [sampleBusy, setSampleBusy] = useState(false);
+  // Which sample face: the monolid one walks the "analyzer misread → you correct it" flow (the differentiator), so it is the default.
+  const [sampleChoice, setSampleChoice] = useState<SampleId>("model-c");
   // No selfie, no consent needed: the sample model's pre-generated results, 0 units (the server never calls YouCam for it).
   const startingSample = useRef(false);
   const trySample = async () => {
     startingSample.current = true;
     setSampleBusy(true);
     try {
-      await startSample();
+      await startSample(sampleChoice);
       router.push("/analyze");
     } catch {
       startingSample.current = false;
@@ -41,6 +45,7 @@ export default function Home() {
   useEffect(() => {
     if (sample && !startingSample.current) setPhoto(null);
   }, [sample, setPhoto]);
+  const samplePicker = <SamplePicker value={sampleChoice} onChange={setSampleChoice} lang={lang} disabled={sampleBusy} />;
   const sampleButton = (
     <Button variant="soft" className="min-w-0 flex-[1.5] border border-primary/30 px-3 leading-tight" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-hint">
       <Icon name="user" className="h-4 w-4" />
@@ -216,6 +221,7 @@ export default function Home() {
               </p>
               {hydrated && (
                 <div className="mt-2 hidden flex-col gap-2 lg:flex" data-testid="desktop-cta">
+                  {samplePicker}
                   <Button className="w-full px-3 leading-tight" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-noselfie-d">
                     <Icon name="user" className="h-4 w-4" />
                     {t("sampleTry", lang)}
@@ -263,6 +269,7 @@ export default function Home() {
         )}
         {returning && (
           <div className="flex flex-col gap-1">
+            <div className="mb-1">{samplePicker}</div>
             <div className="flex gap-2">
               {sampleButton}
               {retailerButton}
@@ -298,6 +305,7 @@ export default function Home() {
           <div className="flex flex-col gap-2">
             {hydrated ? (
               <>
+                {samplePicker}
                 {samplePrimary}
                 <p id="sample-noselfie" className="text-center text-xs font-bold text-primary-strong">
                   {t("sampleNoSelfie", lang)}

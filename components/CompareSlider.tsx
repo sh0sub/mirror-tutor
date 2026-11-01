@@ -3,13 +3,15 @@
 import { useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 
 /** Before/after slider (M3). Drag without inertia, keyboard arrows, double-tap toggles 50/100. */
-export function CompareSlider({ before, after, label, beforeLabel, afterLabel, overlay }: {
+export function CompareSlider({ before, after, label, beforeLabel, afterLabel, overlay, aspect = "aspect-[4/5]" }: {
   before: string;
   after: string | null;
   label: string;
   beforeLabel: string;
   afterLabel: string;
   overlay?: ReactNode;
+  /** Tailwind aspect classes of the box (the photo is object-cover, so an overlay must use the same ratio). */
+  aspect?: string;
 }) {
   const [pos, setPos] = useState(50);
   const ref = useRef<HTMLDivElement>(null);
@@ -31,7 +33,7 @@ export function CompareSlider({ before, after, label, beforeLabel, afterLabel, o
   return (
     <div
       ref={ref}
-      className="relative aspect-[4/5] w-full touch-none select-none overflow-hidden bg-panel-2"
+      className={`relative ${aspect} w-full touch-none select-none overflow-hidden bg-panel-2`}
       onPointerDown={(e) => {
         dragging.current = true;
         (e.target as Element).setPointerCapture?.(e.pointerId);

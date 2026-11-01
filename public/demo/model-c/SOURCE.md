@@ -16,3 +16,8 @@ Other attempts that day: a Pexels monolid photo (https://www.pexels.com/photo/po
 ## Gradient pair (C7)
 
 `eye-horizontal.jpg` and `eye-vertical.jpg` are two extra Makeup VTO renders of this face (cumulative step 3, same colors and liner, shadow intensity 100) made by `scripts/demo/generate-vertical.ts`: shadow style `2colors1` (this app's monolid rule, "horizontal") and `2colors3` (the double-lid rule's style, used as the "vertical" generic-tutorial technique). The horizontal/vertical names are ours, not YouCam's. The eyelid was the corrected value (monolid). Same license and processing as above.
+
+## Sample trial assets (C11)
+
+- `raw-step-1..4.jpg`: the daily-k lesson's 4 cumulative Makeup VTO steps on Face Analyzer's raw reading (`Double-lid`, uncorrected), made by `scripts/demo/generate-raw.ts` (4 units). The monolid sample trial plays them when the visitor keeps the analyzer's reading and opens the lesson; the corrected steps are `step-1..4.jpg`.
+- `sample-attempt.jpg` and `sample-attempt-raw.jpg`: simulated attempts, `step-4.jpg` / `raw-step-4.jpg` with a deterministic off-shade recolor inside each graded landmark region (`scripts/demo/make-sample-attempt.ts model-c`). Not real photos of anyone; derived from this stock photo, same license.

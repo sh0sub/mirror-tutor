@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppBar, BottomBar, ButtonLink, Chip, Icon, ModeBanner, Screen } from "@/components/ui";
+import { SAMPLE_GRADES, sampleAttemptFor } from "@/lib/demo/sample";
 import { useFlow } from "@/components/FlowProvider";
 import { PhotoPins, type PhotoPin } from "@/components/PhotoPins";
 import { t } from "@/lib/i18n";
@@ -12,6 +13,29 @@ import { urlToBlob } from "@/lib/client/image";
 import { REGION_NAME, scoreBand, type GradeResult } from "@/lib/grade/types";
 import type { GradePins } from "@/lib/facePins";
 import { estimateLabelWidth } from "@/lib/pinLayout";
+
+/** The sample trial's result appears after this short "comparing" beat (the scores are precomputed), then the total counts up for COUNT_MS. */
+const SAMPLE_COMPARE_MS = 350;
+const COUNT_MS = 450;
+
+/** 0 → 1 over `ms` once `on` (ease-out); jumps to 1 for reduced motion, 0 while off. */
+function useCountUp(on: boolean, ms: number): number {
+  const [p, setP] = useState(0);
+  useEffect(() => {
+    if (!on) return setP(0);
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return setP(1);
+    let raf = 0;
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const x = Math.min(1, (now - t0) / ms);
+      setP(1 - (1 - x) ** 3);
+      if (x < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [on, ms]);
+  return p;
+}
 
 /** M4: answer (step 4) vs my attempt → per-region scores, one-line tips, confidence. 0 YouCam units. */
 function GradeInner() {
@@ -35,6 +59,19 @@ function GradeInner() {
     started.current = attempt.blob;
     setGrade(null);
     setError(null);
+    // Sample trial: the attempt is a fixed simulated photo, so its grade was computed offline with the same landmark grader.
+    // Play it back after a short comparing beat instead of a 5 s on-device run (live grading below is unchanged).
+    // No timer cleanup on purpose: strict-mode re-runs hit the `started` guard above and must not lose the result.
+    const preset = sample ? SAMPLE_GRADES[sampleAttemptFor(answer) ?? ""] : undefined;
+    if (preset) {
+      setAttemptPins({ blob: attempt.blob, pins: preset.pins });
+      window.setTimeout(() => {
+        setGrade(preset.grade);
+        setGradedLesson(lessonId);
+        if (preset.grade.comparable && preset.grade.total !== null) markCompleted(lessonId, preset.grade.total);
+      }, SAMPLE_COMPARE_MS);
+      return;
+    }
     void (async () => {
       const answerBlob = await urlToBlob(answer);
       // S1: landmark-aligned ΔE measured on this device; null (no face / offline / unsupported) → F6 grader.
@@ -48,7 +85,7 @@ function GradeInner() {
         if (r.comparable && r.total !== null) markCompleted(lessonId, r.total);
       }
     })();
-  }, [attempt, answer, lessonId, router, setGrade, setGradedLesson, markCompleted]);
+  }, [attempt, answer, lessonId, router, setGrade, setGradedLesson, markCompleted, sample]);
 
   const result: GradeResult | null = gradedLesson === lessonId ? grade : null;
   const pinsNow = attempt && attemptPins?.blob === attempt.blob ? attemptPins.pins : null;
@@ -78,6 +115,9 @@ function GradeInner() {
     return out.length ? out : null;
   }, [result, pinsNow, lang]);
   const captionReserve = useMemo(() => [{ corner: "top-left" as const, w: estimateLabelWidth(t("attempt", lang)), h: 20 }], [lang]);
+  const sampleFast = sample && !!SAMPLE_GRADES[sampleAttemptFor(answer) ?? ""];
+  const count = useCountUp(!!result?.comparable && sampleFast, COUNT_MS);
+  const shown = (n: number) => (sampleFast ? Math.round(n * count) : n);
   const confLabel = result ? t(result.confidence === "high" ? "confHigh" : result.confidence === "medium" ? "confMedium" : "confLow", lang) : "";
 
   return (
@@ -104,13 +144,15 @@ function GradeInner() {
           )}
         </div>
 
-        {sample && (
-          <p data-testid="sample-attempt-note" className="rounded-xl border border-primary/30 bg-peach-soft p-3 text-xs font-bold text-primary-strong">
-            {t("sampleAttemptNote", lang)}
-          </p>
+        {!result && !error && sampleFast && (
+          <div data-testid="sample-comparing" className="flex flex-col gap-2 rounded-[var(--radius-panel)] bg-panel p-4" role="status" aria-live="polite">
+            <p className="text-sm font-bold text-muted">{t("gradeComparing", lang)}</p>
+            <span className="block h-1.5 overflow-hidden rounded-full bg-panel-2">
+              <span className="block h-full rounded-full bg-primary" style={{ animation: `mt-compare ${SAMPLE_COMPARE_MS}ms ease-out forwards` }} />
+            </span>
+          </div>
         )}
-
-        {!result && !error && (
+        {!result && !error && !sampleFast && (
           <div className="flex flex-col gap-2" role="status" aria-live="polite">
             <p className="text-sm font-bold text-muted">{t("grading", lang)}</p>
             {[0, 1, 2, 3].map((i) => (
@@ -139,10 +181,10 @@ function GradeInner() {
               <div className="relative h-20 w-20 flex-none">
                 <svg viewBox="0 0 36 36" className="h-20 w-20 -rotate-90" aria-hidden>
                   <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-panel-2)" strokeWidth="3.5" />
-                  <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-primary)" strokeWidth="3.5" strokeDasharray={`${(result.total / 100) * 97.4} 97.4`} strokeLinecap="round" />
+                  <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-primary)" strokeWidth="3.5" strokeDasharray={`${(shown(result.total) / 100) * 97.4} 97.4`} strokeLinecap="round" />
                 </svg>
                 <span className="num absolute inset-0 flex flex-col items-center justify-center leading-none">
-                  <span className="text-2xl font-extrabold">{result.total}</span>
+                  <span className="text-2xl font-extrabold">{shown(result.total)}</span>
                   <span className="mt-0.5 text-xs font-bold text-muted">{t("outOf100", lang)}</span>
                 </span>
               </div>
@@ -157,6 +199,13 @@ function GradeInner() {
                 </div>
               </div>
             </section>
+            {sample && (
+              <p data-testid="sample-attempt-note" className="flex items-start gap-2 rounded-xl bg-panel-2 p-3 text-xs font-medium leading-relaxed text-muted">
+                <Icon name="info" className="mt-0.5 h-4 w-4 flex-none" />
+                {t("sampleAttemptNote", lang)}
+              </p>
+            )}
+
             <ul className="flex flex-col gap-2">
               {result.regions.map((r) => (
                 <li key={r.region}>
@@ -172,10 +221,10 @@ function GradeInner() {
                     <span className="min-w-0 flex-1">
                       <span className="flex items-baseline justify-between gap-2">
                         <span className="font-bold">{REGION_NAME[r.region][lang]}</span>
-                        <span className="num text-lg font-extrabold">{r.score}</span>
+                        <span className="num text-lg font-extrabold">{shown(r.score)}</span>
                       </span>
                       <span className="mt-1 block h-1.5 rounded-full bg-panel-2">
-                        <span className={`block h-1.5 rounded-full ${r.score >= 80 ? "bg-success" : "bg-warning"}`} style={{ width: `${r.score}%`, transition: "width 400ms" }} />
+                        <span className={`block h-1.5 rounded-full ${r.score >= 80 ? "bg-success" : "bg-warning"}`} style={{ width: `${shown(r.score)}%`, transition: sampleFast ? "none" : "width 400ms" }} />
                       </span>
                       <span className="mt-1.5 block text-sm">{r.tip[lang]}</span>
                       <span className="num mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">

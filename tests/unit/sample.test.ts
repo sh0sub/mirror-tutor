@@ -7,7 +7,12 @@ import type { YouCamTransport } from "@/lib/youcam/client";
 import { POST as analyzePOST } from "@/app/api/analyze/route";
 import { POST as renderPOST } from "@/app/api/render/route";
 import { analyzeSample, isPregenerated, renderSample, SAMPLE_ATTEMPT, SAMPLE_LESSON, SAMPLE_MODEL } from "@/lib/services/sample";
-import { SAMPLE_SCORE } from "@/lib/demo/sample";
+import { analyzedProfile, sampleAttemptFor, sampleModelById, SAMPLE_ATTEMPTS, SAMPLE_GRADES, SAMPLE_SCORE } from "@/lib/demo/sample";
+import { pregeneratedSteps } from "@/lib/services/sample";
+import { recommendLesson } from "@/lib/lessons";
+import { buildLesson } from "@/lib/lessons";
+import { existsSync } from "node:fs";
+import path from "node:path";
 import type { StepResult } from "@/lib/services/render";
 import { PRODUCTS } from "@/lib/shop";
 import { ProductArt, productArtKind } from "@/components/ProductArt";
@@ -155,5 +160,109 @@ describe("Shop-the-step product art", () => {
       for (const h of p.shades) expect(svg, p.sku).toContain(h);
       expect(svg).not.toMatch(/<image|<img|https?:|<text/);
     }
+  });
+});
+
+describe("C11 monolid sample: analyzer misread, visitor correction, lesson switch (0 units)", () => {
+  const mono = sampleModelById("model-c");
+
+  it("the monolid sample is analyzed as Double-lid (the analyzer's raw reading); the correction is the visitor's", () => {
+    const r = analyzeSample(20, "model-c");
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.mode).toBe("sample");
+    expect(r.profile.eyelid).toBe("double");
+    expect(r.profile).toEqual(analyzedProfile("model-c"));
+    expect(r.source.eyelid).toBe("Double-lid / Double-lid");
+    expect(r.units.spent).toBe(0);
+    expect(mono.profile.eyelid).toBe("monolid");
+    expect(mono.edited).toEqual(["eyelid"]);
+    // the default sample is unchanged
+    const a = analyzeSample(20);
+    expect(a.ok && a.profile).toEqual(SAMPLE_MODEL.profile);
+  });
+
+  it("the edit to Monolid switches the lesson: corrected profile plays the pre-generated horizontal-gradient steps, the raw reading plays its own", () => {
+    const raw = analyzedProfile("model-c");
+    expect(pregeneratedSteps(SAMPLE_LESSON, mono.profile, undefined, "model-c")).toEqual(mono.steps);
+    expect(pregeneratedSteps(SAMPLE_LESSON, raw, undefined, "model-c")).toEqual(mono.rawSteps);
+    expect(mono.rawSteps).toHaveLength(4);
+    expect(mono.rawSteps).not.toEqual(mono.steps);
+    expect(pregeneratedSteps(SAMPLE_LESSON, { ...mono.profile, lipShape: "thin" }, undefined, "model-c")).toBeNull();
+    expect(pregeneratedSteps(SAMPLE_LESSON, mono.profile, { stepScales: { 3: 1.2 } }, "model-c")).toBeNull();
+    expect(pregeneratedSteps(SAMPLE_LESSON, mono.profile, undefined, "model-a")).toBeNull(); // not model-a's profile
+    // the lesson text itself switches: step 3 shadow pattern differs between the two readings
+    const shadow = (p: typeof raw) => buildLesson(SAMPLE_LESSON, p).steps[2].effects.find((e) => e.category === "eye_shadow")?.pattern?.name;
+    expect(shadow(raw)).not.toBe(shadow(mono.profile));
+    // the correction also changes which lesson is recommended
+    expect(recommendLesson(mono.profile).lessonId).toBe(SAMPLE_LESSON);
+  });
+
+  it("POST /api/analyze + /api/render with sampleId=model-c: 0 YouCam calls, corrected steps, raw steps", async () => {
+    const { calls } = installTrap();
+    const form = new FormData();
+    form.set("sample", "1");
+    form.set("sampleId", "model-c");
+    const body = await (await analyzePOST(new Request("http://x/api/analyze", { method: "POST", body: form }))).json();
+    expect(body).toMatchObject({ ok: true, mode: "sample", units: { spent: 0 } });
+    expect(body.profile.eyelid).toBe("double");
+    for (const [profile, expected] of [
+      [mono.profile, mono.steps],
+      [analyzedProfile("model-c"), mono.rawSteps!],
+    ] as const) {
+      const f = new FormData();
+      f.set("sample", "1");
+      f.set("sampleId", "model-c");
+      f.set("lessonId", SAMPLE_LESSON);
+      f.set("profile", JSON.stringify(profile));
+      const events = await readNdjson(await renderPOST(new Request("http://x/api/render", { method: "POST", body: f })));
+      const steps = events.filter((e) => e.type === "step") as unknown as StepResult[];
+      expect(steps.map((s) => (s.status === "done" ? s.image : null)).sort()).toEqual([...expected].sort());
+      expect(events.at(-1)).toMatchObject({ type: "done", mode: "sample", spent: 0 });
+    }
+    expect(calls).toEqual([]);
+  });
+
+  it("an unknown sampleId falls back to the default double-lid sample", async () => {
+    installTrap();
+    const form = new FormData();
+    form.set("sample", "1");
+    form.set("sampleId", "../../etc/passwd");
+    const body = await (await analyzePOST(new Request("http://x/api/analyze", { method: "POST", body: form }))).json();
+    expect(body.profile).toEqual(SAMPLE_MODEL.profile);
+  });
+
+  it("a local-preview fallback on the monolid sample draws on the monolid photo (0 units)", async () => {
+    const { calls } = installTrap();
+    const out: StepResult[] = [];
+    await renderSample({ lessonId: SAMPLE_LESSON, profile: { ...mono.profile, lipShape: "thin" }, steps: [1], sampleId: "model-c" }, (r) => out.push(r), 20);
+    expect(out[0].status === "done" && out[0].image.startsWith("data:image/jpeg;base64,")).toBe(true);
+    expect(calls).toEqual([]);
+  });
+});
+
+describe("C11 precomputed sample grades (result in under a second, same landmark grader)", () => {
+  it("every pre-generated final answer has a simulated attempt photo and a stored grade with score-label points", () => {
+    const answers = [SAMPLE_MODEL.steps[3], sampleModelById("model-c").steps[3], sampleModelById("model-c").rawSteps![3]];
+    for (const a of answers) {
+      const attempt = sampleAttemptFor(a)!;
+      expect(attempt, a).toBeTruthy();
+      expect(existsSync(path.join(process.cwd(), "public", attempt)), attempt).toBe(true);
+      const g = SAMPLE_GRADES[attempt];
+      expect(g, attempt).toBeDefined();
+      expect(g.grade).toMatchObject({ comparable: true, grader: "landmark", units: 0 });
+      expect(g.grade.regions.map((r) => r.region).sort()).toEqual(["cheek", "eye_lid", "eye_line", "lip"]);
+      expect(Math.abs(g.grade.total! - SAMPLE_SCORE)).toBeLessThanOrEqual(2); // all sample variants read about 79
+      for (const r of g.grade.regions) {
+        expect(r.score).toBeLessThan(97); // visibly off-shade, no scripted 100s
+        expect(r.answerHex).toMatch(/^#[0-9A-F]{6}$/);
+      }
+      expect(g.grade.regions.find((r) => r.region === "lip")!.score).toBeLessThan(70);
+      expect(Object.keys(g.pins ?? {}).sort()).toEqual(["cheek", "eye_lid", "eye_line", "lip"]);
+    }
+    expect(Object.keys(SAMPLE_GRADES).sort()).toEqual(Object.values(SAMPLE_ATTEMPTS).sort());
+    expect(SAMPLE_GRADES[SAMPLE_ATTEMPT].grade.total).toBe(SAMPLE_SCORE);
+    expect(sampleAttemptFor("data:image/jpeg;base64,AAAA")).toBeNull(); // a preview answer is graded live, not from the table
+    expect(sampleAttemptFor(null)).toBeNull();
   });
 });

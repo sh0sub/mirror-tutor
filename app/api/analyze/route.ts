@@ -1,7 +1,7 @@
 import { getRuntime } from "@/lib/runtime";
 import { ensureSession, withSession } from "@/lib/session";
 import { analyzeFace } from "@/lib/services/analyze";
-import { analyzeSample } from "@/lib/services/sample";
+import { analyzeSample, DEFAULT_SAMPLE, isSampleId } from "@/lib/services/sample";
 import { MAX_UPLOAD_BYTES } from "@/lib/privacy/sanitize";
 
 export const runtime = "nodejs";
@@ -17,7 +17,10 @@ export async function POST(req: Request) {
   let bytes: Uint8Array | null = null;
   try {
     const form = await req.formData();
-    if (form.get("sample") === "1") return withSession(Response.json(analyzeSample(getRuntime().config.sessionCap)), session.setCookie);
+    if (form.get("sample") === "1") {
+      const which = form.get("sampleId");
+      return withSession(Response.json(analyzeSample(getRuntime().config.sessionCap, isSampleId(which) ? which : DEFAULT_SAMPLE)), session.setCookie);
+    }
     const file = form.get("image");
     if (file instanceof Blob && file.size > 0 && file.size <= MAX_UPLOAD_BYTES) bytes = new Uint8Array(await file.arrayBuffer());
   } catch {

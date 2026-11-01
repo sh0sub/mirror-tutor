@@ -1,7 +1,7 @@
 import { getRuntime } from "@/lib/runtime";
 import { ensureSession } from "@/lib/session";
 import { renderLesson } from "@/lib/services/render";
-import { renderSample } from "@/lib/services/sample";
+import { isSampleId, renderSample } from "@/lib/services/sample";
 import { getLesson, parseStepScales } from "@/lib/lessons";
 import { isFaceProfile } from "@/lib/profile";
 import { parseAnchors } from "@/lib/regions";
@@ -54,6 +54,7 @@ export async function POST(req: Request) {
     anchors = null;
   }
   const sample = form.get("sample") === "1";
+  const sampleWhich = form.get("sampleId");
   if (!sample && (!(file instanceof Blob) || file.size === 0 || file.size > MAX_UPLOAD_BYTES)) return bad("missing_image");
   if (!getLesson(lessonId)) return bad("unknown_lesson");
   if (!isFaceProfile(profile)) return bad("bad_profile");
@@ -72,7 +73,7 @@ export async function POST(req: Request) {
         const onStep = (r: unknown) => send({ type: "step", ...(r as object) });
         const summary = image
           ? await renderLesson(getRuntime(), session.id, { image, lessonId, profile: profile as never, steps, build, anchors }, onStep)
-          : await renderSample({ lessonId, profile: profile as never, steps, build }, onStep, sessionCap);
+          : await renderSample({ lessonId, profile: profile as never, steps, build, sampleId: isSampleId(sampleWhich) ? sampleWhich : undefined }, onStep, sessionCap);
         send({ type: "done", ...summary });
       } catch {
         send({ type: "fatal", code: "internal" });

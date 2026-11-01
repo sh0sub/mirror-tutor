@@ -12,6 +12,22 @@ import { guideText } from "@/lib/quality/messages";
 import { regionBoxes } from "@/lib/regions";
 import { stepDotKind, type StepDotKind } from "@/lib/stepper";
 
+/** The 3:4 photo is object-cover in the box, so only this fraction of its height is visible (box 4:5 → 0.9375, 7:8 → 0.857). */
+const VISIBLE_45 = 0.75 / 0.8;
+const VISIBLE_78 = 0.75 / 0.875;
+
+/** Dashed oval around the step's region, mapped from photo coordinates to the cropped box. */
+function RegionOverlay({ boxes, visible, className }: { boxes: ReturnType<typeof regionBoxes>; visible: number; className: string }) {
+  const top = ((1 - visible) / 2) * 100;
+  return (
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" className={`pointer-events-none absolute inset-0 h-full w-full ${className}`} aria-hidden>
+      {boxes.map((b, i) => (
+        <ellipse key={i} cx={(b.x + b.w / 2) * 100} cy={((b.y + b.h / 2) * 100 - top) / visible} rx={(b.w / 2) * 100 + 2} ry={(b.h / 2 / visible) * 100 + 2} fill="none" stroke="white" strokeWidth="0.5" strokeDasharray="1.5 1.2" />
+      ))}
+    </svg>
+  );
+}
+
 function dotClass(s: StepState | undefined, kind: StepDotKind) {
   if (kind === "active") return "bg-primary text-on-primary";
   if (s?.status === "error" || s?.status === "blocked") return "bg-danger-soft text-danger";
@@ -55,6 +71,8 @@ function LessonInner() {
   const before = mode === "demo" ? "/demo/sample-model.svg" : photo.url;
   const after = state?.status === "done" ? state.image : null;
   const last = k === plan.steps.length;
+  const finalState = steps[plan.steps.length];
+  const answerImage = finalState?.status === "done" ? finalState.image : null;
   // demo mode shows the sample model (canonical position); otherwise fit the boxes to this photo's face
   const boxes = regionBoxes(step.region, mode === "demo" ? null : anchors);
 
@@ -78,13 +96,13 @@ function LessonInner() {
           label={t("sliderLabel", lang)}
           beforeLabel={t(sample ? "sampleFace" : "myFace", lang)}
           afterLabel={`${t("answer", lang)} · ${tf("answerCumulative", lang, { n: k })}`}
+          // 390x844 phones get a 7:8 box (about 40 px shorter than 4:5) so the step instruction stays above the fold; desktop keeps 4:5.
+          aspect="aspect-[7/8] lg:aspect-[4/5]"
           overlay={
-            // 3:4 photo shown object-cover in a 4:5 box → 6.25% of the height is cropped (3.125% top)
-            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
-              {boxes.map((b, i) => (
-                <ellipse key={i} cx={(b.x + b.w / 2) * 100} cy={((b.y + b.h / 2) * 100 - 3.125) / 0.9375} rx={(b.w / 2) * 100 + 2} ry={(b.h / 2 / 0.9375) * 100 + 2} fill="none" stroke="white" strokeWidth="0.5" strokeDasharray="1.5 1.2" />
-              ))}
-            </svg>
+            <>
+              <RegionOverlay boxes={boxes} visible={VISIBLE_78} className="lg:hidden" />
+              <RegionOverlay boxes={boxes} visible={VISIBLE_45} className="max-lg:hidden" />
+            </>
           }
         />
 
@@ -195,18 +213,18 @@ function LessonInner() {
         <div className="flex flex-col gap-2">
           <UnitLine costKey="renderCost" />
           <div className="flex gap-2">
-            <ButtonLink href={`/shop?lesson=${id}&step=${k}`} variant="ghost" className="flex-1">
+            <ButtonLink href={`/shop?lesson=${id}&step=${k}`} variant="ghost" className="flex-none whitespace-nowrap px-4" aria-label={t("shopStep", lang)}>
               <Icon name="bag" className="h-4 w-4" />
-              {t("shopStep", lang)}
+              {t("shopShort", lang)}
             </ButtonLink>
             {last && sample ? (
               <Button
-                className="flex-[1.4]"
+                className="min-w-0 flex-1 px-3 leading-tight"
                 disabled={attemptBusy}
                 onClick={async () => {
                   setAttemptBusy(true);
                   try {
-                    await loadSampleAttempt();
+                    await loadSampleAttempt(answerImage);
                     router.push(`/grade?lesson=${id}`);
                   } finally {
                     setAttemptBusy(false);
@@ -217,12 +235,12 @@ function LessonInner() {
                 {t("sampleAttempt", lang)}
               </Button>
             ) : last ? (
-              <ButtonLink href={`/capture?for=attempt&lesson=${id}`} className="flex-[1.4]">
+              <ButtonLink href={`/capture?for=attempt&lesson=${id}`} className="min-w-0 flex-1 px-3 leading-tight">
                 <Icon name="camera" className="h-4 w-4" />
                 {t("takeAttempt", lang)}
               </ButtonLink>
             ) : (
-              <Button className="flex-[1.4]" onClick={() => setK((v) => Math.min(plan.steps.length, v + 1))}>
+              <Button className="min-w-0 flex-1 px-3" onClick={() => setK((v) => Math.min(plan.steps.length, v + 1))}>
                 {t("nextStep", lang)}
               </Button>
             )}

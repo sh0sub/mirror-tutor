@@ -70,6 +70,16 @@ body {
   }
 }
 
+/* Sample trial grading: a short fill bar while the precomputed result is about to appear. */
+@keyframes mt-compare {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
 .skeleton {
   background: linear-gradient(90deg, var(--color-panel-2), var(--color-line), var(--color-panel-2));
   background-size: 200% 100%;

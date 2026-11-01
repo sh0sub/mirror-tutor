@@ -11,8 +11,12 @@ export interface CompareModel {
   source: Record<ProfileKey, string>;
   /** Fields corrected on M2 after the analyzer misread them (source keeps the raw reading). */
   edited?: ProfileKey[];
+  /** C11: the profile exactly as Face Analyzer read it, when it differs from `profile` (only for `edited` models). */
+  rawProfile?: FaceProfile;
   original: string;
   steps: string[];
+  /** C11: the lesson's 4 Makeup VTO steps on `rawProfile` (the uncorrected reading), used by the monolid sample trial. */
+  rawSteps?: string[];
   /** C7: the same eye step with two shadow patterns (horizontal = this app's monolid rule, vertical = generic tutorial technique), same face, same colors. */
   gradientPair?: { horizontal: string; vertical: string; shadowIntensity: number };
   credit: string;

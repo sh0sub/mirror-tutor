@@ -71,6 +71,13 @@
       "edited": [
         "eyelid"
       ],
+      "rawProfile": {
+        "eyelid": "double",
+        "eyeShape": "almond",
+        "lipShape": "average",
+        "faceShape": "square",
+        "eyebrowShape": "straight"
+      },
       "original": "/demo/model-c/original.jpg",
       "steps": [
         "/demo/model-c/step-1.jpg",
@@ -83,7 +90,13 @@
         "horizontal": "/demo/model-c/eye-horizontal.jpg",
         "vertical": "/demo/model-c/eye-vertical.jpg",
         "shadowIntensity": 100
-      }
+      },
+      "rawSteps": [
+        "/demo/model-c/raw-step-1.jpg",
+        "/demo/model-c/raw-step-2.jpg",
+        "/demo/model-c/raw-step-3.jpg",
+        "/demo/model-c/raw-step-4.jpg"
+      ]
     }
   ]
 }

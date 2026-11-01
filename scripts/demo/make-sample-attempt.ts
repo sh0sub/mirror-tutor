@@ -8,6 +8,10 @@
  * (step 4) with a deterministic CIELAB shift inside each graded landmark polygon, so every region is visibly a little
  * off, like a real first try. Same face, same pixels outside the four regions; the app labels it "simulated".
  * The face landmarks come from MediaPipe in headless Chrome (the same model the app grades with).
+ *
+ * C11: also for the monolid sample.  npx tsx scripts/demo/make-sample-attempt.ts model-c
+ * writes model-c/sample-attempt.jpg (from step-4.jpg, the corrected lesson) and model-c/sample-attempt-raw.jpg (from
+ * raw-step-4.jpg, the lesson on the analyzer's uncorrected reading), same shifts, same face landmarks.
  */
 import { createServer } from "node:http";
 import { existsSync, readFileSync, writeFileSync, mkdtempSync } from "node:fs";
@@ -20,7 +24,16 @@ import { landmarkMeasure, regionPolygons, type Pt } from "../../lib/grade/landma
 import { GRADE_REGIONS, type GradeRegion } from "../../lib/regions";
 
 const ROOT = path.resolve(import.meta.dirname, "../..");
-const DIR = path.join(ROOT, "public/demo/model-a");
+const MODEL = process.argv[2] ?? "model-a";
+const DIR = path.join(ROOT, "public/demo", MODEL);
+/** [source answer image, attempt file] pairs per model. */
+const JOBS: Record<string, Array<[string, string]>> = {
+  "model-a": [["step-4.jpg", "sample-attempt.jpg"]],
+  "model-c": [
+    ["step-4.jpg", "sample-attempt.jpg"],
+    ["raw-step-4.jpg", "sample-attempt-raw.jpg"],
+  ],
+};
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const WORK_WIDTH = 480;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -99,40 +112,42 @@ async function landmarksFromChrome(): Promise<Pt[]> {
 
 async function main() {
   // The detection is cached in scripts/demo/model-a-landmarks.json (normalized points of step-4.jpg; unit-tested). Delete it to re-detect in Chrome.
-  const cache = process.env.MT_LANDMARKS_CACHE ?? path.join(import.meta.dirname, "model-a-landmarks.json");
+  const cache = process.env.MT_LANDMARKS_CACHE ?? path.join(import.meta.dirname, `${MODEL}-landmarks.json`);
   let lm: Pt[];
   if (cache && existsSync(cache)) lm = JSON.parse(readFileSync(cache, "utf8")) as Pt[];
   else {
     lm = await landmarksFromChrome();
     if (cache) writeFileSync(cache, JSON.stringify(lm));
   }
-  const { data, info } = await sharp(path.join(DIR, "step-4.jpg")).removeAlpha().raw().toBuffer({ resolveWithObject: true });
-  const { width: w, height: h } = info;
-  const out = Buffer.from(data);
-  for (const region of GRADE_REGIONS) {
-    const polys = regionPolygons(lm, region, w, h);
-    const d = polys.map((p) => [p.outer, ...(p.holes ?? [])].map((ring) => `M${ring.map((q) => `${q.x.toFixed(1)},${q.y.toFixed(1)}`).join("L")}Z`).join("")).join("");
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="black"/><path d="${d}" fill="white" fill-rule="evenodd"/></svg>`;
-    const mask = await sharp(Buffer.from(svg)).blur(1.2).greyscale().raw().toBuffer();
-    const [dl, da, db] = SHIFTS[region];
-    for (let i = 0; i < w * h; i++) {
-      const m = mask[i] / 255;
-      if (m < 0.01) continue;
-      const lab = rgbToLab(out[i * 3], out[i * 3 + 1], out[i * 3 + 2]);
-      const rgb = labToRgb([lab[0] + dl * m, lab[1] + da * m, lab[2] + db * m]);
-      out[i * 3] = Math.max(0, Math.min(255, Math.round(rgb[0])));
-      out[i * 3 + 1] = Math.max(0, Math.min(255, Math.round(rgb[1])));
-      out[i * 3 + 2] = Math.max(0, Math.min(255, Math.round(rgb[2])));
+  for (const [srcFile, destFile] of JOBS[MODEL]) {
+    const { data, info } = await sharp(path.join(DIR, srcFile)).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    const { width: w, height: h } = info;
+    const out = Buffer.from(data);
+    for (const region of GRADE_REGIONS) {
+      const polys = regionPolygons(lm, region, w, h);
+      const d = polys.map((p) => [p.outer, ...(p.holes ?? [])].map((ring) => `M${ring.map((q) => `${q.x.toFixed(1)},${q.y.toFixed(1)}`).join("L")}Z`).join("")).join("");
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="black"/><path d="${d}" fill="white" fill-rule="evenodd"/></svg>`;
+      const mask = await sharp(Buffer.from(svg)).blur(1.2).greyscale().raw().toBuffer();
+      const [dl, da, db] = SHIFTS[region];
+      for (let i = 0; i < w * h; i++) {
+        const m = mask[i] / 255;
+        if (m < 0.01) continue;
+        const lab = rgbToLab(out[i * 3], out[i * 3 + 1], out[i * 3 + 2]);
+        const rgb = labToRgb([lab[0] + dl * m, lab[1] + da * m, lab[2] + db * m]);
+        out[i * 3] = Math.max(0, Math.min(255, Math.round(rgb[0])));
+        out[i * 3 + 1] = Math.max(0, Math.min(255, Math.round(rgb[1])));
+        out[i * 3 + 2] = Math.max(0, Math.min(255, Math.round(rgb[2])));
+      }
     }
+    const dest = path.join(DIR, destFile);
+    await sharp(out, { raw: { width: w, height: h, channels: 3 } }).jpeg({ quality: 90 }).toFile(dest);
+    // Self-check at the app's working width: the same landmark measure the browser runs.
+    const prep = async (src: string | Buffer) => {
+      const r = await sharp(src).resize({ width: WORK_WIDTH }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+      return { data: new Uint8Array(r.data), width: r.info.width, height: r.info.height };
+    };
+    const m = landmarkMeasure(await prep(path.join(DIR, srcFile)), lm, await prep(dest), lm);
+    console.log(JSON.stringify(m?.regions.map((r) => ({ region: r.region, deltaE: r.deltaE, score: Math.round(100 - r.deltaE * 4) }))));
   }
-  const dest = path.join(DIR, "sample-attempt.jpg");
-  await sharp(out, { raw: { width: w, height: h, channels: 3 } }).jpeg({ quality: 90 }).toFile(dest);
-  // Self-check at the app's working width: the same landmark measure the browser runs.
-  const prep = async (src: string | Buffer) => {
-    const r = await sharp(src).resize({ width: WORK_WIDTH }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-    return { data: new Uint8Array(r.data), width: r.info.width, height: r.info.height };
-  };
-  const m = landmarkMeasure(await prep(path.join(DIR, "step-4.jpg")), lm, await prep(dest), lm);
-  console.log(JSON.stringify(m?.regions.map((r) => ({ region: r.region, deltaE: r.deltaE, score: Math.round(100 - r.deltaE * 4) }))));
 }
 void main();

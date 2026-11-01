@@ -28,7 +28,7 @@ type Phase = { kind: "loading"; slow: boolean } | { kind: "done" } | { kind: "er
 
 /** M2: analyzing (3-step progress, skeleton cards) → result + correction sheet + recommended lesson. */
 export default function AnalyzePage() {
-  const { lang, photo, stored, setStored, editProfile, setMode, mode, refreshCredit, skin, setSkinShade, facePins, sample } = useFlow();
+  const { lang, photo, stored, setStored, editProfile, setMode, mode, refreshCredit, skin, setSkinShade, facePins, sample, sampleId } = useFlow();
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>(stored && !photo ? { kind: "done" } : { kind: "loading", slow: false });
   const [editing, setEditing] = useState<ProfileKey | null>(null);
@@ -45,7 +45,7 @@ export default function AnalyzePage() {
     started.current = true;
     const slowTimer = window.setTimeout(() => setPhase((p) => (p.kind === "loading" ? { kind: "loading", slow: true } : p)), 15_000);
     // Sample mode sends no image: the server returns the sample model's pre-generated profile (0u, no API call).
-    void postAnalyze(sample ? null : photo.blob).then((r) => {
+    void postAnalyze(sample ? null : photo.blob, sample ? sampleId : undefined).then((r) => {
       window.clearTimeout(slowTimer);
       if (r.ok) {
         setStored({ profile: r.profile, edited: [], source: r.source });
@@ -57,7 +57,7 @@ export default function AnalyzePage() {
       refreshCredit();
     });
     return () => window.clearTimeout(slowTimer);
-  }, [photo, stored, router, setStored, setMode, refreshCredit, sample]);
+  }, [photo, stored, router, setStored, setMode, refreshCredit, sample, sampleId]);
 
   const thumb = mode === "demo" ? "/demo/sample-model.svg" : photo?.url;
   const rec = stored ? recommendLesson(stored.profile) : null;
@@ -74,6 +74,10 @@ export default function AnalyzePage() {
       { id: "lip", at: ownPins.lip, prefer: "right", text: short(valueLabel("lipShape", p.lipShape, lang)) },
     ];
   }, [ownPins, phase.kind, stored, lang]);
+  // Monolid sample: the analyzer's raw reading is Double-lid; the visitor corrects it and the lesson switches (pre-generated renders, 0u).
+  const monoSample = sample && sampleId === "model-c" && phase.kind === "done" && !!stored;
+  const needsFix = monoSample && stored!.profile.eyelid !== "monolid" && !stored!.edited.includes("eyelid");
+  const fixed = monoSample && stored!.profile.eyelid === "monolid" && stored!.edited.includes("eyelid");
   const doneChip = phase.kind === "done" && !!stored;
   const badge = useMemo(
     () => (doneChip ? { node: <Chip tone="ok">{t("analyzeDone", lang)}</Chip>, w: estimateLabelWidth(t("analyzeDone", lang), 12, 10) + 18, h: 24 } : undefined),
@@ -164,6 +168,24 @@ export default function AnalyzePage() {
 
         {phase.kind === "done" && stored && (
           <>
+            {needsFix && (
+              <div data-testid="sample-mono-fix" role="status" className="flex flex-col gap-2 rounded-[var(--radius-panel)] border border-primary/30 bg-peach-soft p-3">
+                <p className="flex items-start gap-2 text-sm font-bold leading-snug text-ink">
+                  <Icon name="info" className="mt-0.5 h-4 w-4 flex-none text-primary-strong" />
+                  {t("sampleMonoFix", lang)}
+                </p>
+                <Button className="w-full" onClick={() => setEditing("eyelid")}>
+                  <Icon name="pencil" className="h-4 w-4" />
+                  {t("sampleMonoFixCta", lang)}
+                </Button>
+              </div>
+            )}
+            {fixed && (
+              <p data-testid="sample-mono-fixed" role="status" className="flex items-start gap-2 rounded-[var(--radius-panel)] bg-success-soft p-3 text-sm font-bold leading-snug text-success">
+                <Icon name="check" className="mt-0.5 h-4 w-4 flex-none" />
+                {t("sampleMonoFixed", lang)}
+              </p>
+            )}
             <ul className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2">
               {CARD_ORDER.map((k) => {
                 const v = stored.profile[k];
@@ -174,7 +196,7 @@ export default function AnalyzePage() {
                     <button
                       type="button"
                       onClick={() => setEditing(k)}
-                      className={`flex h-full min-h-[72px] w-full items-center gap-2 rounded-[var(--radius-panel)] border bg-panel p-3 text-left hover:bg-panel-2 ${wide ? "border-peach" : "border-transparent"}`}
+                      className={`flex h-full min-h-[72px] w-full items-center gap-2 rounded-[var(--radius-panel)] border bg-panel p-3 text-left hover:bg-panel-2 ${wide ? "border-peach" : "border-transparent"} ${wide && needsFix ? "ring-2 ring-primary" : ""}`}
                       aria-label={`${ATTR_NAME[k][lang]}: ${valueLabel(k, v, lang)}. ${t("editTitle", lang)}`}
                     >
                       <div className="min-w-0 flex-1">

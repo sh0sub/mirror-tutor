@@ -12,7 +12,7 @@ Makeup tutorials fit someone else's face. Mirror Tutor reads your features with 
 
 Shoppers buy a shade, try the look from a tutorial filmed on someone else's face, and it comes out wrong. A gradient eyeshadow that works on a double eyelid can look muddy on a monolid, so the shopper guesses what to change, gets no feedback, and the shade becomes a regret. We wanted a tutorial that starts from your face, checks your result, and turns each step's color into the exact product to buy.
 
-Face Analyzer read our monolid stock model as double-lid on both eyes. The app lets you correct it (marked "Edited") and the whole lesson changes. **/compare** puts both faces side by side with the analyzer's raw reading and the corrected value, plus the same monolid eye drawn with a horizontal and a vertical gradient (both real YouCam renders).
+Face Analyzer read our monolid stock model as double-lid on both eyes. The app lets you correct it (marked "Edited") and the whole lesson changes, and you can walk exactly that in the sample trial: pick the Monolid sample, see the analyzer read Double-lid, tap "Fix the eyelid", and the lesson switches to the horizontal gradient. **/compare** puts both faces side by side with the analyzer's raw reading and the corrected value, plus the same monolid eye drawn with a horizontal and a vertical gradient (both real YouCam renders).
 
 **YouCam VTO output is the answer key we grade your real attempt against, per region with CIEDE2000.**
 
@@ -26,7 +26,7 @@ We claim no pilot, no retailer test and no measured lift. No conversion, revenue
 
 ## Try it in 30 seconds (0 units, no selfie)
 
-No selfie needed - 30 s walk-through. Open https://mirror-tutor.vercel.app/?lang=en (English UI) and tap the filled button "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛"), then walk analysis, the 4-step lesson, grading and shop the step. Then open /compare and "Retailer view (concept)". To use your own photo instead, tap "Use my own selfie" (asks for consent).
+No selfie needed - 30 s walk-through. Open https://mirror-tutor.vercel.app/?lang=en (English UI) pick **Monolid** (the analyzer misreads it, you fix it) or **Double-lid**, tap the filled button "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛"), then walk analysis, the 4-step lesson, grading and shop the step. Then open /compare and "Retailer view (concept)". To use your own photo instead, tap "Use my own selfie" (asks for consent).
 
 ## How it works
 
@@ -85,7 +85,8 @@ Pipeline (`docs/pipeline.svg`): Face Analyzer (10 units, once) -> rule table (0)
 
 - The analysis and the four Makeup VTO renders of the first lesson are real YouCam API calls (14 units, captured live). The sample trial, the compare view and the grade scene in the video play back pre-generated results at 0 units (the grade scene scores a simulated attempt, see the next point); a banner says so on every screen.
 - The sample grading screen scores a simulated attempt, labelled as such on screen: the lesson's answer image with each graded region deliberately shifted off-shade by a script (`scripts/demo/make-sample-attempt.ts`, 0 units). The scores (eyeliner 77, eyelid 85, cheeks 93, lips 62, total 79) are real CIEDE2000 differences between those two images, with the delta-E value and the answer/attempt color pair shown for each region, but the attempt is not a real selfie.
-- Face Analyzer read our monolid stock model as double-lid; we corrected the eyelid in the app's edit sheet and the lesson changed.
+- Face Analyzer read our monolid stock model as double-lid; we corrected the eyelid in the app's edit sheet and the lesson changed. The Monolid sample trial replays this: the analysis shows the analyzer's real (wrong) reading, and the correction is the visitor's tap. Both lessons (uncorrected and corrected) are real pre-generated YouCam renders (4 extra units for the uncorrected one), played back at 0 units.
+- The sample grade is computed offline with the same on-device landmark grader the app uses for selfies (rule-written tips, no AI call) and played back after a short "comparing" beat, so a judge does not wait 5 s for a result that never changes. Grading your own selfie still runs live.
 - All faces are Pexels or Unsplash License stock photos, not real users.
 
 ## Built with

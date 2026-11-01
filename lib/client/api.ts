@@ -25,10 +25,13 @@ export async function fetchCredit(): Promise<CreditInfo | null> {
 }
 
 /** image null → the sample model (server plays back the sample model's pre-generated profile, 0 units, no upload). */
-export async function postAnalyze(image: Blob | null): Promise<AnalyzeResult> {
+export async function postAnalyze(image: Blob | null, sampleId?: string): Promise<AnalyzeResult> {
   const form = new FormData();
   if (image) form.set("image", image, "selfie.jpg");
-  else form.set("sample", "1");
+  else {
+    form.set("sample", "1");
+    if (sampleId) form.set("sampleId", sampleId);
+  }
   try {
     const res = await fetch("/api/analyze", { method: "POST", body: form });
     return (await res.json()) as AnalyzeResult;
@@ -50,10 +53,14 @@ export async function streamRender(
   stepScales?: Record<number, number>,
   anchors?: FaceAnchors | null,
   skinShade?: string | null,
+  sampleId?: string,
 ): Promise<void> {
   const form = new FormData();
   if (image) form.set("image", image, "selfie.jpg");
-  else form.set("sample", "1");
+  else {
+    form.set("sample", "1");
+    if (sampleId) form.set("sampleId", sampleId);
+  }
   form.set("lessonId", lessonId);
   form.set("profile", JSON.stringify(profile));
   if (steps?.length) form.set("steps", steps.join(","));
