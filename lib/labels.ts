@@ -70,6 +70,14 @@ export function profileSummary(p: FaceProfile, lang: Lang): string {
 }
 
 /** Raw Face Analyzer caption: left/right labels collapse when identical ("Single-lid / Single-lid" → "Single-lid"). */
+/** Plain-language name for a demo face by its eyelid type ("Monolid face" instead of a bare "Model A"). */
+export const FACE_NAME: Record<FaceProfile["eyelid"], Text> = {
+  monolid: { ko: "홑꺼풀 얼굴", en: "Monolid face" },
+  double: { ko: "쌍꺼풀 얼굴", en: "Double-lid face" },
+  inner_double: { ko: "속쌍꺼풀 얼굴", en: "Inner-double-lid face" },
+  hooded: { ko: "덮이는 눈꺼풀 얼굴", en: "Hooded-lid face" },
+};
+
 export function sourceCaption(raw: string): string {
   return Array.from(new Set(raw.split("/").map((s) => s.trim()).filter(Boolean))).join(" / ");
 }

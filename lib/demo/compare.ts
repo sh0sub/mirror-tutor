@@ -9,6 +9,8 @@ export interface CompareModel {
   profile: FaceProfile;
   /** Raw Face Analyzer labels (e.g. "Double-lid / Double-lid"). */
   source: Record<ProfileKey, string>;
+  /** Fields corrected on M2 after the analyzer misread them (source keeps the raw reading). */
+  edited?: ProfileKey[];
   original: string;
   steps: string[];
   credit: string;
@@ -72,7 +74,28 @@ export function compareStep(lessonId: string, a: FaceProfile, b: FaceProfile, st
   });
 }
 
-/** True when the two demo faces land on the same eyelid branch (then the eyelid contrast can't be shown). */
+/**
+ * The two faces /compare shows: the monolid face vs the double-lid face (the product's core contrast).
+ * Falls back to the first two models when the manifest has no such pair.
+ */
+export function comparePair(m: CompareManifest): [CompareModel, CompareModel] {
+  const mono = m.models.find((x) => x.profile.eyelid === "monolid");
+  const dbl = m.models.find((x) => x.profile.eyelid === "double");
+  return mono && dbl ? [mono, dbl] : [m.models[0], m.models[1]];
+}
+
+/** True when the two shown faces land on the same eyelid branch (then the eyelid contrast can't be shown). */
 export function sameEyelid(m: CompareManifest): boolean {
-  return m.models.length >= 2 && m.models[0].profile.eyelid === m.models[1].profile.eyelid;
+  if (m.models.length < 2) return false;
+  const [a, b] = comparePair(m);
+  return a.profile.eyelid === b.profile.eyelid;
+}
+
+/** First lesson step where the two profiles take different eyelid techniques (the step /compare opens on). */
+export function eyelidStep(lessonId: string, a: FaceProfile, b: FaceProfile): number | undefined {
+  const n = buildLesson(lessonId, a).steps.length;
+  for (let k = 1; k <= n; k++) {
+    if (compareStep(lessonId, a, b, k, "en").some((r) => r.attr === "eyelid" && !r.same)) return k;
+  }
+  return undefined;
 }

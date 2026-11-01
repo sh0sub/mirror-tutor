@@ -10,7 +10,7 @@
 | README (문제·해결·API·아키텍처·실행·개인정보·한계·MIT·api-notes 링크) | 완료 | `README.md` 재작성. 읽어 보고 어색한 문장만 알려 주면 Claude가 고친다. |
 | MIT 라이선스 파일 | 완료 | `LICENSE` 존재. |
 | 아키텍처 그림 | 완료 | `docs/architecture.svg` + README의 Mermaid. 스크린샷 ⑩은 브라우저로 SVG를 열어 캡처(아래 참고). |
-| 저장소 공개 | 완료 (10/31 공개) | PUBLIC 확인(11/1). 공개 전 점검 통과: `git log --all -- .env .local` 비어 있음, 추적 파일에 `.env*`(예시 제외)·`.local/`·영상·키·`*.db` 없음, 이력과 작업 트리의 사진은 `public/demo/model-a|b`의 Pexels 스톡뿐, 비밀값 패턴 검색 0건. |
+| 저장소 공개 | 완료 (10/31 공개) | PUBLIC 확인(11/1). 공개 전 점검 통과: `git log --all -- .env .local` 비어 있음, 추적 파일에 `.env*`(예시 제외)·`.local/`·영상·키·`*.db` 없음, 이력과 작업 트리의 사진은 `public/demo/model-a|b`의 Pexels 스톡과 `model-c`의 Unsplash 스톡(11/2 추가, 출처는 `model-c/SOURCE.md`)뿐, 비밀값 패턴 검색 0건. |
 | 문서 커밋·푸시 | 완료 | main에 푸시됨. 영상·스크린샷은 gitignore된 `.local/`에만 있다. |
 
 ## 배포·데모
@@ -21,7 +21,7 @@
 | Vercel을 `YOUCAM_MODE=live`로 전환 + 재배포 | 완료 (10/31) | |
 | 라이브 전환 후 동작 확인 | 완료 (10/31) | 분석 API 운영 호출 성공. VTO·채점은 같은 코드의 로컬 live 녹화에서 확인. |
 | 유닛 잔량 250 이상 확인 | 완료 (10/31 972u) | 마지막으로 기록된 값은 10/28 스파이크의 1000u(이후 사용량은 확인 필요). 홈 화면 잔량 또는 YouCam 콘솔에서 확인. 150 미만이면 앱이 자동으로 데모 모드가 된다. |
-| 테스트용 샘플 이미지 2장 | 완료(확인 필요) | `public/demo/model-a`, `model-b`가 있다. 둘 다 Pexels 스톡 사진(Pexels License)이다. 규칙은 "본인 또는 동의받은 모델"이므로 스톡 사진을 그대로 써도 되는지 사용자가 판단하거나 본인 사진으로 교체한다. |
+| 테스트용 샘플 이미지 2장 | 완료(확인 필요) | `public/demo/model-a`, `model-b`(Pexels License), `model-c`(홑꺼풀, Unsplash License)가 있다. 모두 스톡 사진이다. 규칙은 "본인 또는 동의받은 모델"이므로 스톡 사진을 그대로 써도 되는지 사용자가 판단하거나 본인 사진으로 교체한다. |
 | 데모 모드 안내(유닛 보호) | 완료 | 앱 배너와 README의 "Demo mode and unit guard" 절. |
 
 ## Devpost 입력

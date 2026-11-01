@@ -7,12 +7,12 @@ import { t, tf } from "@/lib/i18n";
 import type { Lang } from "@/lib/rules/engine";
 import { EYELIDS, LIP_SHAPES, type Eyelid, type LipShape } from "@/lib/profile";
 import { buildLesson } from "@/lib/lessons";
-import { ATTR_NAME, sourceCaption, valueLabel } from "@/lib/labels";
-import { compareStep, sameEyelid, type CompareManifest, type TechniqueRow } from "@/lib/demo/compare";
+import { ATTR_NAME, FACE_NAME, sourceCaption, valueLabel } from "@/lib/labels";
+import { comparePair, compareStep, eyelidStep, sameEyelid, type CompareManifest, type CompareModel, type TechniqueRow } from "@/lib/demo/compare";
 import manifestJson from "@/public/demo/compare.json";
 
 const manifest = manifestJson as CompareManifest;
-const letter = (i: number) => String.fromCharCode(65 + i);
+const faceName = (m: CompareModel, lang: Lang) => FACE_NAME[m.profile.eyelid][lang];
 
 function RuleList({ rows, lang, names }: { rows: TechniqueRow[]; lang: Lang; names: [string, string] }) {
   return (
@@ -42,20 +42,27 @@ function RuleList({ rows, lang, names }: { rows: TechniqueRow[]; lang: Lang; nam
   );
 }
 
-/** S2 "두 얼굴 비교": two pre-generated models, same lesson, side by side + the rule-table branch each took. 0 live units. */
+/** Pair shown on /compare (monolid face vs double-lid face) and the step whose eye technique differs. */
+const pair = comparePair(manifest);
+const eyeStep = eyelidStep(manifest.lessonId, pair[0].profile, pair[1].profile);
+
+/** S2 "두 얼굴 비교": monolid face vs double-lid face, same lesson, side by side + the rule-table branch each took. 0 live units. */
 export default function ComparePage() {
   const { lang } = useFlow();
-  const [a, b] = manifest.models;
-  const [k, setK] = useState(4);
+  const [a, b] = pair;
+  // Open on the eye step: that's where the monolid and double-lid techniques split.
+  const [k, setK] = useState(eyeStep ?? 4);
   const [before, setBefore] = useState(false);
-  // What-if: the rule table's other branches (monolid, thin lips…) vs Model A. Rule-table text only, no images (0 units).
-  const [wiEyelid, setWiEyelid] = useState<Eyelid>("monolid");
+  // What-if: the rule table's other branches (inner double, hooded, lip shapes) on the double-lid face. Text only, 0 units.
+  const wiEyelids = EYELIDS.filter((e) => e !== b.profile.eyelid && e !== a.profile.eyelid);
+  const [wiEyelid, setWiEyelid] = useState<Eyelid>(wiEyelids.includes("hooded") ? "hooded" : (wiEyelids[0] ?? b.profile.eyelid));
   const [wiLip, setWiLip] = useState<LipShape>("thin");
-  const wiProfile = useMemo(() => ({ ...a.profile, eyelid: wiEyelid, lipShape: wiLip }), [a.profile, wiEyelid, wiLip]);
-  const wiRows = useMemo(() => compareStep(manifest.lessonId, a.profile, wiProfile, k, lang), [a.profile, wiProfile, k, lang]);
+  const wiProfile = useMemo(() => ({ ...b.profile, eyelid: wiEyelid, lipShape: wiLip }), [b.profile, wiEyelid, wiLip]);
+  const wiRows = useMemo(() => compareStep(manifest.lessonId, b.profile, wiProfile, k, lang), [b.profile, wiProfile, k, lang]);
   const plan = useMemo(() => buildLesson(manifest.lessonId, a.profile), [a.profile]);
   const rows = useMemo(() => compareStep(manifest.lessonId, a.profile, b.profile, k, lang), [a.profile, b.profile, k, lang]);
   const step = plan.steps[k - 1];
+  const edited = pair.find((m) => m.edited?.includes("eyelid"));
 
   return (
     <Screen>
@@ -78,18 +85,19 @@ export default function ComparePage() {
             >
               <span className="num block text-sm">{s.index}</span>
               {s.title[lang]}
+              {s.index === eyeStep && <span className="sr-only"> · {t("compareEyeStep", lang)}</span>}
             </button>
           ))}
         </div>
 
         <div className="grid grid-cols-2 gap-2" role="tabpanel" aria-label={`${tf("stepNumbered", lang, { n: k })} ${step.title[lang]}`}>
-          {manifest.models.map((m, i) => (
+          {pair.map((m) => (
             <figure key={m.id} className="flex flex-col gap-1.5">
               <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-panel-2">
                 {/* eslint-disable-next-line @next/next/no-img-element -- static pre-generated demo asset */}
                 <img
                   src={before ? m.original : m.steps[k - 1]}
-                  alt={`${tf("modelN", lang, { n: letter(i) })} · ${before ? t("original", lang) : `${t("answer", lang)} · ${tf("answerCumulative", lang, { n: k })}`}`}
+                  alt={`${faceName(m, lang)} · ${before ? t("original", lang) : `${t("answer", lang)} · ${tf("answerCumulative", lang, { n: k })}`}`}
                   className="h-full w-full object-cover"
                   width={600}
                   height={800}
@@ -97,9 +105,14 @@ export default function ComparePage() {
                 <span className="absolute left-2 top-2 rounded-full bg-ink/70 px-2 py-0.5 text-xs font-bold text-canvas">{before ? t("original", lang) : t("answer", lang)}</span>
               </div>
               <figcaption className="flex flex-col items-start gap-1">
-                <span className="text-sm font-extrabold">{tf("modelN", lang, { n: letter(i) })}</span>
-                <Chip tone="accent">{valueLabel("eyelid", m.profile.eyelid, lang)}</Chip>
-                <span className="num text-xs text-muted">{sourceCaption(m.source.eyelid)}</span>
+                <span className="text-base font-extrabold">{faceName(m, lang)}</span>
+                <div className="flex flex-wrap gap-1">
+                  <Chip tone="accent">{valueLabel("eyelid", m.profile.eyelid, lang)}</Chip>
+                  {m.edited?.includes("eyelid") && <Chip tone="neutral">{t("edited", lang)}</Chip>}
+                </div>
+                <span className="num text-xs text-muted">
+                  {m.edited?.includes("eyelid") ? tf("compareEdited", lang, { raw: sourceCaption(m.source.eyelid) }) : sourceCaption(m.source.eyelid)}
+                </span>
               </figcaption>
             </figure>
           ))}
@@ -121,8 +134,9 @@ export default function ComparePage() {
           {rows.length === 0 ? (
             <p className="text-sm text-muted">—</p>
           ) : (
-            <RuleList rows={rows} lang={lang} names={[tf("modelN", lang, { n: "A" }), tf("modelN", lang, { n: "B" })]} />
+            <RuleList rows={rows} lang={lang} names={[faceName(a, lang), faceName(b, lang)]} />
           )}
+          {edited && rows.some((r) => r.attr === "eyelid") && <p className="text-xs text-muted">{t("compareEditedNote", lang)}</p>}
           {b.profile.eyelid === "inner_double" && rows.some((r) => r.attr === "eyelid") && <p className="text-xs text-muted">{t("compareInnerNote", lang)}</p>}
         </section>
 
@@ -133,7 +147,7 @@ export default function ComparePage() {
           <p className="text-xs text-muted">{t("whatIfBody", lang)}</p>
           {(
             [
-              { key: "eyelid", options: EYELIDS, value: wiEyelid, set: setWiEyelid as (v: string) => void },
+              { key: "eyelid", options: wiEyelids, value: wiEyelid, set: setWiEyelid as (v: string) => void },
               { key: "lipShape", options: LIP_SHAPES, value: wiLip, set: setWiLip as (v: string) => void },
             ] as const
           ).map((g) => (
@@ -151,7 +165,7 @@ export default function ComparePage() {
               ))}
             </div>
           ))}
-          {wiRows.length === 0 ? <p className="text-sm text-muted">—</p> : <RuleList rows={wiRows} lang={lang} names={[tf("modelN", lang, { n: "A" }), t("whatIfName", lang)]} />}
+          {wiRows.length === 0 ? <p className="text-sm text-muted">—</p> : <RuleList rows={wiRows} lang={lang} names={[faceName(b, lang), t("whatIfName", lang)]} />}
         </section>
 
         <section aria-labelledby="samples" className="flex flex-col gap-2">
@@ -159,16 +173,16 @@ export default function ComparePage() {
             {t("sampleTitle", lang)}
           </h2>
           <p className="text-xs text-muted">{t("sampleBody", lang)}</p>
-          <div className="grid grid-cols-2 gap-2">
-            {manifest.models.map((m, i) => (
+          <div className="grid grid-cols-1 gap-2">
+            {manifest.models.map((m) => (
               <a
                 key={m.id}
                 href={m.original}
-                download={`mirror-tutor-sample-${letter(i).toLowerCase()}.jpg`}
+                download={`mirror-tutor-sample-${m.profile.eyelid.replace("_", "-")}.jpg`}
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[var(--radius-button)] border border-line-strong/50 bg-panel px-3 text-sm font-bold hover:bg-panel-2"
               >
                 <Icon name="download" className="h-4 w-4" />
-                {tf("downloadSample", lang, { name: tf("modelN", lang, { n: letter(i) }) })}
+                {tf("downloadSample", lang, { name: faceName(m, lang) })}
               </a>
             ))}
           </div>

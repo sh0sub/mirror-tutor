@@ -7,13 +7,14 @@ import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, 
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { guideText } from "@/lib/quality/messages";
-import { profileSummary, valueLabel } from "@/lib/labels";
+import { FACE_NAME, profileSummary, valueLabel } from "@/lib/labels";
 import { LESSONS, recommendLesson } from "@/lib/lessons";
 import { streakDays, weekDots } from "@/lib/practice";
-import type { CompareManifest } from "@/lib/demo/compare";
+import { comparePair, type CompareManifest } from "@/lib/demo/compare";
 import manifestJson from "@/public/demo/compare.json";
 
-const heroModel = (manifestJson as CompareManifest).models[0];
+/** Hero: the monolid face and the double-lid face after the same lesson (links to /compare). */
+const heroPair = comparePair(manifestJson as CompareManifest);
 
 /** Onboarding (M1 entry, consent) and the returning-user home (flow B: profile → lesson, no re-analysis). */
 export default function Home() {
@@ -198,10 +199,9 @@ export default function Home() {
             </div>
             <Link href="/compare" aria-label={t("compareEntry", lang)} className="order-first flex flex-col gap-2 lg:order-none">
               <div className="grid grid-cols-2 gap-2">
-                {[
-                  { src: heroModel.original, label: t("original", lang) },
-                  { src: heroModel.steps[heroModel.steps.length - 1], label: t("answer", lang) },
-                ].map((im) => (
+                {heroPair
+                  .map((m) => ({ src: m.steps[m.steps.length - 1], label: FACE_NAME[m.profile.eyelid][lang] }))
+                  .map((im) => (
                   <div key={im.label} className="relative aspect-[3/4] overflow-hidden rounded-xl bg-panel-2">
                     {/* eslint-disable-next-line @next/next/no-img-element -- static pre-generated demo asset */}
                     <img src={im.src} alt="" width={600} height={800} className="h-full w-full object-cover" />

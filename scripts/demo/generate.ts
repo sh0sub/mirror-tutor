@@ -2,13 +2,15 @@
  * S2 (#18) "두 얼굴 비교" pre-generation. Runs ONCE offline with a real key; the app then plays the
  * files back from public/demo/ with 0 live units.
  *
- *   YOUCAM_MODE=live npx tsx scripts/demo/generate.ts [--lesson daily-k]
+ *   YOUCAM_MODE=live npx tsx scripts/demo/generate.ts [--lesson daily-k] [--only model-c]
  *
  * Per model: Face Analyzer (10u, skipped when the profile is already known from a fixture) →
  * the same lesson's 4 cumulative Makeup VTO steps on that model's own profile (4u) →
  * crop to 3:4, resize to 600×800, re-encode (EXIF/ICC stripped) → public/demo/<model>/.
  * Sources are free-license stock photos (Pexels) kept in .local/; only the processed copies are written.
- * Expected cost: model-a 4u (profile from fixtures/youcam/live/face-attr-analysis.run1.json) + model-b 14u.
+ * Expected cost: model-a 4u (profile from fixtures/youcam/live/face-attr-analysis.run1.json) + model-b 14u
+ * + model-c 14u (monolid face, added 2026-11-02; source and license in public/demo/model-c/SOURCE.md).
+ * `--only <id>` processes one model and merges it into the existing compare.json (the others stay as they are).
  * Resumable: analyzed profiles are kept in .local/demo-profiles.json and step files that already exist
  * are not re-rendered, so a rerun after a timeout only pays for the missing steps.
  */
@@ -17,6 +19,7 @@ import path from "node:path";
 import sharp from "sharp";
 import { readConfig } from "../../lib/config";
 import { createRuntime } from "../../lib/runtime";
+import { totalCredit } from "../../lib/youcam/client";
 import { analyzeFace } from "../../lib/services/analyze";
 import { renderLesson, type StepResult } from "../../lib/services/render";
 import { buildLesson } from "../../lib/lessons";
@@ -37,12 +40,21 @@ interface ModelSpec {
   /** 3:4 crop around the face, in source pixels. */
   crop: { left: number; top: number; width: number; height: number };
   fixture?: string;
+  /**
+   * M2 correction applied on top of the analyzer's reading, exactly like a user fixing a misread on the
+   * correction sheet. Recorded as `edited` in compare.json so the page can say the value was corrected.
+   */
+  edit?: Partial<FaceProfile>;
   credit: string;
 }
 
 const MODELS: ModelSpec[] = [
   { id: "model-a", src: ".local/face.jpg", crop: { left: 366, top: 0, width: 507, height: 676 }, fixture: "fixtures/youcam/live/face-attr-analysis.run1.json", credit: "Pexels stock photo (Pexels License, free for commercial use)" },
   { id: "model-b", src: ".local/face2.jpg", crop: { left: 100, top: 0, width: 1000, height: 1333 }, credit: "Pexels stock photo (Pexels License, free for commercial use)" },
+  // .local/face3.jpg = Unsplash KRBHTbLTMDs (Peter John Manlapig) cropped to 3:4 around the face at 1200×1600 so it passes the quality gate.
+  // Face Analyzer read this visibly monolid face as "Double-lid / Double-lid" (2026-11-02; a Pexels monolid face got the same
+  // reading), so the eyelid is corrected on M2 the way a user would — the analyzer's raw label is kept in `source`.
+  { id: "model-c", src: ".local/face3.jpg", crop: { left: 0, top: 0, width: 1200, height: 1600 }, edit: { eyelid: "monolid" }, credit: "Unsplash stock photo by Peter John Manlapig (Unsplash License, free for commercial use)" },
 ];
 
 async function toDemoJpeg(input: Uint8Array | Buffer, spec: ModelSpec, srcSize: { width: number; height: number }) {
@@ -69,11 +81,15 @@ async function main() {
   if (cfg.mode !== "live") throw new Error("not live (set YOUCAM_MODE=live and YOUCAM_API_KEY) — nothing was called");
   const li = process.argv.indexOf("--lesson");
   const lessonId = li > 0 ? process.argv[li + 1] : "daily-k";
+  const oi = process.argv.indexOf("--only");
+  const only = oi > 0 ? process.argv[oi + 1] : undefined;
   const rt = createRuntime(cfg);
   const models: CompareModel[] = [];
   let spent = 0;
+  const balance = async () => totalCredit(await rt.transport.getCredit());
+  console.log(`balance before: ${await balance()}u`);
 
-  for (const spec of MODELS) {
+  for (const spec of MODELS.filter((m) => !only || m.id === only)) {
     const src = readFileSync(path.join(ROOT, spec.src));
     const srcMeta = await sharp(src).metadata();
     const srcSize = { width: srcMeta.width!, height: srcMeta.height! };
@@ -95,6 +111,11 @@ async function main() {
       console.log(`${spec.id}: Face Analyzer ${a.units.spent}u`);
     }
     console.log(`${spec.id}: ${JSON.stringify(profile)} (eyelid raw: ${source.eyelid})`);
+    const edited = spec.edit ? (Object.keys(spec.edit) as ProfileKey[]).filter((k) => spec.edit![k] !== profile[k]) : [];
+    if (edited.length) {
+      profile = { ...profile, ...spec.edit };
+      console.log(`${spec.id}: M2 correction ${edited.map((k) => `${k}=${profile[k]}`).join(", ")} (analyzer raw kept in source)`);
+    }
 
     const dir = path.join(OUT, spec.id);
     mkdirSync(dir, { recursive: true });
@@ -122,12 +143,14 @@ async function main() {
     }
     console.log(`${spec.id}: rendered ${missing.length ? missing.join(",") : "none (all cached on disk)"} · ${r.spent}u`);
     if (failed.length) throw new Error(`${spec.id}: ${failed.join("; ")} — rerun to retry only the missing steps`);
-    models.push({ id: spec.id, profile, source, original: `/demo/${spec.id}/original.jpg`, steps: files, credit: spec.credit });
+    models.push({ id: spec.id, profile, source, ...(edited.length ? { edited } : {}), original: `/demo/${spec.id}/original.jpg`, steps: files, credit: spec.credit });
   }
 
-  const manifest: CompareManifest = { lessonId, generatedAt: new Date().toLocaleDateString("sv-SE"), models };
+  const prev = only && existsSync(path.join(OUT, "compare.json")) ? (JSON.parse(readFileSync(path.join(OUT, "compare.json"), "utf8")) as CompareManifest) : undefined;
+  const merged = prev ? [...prev.models.filter((m) => m.id !== only), ...models] : models;
+  const manifest: CompareManifest = { lessonId, generatedAt: new Date().toLocaleDateString("sv-SE"), models: merged };
   writeFileSync(path.join(OUT, "compare.json"), JSON.stringify(manifest, null, 2) + "\n");
-  console.log(`wrote public/demo/compare.json · spent ${spent}u`);
+  console.log(`wrote public/demo/compare.json · spent ${spent}u · balance after: ${await balance()}u`);
 }
 
 main().catch((e) => {

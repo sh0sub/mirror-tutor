@@ -1,6 +1,6 @@
 {
   "lessonId": "daily-k",
-  "generatedAt": "2026-10-29",
+  "generatedAt": "2026-11-02",
   "models": [
     {
       "id": "model-a",
@@ -51,6 +51,34 @@
         "/demo/model-b/step-4.jpg"
       ],
       "credit": "Pexels stock photo (Pexels License, free for commercial use)"
+    },
+    {
+      "id": "model-c",
+      "profile": {
+        "eyelid": "monolid",
+        "eyeShape": "almond",
+        "lipShape": "average",
+        "faceShape": "square",
+        "eyebrowShape": "straight"
+      },
+      "source": {
+        "eyelid": "Double-lid / Double-lid",
+        "eyeShape": "Almond",
+        "lipShape": "(not recorded)",
+        "faceShape": "Square",
+        "eyebrowShape": "Straight"
+      },
+      "edited": [
+        "eyelid"
+      ],
+      "original": "/demo/model-c/original.jpg",
+      "steps": [
+        "/demo/model-c/step-1.jpg",
+        "/demo/model-c/step-2.jpg",
+        "/demo/model-c/step-3.jpg",
+        "/demo/model-c/step-4.jpg"
+      ],
+      "credit": "Unsplash stock photo by Peter John Manlapig (Unsplash License, free for commercial use)"
     }
   ]
 }

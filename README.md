@@ -17,7 +17,7 @@ Makeup tutorials are filmed on someone else's face. The same eyeshadow looks dif
 4. **Learn** with 3 lessons x 4 steps. YouCam Makeup VTO renders each step cumulatively on your photo (before/after slider).
 5. **Grade** your own attempt photo: per-region score (eye line, eyelid, cheek, lip) plus a one-line correction.
 6. **Shop the step**: the hex colors used in a step are matched to a demo catalog by color difference (CIEDE2000 <= 5). Then a share card.
-7. **/compare**: two pre-generated demo faces (double vs inner-double eyelid) get the same look with different techniques, plus a what-if panel that previews other rule-table branches (for example a monolid or thin lips) as text for 0 units.
+7. **/compare**: a monolid face and a double-lid face (pre-generated with real YouCam calls) get the same look; the page opens on the eye step where their techniques split. The monolid face's eyelid was corrected on M2 after Face Analyzer read it as a double lid, and the page says so. A what-if panel previews the other rule-table branches (inner double, hooded, lip shapes) as text for 0 units.
 8. **Home**: returning users see a practice streak, past results and a bottom tab bar; all of it is stored on the device only. "View in store" in Shop the step opens a confirmation sheet before leaving the app.
 
 ## YouCam APIs used
@@ -130,7 +130,7 @@ npx vercel --prod --yes
 - Per-session cap of 20 units (default `SESSION_UNIT_CAP`) and a global daily cap (default `DAILY_UNIT_CAP`=120). Units are reserved before a task starts and released on error.
 - If the remaining balance is below `DEMO_MODE_THRESHOLD` (default 150), the app serves the pre-generated sample models in `public/demo/` instead of calling YouCam.
 - Remaining balance is cached for 5 minutes. State is in process memory, so on serverless the caps are per instance (best effort).
-- Test inputs: `public/demo/model-a` and `model-b` (stock photos, Pexels License) or your own selfie.
+- Test inputs: `public/demo/model-a`, `model-b` (stock photos, Pexels License), `model-c` (monolid, Unsplash License; see its SOURCE.md) or your own selfie.
 
 ## Privacy principles
 

@@ -20,7 +20,7 @@ Makeup tutorials are filmed on someone else's face. A gradient eyeshadow that wo
 4. Lesson: three lessons (Daily K-look, Soft shading, Gradient lips) of four steps each. YouCam Makeup VTO renders each step cumulatively on the user's own photo as the answer key, with the foundation color set to the measured shade, with a before/after slider and "why this fits you" reasons.
 5. Grade: the user does the makeup and photographs the result. Per-region scores (eye line, eyelid, cheek, lip) come from color differences, with a one-line correction and a confidence level.
 6. Shop the step: the exact hex colors of a step are matched to catalog products by CIEDE2000 (<= 5). Then a share card.
-7. Compare: a page with two pre-generated demo faces (double vs inner-double eyelid) showing the same look with different techniques, plus a what-if panel that previews other rule-table branches (monolid, thin lips) as text, for 0 units.
+7. Compare: a monolid face and a double-lid face (pre-generated with real Face Analyzer + Makeup VTO calls) get the same look side by side. The page opens on the eye step, where the rule table picks different shadow and liner techniques for each lid. A what-if panel previews the remaining branches (inner double, hooded lids, lip shapes) as text. 0 units.
 8. Home: a practice streak, past results and a tab bar for returning users, stored on the device only. Shop the step asks for confirmation in a sheet before leaving for a store.
 
 Also: Korean and English UI, a per-session unit cap, a demo mode that serves pre-generated results when the API balance is low, and a "Try with a sample model · 0 units" button that walks the full flow on a stock model without a selfie.
@@ -41,6 +41,7 @@ Also: Korean and English UI, a per-session unit cap, a demo mode that serves pre
 - The API docs and the live server disagreed in several places (face angle strictness, eyebrow pattern fields, ombre lip fields, palette counts). We wrote probes, recorded the real accepted bodies and made the tests compare our builders with them.
 - Face Analyzer is priced by feature-count tier; we keep it at five features (10 units) and reuse the profile on-device so returning users only pay for VTO steps.
 - Grading a hand-drawn face is sensitive to lighting and framing. We compare per-region color on landmark polygons, report a confidence level and say so instead of hiding the error.
+- Face Analyzer read two clearly monolid stock faces as `Double-lid` on both eyes. This is why the results screen lets users correct any attribute (marked "Edited"). The monolid face on the compare page went through that same correction: the page shows the analyzer's raw reading next to the corrected value, and the rule table and VTO ran on the corrected profile.
 - Staying inside a small unit budget while still demoing live: reservation-based guard, cache, pre-generated compare faces and a demo mode.
 
 ## Accomplishments that we're proud of
@@ -76,5 +77,5 @@ Next.js, React, TypeScript, Tailwind CSS, YouCam API (Face Attribute & Ratio Ana
 - **For judges (no selfie needed, 0 units):** on the home screen or the camera/consent step, tap **"Try with a sample model · 0 units"** (KO: "샘플 모델로 체험하기 · 0 유닛"). It runs the whole flow on a stock-photo model: analysis → 4-step lesson with the real pre-generated YouCam Makeup VTO results → grading of a stock "attempt" → shop the step → share card. A banner says it is a sample, nothing is uploaded, and the server path for it has no YouCam client, so it cannot spend units. To try it on your own face, tap "Get started" instead.
 - Source code: https://github.com/sh0sub/mirror-tutor (public, MIT)
 - Video: YouTube link (add after upload). The 2:51 demo is faceless (stock photos only) and was recorded against the live YouCam API with 14 units.
-- Test images: `public/demo/model-a` and `model-b` in the repository (stock photos, Pexels License), or use your own selfie
+- Test images: `public/demo/model-a`, `model-b` (Pexels License) and `model-c` (monolid face, Unsplash License) in the repository, or use your own selfie
 - API notes: `docs/api-notes.md` in the repository
