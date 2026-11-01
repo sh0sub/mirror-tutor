@@ -13,6 +13,7 @@
  * which is how the dark "camera unavailable" shots are shortened. Needs Google Chrome, ffmpeg/ffprobe, `say`.
  */
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
@@ -29,6 +30,12 @@ const OUT = path.resolve(args.out);
 const STILLS = Number(args.stills ?? 0);
 const ONLY = args.only ? String(args.only).split(",") : null;
 const VOICE = args.voice ?? "Samantha";
+// --tts openai: narrate with OpenAI gpt-4o-mini-tts (needs OPENAI_API_KEY; paid, about $0.015 per audio minute).
+// Lines are cached by text+voice under <work>/tts-cache, so re-runs only pay for changed lines.
+const TTS = args.tts ?? "say";
+const TTS_VOICE = args["tts-voice"] ?? "marin";
+const TTS_INSTRUCTIONS =
+  "A young woman in her mid-twenties, a confident startup founder pitching her product at a hackathon demo day. Bright, youthful, self-assured and persuasive, like she knows this works. Rhythmic: vary pace and pitch, short punchy pauses, lift questions, land key words with conviction. Warm smile in the voice. Not robotic, not over-dramatic.";
 const RATE = Number(args.rate ?? 150);
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const FFMPEG = existsSync("/opt/homebrew/bin/ffmpeg") ? "/opt/homebrew/bin/ffmpeg" : "ffmpeg";
@@ -48,6 +55,7 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 
 /* ── shot list ───────────────────────────────────────────────────────────────
  * lines[i]      narration + subtitle i
+ * speak[i]      optional spoken override for line i with hand-placed `say` pauses/emphasis (subtitle stays lines[i])
  * ui[i]         per-line left-column override { heading?, chip?, callout? } (callout = HTML)
  * timeline      [{ at, src }]: from `at` (seconds | { cue, plus }) play source time `src` (number = hold, [a,b] = play a..b)
  * zoom          [{ at, y, x? }]: css-pixel top (and left) of the zoom window from `at` on, eased in over 0.7 s
@@ -59,9 +67,13 @@ const SEGMENTS = [
     heading: "Tutorials fit someone else's eyes",
     chip: "YouCam AI Face Analyzer + Makeup Virtual Try-On",
     lines: [
-      "If you have monolids, makeup tutorials filmed on someone else's eyes don't fit you.",
-      "Mirror Tutor teaches makeup on your own face.",
-      "YouCam's Face Analyzer reads your features, a rule table picks the technique, and Makeup Virtual Try-On renders every step on your photo as the answer key.",
+      "Every makeup tutorial is filmed on someone else's eyes. If you have monolids? It just doesn't fit.",
+      "So we built Mirror Tutor. Makeup lessons, on your own face.",
+      "YouCam's Face Analyzer reads your features. A rule table picks the technique. And Makeup Virtual Try-On paints every step right on your photo.",
+    ],
+    speak: [
+      "Every makeup tutorial [[slnc 120]] is filmed on [[emph +]] someone else's [[emph -]] eyes. [[slnc 380]] If you have monolids? [[slnc 320]] [[rate 135]] It just doesn't fit.",
+      "[[rate 168; pbas +2]] So we built Mirror Tutor. [[slnc 260]] [[rate 148; pbas -2]] Makeup lessons, [[slnc 160]] on [[emph +]] your own [[emph -]] face.",
     ],
     ui: [
       { heading: "Monolid? Double lid? The technique is different.", callout: "A tutorial filmed on someone else's eyes never says what to change for <b>your</b> eyelid." },
@@ -78,9 +90,9 @@ const SEGMENTS = [
     chip: "Quality gate · 0 units",
     note: "Stock photo (Pexels License) — no real user face",
     lines: [
-      "First, a consent sheet: photos are processed in memory and never stored by us.",
-      "A quality gate checks face width, light and angle before any unit is spent.",
-      "For this demo, we upload a licensed stock photo.",
+      "First, consent. Your photo is processed in memory, and never stored.",
+      "Then a quality gate checks light, angle and framing, before a single unit is spent.",
+      "For this demo, we'll use a licensed stock photo.",
     ],
     ui: [
       { callout: "Consent first. Processed in memory, <b>never stored</b>." },
@@ -100,10 +112,10 @@ const SEGMENTS = [
     heading: "Five features, one call",
     chip: "YouCam AI Face Analyzer · 10 units",
     lines: [
-      "YouCam AI Face Analyzer reads five features in one call: eyelid, eye shape, lips, face shape and brows.",
-      "That call costs ten units, and any value can be corrected by hand.",
-      "The base shade is measured in the browser from the cheeks, at zero units.",
-      "A hand-written rule table maps those attributes to Makeup Try-On parameters: shadow pattern, liner pattern and intensity.",
+      "One call to YouCam's Face Analyzer reads five features: eyelid, eye shape, lips, face shape and brows.",
+      "That's ten units. And if it gets something wrong? Just tap to fix it.",
+      "Skin tone is measured right in the browser, from the cheeks, for free.",
+      "Then our rule table turns those features into try-on settings: shadow pattern, liner, and intensity.",
     ],
     ui: [
       { callout: "Eyelid · eye shape · lips · face shape · brows" },
@@ -112,7 +124,7 @@ const SEGMENTS = [
       { callout: "<b>Double lid</b> → crease shading + thin liner<br><span class=\"mono\">2colors3 · Upper11</span>" },
     ],
     timeline: [
-      { at: 0, src: [0, 2.6] },
+      { at: 0, src: [0, 1.2] },
       { at: 1.6, src: 3 },
       { at: { cue: 2 }, src: 11.5 },
       { at: { cue: 3, plus: -0.2 }, src: [18, 19.8] },
@@ -126,10 +138,10 @@ const SEGMENTS = [
     heading: "Every step rendered on your photo",
     chip: "YouCam Makeup Virtual Try-On · 1 unit per step",
     lines: [
-      "YouCam Makeup Virtual Try-On renders each lesson step on the same photo, cumulatively.",
-      "That's one unit per step, four per lesson, each render becomes the answer key, and the stepper marks steps done, active or pending.",
-      "Drag to compare before and after.",
-      "Each step explains why it fits this face, and lists the exact colors it uses.",
+      "Now the fun part. Makeup Virtual Try-On renders each step on your photo, one layer at a time.",
+      "One unit per step. Each render becomes your answer key, and the stepper shows what's done, and what's next.",
+      "Drag to compare. Before, and after.",
+      "And every step tells you why it suits this face, with the exact colors it uses.",
     ],
     ui: [
       { callout: "Same photo, steps stack up: base, brows, eyes, lips." },
@@ -151,9 +163,9 @@ const SEGMENTS = [
     chip: "Pre-generated with the live API · 0 units now",
     note: "Both models are Pexels License stock photos",
     lines: [
-      "The compare page shows the same lesson on two pre-generated stock faces.",
-      "Their eyelids differ, a double lid and an inner double lid, so the rule table picks a different technique for each, and the try-on shows it.",
-      "A what-if panel previews other branches, like a monolid, as rule-table text for zero units.",
+      "Here's the proof. Same lesson, two different faces.",
+      "A double lid gets crease shading. An inner double lid gets a soft gradient above the liner. Same look, different technique.",
+      "Curious about a monolid? The what-if panel shows that branch too, for zero units.",
     ],
     ui: [
       { callout: "Same look · two faces" },
@@ -180,9 +192,9 @@ const SEGMENTS = [
     chip: "0 YouCam units",
     note: "A stock image stands in for a real attempt",
     lines: [
-      "Then you draw the look for real and snap your attempt. Here, a stock image stands in.",
-      "Each region is compared with the answer by color difference: eye line, eyelid, cheek and lip.",
-      "You get a score, a one-line correction, and a confidence level that drops when the photos don't match.",
+      "Now it's your turn. Do the look for real, and snap your attempt. Here, a stock image stands in.",
+      "Each region is checked against the answer by color difference: liner, lid, cheeks and lips.",
+      "You get a score, one clear fix, and an honest confidence level.",
     ],
     ui: [
       { callout: "Draw it, then snap your attempt." },
@@ -190,10 +202,10 @@ const SEGMENTS = [
       { callout: "Score + <b>one-line correction</b> + confidence" },
     ],
     timeline: [
-      { at: 0, src: [0, 3.6] },
-      { at: 2.6, src: [3.9, 19.6] },
+      { at: 0, src: [0, 2.6] },
+      { at: { cue: 0, plus: 3.4 }, src: [3.9, 19.6] },
     ],
-    zoom: [{ at: 0, y: 150 }, { at: 2.6, y: 120 }, { at: { cue: 1 }, y: 120 }, { at: { cue: 2 }, y: 330 }],
+    zoom: [{ at: 0, y: 150 }, { at: { cue: 0, plus: 3.4 }, y: 120 }, { at: { cue: 1 }, y: 120 }, { at: { cue: 2 }, y: 330 }],
   },
   {
     id: "shop",
@@ -201,8 +213,8 @@ const SEGMENTS = [
     heading: "Exact colors to products",
     chip: "CIEDE2000 matching · demo catalog",
     lines: [
-      "Shop the step matches the exact hex colors of each step to products by CIEDE2000 color difference.",
-      "The catalog is demo data; a partner feed would supply real products.",
+      "Love a color? Shop the step matches its exact shade to products, using CIEDE2000 color science.",
+      "This catalog is demo data. A partner feed would plug in real products.",
     ],
     ui: [{ callout: "Hex colors from the step → closest products (ΔE)" }, { callout: "Demo catalog · real SKUs would come from a partner feed" }],
     timeline: [{ at: 0, src: [0.8, 12.8] }],
@@ -214,8 +226,8 @@ const SEGMENTS = [
     heading: "Practice streak and past results",
     chip: "Stored on this device only · 0 units",
     lines: [
-      "Back on the home tab, your result is saved on this device as a practice streak and a past result.",
-      "Returning users reuse the profile, so only the four render units apply.",
+      "Come back tomorrow, and your streak and past results are waiting, saved only on this device.",
+      "Returning users skip the analysis, so a new lesson costs just four units.",
     ],
     ui: [{ callout: "Streak + past results live on <b>this device</b> only." }, { callout: "Reused profile → only <b>4 units</b> for a new lesson." }],
     timeline: [{ at: 0, src: 4 }],
@@ -227,9 +239,14 @@ const SEGMENTS = [
     heading: "Private by default",
     chip: "Photos never stored · units capped per session",
     lines: [
-      "The share card is drawn on the device, with faces blurred by default.",
-      "Privacy by design: photos are processed in memory and never stored, and each session is capped at twenty units, so spending stays bounded.",
-      "Mirror Tutor: learn makeup on your own face.",
+      "Share your result with a card drawn on your device, faces blurred by default.",
+      "Private by design. Nothing is stored, and every session is capped at twenty units.",
+      "Mirror Tutor. Learn makeup, on your own face.",
+    ],
+    speak: [
+      null,
+      "[[rate 150]] Private by design. [[slnc 300]] Nothing is stored, [[slnc 160]] and every session is capped [[slnc 80]] at twenty units.",
+      "[[rate 160; pbas +2]] Mirror Tutor. [[slnc 450]] [[rate 140; pbas -2]] Learn makeup, [[slnc 200]] on [[emph +]] your own [[emph -]] face.",
     ],
     ui: [
       { callout: "Card drawn on the device · faces <b>blurred</b> by default." },
@@ -242,7 +259,34 @@ const SEGMENTS = [
 ];
 
 /* ── helpers ─────────────────────────────────────────────────────────────── */
-function buildAudio(seg, dir) {
+// macOS `say` embedded commands: wider pitch movement plus pauses at sentence and clause breaks,
+// so the narration reads like a presenter instead of a flat list. Subtitles keep the plain line.
+const prosody = (line) =>
+  `[[pmod 60]] ${line}`
+    .replace(/\? /g, "? [[slnc 320]] ")
+    .replace(/\. /g, ". [[slnc 280]] ")
+    .replace(/: /g, ": [[slnc 140]] ")
+    .replace(/, /g, ", [[slnc 90]] ");
+
+async function openaiSpeech(line, out) {
+  const cacheDir = path.join(WORK, "tts-cache");
+  mkdirSync(cacheDir, { recursive: true });
+  const key = createHash("sha1").update(`${TTS_VOICE}\n${TTS_INSTRUCTIONS}\n${line}`).digest("hex");
+  const cached = path.join(cacheDir, `${key}.mp3`);
+  if (!existsSync(cached)) {
+    if (!process.env.OPENAI_API_KEY) throw new Error("--tts openai needs OPENAI_API_KEY");
+    const res = await fetch("https://api.openai.com/v1/audio/speech", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "gpt-4o-mini-tts", voice: TTS_VOICE, input: line, instructions: TTS_INSTRUCTIONS, response_format: "mp3" }),
+    });
+    if (!res.ok) throw new Error(`OpenAI TTS failed: HTTP ${res.status}`);
+    writeFileSync(cached, Buffer.from(await res.arrayBuffer()));
+  }
+  run(FFMPEG, ["-y", "-v", "error", "-i", cached, "-ar", "48000", "-ac", "1", "-c:a", "pcm_s16le", out]);
+}
+
+async function buildAudio(seg, dir) {
   const silence = (sec, f) => run(FFMPEG, ["-y", "-v", "error", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=mono", "-t", sec.toFixed(3), "-c:a", "pcm_s16le", f]);
   const parts = [];
   seg.cues = [];
@@ -250,11 +294,16 @@ function buildAudio(seg, dir) {
   const lead = path.join(dir, `${seg.id}-lead.wav`);
   silence(LEAD, lead);
   parts.push(lead);
-  seg.lines.forEach((line, i) => {
-    const aiff = path.join(dir, `${seg.id}-${i}.aiff`);
+  for (const [i, line] of seg.lines.entries()) {
     const wav = path.join(dir, `${seg.id}-${i}.wav`);
-    run("/usr/bin/say", ["-v", VOICE, "-r", String(RATE), "-o", aiff, line]);
-    run(FFMPEG, ["-y", "-v", "error", "-i", aiff, "-ar", "48000", "-ac", "1", "-c:a", "pcm_s16le", wav]);
+    if (TTS === "openai") {
+      await openaiSpeech(line, wav);
+    } else {
+      const aiff = path.join(dir, `${seg.id}-${i}.aiff`);
+      const spoken = seg.speak?.[i] ? `[[pmod 60]] ${seg.speak[i]}` : prosody(line);
+      run("/usr/bin/say", ["-v", VOICE, "-r", String(RATE), "-o", aiff, spoken]);
+      run(FFMPEG, ["-y", "-v", "error", "-i", aiff, "-ar", "48000", "-ac", "1", "-c:a", "pcm_s16le", wav]);
+    }
     const d = probe(wav);
     seg.cues.push({ start: t, end: t + d, text: line });
     parts.push(wav);
@@ -265,7 +314,7 @@ function buildAudio(seg, dir) {
       parts.push(g);
       t += GAP;
     }
-  });
+  }
   const tail = path.join(dir, `${seg.id}-tail.wav`);
   silence(TAIL, tail);
   parts.push(tail);
@@ -301,6 +350,9 @@ function frameAt(items, t) {
   return cur.file;
 }
 
+// left-column step list (one entry per segment after the intro)
+const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Streak", "Share"];
+
 function stageHtml(seg, si, ci) {
   const ui = { heading: seg.heading, chip: seg.chip, callout: "", ...(seg.ui?.[ci] ?? {}) };
   const total = SEGMENTS.length;
@@ -322,14 +374,43 @@ function stageHtml(seg, si, ci) {
   .sub{position:absolute;left:${ZX}px;width:${ZW}px;top:${ZY + ZH + 62}px;border-left:6px solid #c8325b;padding:4px 0 4px 24px;font-size:35px;line-height:1.33;font-weight:600;box-sizing:border-box}
   .bar{position:absolute;left:64px;bottom:92px;width:${SCR_X - 64 - 52}px;height:6px;border-radius:3px;background:#eadfd8}
   .bar i{display:block;height:6px;border-radius:3px;background:#c8325b;width:${(((si + 1) / total) * 100).toFixed(1)}%}
+  .flow{position:absolute;left:64px;bottom:128px;width:${SCR_X - 64 - 52}px}
+  .flow .fh{font-size:17px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6b605c;margin-bottom:12px}
+  .flow ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+  .flow li{display:flex;align-items:center;gap:10px;height:42px;padding:0 14px;border-radius:12px;border:2px solid #eadfd8;background:#fff;font-size:20px;font-weight:600;color:#9a8f8b}
+  .flow li i{font-style:normal;flex:none;width:24px;height:24px;border-radius:12px;display:grid;place-items:center;font-size:14px;font-weight:800;background:#f1e9e4;color:#6b605c}
+  .flow li.done{color:#4a403d}.flow li.done i{background:#d9ece2;color:#2f7a55}
+  .flow li.now{background:#c8325b;border-color:#c8325b;color:#fff;box-shadow:0 6px 16px rgba(200,50,91,.25)}.flow li.now i{background:#fff;color:#a8264a}
   .foot{position:absolute;left:64px;width:${SCR_X - 64 - 52}px;bottom:26px;font-size:17px;line-height:1.35;color:#6b605c}
   </style></head><body>
   <div class="phone"></div><div class="zoom"></div><div class="zlabel">Zoom on the app</div>
   <div class="left"><div class="kick">${esc(seg.kicker)}</div><h1>${esc(ui.heading)}</h1><div class="chip">${esc(ui.chip)}</div>${ui.callout ? `<div class="callout">${ui.callout}</div>` : ""}${seg.note ? `<div class="note">${esc(seg.note)}</div>` : ""}</div>
   <div class="sub">${esc(cue)}</div>
+  <div class="flow"><div class="fh">${si === 0 ? "How it works" : `Step ${Math.min(si, FLOW.length)} of ${FLOW.length}`}</div><ol>${FLOW.map((f, i) => {
+    const st = i + 1 < si ? "done" : i + 1 === si ? "now" : "";
+    return `<li class="${st}"><i>${st === "done" ? "✓" : i + 1}</i>${esc(f)}</li>`;
+  }).join("")}</ol></div>
   <div class="bar"><i></i></div>
   <div class="foot">Mirror Tutor · recorded against the live YouCam API<br>Sample faces: Pexels License stock photos · demo catalog</div>
   </body></html>`;
+}
+
+// Headless Chrome occasionally leaves a raster tile unpainted (a white block in the phone's shadow).
+// Render until two consecutive screenshots agree.
+function screenshot(html, png, w, h) {
+  const shot = (f) => {
+    run(CHROME, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--run-all-compositor-stages-before-draw", `--window-size=${w},${h}`, "--force-device-scale-factor=1", "--virtual-time-budget=1500", `--screenshot=${f}`, `file://${html}`]);
+    return readFileSync(f);
+  };
+  const alt = png.replace(/\.png$/, ".check.png");
+  let prev = shot(png);
+  for (let i = 0; i < 4; i++) {
+    const cur = shot(alt);
+    if (cur.equals(prev)) break;
+    prev = cur;
+    writeFileSync(png, cur);
+  }
+  rmSync(alt, { force: true });
 }
 
 function renderStage(seg, si, dir) {
@@ -338,7 +419,7 @@ function renderStage(seg, si, dir) {
     const html = path.join(dir, `${seg.id}-${ci}.html`);
     const png = path.join(dir, `${seg.id}-${ci}.png`);
     writeFileSync(html, stageHtml(seg, si, ci));
-    run(CHROME, ["--headless=new", "--disable-gpu", "--hide-scrollbars", `--window-size=${W},${H}`, "--force-device-scale-factor=1", "--virtual-time-budget=1500", `--screenshot=${png}`, `file://${html}`]);
+    screenshot(html, png, W, H);
     seg.stage.push(png);
   }
 }
@@ -362,53 +443,185 @@ function renderMask(file, w, h, r) {
 }
 let masks;
 
-function encodeSegment(seg, dir) {
-  const { items } = loadSourceFrames(seg.id);
+/* ── phone timeline → shots ──────────────────────────────────────────────────
+ * 1. Every output frame gets a source frame. A play range [a,b] keeps app motion (frames shorter than
+ *    MOTION_MAX) at real speed and stretches/compresses only the holds, so scrolls never judder in slow motion.
+ * 2. Cuts: every anchor jump, plus every abrupt app swap (hold → at most BURST_N frames → hold).
+ *    Transient frames next to a cut (a skeleton or half-finished transition) are replaced by the neighbouring hold,
+ *    and cuts closer than MIN_SHOT are merged, so no source frame flashes up for a few frames.
+ * 3. Each shot is encoded with its own zoom window and shots are joined with an XF_N-frame cross-dissolve;
+ *    zoom moves within ZOOM_SNAP of a cut happen at the cut (hidden by the dissolve) instead of jump-then-slide.
+ */
+const XF_N = 10, HOLD_N = 12, BURST_N = 9, MIN_SHOT_N = 18, MOTION_MAX = 0.2, ZOOM_SNAP = 0.8;
+
+function rangePieces(items, total, a, b, L) {
+  const pieces = [];
+  items.forEach((it, j) => {
+    const t1 = j + 1 < items.length ? items[j + 1].t0 : Math.max(total, b);
+    const d = Math.min(t1, b) - Math.max(it.t0, a);
+    if (d > 1e-6) pieces.push({ file: it.file, d, motion: d < MOTION_MAX });
+  });
+  if (!pieces.length) return [{ file: frameAt(items, a), out: L }];
+  const M = pieces.filter((p) => p.motion).reduce((n, p) => n + p.d, 0);
+  const Hs = pieces.filter((p) => !p.motion).reduce((n, p) => n + p.d, 0);
+  const uni = L / (M + Hs);
+  for (const p of pieces) p.out = L >= M && Hs > 0 ? (p.motion ? p.d : (p.d * (L - M)) / Hs) : L >= M ? p.d : p.d * uni;
+  if (Hs === 0 && L > M) pieces.at(-1).out += L - M;
+  return pieces;
+}
+
+function planShots(seg, items, total) {
   const anchors = seg.timeline.map((a) => ({ t: resolveAt(seg, a.at), src: a.src })).sort((a, b) => a.t - b.t);
-  const dur = seg.duration;
-  const ticks = [];
-  for (let i = 0; i < Math.round(dur * FPS); i++) {
+  const N = Math.round(seg.duration * FPS);
+  anchors.forEach((a, k) => {
+    a.i0 = Math.ceil(a.t * FPS - 1e-6);
+    const next = anchors[k + 1]?.t ?? seg.duration;
+    if (Array.isArray(a.src)) a.pieces = rangePieces(items, total, a.src[0], a.src[1], next - a.t);
+  });
+  const fr = [];
+  let k = 0;
+  for (let i = 0; i < N; i++) {
     const t = i / FPS;
-    let k = 0;
-    while (k + 1 < anchors.length && anchors[k + 1].t <= t) k++;
+    while (k + 1 < anchors.length && anchors[k + 1].i0 <= i) k++;
     const a = anchors[k];
-    const next = anchors[k + 1]?.t ?? dur;
-    const s = Array.isArray(a.src) ? a.src[0] + ((a.src[1] - a.src[0]) * (t - a.t)) / Math.max(next - a.t, 0.001) : a.src;
-    const file = frameAt(items, s);
-    if (!ticks.length || ticks.at(-1).file !== file) ticks.push({ file, start: t });
+    if (!a.pieces) fr.push(frameAt(items, a.src));
+    else {
+      let tau = t - a.t, p = 0;
+      while (p + 1 < a.pieces.length && tau >= a.pieces[p].out) tau -= a.pieces[p++].out;
+      fr.push(a.pieces[p].file);
+    }
   }
-  const phoneList = path.join(dir, `${seg.id}-phone.txt`);
-  concatList(phoneList, ticks, dur);
+  const runsOf = () => {
+    const runs = [];
+    fr.forEach((f, i) => (runs.length && runs.at(-1).file === f ? runs.at(-1).n++ : runs.push({ file: f, s: i, n: 1 })));
+    runs.forEach((r, j) => (r.hold = r.n >= HOLD_N || j === 0 || j === runs.length - 1));
+    return runs;
+  };
+  const fill = (s, e, f) => { for (let i = s; i < e; i++) fr[i] = f; };
+  let cuts = [];
+  // (1) anchor jumps, dropping transients on either side
+  let runs = runsOf();
+  const runAt = (i) => runs.find((r) => i >= r.s && i < r.s + r.n);
+  for (const a of anchors.slice(1)) {
+    const c = a.i0;
+    if (c <= 0 || c >= N || fr[c] === fr[c - 1]) continue;
+    let j = runs.indexOf(runAt(c - 1));
+    while (j >= 0 && !runs[j].hold) j--;
+    if (j >= 0) { const e = runs[j].s + runs[j].n; if (c - e <= BURST_N) fill(e, c, runs[j].file); }
+    j = runs.indexOf(runAt(c));
+    while (j < runs.length && !runs[j].hold) j++;
+    if (j < runs.length && runs[j].s - c <= BURST_N) fill(c, runs[j].s, runs[j].file);
+    cuts.push(c);
+  }
+  // (2) abrupt app swaps between two holds
+  runs = runsOf();
+  const holds = runs.filter((r) => r.hold);
+  for (let h = 1; h < holds.length; h++) {
+    const A = holds[h - 1], B = holds[h], e = A.s + A.n, g = B.s - e;
+    if (g > BURST_N || A.file === B.file || cuts.some((c) => c >= e && c <= B.s)) continue;
+    const mid = e + Math.floor(g / 2);
+    fill(e, mid, A.file);
+    fill(mid, B.s, B.file);
+    cuts.push(mid);
+  }
+  // (3) merge cuts that are too close together or to the segment edges
+  cuts = [...new Set(cuts)].sort((x, y) => x - y);
+  const kept = [];
+  for (const c of cuts) {
+    if (c < MIN_SHOT_N / 2) { fill(0, c, fr[c]); continue; }
+    if (c > N - MIN_SHOT_N / 2) { fill(c, N, fr[c - 1]); continue; }
+    if (kept.length && c - kept.at(-1) < MIN_SHOT_N) { fill(kept.at(-1), c, fr[c]); continue; }
+    kept.push(c);
+  }
+  return { fr, cuts: kept.filter((c) => fr[c] !== fr[c - 1]), N };
+}
+
+function concatFrames(file, frames) {
+  const lines = [];
+  frames.forEach((f, i) => {
+    if (i && f === frames[i - 1]) return;
+    let n = 1;
+    while (i + n < frames.length && frames[i + n] === f) n++;
+    lines.push(`file '${f}'`, `duration ${(n / FPS).toFixed(5)}`);
+  });
+  lines.push(`file '${frames.at(-1)}'`);
+  writeFileSync(file, lines.join("\n"));
+}
+
+function encodeSegment(seg, dir) {
+  const { items, total } = loadSourceFrames(seg.id);
+  const { fr, cuts, N } = planShots(seg, items, total);
+  const dur = seg.duration;
+  const hN = XF_N / 2;
+  const bounds = [0, ...cuts, N];
   const bgList = path.join(dir, `${seg.id}-stage.txt`);
   concatList(bgList, seg.stage.map((f, i) => ({ file: f, start: i === 0 ? 0 : seg.cues[i].start })), dur);
 
-  // zoom window top-left (css px) -> frame px, eased between anchors
-  const zs = seg.zoom.map((z) => ({ t: resolveAt(seg, z.at), x: z.x ?? 0, y: Math.min(z.y, CSS_H - ZOOM_CSS_H) })).sort((a, b) => a.t - b.t);
-  const path1 = (key) => {
-    let expr = String(zs[0][key] * FR);
+  // zoom anchors: snap moves near a cut onto the cut
+  const cutT = cuts.map((c) => c / FPS);
+  const zs = seg.zoom
+    .map((z) => ({ t: resolveAt(seg, z.at), x: z.x ?? 0, y: Math.min(z.y, CSS_H - ZOOM_CSS_H) }))
+    .sort((a, b) => a.t - b.t)
+    .map((z, i) => {
+      if (i === 0) return z;
+      const near = cutT.find((c) => Math.abs(c - z.t) <= ZOOM_SNAP);
+      return near === undefined ? z : { ...z, t: near };
+    });
+  const zoomExpr = (key, S, E, W) => {
+    let v = zs[0][key];
+    const terms = [];
     for (let i = 1; i < zs.length; i++) {
-      const d = (zs[i][key] - zs[i - 1][key]) * FR;
-      if (d !== 0) expr += `+(${d})*clip((t-${zs[i].t.toFixed(3)})/${ZOOM_MOVE},0,1)`;
+      const d = zs[i][key] - zs[i - 1][key];
+      if (zs[i].t <= S + 1e-6) v += d;
+      else if (zs[i].t < E - 1e-6 && d !== 0) terms.push(`+(${d * FR})*clip((t+${W.toFixed(4)}-${zs[i].t.toFixed(4)})/${ZOOM_MOVE},0,1)`);
     }
-    return expr;
+    return `${v * FR}${terms.join("")}`;
   };
-  const filter = [
-    `[1:v]setpts=PTS-STARTPTS,fps=${FPS},split[p1][p2]`,
-    `[p1]scale=${SCR_W}:${SCR_H}:flags=lanczos,setsar=1,format=rgba[s0]`,
-    `[3:v]format=gray,scale=${SCR_W}:${SCR_H}[m1]`,
-    `[4:v]format=gray,scale=${ZW}:${ZH}[m2]`,
+
+  const inputs = [];
+  const filter = [];
+  const shots = bounds.length - 1;
+  for (let k = 0; k < shots; k++) {
+    const s0 = bounds[k], s1 = bounds[k + 1];
+    const w0 = k === 0 ? 0 : s0 - hN, w1 = k === shots - 1 ? N : s1 + hN;
+    const frames = [];
+    for (let i = w0; i < w1; i++) frames.push(fr[Math.min(Math.max(i, s0), s1 - 1)]);
+    const list = path.join(dir, `${seg.id}-phone${k}.txt`);
+    concatFrames(list, frames);
+    inputs.push("-f", "concat", "-safe", "0", "-i", list);
+    const n = 4 + k;
+    const S = s0 / FPS, E = s1 / FPS, W = w0 / FPS;
+    filter.push(
+      `[${n}:v]setpts=PTS-STARTPTS,fps=${FPS},settb=1/${FPS},format=yuv444p,split[pa${k}][pz${k}]`,
+      `[pa${k}]scale=${SCR_W}:${SCR_H}:flags=lanczos,setsar=1[sa${k}]`,
+      `[pz${k}]crop=w=${CSS_W * FR}:h=${ZOOM_CSS_H * FR}:x='${zoomExpr("x", S, E, W)}':y='${zoomExpr("y", S, E, W)}',scale=${ZW}:${ZH}:flags=lanczos,unsharp=5:5:0.6,setsar=1[za${k}]`,
+    );
+  }
+  let sa = "sa0", za = "za0";
+  for (let k = 1; k < shots; k++) {
+    const off = ((bounds[k] - hN) / FPS).toFixed(4);
+    filter.push(`[${sa}][sa${k}]xfade=transition=fade:duration=${XF_N / FPS}:offset=${off}[sx${k}]`, `[${za}][za${k}]xfade=transition=fade:duration=${XF_N / FPS}:offset=${off}[zx${k}]`);
+    sa = `sx${k}`;
+    za = `zx${k}`;
+  }
+  filter.push(
+    `[${sa}]format=rgba[s0]`,
+    `[${za}]format=rgba[z0]`,
+    `[2:v]format=gray,scale=${SCR_W}:${SCR_H}[m1]`,
+    `[3:v]format=gray,scale=${ZW}:${ZH}[m2]`,
     `[s0][m1]alphamerge[scr]`,
-    `[p2]crop=w=${CSS_W * FR}:h=${ZOOM_CSS_H * FR}:x='${path1("x")}':y='${path1("y")}',scale=${ZW}:${ZH}:flags=lanczos,unsharp=5:5:0.6,setsar=1,format=rgba[z0]`,
     `[z0][m2]alphamerge[zm]`,
     `[0:v]scale=${W}:${H},fps=${FPS}[bg]`,
     `[bg][scr]overlay=${SCR_X}:${SCR_Y}:eof_action=repeat[b1]`,
     `[b1][zm]overlay=${ZX}:${ZY}:eof_action=repeat,format=yuv420p[v]`,
-    `[2:a]apad[a]`,
-  ].join(";");
+    `[1:a]apad[a]`,
+  );
   const fs = path.join(dir, `${seg.id}-filter.txt`);
-  writeFileSync(fs, filter);
+  writeFileSync(fs, filter.join(";\n"));
   const out = path.join(dir, `${seg.id}.mp4`);
-  run(FFMPEG, ["-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", bgList, "-f", "concat", "-safe", "0", "-i", phoneList, "-i", seg.audio, "-loop", "1", "-framerate", String(FPS), "-t", (dur + 1).toFixed(2), "-i", masks.phone, "-loop", "1", "-framerate", String(FPS), "-t", (dur + 1).toFixed(2), "-i", masks.zoom, "-filter_complex_script", fs, "-map", "[v]", "-map", "[a]", "-t", dur.toFixed(3), "-r", String(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", out]);
+  const loop = (f) => ["-loop", "1", "-framerate", String(FPS), "-t", (dur + 1).toFixed(2), "-i", f];
+  run(FFMPEG, ["-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", bgList, "-i", seg.audio, ...loop(masks.phone), ...loop(masks.zoom), ...inputs, "-filter_complex_script", fs, "-map", "[v]", "-map", "[a]", "-t", dur.toFixed(3), "-r", String(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", out]);
+  seg.cutTimes = cutT;
   return out;
 }
 
@@ -423,11 +636,11 @@ renderMask(masks.phone, SCR_W, SCR_H, 34);
 renderMask(masks.zoom, ZW, ZH, 26);
 const outs = [];
 for (const [si, seg] of SEGMENTS.entries()) {
-  buildAudio(seg, audioDir);
+  await buildAudio(seg, audioDir);
   if (ONLY && !ONLY.includes(seg.id)) continue;
   renderStage(seg, si, stageDir);
   outs.push(encodeSegment(seg, segDir));
-  log(`${seg.id}: ${seg.duration.toFixed(2)}s, cues ${seg.cues.map((c) => c.start.toFixed(1)).join("/")}`);
+  log(`${seg.id}: ${seg.duration.toFixed(2)}s, cues ${seg.cues.map((c) => c.start.toFixed(1)).join("/")}, dissolves ${seg.cutTimes.map((c) => c.toFixed(2)).join("/") || "none"}`);
 }
 const total = SEGMENTS.reduce((n, s) => n + s.duration, 0);
 mkdirSync(path.dirname(OUT), { recursive: true });
