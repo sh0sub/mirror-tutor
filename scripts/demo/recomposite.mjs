@@ -75,8 +75,16 @@ const SEGMENTS = [
     note: "Both faces are Pexels and Unsplash License stock photos",
     // C3: one hook line only (the second line moved out; the outcome line is the intro)
     units: 0,
-    lines: ["Same look, different lids, different technique."],
-    ui: [{ callout: "<b>Monolid</b> and <b>double lid</b>, same eye step: <b>2colors1 · Upper6</b> vs <b>2colors3 · Upper11</b>" }],
+    // C4: the opening states the problem (V.O.), the screen shows the proof: the analyzer misread the monolid (wrong
+    // technique), the user corrected it, and the lesson changed. Same compare frames, no title card.
+    lines: ["Makeup tutorials fit someone else's eyes.", "Same look, different lids, different technique."],
+    ui: [
+      {
+        heading: "Tutorials fit someone else's eyes",
+        callout: "Read as <b>Double-lid</b>: <b>wrong technique</b><br>Corrected to <b>Monolid</b> · 0 units",
+      },
+      { heading: "Different lids, different technique", callout: "<b>Monolid</b> and <b>double lid</b>, same eye step: <b>2colors1 · Upper6</b> vs <b>2colors3 · Upper11</b>" },
+    ],
     timeline: [{ at: 0, src: [0, 3.1] }, { at: { plus: -0.5 }, src: 5 }],
     zoom: [{ at: 0, y: 252 }],
   },
@@ -177,7 +185,7 @@ const SEGMENTS = [
     kicker: "Two faces, one lesson",
     heading: "Same look, different technique",
     chip: "Pre-generated with the live API · 0 units now",
-    note: "Both faces are Pexels and Unsplash License stock photos",
+    note: "Faces: Pexels and Unsplash License stock",
     units: 14,
     lines: [
       "The analyzer missed the monolid, so we let the user correct it and the lesson changes.",
@@ -191,6 +199,7 @@ const SEGMENTS = [
       },
       {
         heading: "Two eyelids, two techniques",
+        chip: "Basis: rule of thumb, not validated",
         callout:
           "<div class=\"vs\"><div><b>Monolid face</b>Horizontal gradient + visible liner<span class=\"mono\">2colors1 · Upper6</span></div><div><b>Double-lid face</b>Crease shading + thin liner<span class=\"mono\">2colors3 · Upper11</span></div></div>",
       },
@@ -200,10 +209,12 @@ const SEGMENTS = [
     timeline: [
       { at: 0, src: [0, 3.1] },
       { at: { cue: 0, plus: 3.2 }, src: 5 },
-      { at: { cue: 1, plus: -0.1 }, src: [14.4, 14.95] },
-      { at: { cue: 1, plus: 0.9 }, src: 20 },
+      { at: { cue: 1, plus: -0.1 }, src: [13.8, 14.2] },
+      { at: { cue: 1, plus: 0.9 }, src: 18 },
     ],
-    zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 300 }, { at: { cue: 1, plus: 0.9 }, y: 300 }],
+    // C4 source (work-c4 frames-compare, --sample): the eye step now has the rule-of-thumb basis box under the eyelid row.
+    // Scroll 13.8-14.2 s, then the hold shows technique row + basis box + correction note.
+    zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 300 }, { at: { cue: 1, plus: 0.9 }, y: 380 }],
   },
   {
     id: "grade",
@@ -254,15 +265,21 @@ const SEGMENTS = [
     chip: "Concept screen · fictional store · 0 units",
     units: 14,
     lines: [
-      "For retailers: a concept widget on a fictional product page.",
+      "A retailer swaps in its own SKUs; about four VTO renders per lesson.",
       "First lesson, fourteen units. Then four.",
     ],
     ui: [
-      { callout: "Widget on a product page: the <b>real YouCam result</b> of the lesson step, stock model." },
-      { callout: "<b>14</b> units first lesson · <b>4</b> after · <b>20</b>-unit session cap" },
+      { callout: "Retailer swaps in its <b>own SKUs</b> · about <b>4 VTO renders</b> per lesson<br><span class=\"mono\">Integration shape is illustrative: there is no published SDK</span>" },
+      {
+        heading: "Unit meter and KPI hypotheses",
+        callout:
+          "<div class=\"vs\"><div><b>Unit meter · live on the page</b>First lesson <em>14</em> units, then <em>4</em><span>under the <em>20</em>-unit session cap</span></div><div><b>KPI hypotheses</b>Shop-the-step conversion · lesson completion · return lessons<span class=\"mono\">Hypothesis · not measured</span></div></div>",
+      },
     ],
-    timeline: [{ at: 0, src: 2.0 }, { at: { cue: 1, plus: -0.2 }, src: 5.0 }],
-    zoom: [{ at: 0, y: 150 }, { at: { cue: 1, plus: -0.2 }, y: 300 }],
+    // C4 source (work-c4 = work-c3 frames-partner): (the scene opens on the widget; the chip says concept screen, fictional store) 1.8-3.0 s widget with the SKU snippet below,
+    // from 7.2 s the unit meter (14 / 4) and the "Hypothesis · not measured" KPI chip are both on the phone at once.
+    timeline: [{ at: 0, src: 2.0 }, { at: { cue: 1, plus: -0.3 }, src: [7.0, 7.4] }, { at: { cue: 1, plus: 0.9 }, src: 9.0 }],
+    zoom: [{ at: 0, y: 300 }, { at: { cue: 1, plus: -0.3 }, y: 240 }],
   },
   {
     id: "home",
@@ -298,7 +315,11 @@ const SEGMENTS = [
     ui: [
       { callout: "Card drawn on the device · faces <b>blurred</b> by default." },
       { callout: "<b>Never stored</b> · <b>20-unit</b> session cap · daily cap too" },
-      { callout: "Mirror Tutor" },
+      {
+        heading: "Try it yourself",
+        chip: "Live YouCam API · the sample-model trial costs 0 units",
+        callout: "<b>Try it now</b> · no sign-up<br><span class=\"url\">mirror-tutor.vercel.app</span>Tap <b>Try with a sample model</b> · 0 units",
+      },
     ],
     timeline: [{ at: 0, src: 2 }, { at: { cue: 1 }, src: 12 }],
     zoom: [{ at: 0, y: 60 }, { at: { cue: 1 }, y: 420 }],
@@ -425,6 +446,9 @@ function stageHtml(seg, si0, ci) {
   .callout b{color:#a8264a}.mono{font-family:ui-monospace,Menlo,monospace;font-size:21px;color:#6b605c;font-weight:600}
   .vs{display:flex;flex-direction:column;gap:16px;font-size:26px}.vs b{display:block;font-size:22px;margin-bottom:2px}.vs span{display:block;margin-top:2px}
   .vs>div{padding-bottom:12px;border-bottom:1px solid #eadfd8}.vs>div:last-child{border:0;padding:0}
+  .vs .basis{font-size:21px;font-weight:600;color:#4a403d}.vs .basis b{display:inline;font-size:21px;margin:0 8px 0 0}
+  .vs em{font-style:normal;font-weight:800;color:#a8264a}
+  .url{display:block;white-space:nowrap;font-size:34px;font-weight:800;color:#a8264a;letter-spacing:-.01em;margin:8px 0 10px}
   .note{font-size:20px;color:#6b605c;line-height:1.4}
   .sub{position:absolute;left:${ZX}px;width:${ZW}px;top:${ZY + ZH + 62}px;border-left:6px solid #c8325b;padding:4px 0 4px 24px;font-size:35px;line-height:1.33;font-weight:600;box-sizing:border-box}
   .bar{position:absolute;left:64px;bottom:92px;width:${SCR_X - 64 - 52}px;height:6px;border-radius:3px;background:#eadfd8}

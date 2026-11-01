@@ -112,3 +112,12 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - grade: `--mode mock --sample --only grade`(0 유닛). 레슨 4단계에서 "Grade a sample try"로 샘플 시도를 채점한다(점수 91, 입술 63 교정). 카메라 화면 없이 결과로 바로 간다. 이전 live 판의 87점과 다른 값이며 샘플 모델 결과다.
 - partner(신규, 약 8.5초): `--mode live --only partner --base <로컬 live 서버>`(정적 페이지, 0 유닛). 위젯과 유닛 미터("첫 레슨 14, 다음 4")를 보여 주고 "concept widget on a fictional product page"라고 밝힌다. FLOW 목록은 9단계(Retailer 추가).
 - `record-video.mjs` 추가 옵션: `--fake-cam`, 액션 `{ js }`, 세그먼트별 `sample: { prep, actions }`(샘플 변형). 새 marin TTS는 intro 1줄과 partner 2줄 등 센트 단위.
+
+## 사이클 4 재합성 (173.8초)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c4` (사이클 3 `work-c3` 복사본 + `record-video.mjs --mode mock --sample --only compare`로 /compare만 재촬영, 0 유닛). 재합성 작업 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/recomp-oai`.
+- 훅(0:00-0:07): 제목 카드 없이 /compare 화면 위에 "Makeup tutorials fit someone else's eyes." V.O., 분석기가 홑꺼풀을 쌍꺼풀로 읽음(틀린 기법) -> 수정 -> 레슨이 달라짐을 표시.
+- /compare: 눈꺼풀 규칙 아래 근거 박스(경험칙, 검증된 결과 아님)가 보이는 새 프레임, 칩에 "Basis: rule of thumb, not validated".
+- /partner(10.9초): "A retailer swaps in its own SKUs; about four VTO renders per lesson." 추가. 마지막 정지 화면에서 유닛 미터(14 -> 4, 20 상한)와 KPI 가설 칩("Hypothesis - not measured")이 폰 화면과 왼쪽 설명에 함께 보임.
+- 마지막 장면: URL(mirror-tutor.vercel.app)과 CTA("Try with a sample model - 0 units").
+- 새 TTS 두 줄(marin, 수 센트). YouCam 유닛 0 사용. 이전 버전: `.local/video/mirror-tutor-demo-live-c4prev.mp4`.
