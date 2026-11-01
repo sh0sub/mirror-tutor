@@ -78,7 +78,12 @@
         "/demo/model-c/step-3.jpg",
         "/demo/model-c/step-4.jpg"
       ],
-      "credit": "Unsplash stock photo by Peter John Manlapig (Unsplash License, free for commercial use)"
+      "credit": "Unsplash stock photo by Peter John Manlapig (Unsplash License, free for commercial use)",
+      "gradientPair": {
+        "horizontal": "/demo/model-c/eye-horizontal.jpg",
+        "vertical": "/demo/model-c/eye-vertical.jpg",
+        "shadowIntensity": 100
+      }
     }
   ]
 }

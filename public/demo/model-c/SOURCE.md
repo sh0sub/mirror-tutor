@@ -12,3 +12,7 @@
 YouCam Face Analyzer read this face as `Double-lid / Double-lid` (2026-11-02). The eyelid was corrected to `monolid`, the same correction a user can make on the analysis results screen (M2 "Edited"). Then the rule table and 4 Makeup VTO steps ran on that profile. `compare.json` keeps the analyzer's raw reading in `source.eyelid` and marks the field in `edited: ["eyelid"]`, and /compare shows "Face Analyzer read Double-lid → edited".
 
 Other attempts that day: a Pexels monolid photo (https://www.pexels.com/photo/portrait-photo-of-woman-4672555/) was also read as `Double-lid / Double-lid`, and a third photo's analysis timed out. Neither is used.
+
+## Gradient pair (C7)
+
+`eye-horizontal.jpg` and `eye-vertical.jpg` are two extra Makeup VTO renders of this face (cumulative step 3, same colors and liner, shadow intensity 100) made by `scripts/demo/generate-vertical.ts`: shadow style `2colors1` (this app's monolid rule, "horizontal") and `2colors3` (the double-lid rule's style, used as the "vertical" generic-tutorial technique). The horizontal/vertical names are ours, not YouCam's. The eyelid was the corrected value (monolid). Same license and processing as above.

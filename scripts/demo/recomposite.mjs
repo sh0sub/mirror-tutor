@@ -64,35 +64,6 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
  */
 const SEGMENTS = [
   {
-    // C6 opening montage (about 5 s): the whole product in four cuts (a lesson step on the face, the before/after slider,
-    // the score, a product card) under one V.O. line, then the title card. Reuses recorded frames, 0 units.
-    id: "montage",
-    badge: "YouCam VTO, pre-generated (0 units)",
-    lead: 0.3,
-    tail: 1.4,
-    kicker: "Mirror Tutor",
-    heading: "A makeup lesson on your own eyelid",
-    chip: "Lesson step · slider · score · shop",
-    note: "Sample model: licensed stock photo, results pre-generated with the live API",
-    units: 0,
-    lines: ["A makeup lesson, rendered on your own eyelid."],
-    ui: [{ callout: "<b>Lesson step</b> on the face · <b>before / after</b> slider<br><b>Score</b> · <b>shop</b> the step" }],
-    timeline: [
-      { at: 0, from: "lesson", src: 18.0 },
-      { at: 1.3, from: "lesson", src: [13.3, 14.7] },
-      { at: 2.5, from: "grade", src: 2.5 },
-      { at: 3.7, from: "shop", src: 4.5 },
-    ],
-    srcId: "lesson",
-    zoom: [{ at: 0, y: 40 }, { at: 1.3, y: 60 }, { at: 2.5, y: 70 }, { at: 3.7, y: 300 }],
-  },
-  {
-    // C6 title card (about 1.8 s): names the two YouCam APIs the app is built on. Rendered as a still, no phone.
-    id: "title",
-    card: { kicker: "Mirror Tutor", title: "Makeup lessons on your own face", chips: ["YouCam AI Face Analyzer", "YouCam Makeup Virtual Try-On"], sub: "Learn makeup on your own face · live demo: mirror-tutor.vercel.app" },
-    duration: 1.5,
-  },
-  {
     // C2 hook (0-~9 s): the compare screen first, so judges see the product's point (same look, different lids,
     // different technique) before the app intro. Reuses the compare recording frames, 0 units.
     id: "hook",
@@ -101,13 +72,15 @@ const SEGMENTS = [
     lead: 0.35,
     kicker: "Same look, two eyelids",
     heading: "Different lids, different technique",
-    chip: "YouCam VTO · pre-generated · 0 units",
+    chip: "YouCam Face Analyzer + Makeup VTO · pre-generated · 0 units",
     note: "Both faces are Pexels and Unsplash License stock photos",
-    // C3: one hook line only (the second line moved out; the outcome line is the intro)
+    // C7: the first 10 s carry one promise (V.O. line 2) and the monolid / double-lid result (V.O. line 2 + the correction chip
+    // on screen from 0:00). No montage, no title card: the footer badge and V.O. name YouCam, the intro names both APIs.
     units: 0,
-    // C4: the opening states the problem (V.O.), the screen shows the proof: the analyzer misread the monolid (wrong
-    // technique), the user corrected it, and the lesson changed. Same compare frames, no title card.
-    lines: ["Makeup tutorials fit someone else's eyes.", "Same look, different lids, different technique."],
+    lines: [
+      "Makeup tutorials fit someone else's eyes.",
+      "Mirror Tutor redraws the look for your lid, monolid or double.",
+    ],
     ui: [
       {
         heading: "Tutorials fit someone else's eyes",
@@ -115,7 +88,7 @@ const SEGMENTS = [
       },
       { heading: "Different lids, different technique", callout: "<b>Monolid</b>: horizontal gradient + liner<br><b>Double lid</b>: crease shading + thin liner" },
     ],
-    timeline: [{ at: 0, src: [0, 3.1] }, { at: { plus: -0.5 }, src: 5 }],
+    timeline: [{ at: 0, src: [0, 3.1] }, { at: { cue: 1 }, src: 5 }],
     zoom: [{ at: 0, y: 252 }],
   },
   {
@@ -146,12 +119,10 @@ const SEGMENTS = [
     lines: [
       "First, consent. Your photo is processed in memory, and never stored.",
       "Then a quality gate checks light, angle and framing, before a single unit is spent.",
-      "For this demo, we'll use a licensed stock photo.",
     ],
     ui: [
       { callout: "Consent first. Processed in memory, <b>never stored</b>." },
-      { callout: "Gate checks: <b>front</b> · <b>bright</b> · <b>forehead visible</b> · face width <b>at least 60%</b>" },
-      { callout: "The photo is sent to the analyzer with EXIF removed." },
+      { callout: "Gate checks: <b>front</b> · <b>bright</b> · <b>forehead visible</b> · face width <b>at least 60%</b><br>Demo camera feed: licensed stock photo · EXIF removed before analysis" },
     ],
     // C3 source (work-c3 frames-capture): consent sheet 0-1.9 s, then the quality gate on a camera feed that is a stock photo:
     // "face too small" (44%) 2.9-6.6 s, digital zoom 6.7-8.5 s, "Looks good" (74%) from 8.8 s. The dark "checking photo" frame (~2.0 s) is skipped.
@@ -228,7 +199,8 @@ const SEGMENTS = [
     units: 14,
     lines: [
       "The analyzer missed the monolid, so we let the user correct it and the lesson changes.",
-      "A monolid gets a horizontal gradient and a visible liner. A double lid gets crease shading. Same look, different technique.",
+      "A monolid gets a horizontal gradient and a visible liner. A double lid gets crease shading.",
+      "Same look with a vertical gradient, the generic tutorial way, beside ours. Both are real YouCam renders.",
     ],
     ui: [
       {
@@ -242,18 +214,24 @@ const SEGMENTS = [
         callout:
           "<div class=\"vs\"><div><b>Monolid face</b>Horizontal gradient + visible liner<span class=\"plain\">2-color shadow, style 1 · upper liner, style 6</span></div><div><b>Double-lid face</b>Crease shading + thin liner<span class=\"plain\">2-color shadow, style 3 · upper liner, style 11</span></div></div>",
       },
+      {
+        heading: "Horizontal vs vertical gradient",
+        chip: "Same monolid face · 2 pre-generated renders",
+        callout:
+          "<div class=\"vs\"><div><b>Horizontal</b>Our monolid technique<span class=\"plain\">shadow style 1</span></div><div><b>Vertical</b>Generic tutorial way<span class=\"plain\">shadow style 3</span></div></div>",
+      },
     ],
-    // source: top of /compare on the eye step (0-3.1 s incl. original/answer flip), answer hold, scroll to the rule table
-    // C2: line 0 = the correction chip, held in view for the whole line (> 3 s) with both faces' eye steps beside it
+    // C7 source (work-c7 frames-compare, --sample): top of /compare on the eye step 0-3.1 s (original/answer flip), hold, scroll 13.8-14.2 s
+    // to the rule table (hold to 17.4 s), scroll 17.4-17.8 s to the new "Same look with a vertical gradient?" section (hold to the end)
     timeline: [
       { at: 0, src: [0, 3.1] },
       { at: { cue: 0, plus: 3.2 }, src: 5 },
       { at: { cue: 1, plus: -0.1 }, src: [13.8, 14.2] },
-      { at: { cue: 1, plus: 0.9 }, src: 18 },
+      { at: { cue: 1, plus: 0.9 }, src: 16 },
+      { at: { cue: 2, plus: -0.1 }, src: [17.4, 17.8] },
+      { at: { cue: 2, plus: 0.9 }, src: 21 },
     ],
-    // C4 source (work-c4 frames-compare, --sample): the eye step now has the rule-of-thumb basis box under the eyelid row.
-    // Scroll 13.8-14.2 s, then the hold shows technique row + basis box + correction note.
-    zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 300 }, { at: { cue: 1, plus: 0.9 }, y: 380 }],
+    zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 300 }, { at: { cue: 1, plus: 0.9 }, y: 380 }, { at: { cue: 2, plus: -0.1 }, y: 125 }],
   },
   {
     id: "grade",
@@ -264,7 +242,7 @@ const SEGMENTS = [
     note: "A stock image stands in for a real attempt, so this is a sample score (91)",
     units: 14,
     lines: [
-      "Now it's your turn. Do the look for real, and snap your attempt. Here, a stock image stands in.",
+      "Now your turn. Draw the look, then snap it. Here, a stock image stands in.",
       "Each region is checked against the answer by color difference: liner, lid, cheeks and lips.",
       "You get a score, one clear fix, and an honest confidence level.",
     ],
@@ -470,7 +448,7 @@ function frameAt(items, t) {
 }
 
 // left-column step list (one entry per segment after the intro)
-const HEAD_SEGS = 3; // montage, title card and hook do not count as steps
+const HEAD_SEGS = 1; // the hook does not count as a step (C7: the C6 montage and title card are gone)
 const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Retailer", "Streak", "Share"];
 
 function stageHtml(seg, si0, ci) {

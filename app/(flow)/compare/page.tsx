@@ -45,6 +45,7 @@ function RuleList({ rows, lang, names }: { rows: TechniqueRow[]; lang: Lang; nam
 
 /** Pair shown on /compare (monolid face vs double-lid face) and the step whose eye technique differs. */
 const pair = comparePair(manifest);
+const gradient = pair[0].gradientPair;
 const eyeStep = eyelidStep(manifest.lessonId, pair[0].profile, pair[1].profile);
 
 /** S2 "두 얼굴 비교": monolid face vs double-lid face, same lesson, side by side + the rule-table branch each took. 0 live units. */
@@ -146,6 +147,34 @@ export default function ComparePage() {
           {edited && rows.some((r) => r.attr === "eyelid") && <p className="text-xs text-muted">{t("compareEditedNote", lang)}</p>}
           {b.profile.eyelid === "inner_double" && rows.some((r) => r.attr === "eyelid") && <p className="text-xs text-muted">{t("compareInnerNote", lang)}</p>}
         </section>
+
+        {gradient && (
+          <section aria-labelledby="gradient" className="flex flex-col gap-3 rounded-[var(--radius-panel)] bg-panel p-4" data-testid="gradient-pair">
+            <h2 id="gradient" className="text-sm font-extrabold">
+              {t("gradientTitle", lang)}
+            </h2>
+            <p className="text-xs text-muted">{tf("gradientBody", lang, { n: gradient.shadowIntensity })}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {(["horizontal", "vertical"] as const).map((dir) => (
+                <figure key={dir} className="flex flex-col gap-1.5">
+                  <div className="aspect-[3/2] overflow-hidden rounded-xl bg-panel-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- static pre-generated demo asset, cropped to the eyes by CSS */}
+                    <img
+                      src={gradient[dir]}
+                      alt={`${faceName(a, lang)} · ${t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}`}
+                      className="h-full w-full object-cover"
+                      style={{ objectPosition: "50% 35%", transform: "scale(1.6)" }}
+                      width={600}
+                      height={800}
+                    />
+                  </div>
+                  <figcaption className="text-xs font-bold leading-snug">{t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}</figcaption>
+                </figure>
+              ))}
+            </div>
+            <p className="text-xs text-muted">{t("gradientNote", lang)}</p>
+          </section>
+        )}
 
         <section aria-labelledby="whatif" className="flex flex-col gap-3 rounded-[var(--radius-panel)] border border-peach bg-panel p-4">
           <h2 id="whatif" className="text-sm font-extrabold">

@@ -193,6 +193,17 @@ const DICT = {
     ko: "홑꺼풀 얼굴은 Face Analyzer가 쌍꺼풀로 읽었어요. 사용자가 분석 결과 화면에서 고치듯 눈꺼풀을 홑꺼풀로 수정한 뒤 규칙표와 Makeup VTO를 돌렸어요.",
     en: "Face Analyzer read the monolid face as a double lid. The eyelid was corrected to monolid the way a user would on the results screen, then the rule table and Makeup VTO ran.",
   },
+  gradientTitle: { ko: "같은 룩, 세로 그라데이션이면?", en: "Same look with a vertical gradient?" },
+  gradientBody: {
+    ko: "홑꺼풀 얼굴에 같은 룩을 두 방식으로 그렸어요. 아래는 눈만 확대한 사진이고, 섀도 진하기를 {n}으로 올려 차이가 보이게 했어요.",
+    en: "The same look on the monolid face, drawn two ways. Eye close-ups below, with shadow intensity raised to {n} so the difference shows.",
+  },
+  gradientHorizontal: { ko: "가로 그라데이션 (Mirror Tutor 홑꺼풀 기법)", en: "Horizontal gradient (Mirror Tutor's monolid technique)" },
+  gradientVertical: { ko: "세로 그라데이션 (일반 튜토리얼 기법)", en: "Vertical gradient (generic tutorial technique)" },
+  gradientNote: {
+    ko: "가로·세로 방향은 YouCam 패턴 스타일(1번과 3번)에 우리가 붙인 이름이에요. 어느 쪽이 더 잘 보이는지는 규칙표의 경험칙일 뿐 검증된 결과가 아니에요. 눈꺼풀은 수정 시트에서 홑꺼풀로 고친 값이에요.",
+    en: "Horizontal and vertical are our names for YouCam pattern styles 1 and 3. Which one reads better is a rule of thumb, not a validated result. The eyelid was corrected to monolid in the edit sheet.",
+  },
   compareEyeStep: { ko: "눈 단계", en: "Eye step" },
   compareInnerNote: { ko: "Face Analyzer가 한쪽 눈은 홑꺼풀, 다른 쪽은 쌍꺼풀로 읽어 속쌍꺼풀 기법을 골랐어요.", en: "Face Analyzer read one eye as a monolid and the other as a double lid, so the inner double lid technique was picked." },
   compareCredit: { ko: "사진: Pexels·Unsplash 무료 스톡(상업 이용 가능, 실제 사용자 아님) · YouCam Face Analyzer + Makeup VTO로 사전 생성(최근 {date}) · 지금 화면은 유닛 0", en: "Photos: Pexels and Unsplash free stock (commercial use allowed, not real users) · pre-generated with YouCam Face Analyzer + Makeup VTO (latest {date}) · this screen uses 0 units" },

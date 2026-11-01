@@ -147,6 +147,9 @@ export const SEGMENTS = [
       { at: 2 },
       { scroll: { y: 330 }, dur: 1.3 },
       { sleep: 2.0 },
+      // C7: the same look with a vertical gradient on the monolid face, next to the horizontal one (below the rule table)
+      { scroll: { sel: "h2", text: "^Same look with a vertical", offset: 690 }, dur: 1.2 },
+      { sleep: 3.0 },
     ],
   },
   {

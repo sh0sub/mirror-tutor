@@ -137,3 +137,12 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - home: `--mode mock --setup full91 --only home`(새 설정: 연습 기록에 샘플 점수 91을 미리 넣고 업로드 흐름 진행). 지난 결과가 91로 grade·share 장면과 일치. 화면 노트에 "sample score"라고 밝혔다. grade 노트에도 "sample score (91)".
 - 푸터: analyze·lesson만 "live YouCam API (this scene)", 나머지는 "sample model, pre-generated YouCam results".
 - 알려진 문제(앱, 영상 범위 밖): 현재 HEAD의 /compare에서 nowrap 칩("Analyzer read Double-lid → corrected to Monolid")이 열 폭을 넘어 오른쪽 열 글자와 겹친다. 그래서 compare·hook은 겹침 없는 C5 프레임을 그대로 썼다(칩이 줄바꿈된 옛 모양). 앱 수정 후 `--mode mock --sample --only compare`로 다시 찍으면 된다.
+
+## 사이클 7 재합성 (169.7초, YouCam 유닛 3 사용, 새 TTS 줄 6개 이하, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c7` (work-c6 복사본 + `record-video.mjs --mode mock --sample --only compare`만 재촬영, 0 유닛). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유), 직전 판 `.local/video/mirror-tutor-demo-live-c7prev.mp4`.
+- 첫 9초: 몽타주(5.4초)와 제목 카드(1.5초)를 뺐다. 0:00부터 /compare 화면(분석기가 쌍꺼풀로 읽음 -> 홑꺼풀로 수정 칩)에 V.O. "Makeup tutorials fit someone else's eyes." -> "Mirror Tutor redraws the look for your lid, monolid or double."(약속 + 홑꺼풀/쌍꺼풀 결과). YouCam 이름은 푸터 배지와 다음 intro 장면이 말한다.
+- capture: 마지막 줄("licensed stock photo")을 빼고 같은 내용을 화면 노트와 콜아웃에 남겼다(어두운 카메라 구간 약 3.7초 감소). grade 첫 줄을 짧게.
+- 새 비교: 홑꺼풀 얼굴(model-c)의 눈 단계를 가로 그라데이션(섀도 패턴 2colors1, 우리 규칙)과 세로 그라데이션(2colors3, 일반 튜토리얼 기법)으로 나란히 보여 주는 섹션이 /compare에 생겼다. 기존에 없던 렌더라 `scripts/demo/generate-vertical.ts`로 Makeup VTO 2회(2 유닛) + 처음 시험 1회(1 유닛, 폐기) = 3 유닛, 잔량 890 -> 887. 두 렌더 모두 섀도 진하기 100(50에서는 차이가 거의 안 보임). 가로/세로는 YouCam 패턴 스타일에 우리가 붙인 이름이라는 점, 경험칙이며 검증되지 않았다는 점, 눈꺼풀을 수정 시트에서 홑꺼풀로 고쳤다는 점을 화면 문구와 나레이션("Both are real YouCam renders")에 그대로 썼다. 렌더를 보면 세로(스타일 3) 쪽이 눈두덩 위 음영이 더 눈에 띈다. 규칙표의 "세로는 사라진다" 설명은 경험칙일 뿐이라는 문구를 유지했다.
+- compare 장면 20.7초(+5.8): V.O. 2줄 교체/신규. chip 겹침은 HEAD의 줄바꿈 칩으로 새로 촬영해 해소.
+- 검증: 장면 전환 감지(select gt(scene,0.08)) 20곳은 세그먼트 경계와 의도한 디졸브뿐, 스켈레톤/빈/배너 프레임 없음.

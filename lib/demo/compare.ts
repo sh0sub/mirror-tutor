@@ -13,6 +13,8 @@ export interface CompareModel {
   edited?: ProfileKey[];
   original: string;
   steps: string[];
+  /** C7: the same eye step with two shadow patterns (horizontal = this app's monolid rule, vertical = generic tutorial technique), same face, same colors. */
+  gradientPair?: { horizontal: string; vertical: string; shadowIntensity: number };
   credit: string;
 }
 
