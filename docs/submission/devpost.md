@@ -71,6 +71,6 @@ Next.js, React, TypeScript, Tailwind CSS, YouCam API (Face Attribute & Ratio Ana
 
 - Live demo: https://mirror-tutor.vercel.app (if the YouCam balance is low it shows pre-generated sample models and says so)
 - Source code: https://github.com/sh0sub/mirror-tutor (public, MIT)
-- Video: YouTube link (add after upload). The 2:32 demo is faceless (stock photos only) and was recorded against the live YouCam API with 14 units.
+- Video: YouTube link (add after upload). The 2:51 demo is faceless (stock photos only) and was recorded against the live YouCam API with 14 units.
 - Test images: `public/demo/model-a` and `model-b` in the repository (stock photos, Pexels License), or use your own selfie
 - API notes: `docs/api-notes.md` in the repository

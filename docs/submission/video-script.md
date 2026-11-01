@@ -1,4 +1,4 @@
-# 데모 영상 스크립트 (150초)
+# 데모 영상 스크립트 (2:51)
 
 이슈 #28 시나리오를 현재 앱 라우트(`/capture` `/analyze` `/lesson` `/compare` `/grade` `/shop` `/share`)에 맞춘 촬영안. 영상은 1~3분, YouTube 공개, 제3자 상표·음악 없음, 실기기 구동 장면 포함. 나레이션은 영어(Devpost 심사용), 자막은 한국어를 기본으로 하고 영어 자막은 나레이션과 같은 문장을 쓴다.
 
@@ -26,7 +26,7 @@
 | 8 | 2:00-2:15 | `/shop` 단계 스와치 hex -> 제품 카드, 색차 ΔE | 스와치 탭, ΔE 표시와 "데모 데이터" 문구 | "The exact colors from each step map to products by color difference. The tutorial becomes the cart. The catalog is a demo; real SKUs would come from a partner feed." | 단계에서 쓴 색이 그대로 제품이 돼요. 카탈로그는 데모이고, 실제 SKU는 제휴 피드로 교체합니다. |
 | 9 | 2:15-2:30 | `/share` 공유 카드 -> `docs/architecture.svg` 1장(3초) -> 로고 카드 | 공유 카드 저장 후 아키텍처 이미지 | "Photos are never stored, units are capped per session. Mirror Tutor: learn K-beauty on your own face." | 사진은 저장하지 않고 유닛은 세션당 상한. Mirror Tutor, 내 얼굴로 배우는 K-메이크업. |
 
-총 150초. 나레이션이 시간보다 길면 4번과 5번 문장부터 줄인다(심사 기준: API를 어떻게 쓰는지가 보여야 하므로 8번보다 4·5번을 남긴다).
+원래 촬영안은 150초. 실제 제출용 자동 녹화본은 아래 "자동 녹화"·"재합성" 절(2:51)을 따른다. 나레이션이 시간보다 길면 4번과 5번 문장부터 줄인다(심사 기준: API를 어떻게 쓰는지가 보여야 하므로 8번보다 4·5번을 남긴다).
 
 ## 테이크와 유닛 예산
 
@@ -72,4 +72,17 @@ node scripts/demo/record-video.mjs --mode live
 - 녹화기가 `next dev -p 3611`을 `YOUCAM_MODE=<mode>`로 직접 띄우고 끝나면 끈다(명령줄 env가 `.env`보다 우선). 이미 떠 있는 서버를 쓰려면 `--base http://localhost:3611`. 그 밖의 옵션: `--port`, `--work <작업 폴더>`, `--out <mp4>`, `--voice`, `--rate`, `--stills <장 수>`.
 - live 안전장치: 시작 전에 `/api/credit`이 `mode: "live"`, 데모 모드 아님, 잔량 150 이상이 아니면 중단. 실패한 단계는 재시도하지 않고 바로 중단하며, 세션 사용량이 20유닛을 넘으면 중단(앱 자체 세션 상한 20u도 그대로 적용). 한 번 돌릴 때마다 유닛이 나가므로 live는 꼭 필요할 때 한 번만 돌린다.
 - 결과: `.local/video/mirror-tutor-demo-<mode>.mp4` (`.local/`은 gitignore). 프레임·음성·스테이지 이미지·`summary.json`(구간 길이, 시작/끝 잔량)은 기본값 `.local/video/work-<mode>/`에 남는다.
-- 분석·렌더 대기 시간은 영상에서 잘라내고(0.8초만 남김) 각 구간 길이는 나레이션 길이에 맞춘다. 2026-10-31 기준 두 버전 모두 약 2분 12초.
+- 분석·렌더 대기 시간은 영상에서 잘라내고(0.8초만 남김) 각 구간 길이는 나레이션 길이에 맞춘다. 2026-11-01 live 녹화본은 `recomposite.mjs` 재합성 후 2분 51초(171초).
+
+## 재합성(유닛 0, 새 녹화 없음)
+
+`record-video.mjs`가 남긴 작업 폴더(`<work>/segments/*-phone.txt`, `<work>/frames`)만으로 레이아웃·나레이션·타임라인을 다시 짠다. 개발 서버와 YouCam 호출이 없다.
+
+```bash
+node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임시 폴더> --out <mp4> [--stills 12] [--only intro,compare]
+```
+
+- 레이아웃: 왼쪽 제목·칩·콜아웃, 가운데 폰 462x1000, 오른쪽 같은 프레임의 1.85배 확대 패널 + 자막. 확대 창의 위치는 장면별 `zoom` 키프레임.
+- 타임라인: 장면별 `timeline` 앵커로 원본 구간을 재생하거나 한 프레임을 유지한다. 어두운 "카메라 없음" 구간을 줄이는 데 쓴다.
+- 나레이션(영어, `say`): 첫 장면은 홑꺼풀 문제 제기, 비교 장면은 두 얼굴의 기법 차이(콜아웃 6초), 공유 장면은 사진 미저장·세션 20유닛 상한을 말한다. 저장 프레임이 390x844라 확대는 해상도가 늘지 않는다(unsharp로 보정).
+- 영상 세그먼트별 합계: 인트로 20초, 촬영 16초, 분석 27초, 레슨 24초, 비교 21초, 채점 20초, 샵 13초, 홈 13초, 공유 18초.
