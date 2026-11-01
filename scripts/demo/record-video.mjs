@@ -429,6 +429,11 @@ async function record(cdp) {
       await sleep(2500);
     }
     for (const a of FULL_SETUP) await act(a, null, false);
+    if (args.setup === "full91") {
+      // C9: the mock-graded upload flow stores its own score (80); put the sample score back so home shows 79 like grade/share
+      await evaluate(`(() => { const k = 'mirror-tutor:practice:v1'; const l = JSON.parse(localStorage.getItem(k) || '{}'); l.scores = { ...(l.scores || {}), 'daily-k': 79 }; localStorage.setItem(k, JSON.stringify(l)); })(); location.reload()`).catch(() => null);
+      await sleep(3500);
+    }
     log("full setup done:", await evaluate("location.pathname + location.search"));
   }
 

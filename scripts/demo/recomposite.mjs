@@ -104,7 +104,7 @@ const SEGMENTS = [
     lines: ["Face Analyzer reads your face. Makeup Virtual Try-On paints each step. A full lesson costs fourteen units."],
     ui: [{ heading: "Makeup lessons on your own face", callout: "<b>Face Analyzer</b> reads features · 10 units<br><b>Rule table</b> picks the technique<br><b>Makeup VTO</b> renders each step · 4 units" }],
     // source = the hero (monolid face vs double-lid face) at the top of the home page, then the scroll to the three steps
-    // C5 source (work-c5 frames-intro, live mode, 0 units): the hero with the bottom bar (Get started / sample / "Retailer view (concept)"), scroll 7.1-7.4 s to the three steps
+    // C5 source (work-c5 frames-intro, live mode, 0 units): the hero with the bottom bar (C9 re-take: primary "Try with a sample model", "Use my own selfie", "Retailer view (concept)"), scroll 7.1-7.4 s to the three steps
     timeline: [{ at: 0, src: 1.5 }, { at: { cue: 0, plus: 3.4 }, src: [7.0, 7.45] }, { at: { cue: 0, plus: 4.4 }, src: 8.2 }],
     zoom: [{ at: 0, y: 40 }, { at: { cue: 0, plus: 3.4 }, y: 40 }, { at: { cue: 0, plus: 4.4 }, y: 300 }],
   },
@@ -240,23 +240,23 @@ const SEGMENTS = [
     kicker: "Step 4 · Grade",
     heading: "Score your real attempt",
     chip: "0 YouCam units",
-    note: "A stock image stands in for a real attempt, so this is a sample score (91)",
+    note: "A simulated off-shade attempt stands in for a real one, so this is a sample score (79)",
     units: 14,
     lines: [
-      "Now your turn. Draw the look, then snap it. Here, a stock image stands in.",
+      "Now draw the look, snap it. A simulated attempt stands in.",
       "Each region is checked against the answer by color difference: liner, lid, cheeks and lips.",
       "You get a score, one clear fix, and an honest confidence level.",
     ],
     ui: [
-      { callout: "Draw it, then snap your attempt." },
-      { callout: "Per-region color difference: <b>eyeliner · eyelid · cheeks · lips</b>" },
+      { callout: "Draw it, then snap your attempt.<br><span class=\"plain\">Sample attempt: simulated, deliberately off-shade</span>" },
+      { callout: "Per-region color difference (ΔE) with swatches: <b>eyeliner · eyelid · cheeks · lips</b>" },
       { callout: "Score + <b>one-line correction</b> + confidence" },
     ],
-    // C3 source (work-c3 frames-grade, --sample: "Grade a sample try", no camera screen): skeleton 0-1.7 s (skipped),
-    // result from 1.8 s, scroll 4.1-5.0 s to the lips row, hold after
+    // C9 source (work-c9 frames-grade, --sample, simulated attempt, score 79): skeleton 0-1.7 s (skipped),
+    // result from 1.8 s, scroll 4.27-4.57 s to the lips row, hold after
     timeline: [
       { at: 0, src: 2.4 },
-      { at: { cue: 2, plus: -0.3 }, src: [4.0, 5.2] },
+      { at: { cue: 2, plus: -0.3 }, src: [4.2, 4.7] },
       { at: { cue: 2, plus: 0.9 }, src: 8 },
     ],
     zoom: [{ at: 0, y: 60 }, { at: { cue: 1 }, y: 200 }, { at: { cue: 2 }, y: 330 }],
@@ -301,7 +301,7 @@ const SEGMENTS = [
     // from 7.2 s the unit meter (14 / 4) and the "Hypothesis · not measured" KPI chip are both on the phone at once.
     // C5 source (work-c5 frames-partner, live mode, 0 units): the scene now starts on the home bottom bar and taps "Retailer view (concept)" (1.6-2.2 s) into the widget (hold from 2.5 s);
     // scroll to the unit meter 5.4 s, to the KPI chip 9.4-9.6 s (meter + KPI chip on the phone together from 9.7 s)
-    timeline: [{ at: 0, src: [0, 2.6] }, { at: 3.3, src: 3.0 }, { at: { cue: 1, plus: -0.3 }, src: [9.4, 9.7] }, { at: { cue: 1, plus: 0.9 }, src: 11.5 }],
+    timeline: [{ at: 0, src: [0, 2.6] }, { at: 3.3, src: 3.0 }, { at: { cue: 1, plus: -0.3 }, src: [9.25, 9.6] }, { at: { cue: 1, plus: 0.9 }, src: 11.5 }],
     zoom: [{ at: 0, y: 507 }, { at: 3.0, y: 300 }, { at: { cue: 1, plus: -0.3 }, y: 240 }],
   },
   {
@@ -310,7 +310,7 @@ const SEGMENTS = [
     kicker: "Come back tomorrow",
     heading: "Practice streak and past results",
     chip: "Stored on this device only · 0 units",
-    note: "Best score 91 is the sample score from the grade scene",
+    note: "Past result seeded to the sample score (79) from the grade scene, for this demo",
     units: 14,
     lines: ["Come back tomorrow: your streak and past results wait on this device, and a new lesson costs just four units."],
     ui: [{ callout: "Streak + past results live on <b>this device</b> only.<br>Reused profile → only <b>4 units</b> for a new lesson." }],
@@ -345,20 +345,21 @@ const SEGMENTS = [
         callout: "<b>No selfie needed</b> · 30 s walk-through<br><span class=\"url\">mirror-tutor.vercel.app</span>Tap <b>Try with a sample model</b> · 0 units",
       },
     ],
-    // C5 source (work-c5 frames-share, mock --sample, banner scrolled away, score 91 = the grade scene): hold 0.13-5.6 s, scroll 5.6-5.9 s, then the "Next: retailer view" card below the progress section
+    // C5 source (work-c5 frames-share, mock --sample, banner scrolled away, score 79 = the grade scene): hold 0.13-5.6 s, scroll 5.6-5.9 s, then the "Next: retailer view" card below the progress section
     timeline: [{ at: 0, src: 1.5 }, { at: { cue: 1, plus: -0.3 }, src: [5.55, 5.95] }, { at: { cue: 1, plus: 0.9 }, src: 9 }],
     zoom: [{ at: 0, y: 150 }, { at: { cue: 1, plus: -0.3 }, y: 470 }],
   },
   {
     // C8: closing card (5-8 s, silent), plain claims only
     id: "close",
-    duration: 6.5,
+    // C9: the call to action is the biggest thing on the card (URL 120 px + the tap instruction), held for the whole 5 s card
+    duration: 5.0,
     card: {
       kicker: "Mirror Tutor",
       title: "Learn makeup, on your own face",
-      stack: true,
+      cta: { url: "mirror-tutor.vercel.app", tap: "Tap \u201cTry with a sample model\u201d \u00b7 0 units" },
       chips: ["4 VTO calls per lesson", "Retailer SKUs at the end", "No pilot claimed"],
-      sub: "mirror-tutor.vercel.app  ·  YouCam Face Analyzer + Makeup VTO  ·  hackathon prototype",
+      sub: "YouCam Face Analyzer + Makeup VTO  \u00b7  hackathon prototype",
     },
   },
 ];
@@ -762,7 +763,9 @@ function makeCard(seg, dir) {
     h1{margin:0;font-size:96px;line-height:1.08;font-weight:800;letter-spacing:-.02em;max-width:1800px;white-space:nowrap}
     .chips{display:flex;gap:24px;flex-wrap:wrap;justify-content:center}.chips.stack{flex-direction:column;align-items:center;gap:22px}.chip{background:#fcebe3;color:#a8264a;border-radius:44px;padding:20px 40px;font-size:44px;font-weight:800;border:3px solid #c8325b}.stack .chip{font-size:64px;padding:18px 54px}
     .s{font-size:32px;font-weight:600;color:#6b605c}
-    </style></head><body><div class="c"><div class="k">${esc(c.kicker)}</div><h1>${esc(c.title)}</h1><div class="chips${c.stack ? " stack" : ""}">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div></body></html>`,
+    .cta{display:flex;flex-direction:column;align-items:center;gap:14px;background:#c8325b;color:#fff;border-radius:36px;padding:34px 80px 38px;box-shadow:0 14px 40px rgba(200,50,91,.3)}.cta .u{font-size:124px;font-weight:800;letter-spacing:-.02em;line-height:1.05}.cta .t{font-size:58px;font-weight:700}
+    .c.has-cta{gap:30px}.has-cta h1{font-size:72px}.has-cta .chip{font-size:34px;padding:12px 30px}
+    </style></head><body><div class="c${c.cta ? " has-cta" : ""}"><div class="k">${esc(c.kicker)}</div><h1>${esc(c.title)}</h1>${c.cta ? `<div class="cta"><div class="u">${esc(c.cta.url)}</div><div class="t">${esc(c.cta.tap)}</div></div>` : ""}<div class="chips${c.stack ? " stack" : ""}">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div></body></html>`,
   );
   screenshot(html, png, W, H);
   const out = path.join(dir, `${seg.id}.mp4`);

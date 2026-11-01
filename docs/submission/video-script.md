@@ -161,3 +161,12 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - grade/share/home 점수: 샘플 시도가 시뮬레이션 사진(`sample-attempt.jpg`)으로 바뀌어 점수가 91 -> 79(눈 라인 77, 눈두덩 85, 볼 93, 립 62)가 됐고 부위마다 ΔE와 색 스와치가 보인다. 기존 영상의 91, 입술 63 장면은 오래된 값이다. 다시 녹화 시 `--setup full91`은 이제 79를 심는다. 영상 끝 카드 문구는 `recomposite.mjs`에서 "No selfie needed · 30 s walk-through"로 바꿨다.
 - /partner 390폭 가로 넘침을 고쳤다(스니펫 줄바꿈). 영상 partner 장면은 넘침이 있던 판이다.
 
+
+## 사이클 9 재합성 (171.6초, YouCam 유닛 0 사용, 새 TTS 줄 1개, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c9` (work-c8 복사본). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유), 직전 판 `.local/video/mirror-tutor-demo-live-c9prev.mp4`.
+- 오프닝: 몽타주와 제목 카드는 C7에서 이미 뺐다. 0:00부터 /compare 화면(분석기가 쌍꺼풀로 읽음 -> 홑꺼풀 수정 칩)과 "Makeup tutorials fit someone else's eyes."가 나오고, 첫 분석 얼굴 렌더가 화면에 계속 보인다. 이번에는 오프닝을 바꾸지 않았다.
+- 다시 녹화(0 유닛): grade·share(`--mode mock --sample`, 점수 79, 시뮬레이션 시도 안내문, 부위별 ΔE와 스와치), home(`--mode mock --setup full91`, 지난 결과 79), intro·partner(`--mode live`, API 호출 없음, 새 하단 바와 줄바꿈된 스니펫).
+- `record-video.mjs`: `full91`은 업로드 흐름이 모의 채점(80)을 저장한 뒤 다시 79를 심고 새로고침한다(새로고침 때문에 지난 결과 썸네일 사진은 빈 칸). 영상 노트는 "Past result seeded to the sample score (79) ... for this demo"로 밝혔다.
+- 나레이션 1줄 변경: grade 첫 줄 "Now draw the look, snap it. A simulated attempt stands in."(샘플 시도가 시뮬레이션이므로). 끝 카드는 5.0초, URL "mirror-tutor.vercel.app"을 124px 버튼으로 키우고 "Tap Try with a sample model · 0 units"를 함께 둠(6.5 -> 5.0초).
+- 검증: 장면 전환 감지(select gt(scene,0.08)) 23곳은 세그먼트 경계, 의도한 디졸브, compare·shop 스크롤뿐. 스켈레톤/빈/배너 프레임 없음. 자막은 나레이션 줄과 같은 문자열.
