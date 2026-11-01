@@ -7,7 +7,7 @@ import type { YouCamTransport } from "@/lib/youcam/client";
 import { POST as analyzePOST } from "@/app/api/analyze/route";
 import { POST as renderPOST } from "@/app/api/render/route";
 import { analyzeSample, isPregenerated, renderSample, SAMPLE_ATTEMPT, SAMPLE_LESSON, SAMPLE_MODEL } from "@/lib/services/sample";
-import { analyzedProfile, sampleAttemptFor, sampleModelById, SAMPLE_ATTEMPTS, SAMPLE_GRADES, SAMPLE_SCORE } from "@/lib/demo/sample";
+import { analyzedProfile, sampleAttemptFor, sampleOwnAttempt, sampleRecommendation, sampleModelById, SAMPLE_ATTEMPTS, SAMPLE_GRADES, SAMPLE_SCORE } from "@/lib/demo/sample";
 import { pregeneratedSteps } from "@/lib/services/sample";
 import { recommendLesson } from "@/lib/lessons";
 import { buildLesson } from "@/lib/lessons";
@@ -264,5 +264,24 @@ describe("C11 precomputed sample grades (result in under a second, same landmark
     expect(SAMPLE_GRADES[SAMPLE_ATTEMPT].grade.total).toBe(SAMPLE_SCORE);
     expect(sampleAttemptFor("data:image/jpeg;base64,AAAA")).toBeNull(); // a preview answer is graded live, not from the table
     expect(sampleAttemptFor(null)).toBeNull();
+  });
+});
+
+describe("C12 uncorrected monolid sample stays on the pre-generated lesson (same person, instant grade)", () => {
+  it("the analyzer's raw Double-lid reading of the monolid sample still recommends the pre-generated lesson", () => {
+    const raw = analyzedProfile("model-c");
+    expect(recommendLesson(raw).lessonId).not.toBe(SAMPLE_LESSON); // the rule table alone would pick "shading" (no pre-generated renders)
+    const r = analyzeSample(20, "model-c");
+    expect(r.ok && r.recommendation.lessonId).toBe(SAMPLE_LESSON);
+    expect(sampleRecommendation(raw).lessonId).toBe(SAMPLE_LESSON);
+    expect(pregeneratedSteps(SAMPLE_LESSON, raw, undefined, "model-c")).toEqual(sampleModelById("model-c").rawSteps);
+    // the visitor's correction keeps the rule-table pick
+    expect(sampleRecommendation(sampleModelById("model-c").profile).lessonId).toBe(recommendLesson(sampleModelById("model-c").profile).lessonId);
+  });
+
+  it("a fallback attempt is the sample's own face, never the other sample's photo", () => {
+    expect(sampleOwnAttempt("model-c")).toBe("/demo/model-c/sample-attempt.jpg");
+    expect(sampleOwnAttempt("model-a")).toBe(SAMPLE_ATTEMPT);
+    expect(SAMPLE_GRADES[sampleAttemptFor(sampleModelById("model-c").rawSteps![3])!].grade.total).toBe(SAMPLE_SCORE);
   });
 });

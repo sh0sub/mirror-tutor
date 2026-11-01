@@ -13,6 +13,7 @@ import { ATTR_NAME, VALUE_HINT, profileSummary, sourceCaption, valueLabel } from
 import { PROFILE_KEYS, PROFILE_OPTIONS, type FaceProfile, type ProfileKey } from "@/lib/profile";
 import { LESSONS, recommendLesson } from "@/lib/lessons";
 import { eyelidRuleRowsLabeled } from "@/lib/demo/compare";
+import { sampleRecommendation } from "@/lib/demo/sample";
 import { guideText, type GuideKey } from "@/lib/quality/messages";
 import { getShade, SHADES } from "@/lib/skin/shades";
 import type { SkinWarning } from "@/lib/skin/measure";
@@ -60,7 +61,7 @@ export default function AnalyzePage() {
   }, [photo, stored, router, setStored, setMode, refreshCredit, sample, sampleId]);
 
   const thumb = mode === "demo" ? "/demo/sample-model.svg" : photo?.url;
-  const rec = stored ? recommendLesson(stored.profile) : null;
+  const rec = stored ? (sample ? sampleRecommendation(stored.profile) : recommendLesson(stored.profile)) : null;
   // Pins only on the user's own photo with real landmarks (demo sample / failed detection → photo only).
   const ownPins = mode !== "demo" ? facePins : null;
   const focus = useMemo(() => (ownPins ? { x: (ownPins.eye.x + ownPins.lip.x) / 2, y: (ownPins.brow.y + ownPins.lip.y) / 2 } : null), [ownPins]);

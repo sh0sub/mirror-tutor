@@ -6,14 +6,9 @@ import { AppBar, Button, ButtonLink, Chip, Icon, Screen } from "@/components/ui"
 import { ProductArt } from "@/components/ProductArt";
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
-import { buildLesson } from "@/lib/lessons";
 import { PRODUCTS } from "@/lib/shop";
 import { INTEGRATION_SNIPPET, PARTNER_KPIS, PARTNER_SKU, unitMeter } from "@/lib/partner";
-import { comparePair, type CompareManifest } from "@/lib/demo/compare";
-import manifestJson from "@/public/demo/compare.json";
 
-/** The monolid face (analyzer reading corrected in the edit sheet) and its pre-generated lesson steps. */
-const model = comparePair(manifestJson as CompareManifest)[0];
 const product = PRODUCTS.find((p) => p.sku === PARTNER_SKU)!;
 const meter = unitMeter();
 
@@ -21,9 +16,7 @@ const meter = unitMeter();
 export default function PartnerPage() {
   const { lang, startSample } = useFlow();
   const router = useRouter();
-  const [k, setK] = useState(4);
   const [busy, setBusy] = useState(false);
-  const plan = buildLesson("daily-k", model.profile);
   const maxUnits = Math.max(...meter.rows.map((r) => r.units), meter.cap);
 
   const trySample = async () => {
@@ -62,29 +55,12 @@ export default function PartnerPage() {
             {t("partnerAddToCart", lang)}
           </Button>
 
-          <div data-testid="partner-widget" className="flex flex-col gap-3 rounded-xl border-2 border-dashed border-primary/40 bg-canvas p-3">
-            <p className="flex items-center gap-2 text-sm font-extrabold text-primary-strong">
+          <div data-testid="partner-widget" className="flex flex-col gap-2 rounded-xl border-2 border-dashed border-primary/40 bg-canvas p-2">
+            <p className="flex items-center gap-2 px-1 pt-1 text-sm font-extrabold text-primary-strong">
               <Icon name="sparkle" className="h-4 w-4" />
               {t("partnerWidgetTitle", lang)}
             </p>
-            <div className="relative mx-auto aspect-[3/4] w-full max-w-[260px] overflow-hidden rounded-xl bg-panel-2">
-              {/* eslint-disable-next-line @next/next/no-img-element -- static pre-generated demo asset */}
-              <img src={model.steps[k - 1]} alt="" width={600} height={800} className="h-full w-full object-cover" />
-            </div>
-            <p className="text-center text-xs text-muted">{tf("partnerWidgetCaption", lang, { n: k })}</p>
-            <div className="grid grid-cols-4 gap-1" role="group" aria-label={t("stepsNav", lang)}>
-              {plan.steps.map((s) => (
-                <button
-                  key={s.index}
-                  type="button"
-                  aria-pressed={k === s.index}
-                  onClick={() => setK(s.index)}
-                  className={`min-h-12 rounded-xl px-1 text-xs font-bold ${k === s.index ? "bg-primary text-on-primary" : "bg-panel text-ink"}`}
-                >
-                  {s.index} · {s.title[lang]}
-                </button>
-              ))}
-            </div>
+            <iframe src={`/embed/lesson?sku=${PARTNER_SKU}&lang=${lang}`} title={t("partnerWidgetTitle", lang)} className="mx-auto h-[640px] w-full max-w-[360px] rounded-xl border-0" loading="lazy" />
             <Button className="w-full" onClick={trySample} disabled={busy}>
               {t("partnerWidgetCta", lang)}
             </Button>

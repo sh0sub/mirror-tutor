@@ -4,6 +4,7 @@ import type { CompareManifest, CompareModel } from "./compare";
 import type { GradeResult } from "../grade/types";
 import type { GradePins } from "../facePins";
 import type { FaceProfile } from "../profile";
+import { recommendLesson, type Recommendation } from "../lessons";
 
 /**
  * "샘플 모델로 체험하기 · 0 유닛" (client-safe constants). Two sample faces of the two-face demo, both stock photos whose Face Analyzer
@@ -36,6 +37,8 @@ export const SAMPLE_ATTEMPTS: Record<string, string> = {
   [sampleModelById("model-c").steps[3]]: "/demo/model-c/sample-attempt.jpg",
   [sampleModelById("model-c").rawSteps?.[3] ?? "/demo/model-c/raw-step-4.jpg"]: "/demo/model-c/sample-attempt-raw.jpg",
 };
+/** Fallback attempt for a sample whose answer is not a pre-generated image: that sample's own face (never another person's photo). */
+export const sampleOwnAttempt = (id: SampleId): string => (id === "model-c" ? "/demo/model-c/sample-attempt.jpg" : SAMPLE_ATTEMPT);
 /** The attempt photo for an answer image, or null when the answer is not a pre-generated one (a ±20% preview, an edited profile). */
 export const sampleAttemptFor = (answerImage: string | null): string | null => (answerImage ? (SAMPLE_ATTEMPTS[answerImage] ?? null) : null);
 
@@ -51,3 +54,14 @@ export interface SampleGrade {
   pins: GradePins | null;
 }
 export const SAMPLE_GRADES = gradesJson as unknown as Record<string, SampleGrade>;
+
+/**
+ * Lesson recommendation inside the sample trial. The sample's renders were pre-generated for SAMPLE_LESSON only, so the sample
+ * always recommends it (the monolid sample's raw Double-lid reading would otherwise point at a lesson with no pre-generated
+ * images and the trial would fall back to a preview overlay and a different face). Edited profiles keep the rule-table pick.
+ */
+export function sampleRecommendation(profile: FaceProfile): Recommendation {
+  const rec = recommendLesson(profile);
+  if (rec.lessonId === SAMPLE_LESSON) return rec;
+  return profile.eyelid === "double" ? { lessonId: SAMPLE_LESSON as Recommendation["lessonId"], reason: { ko: "쌍꺼풀 주름을 살린 기본 룩", en: "Everyday look that uses your crease" } } : rec;
+}

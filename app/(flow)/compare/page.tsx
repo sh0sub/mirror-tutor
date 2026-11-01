@@ -43,6 +43,19 @@ function RuleList({ rows, lang, names }: { rows: TechniqueRow[]; lang: Lang; nam
   );
 }
 
+/** Direction cue over an eye crop: a horizontal double arrow (shadow fades side to side) or a vertical one (fades up and down), over the lid. */
+function GradientArrow({ dir }: { dir: "horizontal" | "vertical" }) {
+  const d = dir === "horizontal" ? "M16 34H84M16 34l9-7M16 34l9 7M84 34l-9-7M84 34l-9 7" : "M50 14V70M50 14l-7 9M50 14l7 9M50 70l-7-9M50 70l7-9";
+  return (
+    <svg viewBox="0 0 100 100" aria-hidden data-arrow={dir} className="pointer-events-none absolute inset-0 h-full w-full" preserveAspectRatio="none">
+      <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d={d} stroke="rgba(0,0,0,0.55)" strokeWidth={4} vectorEffect="non-scaling-stroke" />
+        <path d={d} stroke="#fff" strokeWidth={2} vectorEffect="non-scaling-stroke" />
+      </g>
+    </svg>
+  );
+}
+
 /** Pair shown on /compare (monolid face vs double-lid face) and the step whose eye technique differs. */
 const pair = comparePair(manifest);
 const gradient = pair[0].gradientPair;
@@ -68,15 +81,15 @@ export default function ComparePage() {
   const edited = pair.find((m) => m.edited?.includes("eyelid"));
 
   return (
-    <Screen>
+    <Screen wide>
       <AppBar title={t("compareTitle", lang)} backHref="/" />
-      <main className="flex flex-1 flex-col gap-4 px-4 py-4">
-        <div>
+      <main className="flex flex-1 flex-col gap-4 px-4 pb-24 pt-4 lg:grid lg:grid-cols-2 lg:content-start lg:gap-x-8 lg:px-6 lg:pb-8">
+        <div className="lg:col-span-2">
           <p className="text-lg font-extrabold">{plan.title[lang]}</p>
           <p className="text-sm text-muted">{t("compareIntro", lang)}</p>
         </div>
 
-        <div role="tablist" aria-label={t("stepsNav", lang)} className="grid grid-cols-4 gap-1.5">
+        <div role="tablist" aria-label={t("stepsNav", lang)} className="grid grid-cols-4 gap-1.5 lg:col-span-2">
           {plan.steps.map((s) => (
             <button
               key={s.index}
@@ -93,6 +106,7 @@ export default function ComparePage() {
           ))}
         </div>
 
+        <div className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-2" role="tabpanel" aria-label={`${tf("stepNumbered", lang, { n: k })} ${step.title[lang]}`}>
           {pair.map((m) => (
             <figure key={m.id} className="flex flex-col gap-1.5">
@@ -128,6 +142,36 @@ export default function ComparePage() {
         >
           {before ? t("showAfter", lang) : t("showBefore", lang)}
         </button>
+        {gradient && (
+          <section aria-labelledby="gradient" className="flex flex-col gap-3 rounded-[var(--radius-panel)] bg-panel p-4" data-testid="gradient-pair">
+            <h2 id="gradient" className="text-sm font-extrabold">
+              {t("gradientTitle", lang)}
+            </h2>
+            <p className="text-xs text-muted">{tf("gradientBody", lang, { n: gradient.shadowIntensity })}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {(["horizontal", "vertical"] as const).map((dir) => (
+                <figure key={dir} className="flex flex-col gap-1.5">
+                  <div className="relative aspect-[3/2] overflow-hidden rounded-xl bg-panel-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- static pre-generated demo asset, cropped to the eyes by CSS */}
+                    <img
+                      src={gradient[dir]}
+                      alt={`${faceName(a, lang)} · ${t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}`}
+                      className="h-full w-full object-cover"
+                      style={{ objectPosition: "50% 35%", transform: "scale(1.6)" }}
+                      width={600}
+                      height={800}
+                    />
+                    <GradientArrow dir={dir} />
+                  </div>
+                  <figcaption className="text-xs font-bold leading-snug">{t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}</figcaption>
+                </figure>
+              ))}
+            </div>
+            <p className="text-xs text-muted">{t("gradientNote", lang)}</p>
+          </section>
+        )}
+        </div>
+        <div className="flex flex-col gap-4">
 
         <section aria-labelledby="rules" className="flex flex-col gap-2 rounded-[var(--radius-panel)] bg-panel p-4">
           <h2 id="rules" className="text-sm font-extrabold">
@@ -147,34 +191,6 @@ export default function ComparePage() {
           {edited && rows.some((r) => r.attr === "eyelid") && <p className="text-xs text-muted">{t("compareEditedNote", lang)}</p>}
           {b.profile.eyelid === "inner_double" && rows.some((r) => r.attr === "eyelid") && <p className="text-xs text-muted">{t("compareInnerNote", lang)}</p>}
         </section>
-
-        {gradient && (
-          <section aria-labelledby="gradient" className="flex flex-col gap-3 rounded-[var(--radius-panel)] bg-panel p-4" data-testid="gradient-pair">
-            <h2 id="gradient" className="text-sm font-extrabold">
-              {t("gradientTitle", lang)}
-            </h2>
-            <p className="text-xs text-muted">{tf("gradientBody", lang, { n: gradient.shadowIntensity })}</p>
-            <div className="grid grid-cols-2 gap-2">
-              {(["horizontal", "vertical"] as const).map((dir) => (
-                <figure key={dir} className="flex flex-col gap-1.5">
-                  <div className="aspect-[3/2] overflow-hidden rounded-xl bg-panel-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- static pre-generated demo asset, cropped to the eyes by CSS */}
-                    <img
-                      src={gradient[dir]}
-                      alt={`${faceName(a, lang)} · ${t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}`}
-                      className="h-full w-full object-cover"
-                      style={{ objectPosition: "50% 35%", transform: "scale(1.6)" }}
-                      width={600}
-                      height={800}
-                    />
-                  </div>
-                  <figcaption className="text-xs font-bold leading-snug">{t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}</figcaption>
-                </figure>
-              ))}
-            </div>
-            <p className="text-xs text-muted">{t("gradientNote", lang)}</p>
-          </section>
-        )}
 
         <section aria-labelledby="whatif" className="flex flex-col gap-3 rounded-[var(--radius-panel)] border border-peach bg-panel p-4">
           <h2 id="whatif" className="text-sm font-extrabold">
@@ -224,6 +240,7 @@ export default function ComparePage() {
           </div>
         </section>
         <p className="text-xs leading-relaxed text-muted">{tf("compareCredit", lang, { date: manifest.generatedAt })}</p>
+        </div>
       </main>
       <BottomBar>
         <ButtonLink href="/" className="w-full">

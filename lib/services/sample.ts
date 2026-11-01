@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { buildLesson, recommendLesson, type BuildOptions } from "../lessons";
+import { buildLesson, type BuildOptions } from "../lessons";
 import { mockRenderEffects } from "../youcam/mockRender";
-import { analyzedProfile, DEFAULT_SAMPLE, SAMPLE_LESSON, sampleModelById, type SampleId } from "../demo/sample";
+import { analyzedProfile, DEFAULT_SAMPLE, sampleRecommendation, SAMPLE_LESSON, sampleModelById, type SampleId } from "../demo/sample";
 import type { FaceProfile, ProfileKey } from "../profile";
 import type { AnalyzeResult, UnitInfo } from "./analyze";
 import type { RenderSummary, StepResult } from "./render";
@@ -28,7 +28,7 @@ export function analyzeSample(sessionCap: number, id: SampleId = DEFAULT_SAMPLE)
     mode: "sample",
     profile,
     source: sampleModelById(id).source as Record<ProfileKey, string>,
-    recommendation: recommendLesson(profile),
+    recommendation: sampleRecommendation(profile),
     units: sampleUnits(sessionCap),
   };
 }

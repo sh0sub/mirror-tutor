@@ -14,7 +14,7 @@ import type { FaceDetection } from "@/lib/client/landmarker";
 import type { FacePins } from "@/lib/facePins";
 import type { SkinMeasure } from "@/lib/skin/measure";
 import { nearestShade } from "@/lib/skin/shades";
-import { DEFAULT_SAMPLE, sampleAttemptFor, sampleModelById, SAMPLE_ATTEMPT, type SampleId } from "@/lib/demo/sample";
+import { DEFAULT_SAMPLE, sampleAttemptFor, sampleModelById, sampleOwnAttempt, type SampleId } from "@/lib/demo/sample";
 import { EMPTY_LOG, clearPractice, loadConsent, loadPractice, recordPractice, saveConsent, savePractice, type PracticeLog } from "@/lib/practice";
 
 /**
@@ -350,8 +350,8 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   }, [resetRun, setPhotoRaw]);
 
   const loadSampleAttempt = useCallback(async (answerImage?: string | null) => {
-    setAttempt(await fetchBlob(sampleAttemptFor(answerImage ?? null) ?? SAMPLE_ATTEMPT));
-  }, [setAttempt]);
+    setAttempt(await fetchBlob(sampleAttemptFor(answerImage ?? null) ?? sampleOwnAttempt(sampleId)));
+  }, [setAttempt, sampleId]);
 
   const endSession = useCallback(async () => {
     setSample(false);

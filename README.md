@@ -13,6 +13,11 @@ Live demo: https://mirror-tutor.vercel.app (see [Demo mode](#demo-mode-and-unit-
 2. Walk analysis, the 4-step lesson, grading and shop the step; every image is a real pre-generated YouCam result; the graded attempt is a simulated, deliberately off-shade copy of the answer image (labelled on screen), so the scores are not 100s. The sample result shows after a short comparing beat because its grade was computed offline with the same landmark grader (live selfie grading still runs on your device).
 3. Open /compare for the monolid vs double-lid split, and "Retailer view (concept)" for /partner.
 
+**Why a brand pays (hypothesis, not measured)**
+- A try-on shows the shade; a retailer still loses the shopper at "how do I wear it". Our guess is that seeing the look on your own face, in the exact catalog shade, cuts returns. We have not tested it: no pilot, no retailer, no measured lift.
+- What exists today: `/embed/lesson?sku=...`, a chrome-less iframe (stepper, bare/finished slider, the SKU's shade matched to the lesson color with CIEDE2000), live on /partner with a one-line snippet.
+- Ours vs YouCam: YouCam reads the face and renders the steps; we add the rule table, the analyzer-misread correction, per-region CIEDE2000 grading of a real attempt, catalog matching and the widget.
+
 **Why Perfect Corp wants this**
 - One lesson triggers 4 Makeup VTO calls per engaged user (one per step), where a normal product view is 1 try-on.
 - Every lesson ends in shop links: step colors are matched to catalog products with CIEDE2000.
@@ -37,7 +42,7 @@ Makeup tutorials are filmed on someone else's face. The same eyeshadow looks dif
 5. **Grade** your own attempt photo: per-region score (eye line, eyelid, cheek, lip) plus a one-line correction.
 6. **Shop the step**: the hex colors used in a step are matched to a demo catalog by color difference (CIEDE2000 <= 5). Then a share card.
 7. **/compare**: a monolid face and a double-lid face (pre-generated with real YouCam calls) get the same look; the page opens on the eye step where their techniques split. The monolid face's eyelid was corrected on M2 after Face Analyzer read it as a double lid, and the page says so. A what-if panel previews the other rule-table branches (inner double, hooded, lip shapes) as text for 0 units.
-8. **/partner**: the retailer view (concept; reachable from a visible button beside the sample button on home and from a "Next: retailer view" card at the end of the sample trial): the lesson widget on a fictional product page, an illustrative one-line integration snippet (no SDK is published), the unit-cost meter (14 then 4) and the KPIs to measure, all marked as hypothesis with no numbers.
+8. **/partner**: the retailer view (concept; reachable from a visible button beside the sample button on home and from a "Next: retailer view" card at the end of the sample trial): the real `/embed/lesson?sku=` iframe live inside a fictional product page, its one-line iframe snippet (no SDK; `frame-ancestors` is open on /embed only), the unit-cost meter (14 then 4) and the KPIs to measure, all marked as hypothesis with no numbers.
 9. **Home**: returning users see a practice streak, past results and a bottom tab bar; all of it is stored on the device only. "View in store" in Shop the step opens a confirmation sheet before leaving the app.
 
 ## YouCam APIs used

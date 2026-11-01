@@ -9,14 +9,11 @@ import { SamplePicker } from "@/components/SamplePicker";
 import type { SampleId } from "@/lib/demo/sample";
 import { t, tf } from "@/lib/i18n";
 import { guideText } from "@/lib/quality/messages";
-import { FACE_NAME, profileSummary, valueLabel } from "@/lib/labels";
+import { profileSummary, valueLabel } from "@/lib/labels";
 import { LESSONS, recommendLesson } from "@/lib/lessons";
 import { streakDays, weekDots } from "@/lib/practice";
-import { comparePair, type CompareManifest } from "@/lib/demo/compare";
-import manifestJson from "@/public/demo/compare.json";
-
-/** Hero: the monolid face and the double-lid face after the same lesson (links to /compare). */
-const heroPair = comparePair(manifestJson as CompareManifest);
+import { CompareSlider } from "@/components/CompareSlider";
+import { sampleModelById } from "@/lib/demo/sample";
 
 /** Onboarding (M1 entry, consent) and the returning-user home (flow B: profile → lesson, no re-analysis). */
 export default function Home() {
@@ -45,6 +42,7 @@ export default function Home() {
   useEffect(() => {
     if (sample && !startingSample.current) setPhoto(null);
   }, [sample, setPhoto]);
+  const heroModel = sampleModelById(sampleChoice);
   const samplePicker = <SamplePicker value={sampleChoice} onChange={setSampleChoice} lang={lang} disabled={sampleBusy} />;
   const sampleButton = (
     <Button variant="soft" className="min-w-0 flex-[1.5] border border-primary/30 px-3 leading-tight" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-hint">
@@ -244,21 +242,22 @@ export default function Home() {
                 </p>
               )}
             </div>
-            <Link href="/compare" aria-label={t("compareEntry", lang)} className="order-first flex flex-col gap-2 lg:order-none lg:mx-auto lg:w-full lg:max-w-[340px] lg:rounded-[44px] lg:border-[10px] lg:border-ink lg:bg-canvas lg:px-3 lg:pb-4 lg:pt-6 lg:shadow-xl">
+            <figure className="order-first flex flex-col gap-2 lg:order-none lg:mx-auto lg:w-full lg:max-w-[340px] lg:rounded-[44px] lg:border-[10px] lg:border-ink lg:bg-canvas lg:px-3 lg:pb-4 lg:pt-6 lg:shadow-xl" data-testid="hero-slider">
               <span aria-hidden className="mx-auto hidden h-1.5 w-16 rounded-full bg-ink/80 lg:block" />
-              <div className="grid grid-cols-2 gap-2">
-                {heroPair
-                  .map((m) => ({ src: m.steps[m.steps.length - 1], label: FACE_NAME[m.profile.eyelid][lang] }))
-                  .map((im) => (
-                  <div key={im.label} className="relative aspect-[3/4] overflow-hidden rounded-xl bg-panel-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- static pre-generated demo asset */}
-                    <img src={im.src} alt="" width={600} height={800} className="h-full w-full object-cover" />
-                    <span className="absolute left-2 top-2 rounded-full bg-ink/70 px-2 py-0.5 text-xs font-bold text-canvas">{im.label}</span>
-                  </div>
-                ))}
+              {/* the bare photo vs the lesson's finished look (real Makeup VTO result, step 4), on the sample face the picker below selects */}
+              <div className="overflow-hidden rounded-xl">
+                <CompareSlider
+                  key={heroModel.id}
+                  before={heroModel.original}
+                  after={heroModel.steps[heroModel.steps.length - 1]}
+                  label={t("sliderLabel", lang)}
+                  beforeLabel={t("heroBare", lang)}
+                  afterLabel={t("heroFull", lang)}
+                  aspect="aspect-[7/8]"
+                />
               </div>
-              <p className="text-center text-xs font-bold leading-snug text-primary-strong">{t("heroSampleCaption", lang)}</p>
-            </Link>
+              <figcaption className="text-center text-sm font-extrabold leading-snug text-primary-strong">{t("heroSampleCaption", lang)}</figcaption>
+            </figure>
           </section>
         )}
         {hydrated && (

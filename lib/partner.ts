@@ -8,9 +8,13 @@ export const DEFAULT_SESSION_CAP = 20;
 /** The product the fictional page sells (a catalog SKU, so the lesson's lip color is a real match). */
 export const PARTNER_SKU = "MT-VT-07";
 
-/** One-line integration shape. Illustrative: no SDK is published yet (the page says so). */
-export const INTEGRATION_SNIPPET = `<script src="https://widget.example-retailer.com/mirror-tutor.js"
-  data-lesson="daily-k" data-sku="${PARTNER_SKU}" async></script>`;
+/** Where the widget is deployed; the snippet on /partner points at it. */
+export const EMBED_ORIGIN = "https://mirror-tutor.vercel.app";
+
+/** The integration: a plain iframe on the real /embed/lesson route (no SDK; frame-ancestors is open on /embed only). */
+export const INTEGRATION_SNIPPET = `<iframe src="${EMBED_ORIGIN}/embed/lesson?sku=${PARTNER_SKU}"
+  title="Learn this look" width="360" height="640"
+  style="border:0" loading="lazy"></iframe>`;
 
 export interface UnitMeterRow {
   id: "first" | "next";
