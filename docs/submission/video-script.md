@@ -1,4 +1,4 @@
-# 데모 영상 스크립트 (약 2:54, 173.8초)
+# 데모 영상 스크립트 (약 2:52, 171.6초)
 
 이슈 #28 시나리오를 현재 앱 라우트(`/capture` `/analyze` `/lesson` `/compare` `/grade` `/shop` `/share`)에 맞춘 촬영안. 영상은 1~3분, YouTube 공개, 제3자 상표·음악 없음, 실기기 구동 장면 포함. 나레이션은 영어(Devpost 심사용), 자막은 한국어를 기본으로 하고 영어 자막은 나레이션과 같은 문장을 쓴다.
 
@@ -26,7 +26,7 @@
 | 8 | 2:00-2:15 | `/shop` 단계 스와치 hex -> 제품 카드, 색차 ΔE | 스와치 탭, ΔE 표시와 "데모 데이터" 문구 | "The exact colors from each step map to products by color difference. The tutorial becomes the cart. The catalog is a demo; real SKUs would come from a partner feed." | 단계에서 쓴 색이 그대로 제품이 돼요. 카탈로그는 데모이고, 실제 SKU는 제휴 피드로 교체합니다. |
 | 9 | 2:15-2:30 | `/share` 공유 카드 -> `docs/architecture.svg` 1장(3초) -> 로고 카드 | 공유 카드 저장 후 아키텍처 이미지 | "Photos are never stored, units are capped per session. Mirror Tutor: learn K-beauty on your own face." | 사진은 저장하지 않고 유닛은 세션당 상한. Mirror Tutor, 내 얼굴로 배우는 K-메이크업. |
 
-원래 촬영안은 150초. 실제 제출용 자동 녹화본은 아래 "자동 녹화"·"재합성" 절(약 2:54)을 따른다. 나레이션이 시간보다 길면 4번과 5번 문장부터 줄인다(심사 기준: API를 어떻게 쓰는지가 보여야 하므로 8번보다 4·5번을 남긴다).
+원래 촬영안은 150초. 실제 제출용 자동 녹화본은 아래 "자동 녹화"·"재합성" 절(약 2:52)을 따른다. 나레이션이 시간보다 길면 4번과 5번 문장부터 줄인다(심사 기준: API를 어떻게 쓰는지가 보여야 하므로 8번보다 4·5번을 남긴다).
 
 ## 테이크와 유닛 예산
 

@@ -39,7 +39,7 @@
 
 | 항목 | 상태 | 방법 / 메모 |
 |---|---|---|
-| 데모 영상 (얼굴 없는 버전, 약 2:54 = 173.8초) | 완료 (11/2, C3 판) | `.local/video/mirror-tutor-demo-live.mp4` (직전 판 `-c3prev.mp4`). 구성: 한 줄 hook, 앱이 하는 일 한 줄(14유닛), 카메라 품질 게이트, 분석, 레슨 4단계, 비교, 채점, 쇼핑, 공유, /partner 소매 화면. 화면별 출처를 영상 설명과 Devpost에 그대로 적는다. live(실제 YouCam)는 분석 10유닛과 렌더 4유닛(합계 14유닛, 원본 촬영). 샘플/mock 모드(0유닛)는 도입부, 비교 장면, 채점 장면(점수 91, 이전 live 판은 87)이다. capture 장면은 Chrome 가짜 카메라에 스톡 사진(Pexels License)을 넣어 품질 게이트만 보여 주고 셔터는 누르지 않는다(API 호출 0). /partner는 정적 페이지(0유닛). 홑꺼풀 얼굴은 Face Analyzer가 쌍꺼풀로 읽어 앱 수정 시트에서 고쳤다고 비교 화면 칩으로 밝힌다. 스톡 사진만, 영어 나레이션(OpenAI gpt-4o-mini-tts, 음성 marin)·자막, 음악 없음. 길이 180초 미만 유지. |
+| 데모 영상 (얼굴 없는 버전, 약 2:52 = 171.6초) | 완료 (11/2, C9 판) | `.local/video/mirror-tutor-demo-live.mp4` (직전 판 `-c9prev.mp4`). 구성: 한 줄 hook, 앱이 하는 일 한 줄(14유닛), 카메라 품질 게이트, 분석, 레슨 4단계, 비교, 채점, 쇼핑, 공유, /partner 소매 화면. 화면별 출처를 영상 설명과 Devpost에 그대로 적는다. live(실제 YouCam)는 분석 10유닛과 렌더 4유닛(합계 14유닛, 원본 촬영). 샘플/mock 모드(0유닛)는 도입부, 비교 장면, 채점 장면(가상 시도 사진, 점수 79: 아이라인 77·눈두덩 85·볼 93·입술 62)이다. capture 장면은 Chrome 가짜 카메라에 스톡 사진(Pexels License)을 넣어 품질 게이트만 보여 주고 셔터는 누르지 않는다(API 호출 0). /partner는 정적 페이지(0유닛). 홑꺼풀 얼굴은 Face Analyzer가 쌍꺼풀로 읽어 앱 수정 시트에서 고쳤다고 비교 화면 칩으로 밝힌다. 스톡 사진만, 영어 나레이션(OpenAI gpt-4o-mini-tts, 음성 marin)·자막, 음악 없음. 길이 180초 미만 유지. |
 | YouTube 공개 업로드 | 남음(사용자) | 위 mp4를 **공개**로 업로드. 제목 "Mirror Tutor - YouCam API VTO Hackathon", 설명에 라이브 URL·저장소 URL·"Sample faces: Pexels and Unsplash License stock photos (commercial use allowed, not real users)". 링크를 알려 주면 devpost.md에 넣는다. |
 
 ## 스크린샷 — 완료 (11/2 재생성)
