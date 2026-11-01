@@ -219,6 +219,11 @@ export default function Home() {
             {t("compareEntry", lang)}
           </ButtonLink>
         )}
+        {hydrated && (
+          <Link href="/partner" className="inline-flex min-h-12 items-center justify-center self-center text-sm font-bold text-primary-strong underline underline-offset-4">
+            {t("partnerEntry", lang)}
+          </Link>
+        )}
         {returning && (
           <div className="flex flex-col gap-1">
             {sampleButton}

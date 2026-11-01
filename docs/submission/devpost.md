@@ -2,6 +2,35 @@
 
 Track: **eCommerce VTO**. (Face Attribute & Ratio Analysis is used as a supporting input, not as a separate track.)
 
+## Tagline (<= 200 characters)
+
+Makeup tutorials fit someone else's face. Mirror Tutor reads your features with YouCam, renders every lesson step on your own photo, then grades your real attempt and shows the products.
+
+(Character count: 186.)
+
+**The hook.** Face Analyzer read our monolid stock model as double-lid on both eyes. The app lets you correct it (marked "Edited"), and the whole lesson changes. The compare page shows both faces side by side, with the analyzer's raw reading and the corrected value.
+
+**Try it in 30 seconds (0 units, no selfie).**
+1. Open https://mirror-tutor.vercel.app and tap "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛").
+2. Walk analysis, the 4-step lesson, grading and shop the step; every image is a real pre-generated YouCam result.
+3. Open /compare for the monolid vs double-lid split, and /partner for the retailer view (widget, unit cost, KPIs to measure).
+
+**Why this is not a wrapper.**
+- Face Analyzer output is not displayed, it feeds a rule table: monolid gets a horizontal gradient and a liner visible 1.5 mm, a double lid gets a different technique.
+- A lesson step k is YouCam Makeup VTO with effects 1..k rendered cumulatively on one uploaded `file_id`, so each step is an answer image.
+- That VTO output is the grading reference: your real attempt is compared to it per region with CIEDE2000.
+- The foundation shade is measured on the device from your cheeks and passed into the VTO foundation effect.
+
+## What it does
+
+1. **Capture and analyze:** a quality gate checks the photo before any unit is spent; Face Attribute & Ratio Analysis reads eyelid, eye, lip, face and brow shape, and you can correct any value (marked "Edited").
+2. **Technique:** a visible rule table maps each feature to a technique and a plain reason (monolid -> horizontal gradient shadow + liner visible 1.5 mm).
+3. **Lesson:** 3 lessons x 4 steps; Makeup VTO renders each step cumulatively on your photo, with a before/after slider.
+4. **Grade and shop:** per-region scores (eye line, eyelid, cheek, lip) with a one-line correction, then step colors matched to catalog products by CIEDE2000 (<= 5) and a share card.
+5. **Compare and /partner:** a monolid and a double-lid face get the same look with different eye techniques (/compare, pre-generated, 0 units); /partner shows the retailer view.
+
+Also: Korean and English UI, a per-session unit cap, a demo mode that serves pre-generated results when the API balance is low, practice streak stored on the device only, and a "Try with a sample model · 0 units" button that walks the full flow without a selfie.
+
 ## Who would pay (a hypothesis, not a measured result)
 
 | | |
@@ -14,43 +43,13 @@ Track: **eCommerce VTO**. (Face Attribute & Ratio Analysis is used as a supporti
 
 Arithmetic (assumptions, not measurements): YouCam calls per user = 14 units for the first lesson (10 analysis + 4 renders) and 4 for each later lesson, so a user who finishes 3 lessons over time costs 14 + 4 + 4 = 22 units (one session is capped at 20). A retailer pays that unit cost plus margin per engaged session and recovers it only if shop-the-step sessions convert better than a plain product page; we have no number for that yet. Brand route: the lesson JSON and the `lib/catalog` product-feed schema (sku, category, localized name, shade hex list, texture, price) are the integration surface for an embeddable widget or SDK; a retailer swaps in its own feed and lessons.
 
+The /partner page in the app shows this as a screen: the lesson widget on a fictional product page, the one-line integration shape (illustrative, no SDK is published yet), a unit-cost meter (14, then 4) and the KPIs as "hypothesis, no data yet".
+
 No pilot has been run and no conversion or revenue number exists yet. The demo uses stock photos only; the numbers above are unit costs from our live tests.
-
-## Tagline (<= 200 characters)
-
-Makeup tutorials fit someone else's face. Mirror Tutor reads your features with YouCam, renders every lesson step on your own photo, then grades your real attempt and shows the products.
-
-(Character count: 186.)
-
-**Why this is not a wrapper.**
-- Face Analyzer output is not displayed, it feeds a rule table: monolid gets a horizontal gradient and a liner visible 1.5 mm, a double lid gets a different technique.
-- A lesson step k is YouCam Makeup VTO with effects 1..k rendered cumulatively on one uploaded `file_id`, so each step is an answer image.
-- That VTO output is the grading reference: your real attempt is compared to it per region with CIEDE2000.
-- The foundation shade is measured on the device from your cheeks and passed into the VTO foundation effect.
-
-**The hook.** Face Analyzer read our monolid stock model as double-lid on both eyes. The app lets you correct it (marked "Edited"), and the whole lesson changes. The compare page shows both faces side by side, with the analyzer's raw reading and the corrected value.
-
-**Try it in 30 seconds (0 units, no selfie).**
-1. Open https://mirror-tutor.vercel.app and tap "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛").
-2. Walk analysis, the 4-step lesson, grading and shop the step; every image is a real pre-generated YouCam result.
-3. Open /compare for the monolid vs double-lid split.
 
 ## Inspiration
 
 Makeup tutorials are filmed on someone else's face. A gradient eyeshadow that works on a double eyelid looks muddy on a monolid, and a viewer with monolids has to guess what to change. After trying, there is no feedback on how close the result is, and finding the same shades is a separate search. We wanted a tutorial that starts from your face, checks your result, and turns the colors in each step into a shopping list.
-
-## What it does
-
-1. Capture: a live quality gate checks the photo against YouCam's input requirements before any unit is spent.
-2. Analyze: Face Attribute & Ratio Analysis reads eyelid, eye, lip, face and brow shape; you can correct any value, and the foundation shade is measured on the device (only the shade id leaves the browser).
-3. Technique: a hand-written rule table maps each feature to a technique and a plain reason (monolid -> horizontal gradient shadow + liner visible 1.5 mm).
-4. Lesson: 3 lessons x 4 steps; Makeup VTO renders each step cumulatively on your photo, with a before/after slider.
-5. Grade: photograph your attempt; per-region scores (eye line, eyelid, cheek, lip) with a one-line correction and a confidence level.
-6. Shop the step: step hex colors matched to catalog products by CIEDE2000 (<= 5), then a share card.
-7. Compare: a monolid and a double-lid face get the same look; the eye step shows different techniques (pre-generated with real calls, 0 units). A what-if panel previews other branches as text.
-8. Home: practice streak and past results, stored on the device only.
-
-Also: Korean and English UI, a per-session unit cap, a demo mode that serves pre-generated results when the API balance is low, and a "Try with a sample model · 0 units" button that walks the full flow on a stock model without a selfie.
 
 ## How we built it
 
@@ -76,7 +75,7 @@ Also: Korean and English UI, a per-session unit cap, a demo mode that serves pre
 - The loop is closed: analyze -> technique -> answer image -> your attempt -> score -> product. The VTO output is the grading reference, not just a picture.
 - Techniques depend on the face. The rule table is visible in the app, so it is clear that the output changes with the eyelid.
 - Per-step answer images cost one unit each, and a first-time flow costs 14 units.
-- 195 tests (26 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
+- 199 tests (27 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
 
 ## What we learned
 
@@ -86,7 +85,7 @@ Also: Korean and English UI, a per-session unit cap, a demo mode that serves pre
 
 ## What's next
 
-- Business case: see the table at the top (buyer, integration, pricing, KPI).
+- Business case: see "Who would pay" above (buyer, integration, pricing, KPI) and the /partner page.
 - **Validation plan:** run the flow with monolid and hooded-lid users and measure whether the per-region score rises across attempts. The demo uses stock photos only, so this has not been tested with real users yet.
 - Replace the demo catalog with a partner product feed (for example a retailer feed or a shopping search API) so each step links to real SKUs and shades.
 - Extend skin-tone personalization from foundation and blush to lip and shadow palettes.
@@ -101,6 +100,7 @@ Next.js, React, TypeScript, Tailwind CSS, YouCam API (Face Attribute & Ratio Ana
 
 - Live demo: https://mirror-tutor.vercel.app (if the YouCam balance is low it shows pre-generated sample models and says so)
 - **For judges (no selfie needed, 0 units):** on the home screen or the camera/consent step, tap **"Try with a sample model · 0 units"** (KO: "샘플 모델로 체험하기 · 0 유닛"). It runs the whole flow on a stock-photo model: analysis → 4-step lesson with the real pre-generated YouCam Makeup VTO results → grading of a stock "attempt" → shop the step → share card. A banner says it is a sample, nothing is uploaded, and the server path for it has no YouCam client, so it cannot spend units. To try it on your own face, tap "Get started" instead.
+- Retailer view (concept): https://mirror-tutor.vercel.app/partner (fictional store, illustrative snippet, KPIs marked hypothesis)
 - Source code: https://github.com/sh0sub/mirror-tutor (public, MIT)
 - Video: YouTube link (add after upload). The demo (about 2:56) is faceless (stock photos only). The main flow was captured against the live YouCam API with 14 units; the intro (home hero) and the compare segment were re-recorded with 0 units (no YouCam calls).
 - Test images: `public/demo/model-a`, `model-b` (Pexels License) and `model-c` (monolid face, Unsplash License) in the repository; all sample faces are Pexels and Unsplash License stock photos (commercial use allowed, not real users). Or use your own selfie
