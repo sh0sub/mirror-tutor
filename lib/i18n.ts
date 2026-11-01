@@ -220,6 +220,16 @@ const DICT = {
   skinCost: { ko: "바꾸면 레슨 단계를 다시 그려요 · 단계당 1 유닛", en: "Changing it redraws lesson steps · 1 unit per step" },
   skinPrivacy: { ko: "피부색은 이 기기에서만 재고, 서버에는 호수만 보내요.", en: "Skin tone is measured on this device; only the shade number is sent." },
   partnerEntry: { ko: "리테일러 화면 보기 (콘셉트)", en: "See the retailer view (concept)" },
+  partnerEntryShort: { ko: "리테일러 화면 (콘셉트)", en: "Retailer view (concept)" },
+  partnerPitch: {
+    ko: "쇼핑몰·브랜드용: 상품 페이지에 \"내 얼굴로 배우기\"를 넣으면, 보는 데서 끝나던 가상 메이크업이 따라 해 볼 수 있는 레슨과 구매로 이어져요.",
+    en: "For shops and brands: a \"learn it on your face\" widget turns a virtual try-on that ends at looking into a lesson to follow and a product to buy.",
+  },
+  partnerNextTitle: { ko: "다음: 리테일러 화면", en: "Next: retailer view" },
+  partnerNextBody: {
+    ko: "방금 본 레슨이 상품 페이지 위젯이 되면 이렇게 보여요. 콘셉트 화면이에요 (파트너 아님, 0 유닛).",
+    en: "This is how the lesson you just finished looks as a widget on a product page. Concept screen (not a real partner, 0 units).",
+  },
   partnerTitle: { ko: "리테일러 화면", en: "Retailer view" },
   partnerConcept: { ko: "콘셉트 화면 · 가상의 스토어 \"MT Select\" · 실제 파트너 아님", en: "Concept screen · fictional store \"MT Select\" · not a real partner" },
   partnerIntro: { ko: "상품 페이지 안에 \"내 얼굴로 배우기\" 위젯을 넣으면 이렇게 보여요. 위젯 안 사진은 미리 만든 실제 YouCam Makeup VTO 결과(스톡 모델, 0 유닛)예요.", en: "This is what a product page looks like with a \"learn this look on your face\" widget. The images are real pre-generated YouCam Makeup VTO results on a stock model (0 units)." },

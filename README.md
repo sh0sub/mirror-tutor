@@ -24,7 +24,7 @@ Makeup tutorials are filmed on someone else's face. The same eyeshadow looks dif
 5. **Grade** your own attempt photo: per-region score (eye line, eyelid, cheek, lip) plus a one-line correction.
 6. **Shop the step**: the hex colors used in a step are matched to a demo catalog by color difference (CIEDE2000 <= 5). Then a share card.
 7. **/compare**: a monolid face and a double-lid face (pre-generated with real YouCam calls) get the same look; the page opens on the eye step where their techniques split. The monolid face's eyelid was corrected on M2 after Face Analyzer read it as a double lid, and the page says so. A what-if panel previews the other rule-table branches (inner double, hooded, lip shapes) as text for 0 units.
-8. **/partner**: the retailer view (concept): the lesson widget on a fictional product page, an illustrative one-line integration snippet (no SDK is published), the unit-cost meter (14 then 4) and the KPIs to measure, all marked as hypothesis with no numbers.
+8. **/partner**: the retailer view (concept; reachable from a visible button beside the sample button on home and from a "Next: retailer view" card at the end of the sample trial): the lesson widget on a fictional product page, an illustrative one-line integration snippet (no SDK is published), the unit-cost meter (14 then 4) and the KPIs to measure, all marked as hypothesis with no numbers.
 9. **Home**: returning users see a practice streak, past results and a bottom tab bar; all of it is stored on the device only. "View in store" in Shop the step opens a confirmation sheet before leaving the app.
 
 ## YouCam APIs used
@@ -43,6 +43,12 @@ Server `https://yce-api-01.makeupar.com`, `Authorization: Bearer <API key>`. Det
 Unit budget: one first-time flow is 10 (analysis) + 4 (one lesson) = **14 units**. Re-grading, shopping, sharing and the compare page cost 0. Returning users reuse the on-device profile, so only the 4 VTO units apply.
 
 The Makeup VTO effects used: `skin_smooth`, `foundation`, `eyebrows`, `eye_shadow`, `eye_liner`, `blush`, `contour`, `lip_color` (see `lib/lessons/*.json`).
+
+## YouCam pipeline and unit cost
+
+![YouCam pipeline: Face Analyzer, rule table, cumulative Makeup VTO, CIEDE2000 grading, product catalog, with units per hop](docs/pipeline.svg)
+
+Face Analyzer (10 units, once per user) feeds the rule table (0), the rule table picks the Makeup VTO effects rendered cumulatively (1 unit per step), the VTO image is the CIEDE2000 grading reference (0) and its colors pick catalog products (0).
 
 ## Architecture
 
@@ -115,7 +121,7 @@ YOUCAM_MODE=live npx tsx scripts/demo/generate.ts   # pre-generate public/demo/m
 ## Tests
 
 ```bash
-npm test    # vitest: unit + integration (tests/), no network, no units (201 tests in 27 files)
+npm test    # vitest: unit + integration (tests/), no network, no units (203 tests in 27 files)
 ```
 
 Covers the rule table and lesson labels against the real pattern catalog, quality gate, unit guard, request builders against recorded live response bodies, privacy sanitizing, grading, shop matching, share card layout, i18n and an end-to-end core flow on the mock transport.

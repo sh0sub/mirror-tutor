@@ -2,10 +2,11 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
-import { comparePair, compareStep, eyelidStep, sameEyelid, type CompareManifest } from "@/lib/demo/compare";
+import { comparePair, compareStep, patternLabel, eyelidStep, sameEyelid, type CompareManifest } from "@/lib/demo/compare";
 import { t, tf } from "@/lib/i18n";
 import { FACE_NAME, sourceCaption } from "@/lib/labels";
 import { buildLesson } from "@/lib/lessons";
+import rulesJson from "@/lib/rules/techniques.json";
 import manifestJson from "@/public/demo/compare.json";
 
 const manifest = manifestJson as CompareManifest;
@@ -67,7 +68,9 @@ describe("S2 two-face compare (#18)", () => {
     const eyeEn = compareStep("daily-k", a, b, 3, "en").find((r) => r.attr === "eyelid")!;
     expect(eyeKo.values).toEqual(["홑꺼풀", "쌍꺼풀"]);
     expect(eyeEn.values).toEqual(["Monolid", "Double lid"]);
-    expect(eyeKo.patterns).toEqual(eyeEn.patterns);
+    expect(eyeKo.patterns).not.toEqual(eyeEn.patterns);
+    expect(eyeEn.patterns).toEqual(["2-color shadow, style 1 · upper liner, style 6", "2-color shadow, style 3 · upper liner, style 11"]);
+    expect(eyeKo.patterns[0]).toBe("2색 섀도, 1번 스타일 · 윗라인, 6번 스타일");
     expect(sameEyelid({ ...manifest, models: manifest.models.map((m) => ({ ...m, profile: { ...m.profile, eyelid: "double" } })) })).toBe(true);
   });
 
@@ -86,5 +89,27 @@ describe("S2 two-face compare (#18)", () => {
     expect(tf("compareEditedChip", "en", { raw })).toBe("Analyzer read Double-lid → corrected to Monolid");
     expect(tf("compareEditedChip", "ko", { raw })).toContain("Double-lid");
     expect(t("compareEditedNote", "en")).toContain("Face Analyzer read the monolid face");
+  });
+
+  it("patternLabel turns raw VTO tokens into plain words in both languages and never leaks them", () => {
+    expect(patternLabel("shadow", "2colors1", "en")).toBe("2-color shadow, style 1");
+    expect(patternLabel("liner", "Upper6", "ko")).toBe("윗라인, 6번 스타일");
+    expect(patternLabel("cheek", "Oblique1", "en")).toBe("diagonal blush, style 1");
+    expect(patternLabel("contour", "Invtriangle1", "en")).toBe("inverted-triangle contour, style 1");
+    expect(patternLabel("brow", "SoftArch2", "ko")).toBe("부드러운 아치 눈썹, 2번 스타일");
+    expect(patternLabel("liner", "Mystery", "en")).toBe("Mystery"); // unknown names fall back untouched
+  });
+
+  it("every rule-table pattern the app can show on /compare has a plain label (no raw tokens)", () => {
+    const table = rulesJson as unknown as Record<string, Record<string, { pattern?: string; shadow?: { pattern: string }; liner?: { pattern: string } }>>;
+    const check = (kind: Parameters<typeof patternLabel>[0], name?: string) => {
+      if (!name) return;
+      for (const lang of ["ko", "en"] as const) expect(patternLabel(kind, name, lang), `${kind} ${name}`).not.toMatch(/^[A-Za-z]+\d+$|colors\d/);
+    };
+    for (const v of Object.values(table.eye)) { check("shadow", v.shadow?.pattern); check("liner", v.liner?.pattern); }
+    for (const v of Object.values(table.eyeShape)) check("liner", v.liner?.pattern);
+    for (const v of Object.values(table.cheek)) check("cheek", v.pattern);
+    for (const v of Object.values(table.contour)) check("contour", v.pattern);
+    for (const v of Object.values(table.brow)) check("brow", v.pattern);
   });
 });

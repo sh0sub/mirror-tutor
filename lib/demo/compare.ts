@@ -28,7 +28,7 @@ export interface TechniqueRow {
   values: [string, string];
   /** Technique label per model (localized, from the rule table). */
   techniques: [string, string];
-  /** VTO pattern names per model. */
+  /** VTO pattern per model as plain KO/EN words (no raw API tokens). */
   patterns: [string, string];
   same: boolean;
 }
@@ -41,20 +41,69 @@ function stepAttrs(lessonId: string, profile: FaceProfile, step: number): Profil
   return Array.from(new Set(fromReasons));
 }
 
+type PatternKind = "shadow" | "liner" | "cheek" | "contour" | "brow";
+
+const T2 = (ko: string, en: string) => ({ ko, en });
+/** Words in VTO pattern names (lib/catalog/patterns.json labels such as "Upper6", "OvalFace10") → plain labels. */
+const PATTERN_WORD: Record<string, { ko: string; en: string }> = {
+  Upper: T2("윗라인", "upper liner"),
+  OpenWings: T2("꼬리 길게 뺀 라인", "open-wings liner"),
+  Circle: T2("동그란 블러셔", "round blush"),
+  Oblique: T2("사선 블러셔", "diagonal blush"),
+  Oblong: T2("긴 얼굴용 블러셔", "oblong-face blush"),
+  Round: T2("둥근 블러셔", "round-face blush"),
+  Heart: T2("하트형 블러셔", "heart-face blush"),
+  Triangle: T2("삼각형 블러셔", "triangle-face blush"),
+  OvalFace: T2("달걀형 음영", "oval-face contour"),
+  RoundFace: T2("둥근형 음영", "round-face contour"),
+  HeartFace: T2("하트형 음영", "heart-face contour"),
+  TriangleFace: T2("삼각형 음영", "triangle-face contour"),
+  Invtriangle: T2("역삼각형 음영", "inverted-triangle contour"),
+  Straight: T2("일자 눈썹", "straight brow"),
+  SoftArch: T2("부드러운 아치 눈썹", "soft-arch brow"),
+  Curved: T2("곡선 눈썹", "curved brow"),
+  Original: T2("원래 눈썹 모양", "original brow shape"),
+};
+const KIND_WORD: Record<PatternKind, Record<"ko" | "en", string>> = {
+  shadow: T2("섀도", "shadow"),
+  liner: T2("라인", "liner"),
+  cheek: T2("블러셔", "blush"),
+  contour: T2("음영", "contour"),
+  brow: T2("눈썹", "brow"),
+};
+
+/**
+ * Human label for a VTO pattern name (so /compare never shows raw API tokens like "2colors1 · Upper6").
+ * "2colors1" → "2-color shadow, style 1"; "Upper6" → "upper liner, style 6". Unknown names fall back to the raw name.
+ */
+export function patternLabel(kind: PatternKind, name: string, lang: Lang): string {
+  const m = /^(\d?[A-Za-z]+?)(\d+)$/.exec(name);
+  if (!m) return name;
+  const [, word, n] = m;
+  const style = lang === "ko" ? `${n}번 스타일` : `style ${n}`;
+  const colors = /^(\d)colors?$/.exec(word);
+  if (kind === "shadow" && colors) return lang === "ko" ? `${colors[1]}색 ${KIND_WORD.shadow.ko}, ${style}` : `${colors[1]}-color ${KIND_WORD.shadow.en}, ${style}`;
+  const w = PATTERN_WORD[word];
+  return w ? `${w[lang]}, ${style}` : name;
+}
+
+const LIP_STYLE: Record<string, { ko: string; en: string }> = { ombre: T2("그라데이션", "ombre"), full: T2("꽉 채움", "full coverage") };
+const LIP_TEXTURE: Record<string, { ko: string; en: string }> = { gloss: T2("글로스", "gloss"), satin: T2("새틴", "satin"), matte: T2("매트", "matte") };
+
 function techniqueFor(attr: ProfileKey, p: FaceProfile, lang: Lang): { technique: string; pattern: string } {
   const t = resolveTechniques(p);
   switch (attr) {
     case "eyelid":
     case "eyeShape": {
       const r = t.eye.reasons.find((x) => x.attr === attr) ?? t.eye.reasons[0];
-      return { technique: r.label[lang], pattern: attr === "eyelid" ? `${t.eye.shadow.pattern} · ${t.eye.liner.pattern}` : t.eye.liner.pattern };
+      return { technique: r.label[lang], pattern: attr === "eyelid" ? `${patternLabel("shadow", t.eye.shadow.pattern, lang)} · ${patternLabel("liner", t.eye.liner.pattern, lang)}` : patternLabel("liner", t.eye.liner.pattern, lang) };
     }
     case "lipShape":
-      return { technique: t.lip.reasons[0].label[lang], pattern: `${t.lip.style.type} · ${t.lip.texture}` };
+      return { technique: t.lip.reasons[0].label[lang], pattern: `${LIP_STYLE[t.lip.style.type]?.[lang] ?? t.lip.style.type} · ${LIP_TEXTURE[t.lip.texture]?.[lang] ?? t.lip.texture}` };
     case "faceShape":
-      return { technique: `${t.cheek.reasons[0].label[lang]} / ${t.contour.reasons[0].label[lang]}`, pattern: `${t.cheek.pattern} · ${t.contour.pattern}` };
+      return { technique: `${t.cheek.reasons[0].label[lang]} / ${t.contour.reasons[0].label[lang]}`, pattern: `${patternLabel("cheek", t.cheek.pattern, lang)} · ${patternLabel("contour", t.contour.pattern, lang)}` };
     case "eyebrowShape":
-      return { technique: t.brow.reasons[0].label[lang], pattern: t.brow.pattern };
+      return { technique: t.brow.reasons[0].label[lang], pattern: patternLabel("brow", t.brow.pattern, lang) };
   }
 }
 

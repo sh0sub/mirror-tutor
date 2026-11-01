@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AppBar, BottomBar, Button, Icon, ModeBanner, Screen } from "@/components/ui";
+import { AppBar, BottomBar, Button, ButtonLink, Icon, ModeBanner, Screen } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { CARD, drawShareCard, type CardContext } from "@/lib/share/card";
@@ -12,7 +12,7 @@ import { valueLabel } from "@/lib/labels";
 
 /** M7 share card: built on a client canvas, never uploaded (privacy ⑥). Face blur on by default. */
 function ShareInner() {
-  const { lang, photo, renders, attempt, grade, gradedLesson, stored, completed, mode } = useFlow();
+  const { lang, photo, renders, attempt, grade, gradedLesson, stored, completed, mode, sample } = useFlow();
   const lessonId = useSearchParams().get("lesson") ?? "daily-k";
   const lesson = getLesson(lessonId);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -119,6 +119,17 @@ function ShareInner() {
           </ul>
           <p className="mt-2 text-sm text-muted">{nextLesson ? tf("nextLesson", lang, { title: nextLesson.title[lang] }) : t("allLessonsDone", lang)}</p>
         </section>
+        {sample && (
+          <section aria-labelledby="next-retailer" className="flex flex-col gap-2 rounded-[var(--radius-panel)] border border-peach bg-peach-soft p-4" data-testid="retailer-end-card">
+            <h2 id="next-retailer" className="text-sm font-extrabold">
+              {t("partnerNextTitle", lang)}
+            </h2>
+            <p className="text-sm leading-relaxed">{t("partnerNextBody", lang)}</p>
+            <ButtonLink href="/partner" variant="soft" className="w-full">
+              {t("partnerEntry", lang)}
+            </ButtonLink>
+          </section>
+        )}
         {toast && (
           <p role="status" className="rounded-xl bg-ink px-3 py-2 text-center text-sm font-bold text-canvas">
             {toast}

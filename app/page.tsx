@@ -42,10 +42,21 @@ export default function Home() {
     if (sample && !startingSample.current) setPhoto(null);
   }, [sample, setPhoto]);
   const sampleButton = (
-    <Button variant="soft" className="w-full border border-primary/30" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-hint">
+    <Button variant="soft" className="min-w-0 flex-[1.5] border border-primary/30 px-3 leading-tight" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-hint">
       <Icon name="user" className="h-4 w-4" />
       {t("sampleTry", lang)}
     </Button>
+  );
+  // Retailer/business value is a first-class secondary action next to the sample trial (Impact criterion), not a text link.
+  const retailerButton = (
+    <ButtonLink href="/partner" variant="ghost" className="min-w-0 flex-1 border border-line-strong/50 px-3 text-center leading-tight" aria-label={t("partnerEntry", lang)}>
+      {t("partnerEntryShort", lang)}
+    </ButtonLink>
+  );
+  const retailerPitch = (
+    <p id="retailer-pitch" className="text-center text-xs text-muted">
+      {t("partnerPitch", lang)}
+    </p>
   );
   const [toast, setToast] = useState<string | null>(null);
 
@@ -196,6 +207,11 @@ export default function Home() {
               <p id="sample-hint" className="text-sm text-muted">
                 {t("sampleTryHint", lang)}
               </p>
+              {hydrated && (
+                <p id="retailer-pitch" className="rounded-xl border border-line bg-panel p-3 text-sm text-muted">
+                  <span className="font-bold text-ink">{t("partnerEntryShort", lang)}</span> · {t("partnerPitch", lang)}
+                </p>
+              )}
             </div>
             <Link href="/compare" aria-label={t("compareEntry", lang)} className="order-first flex flex-col gap-2 lg:order-none">
               <div className="grid grid-cols-2 gap-2">
@@ -219,17 +235,16 @@ export default function Home() {
             {t("compareEntry", lang)}
           </ButtonLink>
         )}
-        {hydrated && (
-          <Link href="/partner" className="inline-flex min-h-12 items-center justify-center self-center text-sm font-bold text-primary-strong underline underline-offset-4">
-            {t("partnerEntry", lang)}
-          </Link>
-        )}
         {returning && (
           <div className="flex flex-col gap-1">
-            {sampleButton}
+            <div className="flex gap-2">
+              {sampleButton}
+              {retailerButton}
+            </div>
             <p id="sample-hint" className="text-center text-xs text-muted">
               {t("sampleTryHint", lang)}
             </p>
+            {retailerPitch}
           </div>
         )}
         {photo && (
@@ -258,7 +273,12 @@ export default function Home() {
             <Button className="w-full" onClick={() => begin("/capture")}>
               {t("start", lang)}
             </Button>
-            {hydrated && sampleButton}
+            {hydrated && (
+              <div className="flex gap-2">
+                {sampleButton}
+                {retailerButton}
+              </div>
+            )}
           </div>
         </BottomBar>
       )}

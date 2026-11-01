@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 330" width="1280" height="330" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+<title>Mirror Tutor YouCam pipeline with unit cost</title>
+<defs><marker id="ap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#c8325b"/></marker><marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#59636e"/></marker></defs>
+<rect width="1280" height="330" fill="#ffffff"/>
+<text x="40" y="44" font-size="24" font-weight="700" fill="#1f2328">From your face to a product: the YouCam pipeline and what each hop costs</text>
+<text x="40" y="68" font-size="14" fill="#59636e">Pink boxes are YouCam API calls. Arrow labels are units spent on that hop. First lesson 14 units (10 + 4), later lessons 4, sample and compare views 0.</text>
+<rect x="15" y="110" width="170" height="110" rx="12" fill="#fdecef" stroke="#c8325b" stroke-width="2"/>
+<text x="27" y="140" font-size="15" font-weight="700" fill="#1f2328">YouCam Analyzer</text>
+<text x="27" y="166" font-size="12.5" fill="#59636e">face-attr-analysis</text>
+<text x="27" y="186" font-size="12.5" fill="#59636e">5 features read</text>
+<text x="27" y="208" font-size="12" font-weight="600" fill="#c8325b">step 1</text>
+<rect x="285" y="110" width="170" height="110" rx="12" fill="#f6f8fa" stroke="#c9d1d9" stroke-width="1"/>
+<text x="297" y="140" font-size="15" font-weight="700" fill="#1f2328">Rule table</text>
+<text x="297" y="166" font-size="12.5" fill="#59636e">techniques.json</text>
+<text x="297" y="186" font-size="12.5" fill="#59636e">feature to technique</text>
+<text x="297" y="208" font-size="12" font-weight="600" fill="#59636e">step 2</text>
+<rect x="555" y="110" width="170" height="110" rx="12" fill="#fdecef" stroke="#c8325b" stroke-width="2"/>
+<text x="567" y="140" font-size="15" font-weight="700" fill="#1f2328">YouCam VTO</text>
+<text x="567" y="166" font-size="12.5" fill="#59636e">effects 1..k, one file_id</text>
+<text x="567" y="186" font-size="12.5" fill="#59636e">step = answer image</text>
+<text x="567" y="208" font-size="12" font-weight="600" fill="#c8325b">step 3</text>
+<rect x="825" y="110" width="170" height="110" rx="12" fill="#f6f8fa" stroke="#c9d1d9" stroke-width="1"/>
+<text x="837" y="140" font-size="15" font-weight="700" fill="#1f2328">CIEDE2000 grade</text>
+<text x="837" y="166" font-size="12.5" fill="#59636e">on-device regions</text>
+<text x="837" y="186" font-size="12.5" fill="#59636e">attempt vs answer</text>
+<text x="837" y="208" font-size="12" font-weight="600" fill="#59636e">step 4</text>
+<rect x="1095" y="110" width="170" height="110" rx="12" fill="#f6f8fa" stroke="#c9d1d9" stroke-width="1"/>
+<text x="1107" y="140" font-size="15" font-weight="700" fill="#1f2328">Product catalog</text>
+<text x="1107" y="166" font-size="12.5" fill="#59636e">step colors, dE &lt;= 5</text>
+<text x="1107" y="186" font-size="12.5" fill="#59636e">shop the step</text>
+<text x="1107" y="208" font-size="12" font-weight="600" fill="#59636e">step 5</text>
+<line x1="191" y1="165" x2="279" y2="165" stroke="#c8325b" stroke-width="2" marker-end="url(#ap)"/>
+<text x="235" y="153" font-size="13" font-weight="700" text-anchor="middle" fill="#c8325b">10 units</text>
+<text x="235" y="187" font-size="11" text-anchor="middle" fill="#59636e">once per user</text>
+<line x1="461" y1="165" x2="549" y2="165" stroke="#59636e" stroke-width="2" marker-end="url(#ag)"/>
+<text x="505" y="153" font-size="13" font-weight="700" text-anchor="middle" fill="#59636e">0 units</text>
+<text x="505" y="187" font-size="11" text-anchor="middle" fill="#59636e">lookup</text>
+<line x1="731" y1="165" x2="819" y2="165" stroke="#c8325b" stroke-width="2" marker-end="url(#ap)"/>
+<text x="775" y="153" font-size="13" font-weight="700" text-anchor="middle" fill="#c8325b">1 unit / step</text>
+<text x="775" y="187" font-size="11" text-anchor="middle" fill="#59636e">4 steps = 4 units</text>
+<line x1="1001" y1="165" x2="1089" y2="165" stroke="#59636e" stroke-width="2" marker-end="url(#ag)"/>
+<text x="1045" y="153" font-size="13" font-weight="700" text-anchor="middle" fill="#59636e">0 units</text>
+<text x="1045" y="187" font-size="11" text-anchor="middle" fill="#59636e">no API call</text>
+<text x="40" y="270" font-size="14" fill="#1f2328">The Face Analyzer output is not displayed, it selects the technique. The VTO render is not a picture, it is the grading reference.</text>
+<text x="40" y="294" font-size="13" fill="#59636e">Per-session cap 20 units and a daily cap are enforced server-side; the render cache is keyed on image + effects.</text>
+</svg>
