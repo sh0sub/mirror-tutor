@@ -6,6 +6,7 @@ import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import type { Lang } from "@/lib/rules/engine";
 import { EYELIDS, LIP_SHAPES, type Eyelid, type LipShape } from "@/lib/profile";
+import { resolveTechniques } from "@/lib/rules/engine";
 import { buildLesson } from "@/lib/lessons";
 import { ATTR_NAME, FACE_NAME, sourceCaption, valueLabel } from "@/lib/labels";
 import { comparePair, compareStep, eyelidStep, sameEyelid, type CompareManifest, type CompareModel, type TechniqueRow } from "@/lib/demo/compare";
@@ -62,6 +63,7 @@ export default function ComparePage() {
   const plan = useMemo(() => buildLesson(manifest.lessonId, a.profile), [a.profile]);
   const rows = useMemo(() => compareStep(manifest.lessonId, a.profile, b.profile, k, lang), [a.profile, b.profile, k, lang]);
   const step = plan.steps[k - 1];
+  const basis = rows.some((r) => r.attr === "eyelid") ? pair.map((m) => resolveTechniques(m.profile).eye.reasons.find((x) => x.attr === "eyelid")?.basis).find(Boolean) : undefined;
   const edited = pair.find((m) => m.edited?.includes("eyelid"));
 
   return (
@@ -135,6 +137,11 @@ export default function ComparePage() {
             <p className="text-sm text-muted">—</p>
           ) : (
             <RuleList rows={rows} lang={lang} names={[faceName(a, lang), faceName(b, lang)]} />
+          )}
+          {basis && (
+            <p className="rounded-xl bg-peach-soft p-3 text-xs leading-relaxed" data-testid="rule-basis">
+              {basis[lang]}
+            </p>
           )}
           {edited && rows.some((r) => r.attr === "eyelid") && <p className="text-xs text-muted">{t("compareEditedNote", lang)}</p>}
           {b.profile.eyelid === "inner_double" && rows.some((r) => r.attr === "eyelid") && <p className="text-xs text-muted">{t("compareInnerNote", lang)}</p>}

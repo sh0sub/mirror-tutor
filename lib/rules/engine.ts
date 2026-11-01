@@ -14,6 +14,8 @@ export interface Reason {
   attr: ProfileKey;
   label: Text;
   why: Text;
+  /** Plain-words basis for the rule, labelled as a rule of thumb (only some branches have one). */
+  basis?: Text;
 }
 
 export interface ResolvedTechniques {
@@ -57,7 +59,7 @@ export function resolveTechniques(p: FaceProfile): ResolvedTechniques {
       shadow: req(eye.shadow, `eye.${p.eyelid}.shadow`),
       liner,
       reasons: [
-        { attr: "eyelid", label: eye.label, why: eye.why },
+        { attr: "eyelid", label: eye.label, why: eye.why, ...("basis" in eye ? { basis: eye.basis as Text } : {}) },
         ...(p.eyeShape !== "almond" ? [{ attr: "eyeShape" as const, label: shape.label, why: shape.why }] : []),
       ],
     },

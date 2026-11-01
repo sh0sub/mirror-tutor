@@ -115,7 +115,7 @@ YOUCAM_MODE=live npx tsx scripts/demo/generate.ts   # pre-generate public/demo/m
 ## Tests
 
 ```bash
-npm test    # vitest: unit + integration (tests/), no network, no units (199 tests in 27 files)
+npm test    # vitest: unit + integration (tests/), no network, no units (201 tests in 27 files)
 ```
 
 Covers the rule table and lesson labels against the real pattern catalog, quality gate, unit guard, request builders against recorded live response bodies, privacy sanitizing, grading, shop matching, share card layout, i18n and an end-to-end core flow on the mock transport.

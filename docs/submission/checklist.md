@@ -39,7 +39,7 @@
 
 | 항목 | 상태 | 방법 / 메모 |
 |---|---|---|
-| 데모 영상 (얼굴 없는 버전, 약 2:56) | 완료 (11/1) | `.local/video/mirror-tutor-demo-live.mp4` (이전 판 `-prev.mp4`, `-prev2.mp4`). live 녹화(원본 촬영 14u, 잔량 948 -> 934)의 저장 프레임. 도입부와 비교 장면은 샘플 모델 모드(0u)로 다시 녹화(재합성 후 반영 확인 완료)을 `node scripts/demo/recomposite.mjs`로 다시 합성(0u): 폰 옆에 같은 화면의 1.85배 확대 패널과 장면별 콜아웃을 두고, 어두운 "카메라 없음" 장면은 품질 게이트 확대 화면 3.7초로 줄였다. 첫 장면은 "홑꺼풀이면 남의 눈 튜토리얼이 안 맞는다"는 문제 제기, 비교 화면은 홑꺼풀 vs 쌍꺼풀 기법 차이 콜아웃(홑꺼풀 얼굴은 Face Analyzer가 쌍꺼풀로 읽어 앱의 수정 시트에서 고쳤다는 칩 포함)을 6초 유지, 개인정보·세션 20유닛 상한은 나레이션으로도 말한다. 스톡 사진만, 영어 나레이션(OpenAI gpt-4o-mini-tts, 음성 marin)·자막, 음악 없음. |
+| 데모 영상 (얼굴 없는 버전, 약 2:48 = 168.0초) | 완료 (11/2, C3 판) | `.local/video/mirror-tutor-demo-live.mp4` (직전 판 `-c3prev.mp4`). 구성: 한 줄 hook, 앱이 하는 일 한 줄(14유닛), 카메라 품질 게이트, 분석, 레슨 4단계, 비교, 채점, 쇼핑, 공유, /partner 소매 화면. 화면별 출처를 영상 설명과 Devpost에 그대로 적는다. live(실제 YouCam)는 분석 10유닛과 렌더 4유닛(합계 14유닛, 원본 촬영). 샘플/mock 모드(0유닛)는 도입부, 비교 장면, 채점 장면(점수 91, 이전 live 판은 87)이다. capture 장면은 Chrome 가짜 카메라에 스톡 사진(Pexels License)을 넣어 품질 게이트만 보여 주고 셔터는 누르지 않는다(API 호출 0). /partner는 정적 페이지(0유닛). 홑꺼풀 얼굴은 Face Analyzer가 쌍꺼풀로 읽어 앱 수정 시트에서 고쳤다고 비교 화면 칩으로 밝힌다. 스톡 사진만, 영어 나레이션(OpenAI gpt-4o-mini-tts, 음성 marin)·자막, 음악 없음. 길이 180초 미만 유지. |
 | YouTube 공개 업로드 | 남음(사용자) | 위 mp4를 **공개**로 업로드. 제목 "Mirror Tutor - YouCam API VTO Hackathon", 설명에 라이브 URL·저장소 URL·"Sample faces: Pexels and Unsplash License stock photos (commercial use allowed, not real users)". 링크를 알려 주면 devpost.md에 넣는다. |
 
 ## 스크린샷 — 완료 (11/2 재생성)
@@ -48,4 +48,4 @@
 
 ## 테스트 현황 (11/2)
 
-vitest 195개 통과(26개 파일), typecheck·lint 오류 0.
+vitest 201개 통과(27개 파일, 2026-11-02 최종 HEAD 기준), typecheck·lint 오류 0.

@@ -9,6 +9,10 @@
         "ko": "홑꺼풀은 눈을 뜨면 눈두덩이 접히지 않아요. 섀도는 위로 쌓지 말고 가로로 넓게, 라인은 눈 뜬 상태에서 1.5mm 보이게 그리고 꼬리는 가로로 3mm 빼요.",
         "en": "Monolids don't fold when your eyes are open, so spread shadow sideways instead of stacking it up, draw liner so 1.5 mm shows with eyes open, and extend the tail 3 mm straight out."
       },
+      "basis": {
+        "ko": "왜 가로일까요? 홑꺼풀은 눈을 뜨면 보이는 주름 선이 없어서, 위아래로 번지는 세로 그라데이션은 눈을 뜨는 순간 사라지고 가로 그라데이션은 그대로 보여요. 공개된 메이크업 튜토리얼에서 흔히 쓰는 경험 법칙이고, Perfect Corp의 결과나 검증이 아니에요.",
+        "en": "Why horizontal? A monolid has no visible crease when the eye is open, so a vertical gradient disappears and a horizontal one stays visible. This is a rule of thumb from public makeup tutorials, not a Perfect Corp result or a validated finding."
+      },
       "shadow": { "pattern": "2colors1", "intensityDelta": 0 },
       "liner": { "pattern": "Upper6", "intensityDelta": 0 }
     },

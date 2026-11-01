@@ -41,7 +41,11 @@ Also: Korean and English UI, a per-session unit cap, a demo mode that serves pre
 | KPI | Shop-the-step conversion: sessions that end on a product the lesson used, compared with a plain product page. |
 | What it adds for Perfect Corp | Repeat VTO calls: about 4 Makeup VTO renders per lesson and per returning user, instead of one try-on per product view. |
 
-Arithmetic (assumptions, not measurements): YouCam calls per user = 14 units for the first lesson (10 analysis + 4 renders) and 4 for each later lesson, so a user who finishes 3 lessons over time costs 14 + 4 + 4 = 22 units (one session is capped at 20). A retailer pays that unit cost plus margin per engaged session and recovers it only if shop-the-step sessions convert better than a plain product page; we have no number for that yet. Brand route: the lesson JSON and the `lib/catalog` product-feed schema (sku, category, localized name, shade hex list, texture, price) are the integration surface for an embeddable widget or SDK; a retailer swaps in its own feed and lessons.
+Measured unit cost (live runs): 14 units for a first lesson (10 analysis + 4 renders), 4 units for each later lesson, 0 for the sample and compare views. No conversion or revenue number exists; a retailer would pay that unit cost plus margin per engaged session.
+
+Demand context, not proof for our app: PYMNTS (27 Feb 2024, citing National Retail Federation data) reports "the blended return rate for beauty retail purchases is 4.3%", and that returns cost US retailers $743 billion in merchandise in 2023 (all retail, not beauty only). Source: https://www.pymnts.com/news/ecommerce/2024/perfect-corp-ar-try-on-reduces-returns-for-ecommerce-beauty-brands/. We found no independent data on eyelid-specific tutorial demand and do not claim any.
+
+Brand route: the lesson JSON and the `lib/catalog` product-feed schema (sku, category, localized name, shade hex list, texture, price) are the integration surface for an embeddable widget or SDK; a retailer swaps in its own feed and lessons.
 
 The /partner page in the app shows this as a screen: the lesson widget on a fictional product page, the one-line integration shape (illustrative, no SDK is published yet), a unit-cost meter (14, then 4) and the KPIs as "hypothesis, no data yet".
 
@@ -73,9 +77,9 @@ Makeup tutorials are filmed on someone else's face. A gradient eyeshadow that wo
 ## Accomplishments that we're proud of
 
 - The loop is closed: analyze -> technique -> answer image -> your attempt -> score -> product. The VTO output is the grading reference, not just a picture.
-- Techniques depend on the face. The rule table is visible in the app, so it is clear that the output changes with the eyelid.
+- Techniques depend on the face. The rule table is visible in the app, so it is clear that the output changes with the eyelid. The monolid rule also shows its reason in plain words (no visible crease, so a vertical gradient disappears and a horizontal one stays) and is labelled a rule of thumb from public tutorials, not a Perfect Corp result.
 - Per-step answer images cost one unit each, and a first-time flow costs 14 units.
-- 199 tests (27 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
+- 201 tests (27 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
 
 ## What we learned
 
@@ -102,6 +106,6 @@ Next.js, React, TypeScript, Tailwind CSS, YouCam API (Face Attribute & Ratio Ana
 - **For judges (no selfie needed, 0 units):** on the home screen or the camera/consent step, tap **"Try with a sample model · 0 units"** (KO: "샘플 모델로 체험하기 · 0 유닛"). It runs the whole flow on a stock-photo model: analysis → 4-step lesson with the real pre-generated YouCam Makeup VTO results → grading of a stock "attempt" → shop the step → share card. A banner says it is a sample, nothing is uploaded, and the server path for it has no YouCam client, so it cannot spend units. To try it on your own face, tap "Get started" instead.
 - Retailer view (concept): https://mirror-tutor.vercel.app/partner (fictional store, illustrative snippet, KPIs marked hypothesis)
 - Source code: https://github.com/sh0sub/mirror-tutor (public, MIT)
-- Video: YouTube link (add after upload). The demo (about 2:56) is faceless (stock photos only). The main flow was captured against the live YouCam API with 14 units; the intro (home hero) and the compare segment were re-recorded with 0 units (no YouCam calls).
+- Video: YouTube link (add after upload). The demo (about 2:48) is faceless (stock photos only). What is live and what is not: the analysis and the four Makeup VTO renders are real YouCam API calls (14 units, captured live). The home intro, the compare segment and the grade scene run in sample/mock mode with 0 units; the grade scene scores a stock "attempt" (score 91; the earlier live capture scored 87). The camera segment uses a stock photo fed through a fake camera to show the quality gate (no shutter, no API call), and /partner is a static concept page.
 - Test images: `public/demo/model-a`, `model-b` (Pexels License) and `model-c` (monolid face, Unsplash License) in the repository; all sample faces are Pexels and Unsplash License stock photos (commercial use allowed, not real users). Or use your own selfie
 - API notes: `docs/api-notes.md` in the repository

@@ -65,3 +65,18 @@ describe("F3 technique rule table", () => {
     expect(rows[0].technique).toBe("가로 그라데이션 + 보이는 라인");
   });
 });
+
+describe("monolid rule basis (rule of thumb, not a Perfect Corp result)", () => {
+  const base = allProfiles().next().value as FaceProfile;
+  const basisOf = (eyelid: FaceProfile["eyelid"]) => resolveTechniques({ ...base, eyelid }).eye.reasons.find((r) => r.attr === "eyelid")?.basis;
+  it("monolid carries a KO+EN basis that explains vertical vs horizontal and disclaims the source", () => {
+    const b = basisOf("monolid");
+    expect(b?.en).toMatch(/vertical gradient disappears/);
+    expect(b?.en).toMatch(/rule of thumb from public makeup tutorials, not a Perfect Corp result/);
+    expect(b?.ko).toMatch(/세로 그라데이션/);
+    expect(b?.ko).toMatch(/Perfect Corp의 결과나 검증이 아니에요/);
+  });
+  it("other lid types have no basis line", () => {
+    expect(basisOf("double")).toBeUndefined();
+  });
+});

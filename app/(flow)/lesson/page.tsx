@@ -177,6 +177,7 @@ function LessonInner() {
                   {step.reasons.map((r, i) => (
                     <li key={i}>
                       <span className="font-bold">{ATTR_NAME[r.attr][lang]}</span> — {r.why[lang]}
+                      {r.basis && <span className="mt-1 block text-xs text-muted">{r.basis[lang]}</span>}
                     </li>
                   ))}
                 </ul>
