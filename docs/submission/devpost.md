@@ -58,7 +58,10 @@ Also: Korean and English UI, a per-session unit cap, and a demo mode that serves
 
 ## What's next
 
-- Replace the demo catalog with a partner product feed so each step links to real SKUs and shades.
+- **Who would pay:** beauty retailers and brands could embed Mirror Tutor as a "learn this look on your face" widget next to a product. Each lesson already ends in a shop-the-step list of exact shades, which is where a retailer converts and an affiliate or partner fee can come from.
+- **Cost per user is bounded:** 14 YouCam units for a first lesson (10 for analysis, 4 renders), 4 units for each lesson after that because the face profile is reused, with per-session and daily caps enforced on the server.
+- **Validation plan:** run the flow with monolid and hooded-lid users and measure whether the per-region score rises across attempts. The demo uses stock photos only, so this has not been tested with real users yet.
+- Replace the demo catalog with a partner product feed (for example a retailer feed or a shopping search API) so each step links to real SKUs and shades.
 - Extend skin-tone personalization from foundation and blush to lip and shadow palettes.
 - Let brands and creators publish their own lessons as JSON.
 - More lessons and a practice history with score trends.
