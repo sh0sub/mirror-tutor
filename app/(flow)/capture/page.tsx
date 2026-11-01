@@ -11,7 +11,18 @@ import { blobToBitmap, qualityOf, toUploadJpeg } from "@/lib/client/image";
 
 /** M1 촬영 가이드: live quality gate on the camera preview (face width ≥ 60%, light, frontal); upload fallback. */
 function CaptureInner() {
-  const { lang, consented, setConsented, setPhoto, setAttempt, stored, hydrated } = useFlow();
+  const { lang, consented, setConsented, setPhoto, setAttempt, stored, hydrated, startSample } = useFlow();
+  const [sampleBusy, setSampleBusy] = useState(false);
+  // "샘플 모델로 체험하기": no selfie and nothing uploaded, so it needs no consent; 0 units.
+  const trySample = async () => {
+    setSampleBusy(true);
+    try {
+      await startSample();
+      router.push("/analyze");
+    } catch {
+      setSampleBusy(false);
+    }
+  };
   const router = useRouter();
   const params = useSearchParams();
   const forAttempt = params.get("for") === "attempt";
@@ -209,6 +220,17 @@ function CaptureInner() {
           )}
         </div>
         <p className="break-keep px-4 pt-4 text-center text-sm text-muted">{forAttempt ? t("captureAttemptHint", lang) : t("captureHint", lang)}</p>
+        {!forAttempt && (
+          <button
+            type="button"
+            onClick={trySample}
+            disabled={sampleBusy}
+            className="mx-auto mt-1 inline-flex min-h-12 items-center gap-1.5 px-4 text-sm font-bold text-primary-strong underline underline-offset-4 disabled:text-muted"
+          >
+            <Icon name="user" className="h-4 w-4" />
+            {t("sampleTry", lang)}
+          </button>
+        )}
       </main>
       <BottomBar>
         <div className="flex gap-2">
@@ -239,6 +261,11 @@ function CaptureInner() {
             {t("agree", lang)}
           </Button>
         </div>
+        <Button variant="soft" className="mt-2 w-full" onClick={trySample} disabled={sampleBusy}>
+          <Icon name="user" className="h-4 w-4" />
+          {t("sampleTry", lang)}
+        </Button>
+        <p className="mt-1 text-center text-xs text-muted">{t("sampleTryHint", lang)}</p>
       </Sheet>
     </Screen>
   );

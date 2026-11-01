@@ -14,6 +14,7 @@ import type { FaceDetection } from "@/lib/client/landmarker";
 import type { FacePins } from "@/lib/facePins";
 import type { SkinMeasure } from "@/lib/skin/measure";
 import { nearestShade } from "@/lib/skin/shades";
+import { SAMPLE_ATTEMPT, SAMPLE_MODEL } from "@/lib/demo/sample";
 import { EMPTY_LOG, clearPractice, loadConsent, loadPractice, recordPractice, saveConsent, savePractice, type PracticeLog } from "@/lib/practice";
 
 /**
@@ -62,6 +63,12 @@ interface FlowState {
   setStored: (p: StoredProfile | null) => void;
   editProfile: <K extends ProfileKey>(k: K, v: FaceProfile[K]) => void;
   deleteProfile: () => void;
+  /** "샘플 모델로 체험하기": Model A stands in for the selfie; its profile stays in memory (never overwrites the saved one). */
+  sample: boolean;
+  /** Load Model A as the photo and enter sample mode (0 units; the server never calls YouCam for it). */
+  startSample: () => Promise<void>;
+  /** Sample mode: use the stock attempt photo instead of a new selfie. */
+  loadSampleAttempt: () => Promise<void>;
   mode: ServiceMode | null;
   setMode: (m: ServiceMode) => void;
   renders: Record<string, Record<number, StepState>>;
@@ -104,6 +111,12 @@ function usePhoto(): [Photo | null, (b: Blob | null) => void] {
   return [photo, update];
 }
 
+async function fetchBlob(url: string): Promise<Blob> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`fetch ${res.status}`);
+  return res.blob();
+}
+
 export function FlowProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("ko");
   const setLang = useCallback((l: Lang) => {
@@ -116,7 +129,11 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     saveConsent(window.localStorage, v); // F1: ask once per device
   }, []);
   const [practice, setPractice] = useState<PracticeLog>(EMPTY_LOG);
-  const [photo, setPhoto] = usePhoto();
+  const [photo, setPhotoRaw] = usePhoto();
+  const [sample, setSample] = useState(false);
+  const sampleRef = useRef(sample);
+  sampleRef.current = sample;
+  const [sampleStored, setSampleStored] = useState<StoredProfile | null>(null);
   const [attempt, setAttempt] = usePhoto();
   // One MediaPipe pass per photo (eye/mouth anchors + skin tone), awaited by render().
   const [detection, setDetection] = useState<{ blob: Blob; result: FaceDetection | null } | null>(null);
@@ -144,7 +161,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const anchors = detection?.result?.anchors ?? null;
   const facePins = photo && detection?.blob === photo.blob ? (detection.result?.pins ?? null) : null;
   const skin = useMemo<SkinState | null>(() => {
-    if (!photo) return null;
+    if (!photo || sample) return null; // Model A is not the visitor's face → lessons keep their default base color
     const measured = detection?.blob === photo.blob ? (detection.result?.skin ?? null) : null;
     const near = measured ? nearestShade(measured.lab) : null;
     const measuredId = near?.shade.id ?? null;
@@ -156,7 +173,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
       shadeId: shadeOverride ?? measuredId,
       overridden: shadeOverride !== null && shadeOverride !== measuredId,
     };
-  }, [photo, detection, shadeOverride]);
+  }, [photo, sample, detection, shadeOverride]);
   const [stored, setStoredState] = useState<StoredProfile | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [mode, setMode] = useState<ServiceMode | null>(null);
@@ -186,6 +203,11 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const refreshCredit = useCallback(() => void fetchCredit().then(setCredit), []);
 
   const setStored = useCallback((p: StoredProfile | null) => {
+    if (sampleRef.current) {
+      setSampleStored(p); // memory only
+      setRenders({});
+      return;
+    }
     setStoredState(p);
     if (p) saveProfile(window.localStorage, p);
     else clearProfile(window.localStorage);
@@ -193,6 +215,11 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const editProfile = useCallback(<K extends ProfileKey>(k: K, v: FaceProfile[K]) => {
+    if (sampleRef.current) {
+      setSampleStored((prev) => (prev ? { ...prev, profile: { ...prev.profile, [k]: v }, edited: Array.from(new Set([...prev.edited, k])) } : prev));
+      setRenders({});
+      return;
+    }
     setStoredState((prev) => {
       if (!prev) return prev;
       const next: StoredProfile = { ...prev, profile: { ...prev.profile, [k]: v }, edited: Array.from(new Set([...prev.edited, k])) };
@@ -210,19 +237,23 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     setRenders({});
   }, []);
 
+  const activeStored = sample ? sampleStored : stored;
+
   const render = useCallback(
     async (lessonId: string, steps?: number[], stepScales?: Record<number, number>) => {
-      if (!photo || !stored) return;
+      const profile = activeStored?.profile;
+      if (!photo || !profile) return;
       const lessonScales = stepScales ?? scalesRef.current[lessonId];
       const indexes = steps ?? [1, 2, 3, 4];
       setRenders((r) => ({ ...r, [lessonId]: { ...(r[lessonId] ?? {}), ...Object.fromEntries(indexes.map((i) => [i, { status: "pending" as const }])) } }));
-      const det = await detectFor(photo.blob);
-      const shade = shadeOverrideRef.current ?? (det?.skin ? nearestShade(det.skin.lab).shade.id : null);
+      // Sample mode uploads nothing: the server renders Model A from its own copy (pre-generated steps, 0u).
+      const det = sample ? null : await detectFor(photo.blob);
+      const shade = sample ? null : (shadeOverrideRef.current ?? (det?.skin ? nearestShade(det.skin.lab).shade.id : null));
       try {
         await streamRender(
-          photo.blob,
+          sample ? null : photo.blob,
           lessonId,
-          stored.profile,
+          profile,
           (e) => {
             if (e.type === "step") {
               const { type: _type, ...step } = e;
@@ -251,7 +282,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
         refreshCredit();
       }
     },
-    [photo, stored, refreshCredit, detectFor],
+    [photo, activeStored, sample, refreshCredit, detectFor],
   );
 
   const setStepScale = useCallback(
@@ -272,6 +303,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const addToCart = useCallback((sku: string) => setCart((c) => (c.includes(sku) ? c : [...c, sku])), []);
   const markCompleted = useCallback((id: string, score: number) => {
     setCompleted((c) => ({ ...c, [id]: Math.max(score, c[id] ?? 0) }));
+    if (sampleRef.current) return; // a sample run is not the visitor's practice → no streak/score saved
     setPractice((log) => {
       const next = recordPractice(log, id, score);
       savePractice(window.localStorage, next);
@@ -279,7 +311,46 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const resetRun = useCallback(() => {
+    setAttempt(null);
+    setRenders({});
+    setScales({});
+    setGrade(null);
+    setGradedLesson(null);
+    setCompleted({});
+    setMode(null);
+  }, [setAttempt]);
+
+  /** A real photo always leaves sample mode (the saved profile comes back). */
+  const setPhoto = useCallback(
+    (b: Blob | null) => {
+      if (sampleRef.current) {
+        setSample(false);
+        setSampleStored(null);
+        resetRun();
+      }
+      setPhotoRaw(b);
+    },
+    [resetRun, setPhotoRaw],
+  );
+
+  const startSample = useCallback(async () => {
+    const blob = await fetchBlob(SAMPLE_MODEL.original);
+    resetRun();
+    setSampleStored(null);
+    setSample(true);
+    sampleRef.current = true;
+    setPhotoRaw(blob);
+    setMode("sample");
+  }, [resetRun, setPhotoRaw]);
+
+  const loadSampleAttempt = useCallback(async () => {
+    setAttempt(await fetchBlob(SAMPLE_ATTEMPT));
+  }, [setAttempt]);
+
   const endSession = useCallback(async () => {
+    setSample(false);
+    setSampleStored(null);
     setPhoto(null);
     setAttempt(null);
     setRenders({});
@@ -294,11 +365,11 @@ export function FlowProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<FlowState>(
     () => ({
-      lang, setLang, consented, setConsented, practice, photo, setPhoto, stored, hydrated, setStored, editProfile, deleteProfile,
-      anchors, facePins, skin, setSkinShade, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
+      lang, setLang, consented, setConsented, practice, photo, setPhoto, stored: activeStored, hydrated, setStored, editProfile, deleteProfile,
+      anchors, facePins, skin, setSkinShade, sample, startSample, loadSampleAttempt, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
       cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession,
     }),
-    [lang, setLang, consented, setConsented, practice, photo, setPhoto, anchors, facePins, skin, setSkinShade, stored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
+    [lang, setLang, consented, setConsented, practice, photo, setPhoto, anchors, facePins, skin, setSkinShade, sample, startSample, loadSampleAttempt, activeStored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -24,9 +24,11 @@ export async function fetchCredit(): Promise<CreditInfo | null> {
   }
 }
 
-export async function postAnalyze(image: Blob): Promise<AnalyzeResult> {
+/** image null → the sample model (server plays back Model A's pre-generated profile, 0 units, no upload). */
+export async function postAnalyze(image: Blob | null): Promise<AnalyzeResult> {
   const form = new FormData();
-  form.set("image", image, "selfie.jpg");
+  if (image) form.set("image", image, "selfie.jpg");
+  else form.set("sample", "1");
   try {
     const res = await fetch("/api/analyze", { method: "POST", body: form });
     return (await res.json()) as AnalyzeResult;
@@ -38,8 +40,9 @@ export async function postAnalyze(image: Blob): Promise<AnalyzeResult> {
 export type RenderEvent = ({ type: "step" } & StepResult) | ({ type: "done" } & RenderSummary) | { type: "fatal"; code: string };
 
 /** Reads the NDJSON stream from /api/render, calling onEvent as each step finishes. */
+/** image null → the sample model (pre-generated steps, 0 units; nothing is uploaded). */
 export async function streamRender(
-  image: Blob,
+  image: Blob | null,
   lessonId: string,
   profile: FaceProfile,
   onEvent: (e: RenderEvent) => void,
@@ -49,7 +52,8 @@ export async function streamRender(
   skinShade?: string | null,
 ): Promise<void> {
   const form = new FormData();
-  form.set("image", image, "selfie.jpg");
+  if (image) form.set("image", image, "selfie.jpg");
+  else form.set("sample", "1");
   form.set("lessonId", lessonId);
   form.set("profile", JSON.stringify(profile));
   if (steps?.length) form.set("steps", steps.join(","));

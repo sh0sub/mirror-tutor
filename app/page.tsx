@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, Sheet, TabBar } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
+import { guideText } from "@/lib/quality/messages";
 import { profileSummary, valueLabel } from "@/lib/labels";
 import { LESSONS, recommendLesson } from "@/lib/lessons";
 import { streakDays, weekDots } from "@/lib/practice";
@@ -16,9 +17,35 @@ const heroModel = (manifestJson as CompareManifest).models[0];
 
 /** Onboarding (M1 entry, consent) and the returning-user home (flow B: profile → lesson, no re-analysis). */
 export default function Home() {
-  const { lang, consented, setConsented, stored, hydrated, deleteProfile, completed, photo, endSession, practice, attempt, gradedLesson } = useFlow();
+  const { lang, consented, setConsented, stored, hydrated, deleteProfile, completed, photo, endSession, practice, attempt, gradedLesson, sample, startSample, setPhoto } = useFlow();
   const router = useRouter();
   const [consentOpen, setConsentOpen] = useState(false);
+  const [sampleBusy, setSampleBusy] = useState(false);
+  // No selfie, no consent needed: Model A's pre-generated results, 0 units (the server never calls YouCam for it).
+  const startingSample = useRef(false);
+  const trySample = async () => {
+    startingSample.current = true;
+    setSampleBusy(true);
+    try {
+      await startSample();
+      router.push("/analyze");
+    } catch {
+      startingSample.current = false;
+      setToast(guideText("retry", lang));
+    } finally {
+      setSampleBusy(false);
+    }
+  };
+  // Coming home ends a sample run, so the saved profile (not Model A's) is what home shows and edits.
+  useEffect(() => {
+    if (sample && !startingSample.current) setPhoto(null);
+  }, [sample, setPhoto]);
+  const sampleButton = (
+    <Button variant="ghost" className="w-full" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-hint">
+      <Icon name="user" className="h-4 w-4" />
+      {t("sampleTry", lang)}
+    </Button>
+  );
   const [toast, setToast] = useState<string | null>(null);
 
   const begin = (next: string) => {
@@ -165,6 +192,9 @@ export default function Home() {
                   </li>
                 ))}
               </ol>
+              <p id="sample-hint" className="text-sm text-muted">
+                {t("sampleTryHint", lang)}
+              </p>
             </div>
             <Link href="/compare" aria-label={t("compareEntry", lang)} className="order-first flex flex-col gap-2 lg:order-none">
               <div className="grid grid-cols-2 gap-2">
@@ -189,6 +219,14 @@ export default function Home() {
             {t("compareEntry", lang)}
           </ButtonLink>
         )}
+        {returning && (
+          <div className="flex flex-col gap-1">
+            {sampleButton}
+            <p id="sample-hint" className="text-center text-xs text-muted">
+              {t("sampleTryHint", lang)}
+            </p>
+          </div>
+        )}
         {photo && (
           <button
             type="button"
@@ -211,9 +249,12 @@ export default function Home() {
         <TabBar active="home" lessonId={rec!.lessonId} />
       ) : (
         <BottomBar>
-          <Button className="w-full" onClick={() => begin("/capture")}>
-            {t("start", lang)}
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button className="w-full" onClick={() => begin("/capture")}>
+              {t("start", lang)}
+            </Button>
+            {hydrated && sampleButton}
+          </div>
         </BottomBar>
       )}
 

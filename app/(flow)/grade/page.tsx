@@ -15,7 +15,7 @@ import { estimateLabelWidth } from "@/lib/pinLayout";
 
 /** M4: answer (step 4) vs my attempt → per-region scores, one-line tips, confidence. 0 YouCam units. */
 function GradeInner() {
-  const { lang, attempt, renders, grade, setGrade, gradedLesson, setGradedLesson, markCompleted } = useFlow();
+  const { lang, attempt, renders, grade, setGrade, gradedLesson, setGradedLesson, markCompleted, sample } = useFlow();
   const router = useRouter();
   const lessonId = useSearchParams().get("lesson") ?? "daily-k";
   const answerState = renders[lessonId]?.[4];
@@ -88,7 +88,7 @@ function GradeInner() {
         <div className="grid grid-cols-2 gap-2">
           {[
             { src: answer, label: `${t("answer", lang)} · 4` },
-            { src: attempt?.url ?? null, label: t("attempt", lang) },
+            { src: attempt?.url ?? null, label: sample ? `${t("sampleFace", lang)} · ${t("attempt", lang)}` : t("attempt", lang) },
           ].map((p, i) =>
             i === 1 && p.src ? (
               <PhotoPins key={i} src={p.src} alt={p.label} pins={scorePins} dots={false} reserve={captionReserve} className="aspect-[3/4] rounded-xl">

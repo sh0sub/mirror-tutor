@@ -7,7 +7,8 @@ import { AppBar, BottomBar, Button, Chip, Icon, ModeBanner, Screen, Sheet, Swatc
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { buildLesson, getLesson } from "@/lib/lessons";
-import { INVISIBLE_DELTA, matchStepEffects, storeUrl, type Product } from "@/lib/shop";
+import { INVISIBLE_DELTA, matchStepEffects, PRODUCTS, storeUrl, type Product } from "@/lib/shop";
+import { ProductArt } from "@/components/ProductArt";
 import { CATEGORY_REGION, REGIONS } from "@/lib/regions";
 
 /** M6 Shop the step: step hex = product shade. Swatch → highlight region on the answer (0u). External store, no checkout. */
@@ -110,10 +111,13 @@ function ShopInner() {
                 const inCart = cart.includes(p.sku);
                 return (
                   <article key={p.sku} className="flex items-center gap-3 rounded-[var(--radius-panel)] bg-panel-2 p-3">
-                    <div className="flex h-20 w-20 flex-none overflow-hidden rounded-xl" aria-hidden>
-                      {p.shades.map((h) => (
-                        <span key={h} className="flex-1" style={{ background: h }} />
-                      ))}
+                    <div className="relative flex h-20 w-20 flex-none items-center justify-center overflow-hidden rounded-xl bg-panel" aria-hidden>
+                      <ProductArt category={p.category} shades={p.shades} texture={p.texture} className="h-[72px] w-[72px]" />
+                      <span className="absolute bottom-1 right-1 flex gap-0.5">
+                        {p.shades.map((h) => (
+                          <span key={h} className="h-2.5 w-2.5 rounded-full border border-canvas" style={{ background: h }} />
+                        ))}
+                      </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <h3 className="text-sm font-bold leading-snug">{p.name[lang]}</h3>
@@ -172,6 +176,25 @@ function ShopInner() {
       </BottomBar>
 
       <Sheet open={leaving !== null} onClose={() => setLeaving(null)} title={t("viewInStore", lang)}>
+        {(() => {
+          const lp = leaving ? PRODUCTS.find((x) => x.sku === leaving.sku) : undefined;
+          return (
+            lp && (
+              <div className="mb-3 flex items-center gap-3 rounded-[var(--radius-panel)] bg-panel-2 p-3">
+                <div className="flex h-20 w-20 flex-none items-center justify-center rounded-xl bg-panel" aria-hidden>
+                  <ProductArt category={lp.category} shades={lp.shades} texture={lp.texture} className="h-[72px] w-[72px]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold leading-snug">{lp.name[lang]}</p>
+                  <p className="num text-xs text-muted">{lp.shades.join(" / ")}</p>
+                  <p className="num text-sm font-bold">
+                    ₩{lp.priceKrw.toLocaleString("ko-KR")} <span className="font-normal text-muted">· ${lp.priceUsd}</span>
+                  </p>
+                </div>
+              </div>
+            )
+          );
+        })()}
         <p className="text-[15px]">{t("storeConfirm", lang)}</p>
         <div className="mt-4 flex gap-2">
           <Button variant="ghost" className="flex-1" onClick={() => setLeaving(null)}>

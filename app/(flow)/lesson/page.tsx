@@ -21,7 +21,8 @@ function dotClass(s: StepState | undefined, kind: StepDotKind) {
 
 /** M3 lesson player: skeleton → sequential reveal, before/after slider, step card with "왜 당신은" reasons and hex swatches. */
 function LessonInner() {
-  const { lang, photo, anchors, skin, stored, renders, render, mode, scales, setStepScale } = useFlow();
+  const { lang, photo, anchors, skin, stored, renders, render, mode, scales, setStepScale, sample, loadSampleAttempt } = useFlow();
+  const [attemptBusy, setAttemptBusy] = useState(false);
   const router = useRouter();
   const id = useSearchParams().get("id") ?? "daily-k";
   const lesson = getLesson(id);
@@ -75,7 +76,7 @@ function LessonInner() {
           before={before}
           after={after}
           label={t("sliderLabel", lang)}
-          beforeLabel={t("myFace", lang)}
+          beforeLabel={t(sample ? "sampleFace" : "myFace", lang)}
           afterLabel={`${t("answer", lang)} · ${tf("answerCumulative", lang, { n: k })}`}
           overlay={
             // 3:4 photo shown object-cover in a 4:5 box → 6.25% of the height is cropped (3.125% top)
@@ -163,7 +164,7 @@ function LessonInner() {
                 );
               })}
             </div>
-            <p className="text-xs text-muted">{t("intensityCost", lang)}</p>
+            <p className="text-xs text-muted">{t(sample ? "samplePreviewCost" : "intensityCost", lang)}</p>
           </fieldset>
           {step.reasons.length > 0 && (
             <div className="rounded-xl bg-peach-soft p-3">
@@ -197,7 +198,24 @@ function LessonInner() {
               <Icon name="bag" className="h-4 w-4" />
               {t("shopStep", lang)}
             </ButtonLink>
-            {last ? (
+            {last && sample ? (
+              <Button
+                className="flex-[1.4]"
+                disabled={attemptBusy}
+                onClick={async () => {
+                  setAttemptBusy(true);
+                  try {
+                    await loadSampleAttempt();
+                    router.push(`/grade?lesson=${id}`);
+                  } finally {
+                    setAttemptBusy(false);
+                  }
+                }}
+              >
+                <Icon name="check" className="h-4 w-4" />
+                {t("sampleAttempt", lang)}
+              </Button>
+            ) : last ? (
               <ButtonLink href={`/capture?for=attempt&lesson=${id}`} className="flex-[1.4]">
                 <Icon name="camera" className="h-4 w-4" />
                 {t("takeAttempt", lang)}

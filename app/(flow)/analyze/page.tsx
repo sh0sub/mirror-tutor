@@ -28,7 +28,7 @@ type Phase = { kind: "loading"; slow: boolean } | { kind: "done" } | { kind: "er
 
 /** M2: analyzing (3-step progress, skeleton cards) → result + correction sheet + recommended lesson. */
 export default function AnalyzePage() {
-  const { lang, photo, stored, setStored, editProfile, setMode, mode, refreshCredit, skin, setSkinShade, facePins } = useFlow();
+  const { lang, photo, stored, setStored, editProfile, setMode, mode, refreshCredit, skin, setSkinShade, facePins, sample } = useFlow();
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>(stored && !photo ? { kind: "done" } : { kind: "loading", slow: false });
   const [editing, setEditing] = useState<ProfileKey | null>(null);
@@ -44,7 +44,8 @@ export default function AnalyzePage() {
     if (started.current) return;
     started.current = true;
     const slowTimer = window.setTimeout(() => setPhase((p) => (p.kind === "loading" ? { kind: "loading", slow: true } : p)), 15_000);
-    void postAnalyze(photo.blob).then((r) => {
+    // Sample mode sends no image: the server returns Model A's pre-generated profile (0u, no API call).
+    void postAnalyze(sample ? null : photo.blob).then((r) => {
       window.clearTimeout(slowTimer);
       if (r.ok) {
         setStored({ profile: r.profile, edited: [], source: r.source });
@@ -56,7 +57,7 @@ export default function AnalyzePage() {
       refreshCredit();
     });
     return () => window.clearTimeout(slowTimer);
-  }, [photo, stored, router, setStored, setMode, refreshCredit]);
+  }, [photo, stored, router, setStored, setMode, refreshCredit, sample]);
 
   const thumb = mode === "demo" ? "/demo/sample-model.svg" : photo?.url;
   const rec = stored ? recommendLesson(stored.profile) : null;
@@ -101,7 +102,7 @@ export default function AnalyzePage() {
           {thumb && (
             <PhotoPins
               src={thumb}
-              alt={t("myFace", lang)}
+              alt={t(sample ? "sampleFace" : "myFace", lang)}
               pins={pins}
               focus={focus}
               badge={badge}

@@ -1,6 +1,7 @@
 import { getRuntime } from "@/lib/runtime";
 import { ensureSession } from "@/lib/session";
 import { renderLesson } from "@/lib/services/render";
+import { renderSample } from "@/lib/services/sample";
 import { getLesson, parseStepScales } from "@/lib/lessons";
 import { isFaceProfile } from "@/lib/profile";
 import { parseAnchors } from "@/lib/regions";
@@ -15,6 +16,7 @@ export const maxDuration = 60;
  * POST /api/render (multipart: image, lessonId, profile JSON, optional steps "1,3", optional stepScales JSON {"2":1.2},
  * optional anchors JSON {leftEye,rightEye,mouth} — normalized face points for the mock renderer, optional skinShade
  * ladder id "23N" — measured on the device; anything else is ignored → the lesson's default base color)
+ * `sample=1` (image not needed) → Model A's pre-generated steps / local preview; no YouCam call, no unit guard (0u).
  * → NDJSON stream: one {"type":"step",...} line per finished step, then {"type":"done",...}.
  */
 export async function POST(req: Request) {
@@ -51,22 +53,26 @@ export async function POST(req: Request) {
   } catch {
     anchors = null;
   }
-  if (!(file instanceof Blob) || file.size === 0 || file.size > MAX_UPLOAD_BYTES) return bad("missing_image");
+  const sample = form.get("sample") === "1";
+  if (!sample && (!(file instanceof Blob) || file.size === 0 || file.size > MAX_UPLOAD_BYTES)) return bad("missing_image");
   if (!getLesson(lessonId)) return bad("unknown_lesson");
   if (!isFaceProfile(profile)) return bad("bad_profile");
   // S4: per-step intensity (0.8/1.2). Re-rendering one step goes through the same cache key and session guard.
   // Skin shade changes the foundation effect → a different render cache key, no special casing.
   const build = { stepScales: parseStepScales(stepScales, getLesson(lessonId)!.steps.length), skinShade: parseShadeId(form.get("skinShade")) };
 
-  const image = new Uint8Array(await file.arrayBuffer());
+  // The sample path ignores any uploaded image and never receives the runtime (no transport, no guard).
+  const image = sample ? null : new Uint8Array(await (file as Blob).arrayBuffer());
+  const sessionCap = getRuntime().config.sessionCap;
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const send = (obj: unknown) => controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
       try {
-        const summary = await renderLesson(getRuntime(), session.id, { image, lessonId, profile: profile as never, steps, build, anchors }, (r) =>
-          send({ type: "step", ...r }),
-        );
+        const onStep = (r: unknown) => send({ type: "step", ...(r as object) });
+        const summary = image
+          ? await renderLesson(getRuntime(), session.id, { image, lessonId, profile: profile as never, steps, build, anchors }, onStep)
+          : await renderSample({ lessonId, profile: profile as never, steps, build }, onStep, sessionCap);
         send({ type: "done", ...summary });
       } catch {
         send({ type: "fatal", code: "internal" });

@@ -23,7 +23,7 @@ Makeup tutorials are filmed on someone else's face. A gradient eyeshadow that wo
 7. Compare: a page with two pre-generated demo faces (double vs inner-double eyelid) showing the same look with different techniques, plus a what-if panel that previews other rule-table branches (monolid, thin lips) as text, for 0 units.
 8. Home: a practice streak, past results and a tab bar for returning users, stored on the device only. Shop the step asks for confirmation in a sheet before leaving for a store.
 
-Also: Korean and English UI, a per-session unit cap, and a demo mode that serves pre-generated results when the API balance is low.
+Also: Korean and English UI, a per-session unit cap, a demo mode that serves pre-generated results when the API balance is low, and a "Try with a sample model · 0 units" button that walks the full flow on a stock model without a selfie.
 
 ## How we built it
 
@@ -73,6 +73,7 @@ Next.js, React, TypeScript, Tailwind CSS, YouCam API (Face Attribute & Ratio Ana
 ## Try it out
 
 - Live demo: https://mirror-tutor.vercel.app (if the YouCam balance is low it shows pre-generated sample models and says so)
+- **For judges (no selfie needed, 0 units):** on the home screen or the camera/consent step, tap **"Try with a sample model · 0 units"** (KO: "샘플 모델로 체험하기 · 0 유닛"). It runs the whole flow on a stock-photo model: analysis → 4-step lesson with the real pre-generated YouCam Makeup VTO results → grading of a stock "attempt" → shop the step → share card. A banner says it is a sample, nothing is uploaded, and the server path for it has no YouCam client, so it cannot spend units. To try it on your own face, tap "Get started" instead.
 - Source code: https://github.com/sh0sub/mirror-tutor (public, MIT)
 - Video: YouTube link (add after upload). The 2:51 demo is faceless (stock photos only) and was recorded against the live YouCam API with 14 units.
 - Test images: `public/demo/model-a` and `model-b` in the repository (stock photos, Pexels License), or use your own selfie

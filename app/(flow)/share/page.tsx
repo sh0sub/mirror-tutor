@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AppBar, BottomBar, Button, Icon, Screen } from "@/components/ui";
+import { AppBar, BottomBar, Button, Icon, ModeBanner, Screen } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { CARD, drawShareCard, type CardContext } from "@/lib/share/card";
@@ -85,6 +85,7 @@ function ShareInner() {
   return (
     <Screen>
       <AppBar title={t("shareTitle", lang)} backHref={`/grade?lesson=${lessonId}`} />
+      <ModeBanner />
       <main className="flex flex-1 flex-col gap-4 px-4 py-4">
         <div className="relative mx-auto w-full max-w-[342px]">
           <canvas ref={canvasRef} className="aspect-[342/428] w-full rounded-[var(--radius-panel)] bg-panel" role="img" aria-label={`${lesson?.title[lang] ?? ""} ${score ?? ""}`} />

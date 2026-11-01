@@ -187,7 +187,8 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
 
 /* ── unit badge + mode banner ─────────────────────────────── */
 export function UnitLine({ costKey }: { costKey: "analyzerCost" | "renderCost" }) {
-  const { lang, credit } = useFlow();
+  const { lang, credit, sample } = useFlow();
+  if (sample) return <p className="text-center text-xs text-muted">{t("sampleCost", lang)}</p>;
   return (
     <p className="text-center text-xs text-muted">
       {t(costKey, lang)}
@@ -202,14 +203,14 @@ export function UnitLine({ costKey }: { costKey: "analyzerCost" | "renderCost" }
 }
 
 export function ModeBanner() {
-  const { lang, credit, mode } = useFlow();
-  const demo = mode === "demo" || credit?.demo;
-  const mock = !demo && (mode === "mock" || credit?.mode === "mock");
-  if (!demo && !mock) return null;
+  const { lang, credit, mode, sample } = useFlow();
+  const demo = !sample && (mode === "demo" || credit?.demo);
+  const mock = !sample && !demo && (mode === "mock" || credit?.mode === "mock");
+  if (!sample && !demo && !mock) return null;
   return (
     <p role="status" className="mx-4 mt-3 flex items-start gap-2 rounded-xl bg-warning-soft px-3 py-2 text-xs font-medium text-warning">
       <Icon name="info" className="mt-0.5 h-4 w-4 flex-none" />
-      {demo ? t("demoBanner", lang) : t("mockBanner", lang)}
+      {sample ? t("sampleBanner", lang) : demo ? t("demoBanner", lang) : t("mockBanner", lang)}
     </p>
   );
 }

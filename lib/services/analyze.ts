@@ -12,7 +12,8 @@ import { safeLog } from "../privacy/log";
 import type { FaceProfile, ProfileKey } from "../profile";
 import demoProfile from "../../public/demo/profile.json";
 
-export type ServiceMode = "live" | "mock" | "demo";
+/** demo = automatic sample model when units run low; sample = the visitor chose "샘플 모델로 체험하기" (0u, no API). */
+export type ServiceMode = "live" | "mock" | "demo" | "sample";
 
 export interface UnitInfo {
   spent: number;
