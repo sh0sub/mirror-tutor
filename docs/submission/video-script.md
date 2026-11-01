@@ -121,3 +121,9 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - /partner(10.9초): "A retailer swaps in its own SKUs; about four VTO renders per lesson." 추가. 마지막 정지 화면에서 유닛 미터(14 -> 4, 20 상한)와 KPI 가설 칩("Hypothesis - not measured")이 폰 화면과 왼쪽 설명에 함께 보임.
 - 마지막 장면: URL(mirror-tutor.vercel.app)과 CTA("Try with a sample model - 0 units").
 - 새 TTS 두 줄(marin, 수 센트). YouCam 유닛 0 사용. 이전 버전: `.local/video/mirror-tutor-demo-live-c4prev.mp4`.
+
+## 사이클 5 재합성 (173.8초, 0 YouCam 유닛, TTS 비용 0)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c5` (work-c4 복사본). 재합성 작업 디렉터리 `recomp-oai`(나레이션 문구 그대로라 TTS 캐시만 사용), 직전 판은 `.local/video/mirror-tutor-demo-live-c5prev.mp4`.
+- 다시 녹화(유닛 0): compare(`--mode mock --sample`), share(`--mode mock --sample`, 점수 91은 grade 장면과 같고 "Next: retailer view" 카드까지 스크롤), intro·partner(`--mode live`, 홈 하단 바의 "Retailer view (concept)" 버튼을 눌러 파트너 화면으로 들어감, API 호출 없음), home(`--mode mock --setup full`, 업로드 흐름으로 만든 복귀 사용자 홈, 모의 채점이라 점수가 sample 장면과 다름).
+- 영상 뱃지: hook·intro·compare·grade·shop·partner는 "YouCam VTO, pre-generated (0 units)", 분석·레슨만 "live", capture·home·share는 각각 온디바이스/기기 저장/샘플 체험(0 유닛)으로 표기. compare 규칙 행은 원시 토큰 대신 평어 라벨.

@@ -231,8 +231,12 @@ export const SEGMENTS = [
       "For retailers, the lesson drops into a product page. A concept screen, with a fictional store.",
       "First lesson, fourteen units. Then four. Capped per session.",
     ],
-    prep: [{ route: "/partner" }, { wait: "!!document.querySelector('[data-testid=partner-widget]')" }, { sleep: 1.0 }],
+    // C5: the entry path from home ("Retailer view (concept)" beside the sample button), then the widget
+    prep: [{ route: "/" }, { wait: "location.pathname === '/' && document.body.innerText.includes('Retailer view')" }, { sleep: 1.0 }],
     actions: [
+      { sleep: 1.6 },
+      { tap: { sel: "a", text: "Retailer view" } },
+      { wait: "!!document.querySelector('[data-testid=partner-widget]')" },
       { sleep: 1.2 },
       { tap: { sel: "[data-testid=partner-widget] button", text: "^3 " } },
       { sleep: 1.4 },
@@ -252,7 +256,7 @@ export const SEGMENTS = [
       "Returning users reuse the profile, so only the four render units apply.",
     ],
     prep: [{ route: "/" }, { wait: "location.pathname === '/' && document.body.innerText.includes('streak')" }, { sleep: 1.0 }],
-    actions: [{ sleep: 1.0 }, { scroll: { y: 330 }, dur: 1.4 }, { at: 1 }, { sleep: 1.5 }, { scroll: { y: 0 }, dur: 1.0 }],
+    actions: [{ scrollPast: "header ~ p[role=status]" }, { sleep: 1.0 }, { scroll: { y: 330 }, dur: 1.4 }, { at: 1 }, { sleep: 1.5 }, { scroll: { y: 0 }, dur: 1.0 }],
   },
   {
     id: "share",
@@ -265,7 +269,8 @@ export const SEGMENTS = [
       "Mirror Tutor: learn makeup on your own face.",
     ],
     prep: [{ route: "/share?lesson={lesson}" }, { wait: "location.pathname === '/share'" }, { sleep: 2.0 }],
-    actions: [{ sleep: 1.5 }, { at: 1, plus: 0.5 }, { scroll: { y: 300 }, dur: 1.4 }, { sleep: 1.0 }, { scroll: { y: 0 }, dur: 1.2 }],
+    // C5: in sample mode the page ends with the "Next: retailer view" card, so scroll down to it for the last line
+    actions: [{ scrollPast: "header ~ p[role=status]" }, { sleep: 1.5 }, { at: 1, plus: 0.5 }, { scroll: { y: 300 }, dur: 1.4 }, { sleep: 1.0 }, { at: 2 }, { scroll: { sel: "[data-testid=retailer-end-card]", offset: 130 }, dur: 1.2 }, { sleep: 1.5 }],
   },
 ];
 
@@ -295,3 +300,31 @@ const SAMPLE_SETUP_GRADE = [
 ];
 
 export const SAMPLE_SETUP = [...SAMPLE_SETUP_LESSON, ...SAMPLE_SETUP_GRADE];
+
+/** `record-video.mjs --mode mock --setup full --only home`: the upload flow in mock mode (0 units), ending on a graded try. */
+export const FULL_SETUP = [
+  { wait: "document.querySelector('main h2')", timeout: 30000 },
+  { tap: { sel: "button", text: "^Get started$" }, quiet: true },
+  { sleep: 1.0 },
+  { tap: { sel: "dialog[open] button", text: "Agree and start" }, quiet: true },
+  { wait: "location.pathname === '/capture'" },
+  { sleep: 1.0 },
+  { tap: { sel: "button", text: "Upload photo" }, noClick: true, quiet: true },
+  { upload: PHOTO },
+  { wait: "location.pathname === '/analyze'", timeout: 20000 },
+  { wait: bodyHas("Analysis done"), fail: bodyHas("Analysis failed"), timeout: 90000 },
+  { tap: { sel: "button", text: "Start this lesson" }, quiet: true },
+  { wait: "location.pathname === '/lesson'" },
+  { wait: "document.querySelectorAll('nav[aria-label] button').length >= 4 && !!document.querySelector('img[alt^=\"Answer\"]') && !document.body.innerText.includes('Rendering')", fail: bodyHas("This step failed"), timeout: 120000 },
+  { save: { name: "lesson", js: "new URLSearchParams(location.search).get('id') || 'daily-k'" } },
+  { tap: { sel: "nav[aria-label] button:nth-child(4)" }, quiet: true },
+  { sleep: 0.8 },
+  { tap: { sel: "a", text: "Snap your attempt" }, quiet: true },
+  { wait: "location.pathname === '/capture'" },
+  { sleep: 1.0 },
+  { tap: { sel: "button", text: "Upload photo" }, noClick: true, quiet: true },
+  { upload: ATTEMPT },
+  { wait: "location.pathname === '/grade'", timeout: 20000 },
+  { wait: bodyHas("Graded") + " || " + bodyHas("Angle is quite different"), fail: bodyHas("Analysis failed"), timeout: 90000 },
+  { sleep: 1.0 },
+];

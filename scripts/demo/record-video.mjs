@@ -8,6 +8,8 @@
  *   node scripts/demo/record-video.mjs --mode live            # real YouCam API (~14 units), keys from .env
  *
  * Options: --port 3611  --work <dir for frames/audio>  --out <mp4>  --base <url of a running server>
+ *          --setup full      (mock, with --only) first run the upload flow in mock mode (capture -> analyze -> lesson -> graded try)
+ *                            so the home screen shows a returning user with a stored profile
  *          --voice Samantha  --rate 150  --stills 6
  *          --only shop[,id]  record just these segments (re-take one shot for recomposite.mjs); with --sample the
  *                            state is reached through the "Try with a sample model" flow (the sample model's pre-generated
@@ -22,7 +24,7 @@
 import { spawn, execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, openSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { SEGMENTS as ALL_SEGMENTS, SAMPLE_SETUP, SAMPLE_SETUP_LESSON } from "./video-shots.mjs";
+import { SEGMENTS as ALL_SEGMENTS, SAMPLE_SETUP, SAMPLE_SETUP_LESSON, FULL_SETUP } from "./video-shots.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "../..");
 const args = Object.fromEntries(
@@ -409,7 +411,14 @@ async function record(cdp) {
   if (SAMPLE) {
     // a segment with a `sample` variant starts from the lesson (step 4), the others from the graded state
     for (const a of SEGMENTS.some((x) => x.sample) ? SAMPLE_SETUP_LESSON : SAMPLE_SETUP) await act(a, null, false);
+    vars.lesson = "daily-k"; // the sample lesson, for later `{lesson}` routes (home/share/grade)
     log("sample setup done:", await evaluate("location.pathname + location.search"));
+  }
+
+  if (args.setup === "full") {
+    // mock-mode upload flow (own photo path, a stored profile and a graded try), so `home` shows a returning user
+    for (const a of FULL_SETUP) await act(a, null, false);
+    log("full setup done:", await evaluate("location.pathname + location.search"));
   }
 
   for (const seg of SEGMENTS) {

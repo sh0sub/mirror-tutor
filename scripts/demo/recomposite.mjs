@@ -67,11 +67,12 @@ const SEGMENTS = [
     // C2 hook (0-~9 s): the compare screen first, so judges see the product's point (same look, different lids,
     // different technique) before the app intro. Reuses the compare recording frames, 0 units.
     id: "hook",
+    badge: "YouCam VTO, pre-generated (0 units)",
     srcId: "compare",
     lead: 0.35,
     kicker: "Same look, two eyelids",
     heading: "Different lids, different technique",
-    chip: "YouCam Makeup VTO · pre-generated · 0 units now",
+    chip: "YouCam VTO · pre-generated · 0 units",
     note: "Both faces are Pexels and Unsplash License stock photos",
     // C3: one hook line only (the second line moved out; the outcome line is the intro)
     units: 0,
@@ -83,13 +84,14 @@ const SEGMENTS = [
         heading: "Tutorials fit someone else's eyes",
         callout: "Read as <b>Double-lid</b>: <b>wrong technique</b><br>Corrected to <b>Monolid</b> · 0 units",
       },
-      { heading: "Different lids, different technique", callout: "<b>Monolid</b> and <b>double lid</b>, same eye step: <b>2colors1 · Upper6</b> vs <b>2colors3 · Upper11</b>" },
+      { heading: "Different lids, different technique", callout: "<b>Monolid</b>: horizontal gradient + liner<br><b>Double lid</b>: crease shading + thin liner" },
     ],
     timeline: [{ at: 0, src: [0, 3.1] }, { at: { plus: -0.5 }, src: 5 }],
     zoom: [{ at: 0, y: 252 }],
   },
   {
     id: "intro",
+    badge: "YouCam VTO, pre-generated (0 units)",
     lead: 0.5,
     kicker: "What it does",
     heading: "Tutorials fit someone else's eyes",
@@ -99,11 +101,13 @@ const SEGMENTS = [
     lines: ["Mirror Tutor: Face Analyzer reads your face, Makeup Virtual Try-On paints each step on it, and a full lesson costs fourteen units."],
     ui: [{ heading: "Makeup lessons on your own face", callout: "<b>Face Analyzer</b> reads features · 10 units<br><b>Rule table</b> picks the technique<br><b>Makeup VTO</b> renders each step · 4 units" }],
     // source = the hero (monolid face vs double-lid face) at the top of the home page, then the scroll to the three steps
-    timeline: [{ at: 0, src: 3 }, { at: { cue: 0, plus: 3.4 }, src: [7.0, 7.45] }, { at: { cue: 0, plus: 4.4 }, src: 9 }],
+    // C5 source (work-c5 frames-intro, live mode, 0 units): the hero with the bottom bar (Get started / sample / "Retailer view (concept)"), scroll 7.1-7.4 s to the three steps
+    timeline: [{ at: 0, src: 1.5 }, { at: { cue: 0, plus: 3.4 }, src: [7.0, 7.45] }, { at: { cue: 0, plus: 4.4 }, src: 8.2 }],
     zoom: [{ at: 0, y: 40 }, { at: { cue: 0, plus: 3.4 }, y: 40 }, { at: { cue: 0, plus: 4.4 }, y: 300 }],
   },
   {
     id: "capture",
+    badge: "On-device quality gate (0 units)",
     kicker: "Step 1 · Capture",
     heading: "Consent, then a quality gate",
     chip: "Quality gate · 0 units",
@@ -145,7 +149,7 @@ const SEGMENTS = [
       { callout: "Eyelid · eye shape · lips · face shape · brows" },
       { callout: "<b>10 units</b> per analysis. Tap a card to correct it, <b>0 units</b>." },
       { callout: "Base shade: measured from the cheeks on the device." },
-      { callout: "<b>Double lid</b> → crease shading + thin liner<br><span class=\"mono\">2colors3 · Upper11</span>" },
+      { callout: "<b>Double lid</b> → crease shading + thin liner<br><span class=\"plain\">2-color shadow, style 3 · upper liner, style 11</span>" },
     ],
     timeline: [
       { at: 0, src: 3 }, // source 0-1.2 s is the loading skeleton
@@ -182,6 +186,7 @@ const SEGMENTS = [
   },
   {
     id: "compare",
+    badge: "YouCam VTO, pre-generated (0 units)",
     kicker: "Two faces, one lesson",
     heading: "Same look, different technique",
     chip: "Pre-generated with the live API · 0 units now",
@@ -201,7 +206,7 @@ const SEGMENTS = [
         heading: "Two eyelids, two techniques",
         chip: "Basis: rule of thumb, not validated",
         callout:
-          "<div class=\"vs\"><div><b>Monolid face</b>Horizontal gradient + visible liner<span class=\"mono\">2colors1 · Upper6</span></div><div><b>Double-lid face</b>Crease shading + thin liner<span class=\"mono\">2colors3 · Upper11</span></div></div>",
+          "<div class=\"vs\"><div><b>Monolid face</b>Horizontal gradient + visible liner<span class=\"plain\">2-color shadow, style 1 · upper liner, style 6</span></div><div><b>Double-lid face</b>Crease shading + thin liner<span class=\"plain\">2-color shadow, style 3 · upper liner, style 11</span></div></div>",
       },
     ],
     // source: top of /compare on the eye step (0-3.1 s incl. original/answer flip), answer hold, scroll to the rule table
@@ -218,6 +223,7 @@ const SEGMENTS = [
   },
   {
     id: "grade",
+    badge: "YouCam VTO, pre-generated (0 units)",
     kicker: "Step 4 · Grade",
     heading: "Score your real attempt",
     chip: "0 YouCam units",
@@ -244,6 +250,7 @@ const SEGMENTS = [
   },
   {
     id: "shop",
+    badge: "YouCam VTO, pre-generated (0 units)",
     kicker: "Step 5 · Shop the step",
     heading: "Exact colors to products",
     chip: "CIEDE2000 matching · demo catalog",
@@ -260,6 +267,7 @@ const SEGMENTS = [
   {
     // C3: the /partner retailer view (concept screen, static page, 0 units). Source: work-c3 frames-partner.
     id: "partner",
+    badge: "YouCam VTO, pre-generated (0 units)",
     kicker: "For retailers",
     heading: "The lesson as a product-page widget",
     chip: "Concept screen · fictional store · 0 units",
@@ -278,11 +286,14 @@ const SEGMENTS = [
     ],
     // C4 source (work-c4 = work-c3 frames-partner): (the scene opens on the widget; the chip says concept screen, fictional store) 1.8-3.0 s widget with the SKU snippet below,
     // from 7.2 s the unit meter (14 / 4) and the "Hypothesis · not measured" KPI chip are both on the phone at once.
-    timeline: [{ at: 0, src: 2.0 }, { at: { cue: 1, plus: -0.3 }, src: [7.0, 7.4] }, { at: { cue: 1, plus: 0.9 }, src: 9.0 }],
-    zoom: [{ at: 0, y: 300 }, { at: { cue: 1, plus: -0.3 }, y: 240 }],
+    // C5 source (work-c5 frames-partner, live mode, 0 units): the scene now starts on the home bottom bar and taps "Retailer view (concept)" (1.6-2.2 s) into the widget (hold from 2.5 s);
+    // scroll to the unit meter 5.4 s, to the KPI chip 9.4-9.6 s (meter + KPI chip on the phone together from 9.7 s)
+    timeline: [{ at: 0, src: [0, 2.6] }, { at: 3.3, src: 3.0 }, { at: { cue: 1, plus: -0.3 }, src: [9.4, 9.7] }, { at: { cue: 1, plus: 0.9 }, src: 11.5 }],
+    zoom: [{ at: 0, y: 507 }, { at: 3.0, y: 300 }, { at: { cue: 1, plus: -0.3 }, y: 240 }],
   },
   {
     id: "home",
+    badge: "Saved on this device (0 units)",
     kicker: "Come back tomorrow",
     heading: "Practice streak and past results",
     chip: "Stored on this device only · 0 units",
@@ -292,11 +303,13 @@ const SEGMENTS = [
       "Returning users skip the analysis, so a new lesson costs just four units.",
     ],
     ui: [{ callout: "Streak + past results live on <b>this device</b> only." }, { callout: "Reused profile → only <b>4 units</b> for a new lesson." }],
+    // C5 source (work-c5 frames-home, mock --setup full, banner scrolled away): scrolled hold 1.4-8.3 s shows streak, past results and the home buttons incl. "Retailer view (concept)"
     timeline: [{ at: 0, src: 4 }],
-    zoom: [{ at: 0, y: 100 }, { at: { cue: 1 }, y: 150 }],
+    zoom: [{ at: 0, y: 130 }, { at: { cue: 1 }, y: 430 }],
   },
   {
     id: "share",
+    badge: "YouCam API, sample trial (0 units)",
     tail: 1.0,
     kicker: "Share",
     heading: "Private by default",
@@ -317,12 +330,13 @@ const SEGMENTS = [
       { callout: "<b>Never stored</b> · <b>20-unit</b> session cap · daily cap too" },
       {
         heading: "Try it yourself",
-        chip: "Live YouCam API · the sample-model trial costs 0 units",
+        chip: "Live YouCam API · sample trial 0 units",
         callout: "<b>Try it now</b> · no sign-up<br><span class=\"url\">mirror-tutor.vercel.app</span>Tap <b>Try with a sample model</b> · 0 units",
       },
     ],
-    timeline: [{ at: 0, src: 2 }, { at: { cue: 1 }, src: 12 }],
-    zoom: [{ at: 0, y: 60 }, { at: { cue: 1 }, y: 420 }],
+    // C5 source (work-c5 frames-share, mock --sample, banner scrolled away, score 91 = the grade scene): hold 0.13-5.6 s, scroll 5.6-5.9 s, then the "Next: retailer view" card below the progress section
+    timeline: [{ at: 0, src: 1.5 }, { at: { cue: 1, plus: -0.3 }, src: [5.55, 5.95] }, { at: { cue: 1, plus: 0.9 }, src: 9 }],
+    zoom: [{ at: 0, y: 150 }, { at: { cue: 1, plus: -0.3 }, y: 470 }],
   },
 ];
 
@@ -448,6 +462,7 @@ function stageHtml(seg, si0, ci) {
   .vs>div{padding-bottom:12px;border-bottom:1px solid #eadfd8}.vs>div:last-child{border:0;padding:0}
   .vs .basis{font-size:21px;font-weight:600;color:#4a403d}.vs .basis b{display:inline;font-size:21px;margin:0 8px 0 0}
   .vs em{font-style:normal;font-weight:800;color:#a8264a}
+  .plain{font-size:20px;font-weight:600;color:#6b605c;line-height:1.3}
   .url{display:block;white-space:nowrap;font-size:34px;font-weight:800;color:#a8264a;letter-spacing:-.01em;margin:8px 0 10px}
   .note{font-size:20px;color:#6b605c;line-height:1.4}
   .sub{position:absolute;left:${ZX}px;width:${ZW}px;top:${ZY + ZH + 62}px;border-left:6px solid #c8325b;padding:4px 0 4px 24px;font-size:35px;line-height:1.33;font-weight:600;box-sizing:border-box}
@@ -462,7 +477,7 @@ function stageHtml(seg, si0, ci) {
   .flow li.now{background:#c8325b;border-color:#c8325b;color:#fff;box-shadow:0 6px 16px rgba(200,50,91,.25)}.flow li.now i{background:#fff;color:#a8264a}
   .foot{position:absolute;left:64px;width:${SCR_X - 64 - 52}px;bottom:26px;font-size:17px;line-height:1.35;color:#6b605c}
   </style></head><body>
-  <div class="phone"></div><div class="zoom"></div><div class="badges"><div class="live"><i></i>YouCam Face Analyzer + Makeup VTO, live</div><div class="units">YouCam units used <b>${seg.units ?? 0}</b> / 20 cap</div></div>
+  <div class="phone"></div><div class="zoom"></div><div class="badges"><div class="live"><i></i>${esc(seg.badge ?? "YouCam Face Analyzer + Makeup VTO, live")}</div><div class="units">YouCam units used <b>${seg.units ?? 0}</b> / 20 cap</div></div>
   <div class="left"><div class="kick">${esc(seg.kicker)}</div><h1>${esc(ui.heading)}</h1><div class="chip">${esc(ui.chip)}</div>${ui.callout ? `<div class="callout">${ui.callout}</div>` : ""}${seg.note ? `<div class="note">${esc(seg.note)}</div>` : ""}</div>
   <div class="sub">${esc(cue)}</div>
   <div class="flow"><div class="fh">${si === 0 ? "How it works" : `Step ${Math.min(si, FLOW.length)} of ${FLOW.length}`}</div><ol>${FLOW.map((f, i) => {
