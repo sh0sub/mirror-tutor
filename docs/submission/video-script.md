@@ -127,3 +127,13 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c5` (work-c4 복사본). 재합성 작업 디렉터리 `recomp-oai`(나레이션 문구 그대로라 TTS 캐시만 사용), 직전 판은 `.local/video/mirror-tutor-demo-live-c5prev.mp4`.
 - 다시 녹화(유닛 0): compare(`--mode mock --sample`), share(`--mode mock --sample`, 점수 91은 grade 장면과 같고 "Next: retailer view" 카드까지 스크롤), intro·partner(`--mode live`, 홈 하단 바의 "Retailer view (concept)" 버튼을 눌러 파트너 화면으로 들어감, API 호출 없음), home(`--mode mock --setup full`, 업로드 흐름으로 만든 복귀 사용자 홈, 모의 채점이라 점수가 sample 장면과 다름).
 - 영상 뱃지: hook·intro·compare·grade·shop·partner는 "YouCam VTO, pre-generated (0 units)", 분석·레슨만 "live", capture·home·share는 각각 온디바이스/기기 저장/샘플 체험(0 유닛)으로 표기. compare 규칙 행은 원시 토큰 대신 평어 라벨.
+
+## 사이클 6 재합성 (174.4초, YouCam 유닛 10 사용, TTS 새 줄 3개)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c6` (work-c5 복사본). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유), 직전 판은 `.local/video/mirror-tutor-demo-live-c6prev.mp4`. 교체 전 백업: `scratchpad/win/backup`.
+- 새 오프닝(약 7초): 몽타주 5.4초(레슨 단계 -> 전후 슬라이더 -> 점수 91 -> 상품 카드, V.O. "A makeup lesson, rendered on your own eyelid.") + 제목 카드 1.5초(YouCam AI Face Analyzer, YouCam Makeup Virtual Try-On). 이어서 홑꺼풀 vs 쌍꺼풀 훅. 몽타주는 기존 프레임만 재사용(`recomposite.mjs` 타임라인 항목의 `from`으로 다른 녹화 참조).
+- 길이를 맞추려고 intro 문장을 줄이고("Face Analyzer reads your face. Makeup Virtual Try-On paints each step. A full lesson costs fourteen units."), analyze 마지막 줄을 줄이고, 무음 꼬리 0.5 -> 0.35초. 175.9 -> 174.4초.
+- analyze: 규칙표 시트에 평어("2-color shadow, style 3 · upper liner, style 11")가 보이도록 live 모드로 다시 녹화(10 유닛, 잔량 900 -> 890). `record-video.mjs --mode live --setup upload --only analyze`(새 `upload` 설정: 스톡 사진 업로드 후 분석 시작에서 멈춤).
+- home: `--mode mock --setup full91 --only home`(새 설정: 연습 기록에 샘플 점수 91을 미리 넣고 업로드 흐름 진행). 지난 결과가 91로 grade·share 장면과 일치. 화면 노트에 "sample score"라고 밝혔다. grade 노트에도 "sample score (91)".
+- 푸터: analyze·lesson만 "live YouCam API (this scene)", 나머지는 "sample model, pre-generated YouCam results".
+- 알려진 문제(앱, 영상 범위 밖): 현재 HEAD의 /compare에서 nowrap 칩("Analyzer read Double-lid → corrected to Monolid")이 열 폭을 넘어 오른쪽 열 글자와 겹친다. 그래서 compare·hook은 겹침 없는 C5 프레임을 그대로 썼다(칩이 줄바꿈된 옛 모양). 앱 수정 후 `--mode mock --sample --only compare`로 다시 찍으면 된다.

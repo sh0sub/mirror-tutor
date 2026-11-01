@@ -48,7 +48,7 @@ const CSS_W = 390, CSS_H = 844, FR = 1; // saved screencast frames are 390x844 (
 const ZOOM_CSS_H = Math.round((CSS_W * ZH) / ZW); // visible css height in the zoom panel
 // LEAD/TAIL: silence before the first and after the last line of a segment (per-segment `lead`/`tail` override).
 // Kept short so the whole video lands at 172-176 s (hard limit 180 s).
-const LEAD = 0.35, GAP = 0.35, TAIL = 0.5, ZOOM_MOVE = 0.7;
+const LEAD = 0.35, GAP = 0.35, TAIL = 0.35, ZOOM_MOVE = 0.7;
 
 const run = (cmd, argv) => execFileSync(cmd, argv, { stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64 << 20 }).toString();
 const probe = (f) => Number(run(FFPROBE, ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f]).trim());
@@ -63,6 +63,35 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
  * zoom          [{ at, y, x? }]: css-pixel top (and left) of the zoom window from `at` on, eased in over 0.7 s
  */
 const SEGMENTS = [
+  {
+    // C6 opening montage (about 5 s): the whole product in four cuts (a lesson step on the face, the before/after slider,
+    // the score, a product card) under one V.O. line, then the title card. Reuses recorded frames, 0 units.
+    id: "montage",
+    badge: "YouCam VTO, pre-generated (0 units)",
+    lead: 0.3,
+    tail: 1.4,
+    kicker: "Mirror Tutor",
+    heading: "A makeup lesson on your own eyelid",
+    chip: "Lesson step · slider · score · shop",
+    note: "Sample model: licensed stock photo, results pre-generated with the live API",
+    units: 0,
+    lines: ["A makeup lesson, rendered on your own eyelid."],
+    ui: [{ callout: "<b>Lesson step</b> on the face · <b>before / after</b> slider<br><b>Score</b> · <b>shop</b> the step" }],
+    timeline: [
+      { at: 0, from: "lesson", src: 18.0 },
+      { at: 1.3, from: "lesson", src: [13.3, 14.7] },
+      { at: 2.5, from: "grade", src: 2.5 },
+      { at: 3.7, from: "shop", src: 4.5 },
+    ],
+    srcId: "lesson",
+    zoom: [{ at: 0, y: 40 }, { at: 1.3, y: 60 }, { at: 2.5, y: 70 }, { at: 3.7, y: 300 }],
+  },
+  {
+    // C6 title card (about 1.8 s): names the two YouCam APIs the app is built on. Rendered as a still, no phone.
+    id: "title",
+    card: { kicker: "Mirror Tutor", title: "Makeup lessons on your own face", chips: ["YouCam AI Face Analyzer", "YouCam Makeup Virtual Try-On"], sub: "Learn makeup on your own face · live demo: mirror-tutor.vercel.app" },
+    duration: 1.5,
+  },
   {
     // C2 hook (0-~9 s): the compare screen first, so judges see the product's point (same look, different lids,
     // different technique) before the app intro. Reuses the compare recording frames, 0 units.
@@ -98,7 +127,8 @@ const SEGMENTS = [
     chip: "YouCam AI Face Analyzer + Makeup Virtual Try-On",
     // C3: one outcome line (the problem is carried by the hook): what it does, the YouCam calls, the unit cost
     units: 0,
-    lines: ["Mirror Tutor: Face Analyzer reads your face, Makeup Virtual Try-On paints each step on it, and a full lesson costs fourteen units."],
+    // C6: the montage and title card already name the product and both YouCam APIs, so this line is shorter
+    lines: ["Face Analyzer reads your face. Makeup Virtual Try-On paints each step. A full lesson costs fourteen units."],
     ui: [{ heading: "Makeup lessons on your own face", callout: "<b>Face Analyzer</b> reads features · 10 units<br><b>Rule table</b> picks the technique<br><b>Makeup VTO</b> renders each step · 4 units" }],
     // source = the hero (monolid face vs double-lid face) at the top of the home page, then the scroll to the three steps
     // C5 source (work-c5 frames-intro, live mode, 0 units): the hero with the bottom bar (Get started / sample / "Retailer view (concept)"), scroll 7.1-7.4 s to the three steps
@@ -135,6 +165,7 @@ const SEGMENTS = [
   },
   {
     id: "analyze",
+    live: true,
     kicker: "Step 2 · Analyze",
     heading: "Five features, one call",
     chip: "YouCam AI Face Analyzer · 10 units",
@@ -143,7 +174,7 @@ const SEGMENTS = [
       "One call to YouCam's Face Analyzer reads five features: eyelid, eye shape, lips, face shape and brows.",
       "That's ten units. And if it gets something wrong? Just tap to fix it.",
       "Skin tone is measured right in the browser, from the cheeks, for free.",
-      "Then our rule table turns those features into try-on settings: shadow pattern, liner, and intensity.",
+      "Then our rule table turns those features into try-on settings.",
     ],
     ui: [
       { callout: "Eyelid · eye shape · lips · face shape · brows" },
@@ -151,16 +182,19 @@ const SEGMENTS = [
       { callout: "Base shade: measured from the cheeks on the device." },
       { callout: "<b>Double lid</b> → crease shading + thin liner<br><span class=\"plain\">2-color shadow, style 3 · upper liner, style 11</span>" },
     ],
+    // C6 source (work-c6 frames-analyze, live mode, 10 units): skeleton 0.8-1.3 s (skipped), result from 1.3 s, scroll to the base shade 10.1-10.3 s,
+    // the "See the rule table" sheet (plain words: "2-color shadow, style 3 · upper liner, style 11") opens at 18.0-18.7 s and holds to 21.5 s
     timeline: [
-      { at: 0, src: 3 }, // source 0-1.2 s is the loading skeleton
-      { at: { cue: 2 }, src: 11.5 },
-      { at: { cue: 3, plus: -0.2 }, src: [18, 19.8] },
-      { at: { cue: 3, plus: 1.8 }, src: 20.4 },
+      { at: 0, src: 3 },
+      { at: { cue: 2 }, src: 12 },
+      { at: { cue: 3, plus: -0.2 }, src: [17.95, 18.7] },
+      { at: { cue: 3, plus: 0.8 }, src: 20 },
     ],
-    zoom: [{ at: 0, y: 40 }, { at: 1.6, y: 40 }, { at: { cue: 1 }, y: 400 }, { at: { cue: 2 }, y: 400 }, { at: { cue: 3 }, y: 400 }, { at: { cue: 3, plus: 1.8 }, y: 470 }],
+    zoom: [{ at: 0, y: 40 }, { at: 1.6, y: 40 }, { at: { cue: 1 }, y: 400 }, { at: { cue: 2 }, y: 400 }, { at: { cue: 3 }, y: 400 }, { at: { cue: 3, plus: 0.8 }, y: 470 }],
   },
   {
     id: "lesson",
+    live: true,
     kicker: "Step 3 · Learn",
     heading: "Every step rendered on your photo",
     chip: "YouCam Makeup Virtual Try-On · 1 unit per step",
@@ -227,7 +261,7 @@ const SEGMENTS = [
     kicker: "Step 4 · Grade",
     heading: "Score your real attempt",
     chip: "0 YouCam units",
-    note: "A stock image stands in for a real attempt",
+    note: "A stock image stands in for a real attempt, so this is a sample score (91)",
     units: 14,
     lines: [
       "Now it's your turn. Do the look for real, and snap your attempt. Here, a stock image stands in.",
@@ -297,6 +331,7 @@ const SEGMENTS = [
     kicker: "Come back tomorrow",
     heading: "Practice streak and past results",
     chip: "Stored on this device only · 0 units",
+    note: "Best score 91 is the sample score from the grade scene",
     units: 14,
     lines: [
       "Come back tomorrow, and your streak and past results are waiting, saved only on this device.",
@@ -435,7 +470,7 @@ function frameAt(items, t) {
 }
 
 // left-column step list (one entry per segment after the intro)
-const HEAD_SEGS = 1; // the hook shifts the step numbering by one
+const HEAD_SEGS = 3; // montage, title card and hook do not count as steps
 const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Retailer", "Streak", "Share"];
 
 function stageHtml(seg, si0, ci) {
@@ -485,7 +520,7 @@ function stageHtml(seg, si0, ci) {
     return `<li class="${st}"><i>${st === "done" ? "✓" : i + 1}</i>${esc(f)}</li>`;
   }).join("")}</ol></div>
   <div class="bar"><i></i></div>
-  <div class="foot">Mirror Tutor · recorded against the live YouCam API<br>Sample faces: Pexels and Unsplash License stock photos · demo catalog</div>
+  <div class="foot">${esc(seg.live ? "Mirror Tutor · live YouCam API (this scene)" : "Mirror Tutor · sample model, pre-generated YouCam results")}<br>Sample faces: Pexels and Unsplash License stock photos · demo catalog</div>
   </body></html>`;
 }
 
@@ -564,13 +599,19 @@ function rangePieces(items, total, a, b, L) {
   return pieces;
 }
 
+const srcCache = {};
+const sourceOf = (id) => (srcCache[id] ??= loadSourceFrames(id));
+
 function planShots(seg, items, total) {
-  const anchors = seg.timeline.map((a) => ({ t: resolveAt(seg, a.at), src: a.src })).sort((a, b) => a.t - b.t);
+  // C6: a timeline entry may name another recording with `from` (the opening montage cuts between lesson, grade and shop)
+  const anchors = seg.timeline.map((a) => ({ t: resolveAt(seg, a.at), src: a.src, from: a.from })).sort((a, b) => a.t - b.t);
   const N = Math.round(seg.duration * FPS);
   anchors.forEach((a, k) => {
     a.i0 = Math.ceil(a.t * FPS - 1e-6);
     const next = anchors[k + 1]?.t ?? seg.duration;
-    if (Array.isArray(a.src)) a.pieces = rangePieces(items, total, a.src[0], a.src[1], next - a.t);
+    a.items = a.from ? sourceOf(a.from).items : items;
+    a.total = a.from ? sourceOf(a.from).total : total;
+    if (Array.isArray(a.src)) a.pieces = rangePieces(a.items, a.total, a.src[0], a.src[1], next - a.t);
   });
   const fr = [];
   let k = 0;
@@ -578,7 +619,7 @@ function planShots(seg, items, total) {
     const t = i / FPS;
     while (k + 1 < anchors.length && anchors[k + 1].i0 <= i) k++;
     const a = anchors[k];
-    if (!a.pieces) fr.push(frameAt(items, a.src));
+    if (!a.pieces) fr.push(frameAt(a.items, a.src));
     else {
       let tau = t - a.t, p = 0;
       while (p + 1 < a.pieces.length && tau >= a.pieces[p].out) tau -= a.pieces[p++].out;
@@ -643,7 +684,7 @@ function concatFrames(file, frames) {
 }
 
 function encodeSegment(seg, dir) {
-  const { items, total } = loadSourceFrames(seg.srcId ?? seg.id);
+  const { items, total } = sourceOf(seg.srcId ?? seg.id);
   const { fr, cuts, N } = planShots(seg, items, total);
   const dur = seg.duration;
   const hN = XF_N / 2;
@@ -719,6 +760,29 @@ function encodeSegment(seg, dir) {
   return out;
 }
 
+// C6 title card: one still (1920x1080) held for seg.duration with a silent audio track, encoded like the other segments
+function makeCard(seg, dir) {
+  const c = seg.card;
+  const html = path.join(dir, `${seg.id}.html`);
+  const png = path.join(dir, `${seg.id}.png`);
+  writeFileSync(
+    html,
+    `<!doctype html><html><head><meta charset="utf-8"><style>
+    html,body{margin:0;width:${W}px;height:${H}px;background:#fbf7f4;overflow:hidden;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1f1b1a;-webkit-font-smoothing:antialiased}
+    .c{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:34px;text-align:center}
+    .k{font-size:34px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#a8264a}
+    h1{margin:0;font-size:96px;line-height:1.08;font-weight:800;letter-spacing:-.02em;max-width:1800px;white-space:nowrap}
+    .chips{display:flex;gap:24px}.chip{background:#fcebe3;color:#a8264a;border-radius:44px;padding:20px 40px;font-size:44px;font-weight:800;border:3px solid #c8325b}
+    .s{font-size:32px;font-weight:600;color:#6b605c}
+    </style></head><body><div class="c"><div class="k">${esc(c.kicker)}</div><h1>${esc(c.title)}</h1><div class="chips">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div></body></html>`,
+  );
+  screenshot(html, png, W, H);
+  const out = path.join(dir, `${seg.id}.mp4`);
+  run(FFMPEG, ["-y", "-v", "error", "-loop", "1", "-framerate", String(FPS), "-i", png, "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-t", seg.duration.toFixed(3), "-vf", `scale=${W}:${H}:flags=lanczos,fps=${FPS},format=yuvj420p`, "-r", String(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuvj420p", "-color_range", "pc", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", out]); // yuvj420p/pc like the other segments (concat -c copy keeps the first segment's range)
+  seg.cutTimes = [];
+  return out;
+}
+
 /* ── main ────────────────────────────────────────────────────────────────── */
 mkdirSync(WORK, { recursive: true });
 const audioDir = path.join(WORK, "audio");
@@ -730,6 +794,11 @@ renderMask(masks.phone, SCR_W, SCR_H, 34);
 renderMask(masks.zoom, ZW, ZH, 26);
 const outs = [];
 for (const [si, seg] of SEGMENTS.entries()) {
+  if (seg.card) {
+    outs.push(makeCard(seg, segDir));
+    log(`${seg.id}: title card, ${seg.duration.toFixed(2)}s`);
+    continue;
+  }
   await buildAudio(seg, audioDir);
   if (ONLY && !ONLY.includes(seg.id)) continue;
   renderStage(seg, si, stageDir);

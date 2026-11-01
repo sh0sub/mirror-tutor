@@ -415,8 +415,19 @@ async function record(cdp) {
     log("sample setup done:", await evaluate("location.pathname + location.search"));
   }
 
-  if (args.setup === "full") {
-    // mock-mode upload flow (own photo path, a stored profile and a graded try), so `home` shows a returning user
+  if (args.setup === "upload") {
+    // C6: live mode, upload the stock photo and stop as the analysis starts, so `--only analyze` records the real 10-unit call
+    for (const a of FULL_SETUP.slice(0, 9)) await act(a, null, false);
+    log("upload setup done:", await evaluate("location.pathname"));
+  }
+
+  if (args.setup === "full" || args.setup === "full91") {
+    // mock-mode upload flow (own photo path, a stored profile and a graded try), so `home` shows a returning user.
+    // full91 (C6): first seed the on-device practice log with the sample score 91, so the "best score" past result matches the grade and share scenes.
+    if (args.setup === "full91") {
+      await evaluate(`localStorage.setItem('mirror-tutor:practice:v1', JSON.stringify({ days: [], scores: { 'daily-k': 91 } })); location.reload()`).catch(() => null);
+      await sleep(2500);
+    }
     for (const a of FULL_SETUP) await act(a, null, false);
     log("full setup done:", await evaluate("location.pathname + location.search"));
   }
