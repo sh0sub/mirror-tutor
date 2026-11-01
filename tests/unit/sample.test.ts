@@ -7,6 +7,7 @@ import type { YouCamTransport } from "@/lib/youcam/client";
 import { POST as analyzePOST } from "@/app/api/analyze/route";
 import { POST as renderPOST } from "@/app/api/render/route";
 import { analyzeSample, isPregenerated, renderSample, SAMPLE_ATTEMPT, SAMPLE_LESSON, SAMPLE_MODEL } from "@/lib/services/sample";
+import { SAMPLE_SCORE } from "@/lib/demo/sample";
 import type { StepResult } from "@/lib/services/render";
 import { PRODUCTS } from "@/lib/shop";
 import { ProductArt, productArtKind } from "@/components/ProductArt";
@@ -58,6 +59,7 @@ describe("sample model (chosen by the visitor, 0 units)", () => {
     expect(r.recommendation.lessonId).toBe(SAMPLE_LESSON);
     expect(r.units.spent).toBe(0);
     expect(SAMPLE_ATTEMPT).toBe("/demo/model-a/step-3.jpg");
+    expect(SAMPLE_SCORE).toBe(91); // one sample score on the grade, share and home scenes (video + docs quote it)
   });
 
   it("POST /api/analyze sample=1 needs no image and never touches the YouCam transport (even in live mode)", async () => {

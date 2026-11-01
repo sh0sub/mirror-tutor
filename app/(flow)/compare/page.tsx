@@ -110,7 +110,7 @@ export default function ComparePage() {
                 <span className="text-base font-extrabold">{faceName(m, lang)}</span>
                 <div className="flex flex-wrap gap-1">
                   <Chip tone="accent">{valueLabel("eyelid", m.profile.eyelid, lang)}</Chip>
-                  {m.edited?.includes("eyelid") && <Chip tone="warn">{tf("compareEditedChip", lang, { raw: sourceCaption(m.source.eyelid) })}</Chip>}
+                  {m.edited?.includes("eyelid") && <Chip tone="warn" wrap>{tf("compareEditedChip", lang, { raw: sourceCaption(m.source.eyelid) })}</Chip>}
                 </div>
                 <span className="num text-xs text-muted">
                   {m.edited?.includes("eyelid") ? tf("compareEdited", lang, { raw: sourceCaption(m.source.eyelid) }) : sourceCaption(m.source.eyelid)}

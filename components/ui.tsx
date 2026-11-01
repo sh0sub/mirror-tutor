@@ -75,11 +75,12 @@ const chipClass: Record<ChipTone, string> = {
   neutral: "bg-panel-2 text-muted",
   accent: "bg-peach-soft text-primary-strong",
 };
-export function Chip({ tone = "neutral", children, icon }: { tone?: ChipTone; children: ReactNode; icon?: IconName }) {
+/** `wrap` lets a long label break onto two lines (and keeps the icon top-aligned) instead of overflowing a narrow column. */
+export function Chip({ tone = "neutral", children, icon, wrap = false }: { tone?: ChipTone; children: ReactNode; icon?: IconName; wrap?: boolean }) {
   const auto: IconName | undefined = icon ?? (tone === "ok" ? "check" : tone === "warn" || tone === "bad" ? "warn" : undefined);
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap ${chipClass[tone]}`}>
-      {auto && <Icon name={auto} className="h-3.5 w-3.5" />}
+    <span className={`inline-flex gap-1 px-2.5 py-1 text-xs font-bold ${wrap ? "max-w-full items-start rounded-2xl" : "items-center rounded-full whitespace-nowrap"} ${chipClass[tone]}`}>
+      {auto && <Icon name={auto} className={`h-3.5 w-3.5 ${wrap ? "mt-px flex-none" : ""}`} />}
       {children}
     </span>
   );

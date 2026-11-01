@@ -10,3 +10,8 @@ export const SAMPLE_MODEL: CompareModel = manifest.models[0];
 export const SAMPLE_LESSON = manifest.lessonId;
 /** Stand-in "my attempt" for grading: eyes done, lips skipped → the grade shows a real correction (same as the demo video). */
 export const SAMPLE_ATTEMPT = SAMPLE_MODEL.steps[2];
+/**
+ * The grade of SAMPLE_ATTEMPT against the lesson answer (deterministic: real CIELAB/landmark scoring of the two pre-generated photos).
+ * The demo video (record-video.mjs `full91`, recomposite.mjs notes) and docs quote this one number on the grade, share and home scenes.
+ */
+export const SAMPLE_SCORE = 91;
