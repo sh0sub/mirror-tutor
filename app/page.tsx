@@ -42,7 +42,7 @@ export default function Home() {
     if (sample && !startingSample.current) setPhoto(null);
   }, [sample, setPhoto]);
   const sampleButton = (
-    <Button variant="ghost" className="w-full" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-hint">
+    <Button variant="soft" className="w-full border border-primary/30" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-hint">
       <Icon name="user" className="h-4 w-4" />
       {t("sampleTry", lang)}
     </Button>

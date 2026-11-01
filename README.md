@@ -5,6 +5,12 @@
 Entry to the Perfect Corp **YouCam API VTO Hackathon** (track: eCommerce VTO).
 Live demo: https://mirror-tutor.vercel.app (see [Demo mode](#demo-mode-and-unit-guard)).
 
+**Why this is not a wrapper**
+- Face Analyzer output feeds a rule table (`lib/rules`): monolid and double-lid faces get different techniques.
+- Lesson step k renders effects 1..k cumulatively on one uploaded `file_id` with Makeup VTO.
+- The VTO output is the CIEDE2000 grading reference for your real attempt.
+- The foundation shade measured on the device is passed into the VTO foundation effect.
+
 ## Problem
 
 Makeup tutorials are filmed on someone else's face. The same eyeshadow looks different on a monolid, an inner-double or a double eyelid, yet the video never says what to change for you. After you try, nothing tells you how close you got, and the products in the video are a separate search.
