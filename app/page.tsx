@@ -22,7 +22,7 @@ export default function Home() {
   const router = useRouter();
   const [consentOpen, setConsentOpen] = useState(false);
   const [sampleBusy, setSampleBusy] = useState(false);
-  // No selfie, no consent needed: Model A's pre-generated results, 0 units (the server never calls YouCam for it).
+  // No selfie, no consent needed: the sample model's pre-generated results, 0 units (the server never calls YouCam for it).
   const startingSample = useRef(false);
   const trySample = async () => {
     startingSample.current = true;
@@ -37,7 +37,7 @@ export default function Home() {
       setSampleBusy(false);
     }
   };
-  // Coming home ends a sample run, so the saved profile (not Model A's) is what home shows and edits.
+  // Coming home ends a sample run, so the saved profile (not the sample model's) is what home shows and edits.
   useEffect(() => {
     if (sample && !startingSample.current) setPhoto(null);
   }, [sample, setPhoto]);

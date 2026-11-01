@@ -3,7 +3,8 @@ import path from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { comparePair, compareStep, eyelidStep, sameEyelid, type CompareManifest } from "@/lib/demo/compare";
-import { FACE_NAME } from "@/lib/labels";
+import { t, tf } from "@/lib/i18n";
+import { FACE_NAME, sourceCaption } from "@/lib/labels";
 import { buildLesson } from "@/lib/lessons";
 import manifestJson from "@/public/demo/compare.json";
 
@@ -77,5 +78,13 @@ describe("S2 two-face compare (#18)", () => {
     expect(eye?.same).toBe(false);
     const lip = compareStep(manifest.lessonId, a, what, 4, "ko").find((r) => r.attr === "lipShape");
     expect(lip?.same).toBe(false);
+  });
+
+  it("the correction chip names the analyzer's raw reading in both languages", () => {
+    const c = manifest.models.find((m) => m.id === "model-c")!;
+    const raw = sourceCaption(c.source.eyelid);
+    expect(tf("compareEditedChip", "en", { raw })).toBe("Analyzer read Double-lid → corrected to Monolid");
+    expect(tf("compareEditedChip", "ko", { raw })).toContain("Double-lid");
+    expect(t("compareEditedNote", "en")).toContain("Face Analyzer read the monolid face");
   });
 });

@@ -44,7 +44,7 @@ export default function AnalyzePage() {
     if (started.current) return;
     started.current = true;
     const slowTimer = window.setTimeout(() => setPhase((p) => (p.kind === "loading" ? { kind: "loading", slow: true } : p)), 15_000);
-    // Sample mode sends no image: the server returns Model A's pre-generated profile (0u, no API call).
+    // Sample mode sends no image: the server returns the sample model's pre-generated profile (0u, no API call).
     void postAnalyze(sample ? null : photo.blob).then((r) => {
       window.clearTimeout(slowTimer);
       if (r.ok) {

@@ -70,7 +70,7 @@ export function profileSummary(p: FaceProfile, lang: Lang): string {
 }
 
 /** Raw Face Analyzer caption: left/right labels collapse when identical ("Single-lid / Single-lid" → "Single-lid"). */
-/** Plain-language name for a demo face by its eyelid type ("Monolid face" instead of a bare "Model A"). */
+/** Plain-language name for a demo face by its eyelid type ("Monolid face" instead of a bare model id). */
 export const FACE_NAME: Record<FaceProfile["eyelid"], Text> = {
   monolid: { ko: "홑꺼풀 얼굴", en: "Monolid face" },
   double: { ko: "쌍꺼풀 얼굴", en: "Double-lid face" },

@@ -174,7 +174,7 @@ const SEGMENTS = [
       {
         heading: "Two eyelids, two techniques",
         callout:
-          "<div class=\"vs\"><div><b>Model A · double lid</b>Crease shading + thin liner<span class=\"mono\">2colors3 · Upper11</span></div><div><b>Model B · inner double lid</b>Thin gradient above the liner<span class=\"mono\">2colors2 · Upper10</span></div></div>",
+          "<div class=\"vs\"><div><b>Double-lid face</b>Crease shading + thin liner<span class=\"mono\">2colors3 · Upper11</span></div><div><b>Inner double lid</b>Thin gradient above the liner<span class=\"mono\">2colors2 · Upper10</span></div></div>",
       },
       { heading: "Same look, different technique", callout: "What-if: <b>Monolid</b> → horizontal gradient + liner visible with eyes open" },
     ],

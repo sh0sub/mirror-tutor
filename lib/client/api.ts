@@ -24,7 +24,7 @@ export async function fetchCredit(): Promise<CreditInfo | null> {
   }
 }
 
-/** image null → the sample model (server plays back Model A's pre-generated profile, 0 units, no upload). */
+/** image null → the sample model (server plays back the sample model's pre-generated profile, 0 units, no upload). */
 export async function postAnalyze(image: Blob | null): Promise<AnalyzeResult> {
   const form = new FormData();
   if (image) form.set("image", image, "selfie.jpg");

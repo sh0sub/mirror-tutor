@@ -1,4 +1,4 @@
-# 데모 영상 스크립트 (2:51)
+# 데모 영상 스크립트 (약 2:57)
 
 이슈 #28 시나리오를 현재 앱 라우트(`/capture` `/analyze` `/lesson` `/compare` `/grade` `/shop` `/share`)에 맞춘 촬영안. 영상은 1~3분, YouTube 공개, 제3자 상표·음악 없음, 실기기 구동 장면 포함. 나레이션은 영어(Devpost 심사용), 자막은 한국어를 기본으로 하고 영어 자막은 나레이션과 같은 문장을 쓴다.
 
@@ -6,7 +6,7 @@
 
 - Vercel을 `YOUCAM_MODE=live`로 바꾸고 재배포한 뒤 촬영한다. mock 모드로 찍으면 VTO 결과가 YouCam 결과가 아니라 로컬 오버레이다.
 - 유닛 잔량이 250 이상인지 먼저 본다(홈의 잔량 표시 또는 `/api/credit`).
-- 영상에 나오는 얼굴은 본인 또는 동의받은 모델뿐이다. `public/demo/model-a|b`는 스톡 사진(Pexels License)이다.
+- 영상에 나오는 얼굴은 본인 또는 동의받은 모델뿐이다. `public/demo/model-a|b`는 Pexels License, `model-c`는 Unsplash License 스톡 사진이다.
 - "저는 홑꺼풀이에요"는 #28 원문 대사다. 본인 눈이 실제로 홑꺼풀이고 API가 Single-lid로 읽는지 확인 필요. 다르게 읽히면 분석 결과 화면의 수정 시트에서 고칠 수 있다(0 유닛). 거짓 대사가 되지 않게 대사를 실제 결과에 맞춘다.
 - 채점 점수 "78"은 시나리오의 예시 값이다. 화면에 실제로 나온 값을 말하고 자막도 그 값으로 쓴다.
 
@@ -26,7 +26,7 @@
 | 8 | 2:00-2:15 | `/shop` 단계 스와치 hex -> 제품 카드, 색차 ΔE | 스와치 탭, ΔE 표시와 "데모 데이터" 문구 | "The exact colors from each step map to products by color difference. The tutorial becomes the cart. The catalog is a demo; real SKUs would come from a partner feed." | 단계에서 쓴 색이 그대로 제품이 돼요. 카탈로그는 데모이고, 실제 SKU는 제휴 피드로 교체합니다. |
 | 9 | 2:15-2:30 | `/share` 공유 카드 -> `docs/architecture.svg` 1장(3초) -> 로고 카드 | 공유 카드 저장 후 아키텍처 이미지 | "Photos are never stored, units are capped per session. Mirror Tutor: learn K-beauty on your own face." | 사진은 저장하지 않고 유닛은 세션당 상한. Mirror Tutor, 내 얼굴로 배우는 K-메이크업. |
 
-원래 촬영안은 150초. 실제 제출용 자동 녹화본은 아래 "자동 녹화"·"재합성" 절(2:51)을 따른다. 나레이션이 시간보다 길면 4번과 5번 문장부터 줄인다(심사 기준: API를 어떻게 쓰는지가 보여야 하므로 8번보다 4·5번을 남긴다).
+원래 촬영안은 150초. 실제 제출용 자동 녹화본은 아래 "자동 녹화"·"재합성" 절(약 2:57)을 따른다. 나레이션이 시간보다 길면 4번과 5번 문장부터 줄인다(심사 기준: API를 어떻게 쓰는지가 보여야 하므로 8번보다 4·5번을 남긴다).
 
 ## 테이크와 유닛 예산
 

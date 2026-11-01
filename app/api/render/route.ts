@@ -16,7 +16,7 @@ export const maxDuration = 60;
  * POST /api/render (multipart: image, lessonId, profile JSON, optional steps "1,3", optional stepScales JSON {"2":1.2},
  * optional anchors JSON {leftEye,rightEye,mouth} — normalized face points for the mock renderer, optional skinShade
  * ladder id "23N" — measured on the device; anything else is ignored → the lesson's default base color)
- * `sample=1` (image not needed) → Model A's pre-generated steps / local preview; no YouCam call, no unit guard (0u).
+ * `sample=1` (image not needed) → the sample model's pre-generated steps / local preview; no YouCam call, no unit guard (0u).
  * → NDJSON stream: one {"type":"step",...} line per finished step, then {"type":"done",...}.
  */
 export async function POST(req: Request) {

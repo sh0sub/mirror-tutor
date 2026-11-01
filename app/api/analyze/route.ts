@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 /**
  * POST /api/analyze (multipart: image) → normalized face profile.
  * The image is processed in memory and dropped when the request ends (privacy ①); nothing is logged.
- * `sample=1` (no image) → Model A's pre-generated profile: never touches the YouCam transport or unit guard (0u).
+ * `sample=1` (no image) → the sample model's pre-generated profile: never touches the YouCam transport or unit guard (0u).
  */
 export async function POST(req: Request) {
   const session = ensureSession(req);

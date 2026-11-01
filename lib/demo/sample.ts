@@ -2,7 +2,7 @@ import manifestJson from "../../public/demo/compare.json";
 import type { CompareManifest, CompareModel } from "./compare";
 
 /**
- * "샘플 모델로 체험하기 · 0 유닛" (client-safe constants). Model A of the two-face demo: a Pexels stock photo whose
+ * "샘플 모델로 체험하기 · 0 유닛" (client-safe constants). The sample model (double-lid face) of the two-face demo: a Pexels stock photo whose
  * Face Analyzer profile and 4 daily-k Makeup VTO steps were generated once offline (scripts/demo/generate.ts).
  */
 const manifest = manifestJson as CompareManifest;

@@ -108,7 +108,7 @@ YOUCAM_MODE=live npx tsx scripts/demo/generate.ts   # pre-generate public/demo/m
 ## Tests
 
 ```bash
-npm test    # vitest: unit + integration (tests/), no network, no units (183 tests in 25 files)
+npm test    # vitest: unit + integration (tests/), no network, no units (195 tests in 26 files)
 ```
 
 Covers the rule table and lesson labels against the real pattern catalog, quality gate, unit guard, request builders against recorded live response bodies, privacy sanitizing, grading, shop matching, share card layout, i18n and an end-to-end core flow on the mock transport.
@@ -130,7 +130,7 @@ npx vercel --prod --yes
 - Per-session cap of 20 units (default `SESSION_UNIT_CAP`) and a global daily cap (default `DAILY_UNIT_CAP`=120). Units are reserved before a task starts and released on error.
 - If the remaining balance is below `DEMO_MODE_THRESHOLD` (default 150), the app serves the pre-generated sample models in `public/demo/` instead of calling YouCam.
 - Remaining balance is cached for 5 minutes. State is in process memory, so on serverless the caps are per instance (best effort).
-- Test inputs: `public/demo/model-a`, `model-b` (stock photos, Pexels License), `model-c` (monolid, Unsplash License; see its SOURCE.md) or your own selfie.
+- Test inputs: `public/demo/model-a`, `model-b` (stock photos, Pexels License), `model-c` (monolid, Unsplash License; see its SOURCE.md); all sample faces are Pexels and Unsplash License stock photos or your own selfie.
 
 ## Privacy principles
 

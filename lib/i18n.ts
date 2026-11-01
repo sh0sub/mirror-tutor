@@ -187,6 +187,7 @@ const DICT = {
   same: { ko: "같음", en: "Same" },
   different: { ko: "다름", en: "Different" },
   compareSameEyelid: { ko: "두 얼굴의 눈꺼풀이 같은 유형이라 눈 기법 차이는 보이지 않아요.", en: "Both faces have the same eyelid type, so the eye technique doesn't differ here." },
+  compareEditedChip: { ko: "분석기 {raw} → 홑꺼풀로 수정", en: "Analyzer read {raw} → corrected to Monolid" },
   compareEdited: { ko: "Face Analyzer 판독: {raw}", en: "Face Analyzer read: {raw}" },
   compareEditedNote: {
     ko: "홑꺼풀 얼굴은 Face Analyzer가 쌍꺼풀로 읽었어요. 사용자가 분석 결과 화면에서 고치듯 눈꺼풀을 홑꺼풀로 수정한 뒤 규칙표와 Makeup VTO를 돌렸어요.",

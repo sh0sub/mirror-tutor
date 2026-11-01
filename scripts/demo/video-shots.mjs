@@ -228,7 +228,7 @@ export const SEGMENTS = [
 
 /**
  * `record-video.mjs --mode mock --sample --only shop`: reach the graded state through "Try with a sample model"
- * (Model A's pre-generated live results, 0 units) instead of the live capture/analyze/lesson/grade shots.
+ * (the sample model's pre-generated live results, 0 units) instead of the live capture/analyze/lesson/grade shots.
  * Ends where the live "grade" shot ends (daily-k, step 4, graded, scrolled to the shop button).
  */
 export const SAMPLE_SETUP = [

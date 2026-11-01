@@ -8,7 +8,7 @@ import type { AnalyzeResult, UnitInfo } from "./analyze";
 import type { RenderSummary, StepResult } from "./render";
 
 /**
- * "샘플 모델로 체험하기 · 0 유닛": a visitor (or judge) chooses to run the full flow on Model A instead of a
+ * "샘플 모델로 체험하기 · 0 유닛": a visitor (or judge) chooses to run the full flow on the sample model instead of a
  * selfie. Everything here is played back from public/demo/ — the Face Analyzer profile and the 4 Makeup VTO
  * steps were generated once offline (scripts/demo/generate.ts). This module deliberately takes no Runtime:
  * it has no YouCam transport and no unit guard, so the sample path cannot call the API or spend units.
@@ -33,7 +33,7 @@ export function analyzeSample(sessionCap: number): AnalyzeResult {
 
 const sameProfile = (a: FaceProfile, b: FaceProfile) => (Object.keys(b) as ProfileKey[]).every((k) => a[k] === b[k]);
 
-/** True when the request is exactly what was pre-generated (same lesson, Model A's own profile, default intensity/base). */
+/** True when the request is exactly what was pre-generated (same lesson, the sample model's own profile, default intensity/base). */
 export function isPregenerated(lessonId: string, profile: FaceProfile, build?: BuildOptions): boolean {
   const scales = build?.stepScales ? Object.values(build.stepScales).filter((v) => v !== undefined && v !== 1) : [];
   return lessonId === SAMPLE_LESSON && sameProfile(profile, SAMPLE_MODEL.profile) && scales.length === 0 && (build?.intensityScale ?? 1) === 1 && !build?.skinShade;
@@ -57,10 +57,10 @@ export interface SampleRenderRequest {
 /**
  * Pre-generated YouCam results are returned as static paths (/demo/model-a/step-N.jpg). Anything that was not
  * pre-generated (another lesson, an edited attribute, a ±20% intensity) is drawn locally with the preview
- * renderer on Model A's photo — still 0 units, never a VTO task.
+ * renderer on the sample model's photo — still 0 units, never a VTO task.
  */
 export async function renderSample(req: SampleRenderRequest, onStep: (r: StepResult) => void, sessionCap: number): Promise<RenderSummary> {
-  const build = { ...req.build, skinShade: null }; // Model A is not the visitor's face → lesson default base color
+  const build = { ...req.build, skinShade: null }; // the sample model is not the visitor's face → lesson default base color
   const plan = buildLesson(req.lessonId, req.profile, build);
   const wanted = plan.steps.filter((s) => !req.steps?.length || req.steps.includes(s.index));
   if (isPregenerated(req.lessonId, req.profile, build)) {

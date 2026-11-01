@@ -10,7 +10,7 @@
  * Options: --port 3611  --work <dir for frames/audio>  --out <mp4>  --base <url of a running server>
  *          --voice Samantha  --rate 150  --stills 6
  *          --only shop[,id]  record just these segments (re-take one shot for recomposite.mjs); with --sample the
- *                            state is reached through the "Try with a sample model" flow (Model A's pre-generated
+ *                            state is reached through the "Try with a sample model" flow (the sample model's pre-generated
  *                            live results, 0 units) using SAMPLE_SETUP from video-shots.mjs, recorded nowhere.
  *                            Writes <work>/frames-<id> + <work>/segments/<id>-phone.txt (no audio/stage/MP4).
  * Without --base it starts `next dev` on --port with YOUCAM_MODE=<mode> on the command line (overrides

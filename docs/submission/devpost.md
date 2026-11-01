@@ -2,6 +2,18 @@
 
 Track: **eCommerce VTO**. (Face Attribute & Ratio Analysis is used as a supporting input, not as a separate track.)
 
+## Who would pay (a hypothesis, not a measured result)
+
+| | |
+|---|---|
+| Buyer | A beauty retailer or brand: the product page or the shopping app, where "how do I wear this shade" is the missing step before checkout. |
+| Integration | An embeddable "learn this look on your face" widget. Lessons are JSON (steps, colors, techniques) and the shop-the-step list reads a product feed, so the retailer's own SKUs replace our demo catalog. |
+| Pricing | Per session, set to cover YouCam units plus margin. A first lesson costs 14 units (10 analysis + 4 renders), each later lesson 4 units because the face profile is reused on the device; the server enforces a per-session cap (20) and a daily cap, so cost per user is bounded. |
+| KPI | Shop-the-step conversion: sessions that end on a product the lesson used, compared with a plain product page. |
+| What it adds for Perfect Corp | Repeat VTO calls: about 4 Makeup VTO renders per lesson and per returning user, instead of one try-on per product view. |
+
+No pilot has been run and no conversion or revenue number exists yet. The demo uses stock photos only; the numbers above are unit costs from our live tests.
+
 ## Tagline (<= 200 characters)
 
 Makeup tutorials fit someone else's face. Mirror Tutor reads your features with YouCam, renders every lesson step on your own photo, then grades your real attempt and shows the products.
@@ -49,7 +61,7 @@ Also: Korean and English UI, a per-session unit cap, a demo mode that serves pre
 - The loop is closed: analyze -> technique -> answer image -> your attempt -> score -> product. The VTO output is the grading reference, not just a picture.
 - Techniques depend on the face. The rule table is visible in the app, so it is clear that the output changes with the eyelid.
 - Per-step answer images cost one unit each, and a first-time flow costs 14 units.
-- 183 tests (25 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
+- 195 tests (26 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
 
 ## What we learned
 
@@ -59,8 +71,7 @@ Also: Korean and English UI, a per-session unit cap, a demo mode that serves pre
 
 ## What's next
 
-- **Who would pay:** beauty retailers and brands could embed Mirror Tutor as a "learn this look on your face" widget next to a product. Each lesson already ends in a shop-the-step list of exact shades, which is where a retailer converts and an affiliate or partner fee can come from.
-- **Cost per user is bounded:** 14 YouCam units for a first lesson (10 for analysis, 4 renders), 4 units for each lesson after that because the face profile is reused, with per-session and daily caps enforced on the server.
+- Business case: see the table at the top (buyer, integration, pricing, KPI).
 - **Validation plan:** run the flow with monolid and hooded-lid users and measure whether the per-region score rises across attempts. The demo uses stock photos only, so this has not been tested with real users yet.
 - Replace the demo catalog with a partner product feed (for example a retailer feed or a shopping search API) so each step links to real SKUs and shades.
 - Extend skin-tone personalization from foundation and blush to lip and shadow palettes.
@@ -76,6 +87,6 @@ Next.js, React, TypeScript, Tailwind CSS, YouCam API (Face Attribute & Ratio Ana
 - Live demo: https://mirror-tutor.vercel.app (if the YouCam balance is low it shows pre-generated sample models and says so)
 - **For judges (no selfie needed, 0 units):** on the home screen or the camera/consent step, tap **"Try with a sample model · 0 units"** (KO: "샘플 모델로 체험하기 · 0 유닛"). It runs the whole flow on a stock-photo model: analysis → 4-step lesson with the real pre-generated YouCam Makeup VTO results → grading of a stock "attempt" → shop the step → share card. A banner says it is a sample, nothing is uploaded, and the server path for it has no YouCam client, so it cannot spend units. To try it on your own face, tap "Get started" instead.
 - Source code: https://github.com/sh0sub/mirror-tutor (public, MIT)
-- Video: YouTube link (add after upload). The 2:51 demo is faceless (stock photos only) and was recorded against the live YouCam API with 14 units.
-- Test images: `public/demo/model-a`, `model-b` (Pexels License) and `model-c` (monolid face, Unsplash License) in the repository, or use your own selfie
+- Video: YouTube link (add after upload). The demo (about 2:57) is faceless (stock photos only). The main flow was captured against the live YouCam API with 14 units; the intro and the compare segment were re-recorded in the "Try with a sample model" mode with 0 units.
+- Test images: `public/demo/model-a`, `model-b` (Pexels License) and `model-c` (monolid face, Unsplash License) in the repository; all sample faces are Pexels and Unsplash License stock photos (commercial use allowed, not real users). Or use your own selfie
 - API notes: `docs/api-notes.md` in the repository

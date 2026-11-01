@@ -63,9 +63,9 @@ interface FlowState {
   setStored: (p: StoredProfile | null) => void;
   editProfile: <K extends ProfileKey>(k: K, v: FaceProfile[K]) => void;
   deleteProfile: () => void;
-  /** "샘플 모델로 체험하기": Model A stands in for the selfie; its profile stays in memory (never overwrites the saved one). */
+  /** "샘플 모델로 체험하기": the sample model stands in for the selfie; its profile stays in memory (never overwrites the saved one). */
   sample: boolean;
-  /** Load Model A as the photo and enter sample mode (0 units; the server never calls YouCam for it). */
+  /** Load the sample model as the photo and enter sample mode (0 units; the server never calls YouCam for it). */
   startSample: () => Promise<void>;
   /** Sample mode: use the stock attempt photo instead of a new selfie. */
   loadSampleAttempt: () => Promise<void>;
@@ -161,7 +161,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const anchors = detection?.result?.anchors ?? null;
   const facePins = photo && detection?.blob === photo.blob ? (detection.result?.pins ?? null) : null;
   const skin = useMemo<SkinState | null>(() => {
-    if (!photo || sample) return null; // Model A is not the visitor's face → lessons keep their default base color
+    if (!photo || sample) return null; // the sample model is not the visitor's face → lessons keep their default base color
     const measured = detection?.blob === photo.blob ? (detection.result?.skin ?? null) : null;
     const near = measured ? nearestShade(measured.lab) : null;
     const measuredId = near?.shade.id ?? null;
@@ -246,7 +246,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
       const lessonScales = stepScales ?? scalesRef.current[lessonId];
       const indexes = steps ?? [1, 2, 3, 4];
       setRenders((r) => ({ ...r, [lessonId]: { ...(r[lessonId] ?? {}), ...Object.fromEntries(indexes.map((i) => [i, { status: "pending" as const }])) } }));
-      // Sample mode uploads nothing: the server renders Model A from its own copy (pre-generated steps, 0u).
+      // Sample mode uploads nothing: the server renders the sample model from its own copy (pre-generated steps, 0u).
       const det = sample ? null : await detectFor(photo.blob);
       const shade = sample ? null : (shadeOverrideRef.current ?? (det?.skin ? nearestShade(det.skin.lab).shade.id : null));
       try {
