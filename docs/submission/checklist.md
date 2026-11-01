@@ -17,7 +17,7 @@
 
 | 항목 | 상태 | 방법 / 메모 |
 |---|---|---|
-| 배포 URL (Vercel) | 완료(재배포 필요, 사용자) | https://mirror-tutor.vercel.app — `/api/credit` mode=live. 그러나 11/1 확인 결과 최신 배포는 10/31 21:04(KST)이고 홈 스트릭·what-if·스토어 시트 등 이후 커밋(9fdfbc2~)이 반영되지 않았다. Vercel에 Git 연결이 없어 푸시로 자동 배포되지 않는다. 제출 전 `vercel --prod`로 재배포하고 홈·/compare·/shop을 열어 확인할 것(운영 배포는 사용자 승인 사항). |
+| 배포 URL (Vercel) | 완료 (11/2 00:0x KST 재배포, d1ea775 기준) | https://mirror-tutor.vercel.app — `/api/credit` mode=live, 잔여 934u. 홈·/compare·/shop·/record 200, 390px 기기 에뮬레이션에서 가로 넘침 없음, /compare에 새 비교 화면 표시 확인. Vercel에 Git 연결이 없어 이후 커밋은 수동 재배포 필요. |
 | Vercel을 `YOUCAM_MODE=live`로 전환 + 재배포 | 완료 (10/31) | |
 | 라이브 전환 후 동작 확인 | 완료 (10/31) | 분석 API 운영 호출 성공. VTO·채점은 같은 코드의 로컬 live 녹화에서 확인. |
 | 유닛 잔량 250 이상 확인 | 완료 (10/31 972u) | 마지막으로 기록된 값은 10/28 스파이크의 1000u(이후 사용량은 확인 필요). 홈 화면 잔량 또는 YouCam 콘솔에서 확인. 150 미만이면 앱이 자동으로 데모 모드가 된다. |
