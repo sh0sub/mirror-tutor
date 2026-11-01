@@ -42,10 +42,15 @@ const FFMPEG = existsSync("/opt/homebrew/bin/ffmpeg") ? "/opt/homebrew/bin/ffmpe
 const FFPROBE = existsSync("/opt/homebrew/bin/ffprobe") ? "/opt/homebrew/bin/ffprobe" : "ffprobe";
 
 const W = 1920, H = 1080, FPS = 30;
-const SCR_W = 462, SCR_H = 1000, SCR_X = 600, SCR_Y = 40;
-const ZX = 1110, ZY = 40, ZW = 750, ZH = 666; // zoom panel
 const CSS_W = 390, CSS_H = 844, FR = 1; // saved screencast frames are 390x844 (1 px per css px)
-const ZOOM_CSS_H = Math.round((CSS_W * ZH) / ZW); // visible css height in the zoom panel
+// Layout geometry: phone + zoom panel. Default for every scene; a segment may set `geo` (C10 cold open: 80 % phone height).
+const GEO0 = { SCR_W: 462, SCR_H: 1000, SCR_X: 600, SCR_Y: 40, ZX: 1110, ZY: 40, ZW: 750, ZH: 666 };
+let SCR_W, SCR_H, SCR_X, SCR_Y, ZX, ZY, ZW, ZH, ZOOM_CSS_H; // visible css height in the zoom panel
+function setGeo(g = {}) {
+  ({ SCR_W, SCR_H, SCR_X, SCR_Y, ZX, ZY, ZW, ZH } = { ...GEO0, ...g });
+  ZOOM_CSS_H = Math.round((CSS_W * ZH) / ZW);
+}
+setGeo();
 // LEAD/TAIL: silence before the first and after the last line of a segment (per-segment `lead`/`tail` override).
 // Kept short so the whole video lands at 172-176 s (hard limit 180 s).
 const LEAD = 0.35, GAP = 0.35, TAIL = 0.35, ZOOM_MOVE = 0.7;
@@ -64,32 +69,29 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
  */
 const SEGMENTS = [
   {
-    // C2 hook (0-~9 s): the compare screen first, so judges see the product's point (same look, different lids,
-    // different technique) before the app intro. Reuses the compare recording frames, 0 units.
+    // C10 cold open (0-~10 s): the sample model's own face with the real YouCam Makeup VTO look (lesson step 4, answer
+    // render), the before/after slider swept from "My face" to the finished look. Source: work-c10 cold recording
+    // (`record-video.mjs --mode mock --sample --only cold`, 0 units). Phone at 80 % of the frame height (864 of 1080 px,
+    // frames shown at ~1:1), face close-up on the right, the thesis as the large caption (it is the subtitle).
     id: "hook",
-    badge: "YouCam VTO, pre-generated (0 units)",
-    srcId: "compare",
+    srcId: "cold",
     lead: 0.35,
-    kicker: "Same look, two eyelids",
-    heading: "Different lids, different technique",
-    chip: "YouCam Face Analyzer + Makeup VTO · pre-generated · 0 units",
-    note: "Both faces are Pexels and Unsplash License stock photos",
-    // C7: the first 10 s carry one promise (V.O. line 2) and the monolid / double-lid result (V.O. line 2 + the correction chip
-    // on screen from 0:00). No montage, no title card: the footer badge and V.O. name YouCam, the intro names both APIs.
+    tail: 0.2,
+    geo: { SCR_W: 399, SCR_H: 864, SCR_X: 700, SCR_Y: 108, ZX: 1170, ZY: 60, ZW: 690, ZH: 690 },
+    badge: "Real YouCam Makeup VTO render",
+    kicker: "Mirror Tutor",
+    note: "Sample face: Pexels License stock photo. Pre-generated with the YouCam API, 0 units spent here.",
     units: 0,
     lines: [
-      "Makeup tutorials fit someone else's eyes.",
-      "Mirror Tutor redraws the look for your lid, monolid or double.",
+      "Tutorials are filmed on someone else's face. This one is rendered on yours.",
+      "Mirror Tutor redraws the look for your own lid.",
     ],
-    ui: [
-      {
-        heading: "Tutorials fit someone else's eyes",
-        callout: "Read as <b>Double-lid</b>: <b>wrong technique</b><br>Corrected to <b>Monolid</b> · 0 units",
-      },
-      { heading: "Different lids, different technique", callout: "<b>Monolid</b>: horizontal gradient + liner<br><b>Double lid</b>: crease shading + thin liner" },
+    cold: [
+      `Tutorials are filmed on <span class="dim">someone else's face.</span> This one is rendered on <span class="acc">yours.</span>`,
+      `Mirror Tutor redraws the look for <span class="acc">your own lid.</span>`,
     ],
-    timeline: [{ at: 0, src: [0, 3.1] }, { at: { cue: 1 }, src: 5 }],
-    zoom: [{ at: 0, y: 252 }],
+    timeline: [{ at: 0, src: 2.6 }, { at: 0.9, src: [3.2, 6.45] }, { at: 4.2, src: 7.3 }, { at: { cue: 1, plus: 0.8 }, src: [10.3, 11.9] }, { at: { cue: 1, plus: 2.5 }, src: 12.5 }],
+    zoom: [{ at: 0, y: 110 }],
   },
   {
     id: "intro",
@@ -237,29 +239,37 @@ const SEGMENTS = [
   {
     id: "grade",
     badge: "YouCam VTO, pre-generated (0 units)",
+    // C10: wider-than-tall zoom panel is 560 px high so the thumbnails (and later the score ring + Eyeliner card) fit without clipping a text line
+    geo: { ZH: 560 },
     kicker: "Step 4 · Grade",
     heading: "Score your real attempt",
     chip: "0 YouCam units",
-    note: "A simulated off-shade attempt stands in for a real one, so this is a sample score (79)",
-    units: 14,
+    tag: "Simulated attempt",
+    units: 14, // the SIMULATED ATTEMPT tag replaces the old note (a sample score, 79)
     lines: [
       "Now draw the look, snap it. A simulated attempt stands in.",
-      "Each region is checked against the answer by color difference: liner, lid, cheeks and lips.",
+      "The YouCam render is our answer key. Each region is compared by color difference.",
+      "Eyeliner: five point eight apart. Make it a bit stronger.",
       "You get a score, one clear fix, and an honest confidence level.",
     ],
     ui: [
       { callout: "Draw it, then snap your attempt.<br><span class=\"plain\">Sample attempt: simulated, deliberately off-shade</span>" },
-      { callout: "Per-region color difference (ΔE) with swatches: <b>eyeliner · eyelid · cheeks · lips</b>" },
+      {
+        callout:
+          "<div class=\"key\">YouCam render = answer key</div><span class=\"lgd\"><i style=\"background:#ffd400\"></i>Eyeliner <i style=\"background:#b45cff\"></i>Eyelid <i style=\"background:#19d3ff\"></i>Cheeks <i style=\"background:#3ddc84\"></i>Lips</span>",
+      },
+      { callout: "<div class=\"key\">YouCam render = answer key</div>Eyeliner <b>ΔE2000 5.8</b><br><span class=\"mono\">#876250 vs #98715D</span>" },
       { callout: "Score + <b>one-line correction</b> + confidence" },
     ],
-    // C9 source (work-c9 frames-grade, --sample, simulated attempt, score 79): skeleton 0-1.7 s (skipped),
-    // result from 1.8 s, scroll 4.27-4.57 s to the lips row, hold after
+    // C10 source (work-c10 frames-grade-share = the C9 grade take, --sample, simulated attempt, score 79): overlay-grade/grade-top.jpg is the top frame (1.97 s) with the
+    // real region polygons drawn on the answer and the attempt thumbnails (scripts/demo/grade-overlay.ts); grade-row.jpg is the scrolled frame (5.73 s) with a box around the
+    // Eyeliner delta-E line. The scroll between them is the original frames, 4.2-4.7 s.
     timeline: [
-      { at: 0, src: 2.4 },
-      { at: { cue: 2, plus: -0.3 }, src: [4.2, 4.7] },
-      { at: { cue: 2, plus: 0.9 }, src: 8 },
+      { at: 0, file: "overlay-grade/grade-top.jpg" },
+      { at: { cue: 2, plus: -0.35 }, src: [4.2, 4.7] },
+      { at: { cue: 2, plus: 0.8 }, file: "overlay-grade/grade-row.jpg" },
     ],
-    zoom: [{ at: 0, y: 60 }, { at: { cue: 1 }, y: 200 }, { at: { cue: 2 }, y: 330 }],
+    zoom: [{ at: 0, y: 40 }, { at: { cue: 2, plus: -0.35 }, y: 62 }],
   },
   {
     id: "shop",
@@ -280,6 +290,7 @@ const SEGMENTS = [
   {
     // C3: the /partner retailer view (concept screen, static page, 0 units). Source: work-c3 frames-partner.
     id: "partner",
+    tail: 0.2, // C10: shorter dwell to pay for the longer cold open and grade scene
     badge: "YouCam VTO, pre-generated (0 units)",
     kicker: "For retailers",
     heading: "The lesson as a product-page widget",
@@ -321,7 +332,7 @@ const SEGMENTS = [
   {
     id: "share",
     badge: "YouCam API, sample trial (0 units)",
-    tail: 1.0,
+    tail: 0.4, // C10: 1.0 -> 0.4 to pay for the longer cold open and grade scene
     kicker: "Share",
     heading: "Private by default",
     chip: "Photos never stored · units capped per session",
@@ -462,7 +473,30 @@ function frameAt(items, t) {
 const HEAD_SEGS = 1; // the hook does not count as a step (C7: the C6 montage and title card are gone)
 const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Retailer", "Streak", "Share"];
 
+// C10 cold open: no step list or heading, just the thesis as a large caption (it is the subtitle) beside the phone and the face close-up
+function coldStageHtml(seg, ci) {
+  return `<!doctype html><html><head><meta charset="utf-8"><style>
+  html,body{margin:0;width:${W}px;height:${H}px;background:#fbf7f4;overflow:hidden;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1f1b1a;-webkit-font-smoothing:antialiased}
+  .phone{position:absolute;left:${SCR_X}px;top:${SCR_Y}px;width:${SCR_W}px;height:${SCR_H}px;border-radius:30px;box-shadow:0 0 0 13px #1f1b1a,0 0 0 14px #3a3331,0 30px 60px 14px rgba(31,27,26,.28);background:#000}
+  .zoom{position:absolute;left:${ZX}px;top:${ZY}px;width:${ZW}px;height:${ZH}px;border-radius:26px;box-shadow:0 0 0 6px #c8325b,0 18px 44px 6px rgba(31,27,26,.2);background:#000}
+  .badges{position:absolute;left:${ZX}px;top:${ZY + ZH + 22}px;width:${ZW}px;display:flex;align-items:center;gap:12px}
+  .live{display:flex;align-items:center;gap:9px;background:#c8325b;color:#fff;border-radius:24px;padding:10px 20px;font-size:21px;font-weight:800;line-height:1.1}
+  .live i{width:11px;height:11px;border-radius:6px;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.35)}
+  .note{position:absolute;left:${ZX}px;top:${ZY + ZH + 92}px;width:${ZW}px;font-size:21px;line-height:1.4;color:#6b605c}
+  .left{position:absolute;left:72px;top:0;bottom:0;width:${SCR_X - 72 - 56}px;display:flex;flex-direction:column;justify-content:center;gap:30px}
+  .kick{font-size:26px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a8264a}
+  .cap{font-size:64px;line-height:1.12;font-weight:800;letter-spacing:-.015em}
+  .cap .dim{color:#9a8f8b;text-decoration:line-through;text-decoration-thickness:4px;text-decoration-color:#c8325b}.cap .acc{color:#c8325b}
+  .tags{display:flex;gap:12px;flex-wrap:wrap}.tag{background:#fcebe3;color:#a8264a;border-radius:22px;padding:10px 18px;font-size:22px;font-weight:700}
+  </style></head><body>
+  <div class="phone"></div><div class="zoom"></div>
+  <div class="badges"><div class="live"><i></i>${esc(seg.badge)}</div></div><div class="note">${esc(seg.note)}</div>
+  <div class="left"><div class="kick">${esc(seg.kicker)}</div><div class="cap">${seg.cold[ci]}</div><div class="tags">${(seg.tags ?? []).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div></div>
+  </body></html>`;
+}
+
 function stageHtml(seg, si0, ci) {
+  if (seg.cold) return coldStageHtml(seg, ci);
   const si = Math.max(si0 - HEAD_SEGS, 0);
   const ui = { heading: seg.heading, chip: seg.chip, callout: "", ...(seg.ui?.[ci] ?? {}) };
   const total = SEGMENTS.length;
@@ -489,6 +523,9 @@ function stageHtml(seg, si0, ci) {
   .plain{font-size:20px;font-weight:600;color:#6b605c;line-height:1.3}
   .url{display:block;white-space:nowrap;font-size:34px;font-weight:800;color:#a8264a;letter-spacing:-.01em;margin:8px 0 10px}
   .note{font-size:20px;color:#6b605c;line-height:1.4}
+  .bigtag{align-self:flex-start;background:#1f1b1a;color:#fff;border-radius:14px;padding:10px 22px;font-size:34px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+  .key{font-size:31px;line-height:1.15;font-weight:800;color:#a8264a;margin-bottom:10px}
+  .lgd{font-size:21px;font-weight:700;white-space:nowrap}.lgd i{display:inline-block;width:18px;height:18px;border-radius:9px;margin:0 6px -2px 8px;border:2px solid #fff;box-shadow:0 0 0 1px #6b605c}.lgd i:first-child{margin-left:0}
   .sub{position:absolute;left:${ZX}px;width:${ZW}px;top:${ZY + ZH + 62}px;border-left:6px solid #c8325b;padding:4px 0 4px 24px;font-size:35px;line-height:1.33;font-weight:600;box-sizing:border-box}
   .bar{position:absolute;left:64px;bottom:92px;width:${SCR_X - 64 - 52}px;height:6px;border-radius:3px;background:#eadfd8}
   .bar i{display:block;height:6px;border-radius:3px;background:#c8325b;width:${(((si0 + 1) / total) * 100).toFixed(1)}%}
@@ -502,7 +539,7 @@ function stageHtml(seg, si0, ci) {
   .foot{position:absolute;left:64px;width:${SCR_X - 64 - 52}px;bottom:26px;font-size:17px;line-height:1.35;color:#6b605c}
   </style></head><body>
   <div class="phone"></div><div class="zoom"></div><div class="badges"><div class="live"><i></i>${esc(seg.badge ?? "YouCam Face Analyzer + Makeup VTO, live")}</div><div class="units">YouCam units used <b>${seg.units ?? 0}</b> / 20 cap</div></div>
-  <div class="left"><div class="kick">${esc(seg.kicker)}</div><h1>${esc(ui.heading)}</h1><div class="chip">${esc(ui.chip)}</div>${ui.callout ? `<div class="callout">${ui.callout}</div>` : ""}${seg.note ? `<div class="note">${esc(seg.note)}</div>` : ""}</div>
+  <div class="left"><div class="kick">${esc(seg.kicker)}</div><h1>${esc(ui.heading)}</h1><div class="chip">${esc(ui.chip)}</div>${seg.tag ? `<div class="bigtag">${esc(seg.tag)}</div>` : ""}${ui.callout ? `<div class="callout">${ui.callout}</div>` : ""}${seg.note ? `<div class="note">${esc(seg.note)}</div>` : ""}</div>
   <div class="sub">${esc(cue)}</div>
   <div class="flow"><div class="fh">${si === 0 ? "How it works" : `Step ${Math.min(si, FLOW.length)} of ${FLOW.length}`}</div><ol>${FLOW.map((f, i) => {
     const st = i + 1 < si ? "done" : i + 1 === si ? "now" : "";
@@ -593,14 +630,14 @@ const sourceOf = (id) => (srcCache[id] ??= loadSourceFrames(id));
 
 function planShots(seg, items, total) {
   // C6: a timeline entry may name another recording with `from` (the opening montage cuts between lesson, grade and shop)
-  const anchors = seg.timeline.map((a) => ({ t: resolveAt(seg, a.at), src: a.src, from: a.from })).sort((a, b) => a.t - b.t);
+  const anchors = seg.timeline.map((a) => ({ t: resolveAt(seg, a.at), src: a.src, from: a.from, file: a.file && path.join(SRC, a.file) })).sort((a, b) => a.t - b.t);
   const N = Math.round(seg.duration * FPS);
   anchors.forEach((a, k) => {
     a.i0 = Math.ceil(a.t * FPS - 1e-6);
     const next = anchors[k + 1]?.t ?? seg.duration;
     a.items = a.from ? sourceOf(a.from).items : items;
     a.total = a.from ? sourceOf(a.from).total : total;
-    if (Array.isArray(a.src)) a.pieces = rangePieces(a.items, a.total, a.src[0], a.src[1], next - a.t);
+    if (!a.file && Array.isArray(a.src)) a.pieces = rangePieces(a.items, a.total, a.src[0], a.src[1], next - a.t);
   });
   const fr = [];
   let k = 0;
@@ -608,7 +645,8 @@ function planShots(seg, items, total) {
     const t = i / FPS;
     while (k + 1 < anchors.length && anchors[k + 1].i0 <= i) k++;
     const a = anchors[k];
-    if (!a.pieces) fr.push(frameAt(a.items, a.src));
+    if (a.file) fr.push(a.file);
+    else if (!a.pieces) fr.push(frameAt(a.items, a.src));
     else {
       let tau = t - a.t, p = 0;
       while (p + 1 < a.pieces.length && tau >= a.pieces[p].out) tau -= a.pieces[p++].out;
@@ -780,9 +818,18 @@ const audioDir = path.join(WORK, "audio");
 const stageDir = path.join(WORK, "stage");
 const segDir = path.join(WORK, "segments");
 for (const d of [audioDir, stageDir, segDir]) mkdirSync(d, { recursive: true });
-masks = { phone: path.join(stageDir, "mask-phone.png"), zoom: path.join(stageDir, "mask-zoom.png") };
-renderMask(masks.phone, SCR_W, SCR_H, 34);
-renderMask(masks.zoom, ZW, ZH, 26);
+const maskCache = {};
+function useGeo(g) {
+  setGeo(g);
+  const key = `${SCR_W}x${SCR_H}-${ZW}x${ZH}`;
+  if (!maskCache[key]) {
+    const m = { phone: path.join(stageDir, `mask-phone-${key}.png`), zoom: path.join(stageDir, `mask-zoom-${key}.png`) };
+    renderMask(m.phone, SCR_W, SCR_H, 34);
+    renderMask(m.zoom, ZW, ZH, 26);
+    maskCache[key] = m;
+  }
+  masks = maskCache[key];
+}
 const outs = [];
 for (const [si, seg] of SEGMENTS.entries()) {
   if (seg.card) {
@@ -792,6 +839,7 @@ for (const [si, seg] of SEGMENTS.entries()) {
   }
   await buildAudio(seg, audioDir);
   if (ONLY && !ONLY.includes(seg.id)) continue;
+  useGeo(seg.geo);
   renderStage(seg, si, stageDir);
   outs.push(encodeSegment(seg, segDir));
   log(`${seg.id}: ${seg.duration.toFixed(2)}s, cues ${seg.cues.map((c) => c.start.toFixed(1)).join("/")}, dissolves ${seg.cutTimes.map((c) => c.toFixed(2)).join("/") || "none"}`);

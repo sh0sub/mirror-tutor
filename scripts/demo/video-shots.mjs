@@ -126,6 +126,30 @@ export const SEGMENTS = [
     ],
   },
   {
+    // C10 cold open (--mode mock --sample --only cold, 0 units): the sample model's lesson at step 4 (the full YouCam VTO look),
+    // the before/after slider swept from "My face" to the finished look. Only used with --sample; never part of a full take.
+    id: "cold",
+    sampleOnly: true,
+    kicker: "Cold open",
+    heading: "Rendered on your face",
+    chip: "YouCam Makeup Virtual Try-On",
+    lines: ["Tutorials are filmed on someone else's face. This one is rendered on yours.", "Mirror Tutor redraws the look for your lid, monolid or double."],
+    actions: [],
+    sample: {
+      prep: [],
+      actions: [
+        { js: "document.querySelector('header ~ p[role=status]')?.remove(); window.scrollTo(0, 0)" },
+        { sleep: 1.0 },
+        { drag: { sel: "[role=slider]", parent: true, from: 0.5, to: 0.96, dur: 0.7 } },
+        { sleep: 0.8 },
+        { drag: { sel: "[role=slider]", parent: true, from: 0.96, to: 0.03, dur: 2.4 } },
+        { sleep: 3.2 },
+        { drag: { sel: "[role=slider]", parent: true, from: 0.03, to: 0.5, dur: 1.4 } },
+        { sleep: 2.2 },
+      ],
+    },
+  },
+  {
     id: "compare",
     kicker: "Two faces, one lesson",
     heading: "Same look, different technique",

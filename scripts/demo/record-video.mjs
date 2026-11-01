@@ -41,7 +41,7 @@ const SAMPLE = !!args.sample;
 // --fake-cam <mjpeg/y4m>: Chrome plays that file as the camera (a licensed stock photo), so /capture shows the real quality gate
 const FAKE_CAM = args["fake-cam"] ? path.resolve(args["fake-cam"]) : null;
 if (SAMPLE && (!ONLY || MODE !== "mock")) throw new Error("--sample needs --only and --mode mock");
-const SEGMENTS = ONLY ? ALL_SEGMENTS.filter((s) => ONLY.includes(s.id)) : ALL_SEGMENTS;
+const SEGMENTS = ONLY ? ALL_SEGMENTS.filter((s) => ONLY.includes(s.id)) : ALL_SEGMENTS.filter((s) => !s.sampleOnly);
 const RATE = Number(args.rate ?? 150);
 const STILLS = Number(args.stills ?? 6);
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";

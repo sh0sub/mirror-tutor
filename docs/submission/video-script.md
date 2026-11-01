@@ -170,3 +170,11 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - `record-video.mjs`: `full91`은 업로드 흐름이 모의 채점(80)을 저장한 뒤 다시 79를 심고 새로고침한다(새로고침 때문에 지난 결과 썸네일 사진은 빈 칸). 영상 노트는 "Past result seeded to the sample score (79) ... for this demo"로 밝혔다.
 - 나레이션 1줄 변경: grade 첫 줄 "Now draw the look, snap it. A simulated attempt stands in."(샘플 시도가 시뮬레이션이므로). 끝 카드는 5.0초, URL "mirror-tutor.vercel.app"을 124px 버튼으로 키우고 "Tap Try with a sample model · 0 units"를 함께 둠(6.5 -> 5.0초).
 - 검증: 장면 전환 감지(select gt(scene,0.08)) 23곳은 세그먼트 경계, 의도한 디졸브, compare·shop 스크롤뿐. 스켈레톤/빈/배너 프레임 없음. 자막은 나레이션 줄과 같은 문자열.
+
+## 사이클 10 재합성 (175.3초, YouCam 유닛 0 사용, 새 TTS 줄 3개, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c10` (work-c9 복사본 + `record-video.mjs --mode mock --sample --only cold`로 새 콜드 오픈 장면만 재촬영, 0 유닛). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유), 직전 판 `.local/video/mirror-tutor-demo-live-c10prev.mp4`.
+- 콜드 오픈(0-약 10초, `hook` 장면 교체): 샘플 모델 얼굴에 실제 YouCam Makeup VTO 결과(레슨 4단계 answer 렌더, 사전 생성)가 그려지는 전후 슬라이더. 자막 겸 큰 캡션 "Tutorials are filmed on someone else's face. This one is rendered on yours." 폰은 프레임 높이의 80%(864/1080 px, 프레임 약 1:1), 오른쪽에 얼굴 클로즈업. 이어서 "Mirror Tutor redraws the look for your own lid." 이전 hook의 분석기 오독·수정 칩은 이 장면에서 빠졌고 compare 장면이 그대로 설명한다. `recomposite.mjs`에 장면별 `geo`(폰/확대 창 크기)와 `cold` 레이아웃 추가, `record-video.mjs`에 `sampleOnly` 세그먼트 추가.
+- grade(약 20.6초): 정답/시도 썸네일 위에 앱이 실제로 채점하는 영역 폴리곤(눈 라인·눈두덩·볼·입술)을 겹쳐 그림(`scripts/demo/grade-overlay.ts`, 기존 프레임 재사용, 약 10초). "YouCam render = answer key" 캡션과 큰 "SIMULATED ATTEMPT" 라벨(프레임 안 + 왼쪽 열). 이어서 Eyeliner ΔE2000 5.8, #876250 vs #98715D 줄을 상자로 강조해 약 10초 확대(확대 창 높이 560 px로 줄여 글자 잘림 없음). 나레이션 새 줄 2개("The YouCam render is our answer key. Each region is compared by color difference.", "Eyeliner: five point eight apart. Make it a bit stronger.").
+- 시간 보전: share 꼬리 1.0 -> 0.4초, partner 꼬리 0.35 -> 0.2초.
+- home/intro 등 모바일 폭으로 녹화한 장면은 홈 데스크톱 레이아웃 변경과 무관해 재촬영하지 않았다.
