@@ -29,7 +29,7 @@ Makeup tutorials are filmed on someone else's face. The same eyeshadow looks dif
 
 1. **Capture** a selfie with a live quality gate (face width at least 60% of the frame, enough light, frontal, zoom) so the YouCam input requirements are met before any unit is spent.
 2. **Analyze** with YouCam Face Attribute & Ratio Analysis: eyelid, eye shape, lip shape, face shape, brow shape. You can correct any value. In parallel the browser measures cheek skin tone on MediaPipe landmarks (0 units) and picks a foundation shade from a 6-step ladder (13N to 27W, `lib/skin/shades.json`); you can override it.
-3. **Pick techniques** from a rule table (`lib/rules/techniques.json`, `lib/rules/engine.ts`), for example monolid -> horizontal gradient shadow + liner visible 1.5 mm. Every step shows a "why you" reason.
+3. **Pick techniques** from a rule table (`lib/rules/techniques.json`, `lib/rules/engine.ts`), for example monolid -> horizontal gradient shadow + liner visible 1.5 mm. Every step shows a "why you" reason. The monolid reason is a rule of thumb, not a validated result: on a monolid the horizontal gradient reads as cleaner depth and the vertical blend is hidden by the lid fold, but both render, and /compare shows them side by side.
 4. **Learn** with 3 lessons x 4 steps. YouCam Makeup VTO renders each step cumulatively on your photo (before/after slider).
 5. **Grade** your own attempt photo: per-region score (eye line, eyelid, cheek, lip) plus a one-line correction.
 6. **Shop the step**: the hex colors used in a step are matched to a demo catalog by color difference (CIEDE2000 <= 5). Then a share card.

@@ -97,6 +97,7 @@ describe("S2 two-face compare (#18)", () => {
     expect(c.gradientPair?.vertical).toBe("/demo/model-c/eye-vertical.jpg");
     for (const f of [c.gradientPair!.horizontal, c.gradientPair!.vertical]) expect(existsSync(path.join(process.cwd(), "public", f))).toBe(true);
     expect(t("gradientNote", "en")).toContain("rule of thumb, not a validated result");
+    expect(t("gradientNote", "en")).toContain("Both render");
     expect(t("gradientNote", "en")).toContain("corrected to monolid in the edit sheet");
   });
 

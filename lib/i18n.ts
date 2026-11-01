@@ -201,8 +201,8 @@ const DICT = {
   gradientHorizontal: { ko: "가로 그라데이션 (Mirror Tutor 홑꺼풀 기법)", en: "Horizontal gradient (Mirror Tutor's monolid technique)" },
   gradientVertical: { ko: "세로 그라데이션 (일반 튜토리얼 기법)", en: "Vertical gradient (generic tutorial technique)" },
   gradientNote: {
-    ko: "가로·세로 방향은 YouCam 패턴 스타일(1번과 3번)에 우리가 붙인 이름이에요. 어느 쪽이 더 잘 보이는지는 규칙표의 경험칙일 뿐 검증된 결과가 아니에요. 눈꺼풀은 수정 시트에서 홑꺼풀로 고친 값이에요.",
-    en: "Horizontal and vertical are our names for YouCam pattern styles 1 and 3. Which one reads better is a rule of thumb, not a validated result. The eyelid was corrected to monolid in the edit sheet.",
+    ko: "가로·세로 방향은 YouCam 패턴 스타일(1번과 3번)에 우리가 붙인 이름이에요. 둘 다 렌더되고 차이는 미묘해요. 가로가 더 깔끔한 깊이감으로 보인다는 건 규칙표의 경험칙일 뿐 검증된 결과가 아니니 직접 비교해 보세요. 눈꺼풀은 수정 시트에서 홑꺼풀로 고친 값이에요.",
+    en: "Horizontal and vertical are our names for YouCam pattern styles 1 and 3. Both render and the difference is subtle. Horizontal reading as cleaner depth is a rule of thumb, not a validated result, so compare them yourself. The eyelid was corrected to monolid in the edit sheet.",
   },
   compareEyeStep: { ko: "눈 단계", en: "Eye step" },
   compareInnerNote: { ko: "Face Analyzer가 한쪽 눈은 홑꺼풀, 다른 쪽은 쌍꺼풀로 읽어 속쌍꺼풀 기법을 골랐어요.", en: "Face Analyzer read one eye as a monolid and the other as a double lid, so the inner double lid technique was picked." },

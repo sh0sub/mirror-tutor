@@ -71,9 +71,12 @@ describe("monolid rule basis (rule of thumb, not a Perfect Corp result)", () => 
   const basisOf = (eyelid: FaceProfile["eyelid"]) => resolveTechniques({ ...base, eyelid }).eye.reasons.find((r) => r.attr === "eyelid")?.basis;
   it("monolid carries a KO+EN basis that explains vertical vs horizontal and disclaims the source", () => {
     const b = basisOf("monolid");
-    expect(b?.en).toMatch(/vertical gradient disappears/);
+    expect(b?.en).toMatch(/horizontal gradient reads as cleaner depth/);
+    expect(b?.en).toMatch(/vertical blend is hidden by the lid fold/);
+    expect(b?.en).not.toMatch(/disappears/);
+    expect(b?.ko).toMatch(/둘 다 렌더/);
     expect(b?.en).toMatch(/rule of thumb from public makeup tutorials, not a Perfect Corp result/);
-    expect(b?.ko).toMatch(/세로 그라데이션/);
+    expect(b?.ko).toMatch(/세로 블렌딩/);
     expect(b?.ko).toMatch(/Perfect Corp의 결과나 검증이 아니에요/);
   });
   it("other lid types have no basis line", () => {

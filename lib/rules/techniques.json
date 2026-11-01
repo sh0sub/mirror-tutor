@@ -10,8 +10,8 @@
         "en": "Monolids don't fold when your eyes are open, so spread shadow sideways instead of stacking it up, draw liner so 1.5 mm shows with eyes open, and extend the tail 3 mm straight out."
       },
       "basis": {
-        "ko": "왜 가로일까요? 홑꺼풀은 눈을 뜨면 보이는 주름 선이 없어서, 위아래로 번지는 세로 그라데이션은 눈을 뜨는 순간 사라지고 가로 그라데이션은 그대로 보여요. 공개된 메이크업 튜토리얼에서 흔히 쓰는 경험 법칙이고, Perfect Corp의 결과나 검증이 아니에요.",
-        "en": "Why horizontal? A monolid has no visible crease when the eye is open, so a vertical gradient disappears and a horizontal one stays visible. This is a rule of thumb from public makeup tutorials, not a Perfect Corp result or a validated finding."
+        "ko": "왜 가로일까요? 홑꺼풀은 눈을 뜨면 보이는 주름 선이 없어서, 가로 그라데이션은 깔끔한 깊이감으로 보이고 위아래로 번지는 세로 블렌딩은 눈꺼풀 접힘에 가려져요. 둘 다 렌더되니 비교 화면에서 나란히 보세요. 공개된 메이크업 튜토리얼에서 흔히 쓰는 경험 법칙이고, Perfect Corp의 결과나 검증이 아니에요.",
+        "en": "Why horizontal? A monolid has no visible crease when the eye is open, so a horizontal gradient reads as cleaner depth while a vertical blend is hidden by the lid fold. Both render, so compare them on the compare page. This is a rule of thumb from public makeup tutorials, not a Perfect Corp result or a validated finding."
       },
       "shadow": { "pattern": "2colors1", "intensityDelta": 0 },
       "liner": { "pattern": "Upper6", "intensityDelta": 0 }
