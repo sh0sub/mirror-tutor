@@ -146,3 +146,11 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - 새 비교: 홑꺼풀 얼굴(model-c)의 눈 단계를 가로 그라데이션(섀도 패턴 2colors1, 우리 규칙)과 세로 그라데이션(2colors3, 일반 튜토리얼 기법)으로 나란히 보여 주는 섹션이 /compare에 생겼다. 기존에 없던 렌더라 `scripts/demo/generate-vertical.ts`로 Makeup VTO 2회(2 유닛) + 처음 시험 1회(1 유닛, 폐기) = 3 유닛, 잔량 890 -> 887. 두 렌더 모두 섀도 진하기 100(50에서는 차이가 거의 안 보임). 가로/세로는 YouCam 패턴 스타일에 우리가 붙인 이름이라는 점, 경험칙이며 검증되지 않았다는 점, 눈꺼풀을 수정 시트에서 홑꺼풀로 고쳤다는 점을 화면 문구와 나레이션("Both are real YouCam renders")에 그대로 썼다. 렌더를 보면 세로(스타일 3) 쪽이 눈두덩 위 음영이 더 눈에 띈다. 규칙표의 "세로는 사라진다" 설명은 경험칙일 뿐이라는 문구를 유지했다.
 - compare 장면 20.7초(+5.8): V.O. 2줄 교체/신규. chip 겹침은 HEAD의 줄바꿈 칩으로 새로 촬영해 해소.
 - 검증: 장면 전환 감지(select gt(scene,0.08)) 20곳은 세그먼트 경계와 의도한 디졸브뿐, 스켈레톤/빈/배너 프레임 없음.
+
+## 사이클 8 재합성 (173.9초, YouCam 유닛 0 사용, 새 TTS 줄 1개, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c8` (work-c7 복사본 + `record-video.mjs --mode mock --sample --only compare`만 재촬영, 0 유닛). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유), 직전 판 `.local/video/mirror-tutor-demo-live-c8prev.mp4`.
+- compare 재촬영 이유: C7 프레임의 근거 박스에 "vertical gradient disappears" 옛 문구가 있었는데, 바로 뒤 장면의 세로 렌더에는 띠가 보여 서로 어긋났다. 현재 HEAD 문구(가로가 더 깔끔한 깊이로 읽힌다는 경험칙, 둘 다 렌더되며 차이는 미묘함, 검증된 결과 아님)로 교체. gradientNote도 새 문구.
+- home(스트릭·지난 결과): 두 줄을 한 줄로 줄여 11.3 -> 9.0초(새 TTS 한 줄).
+- 마지막 5.5-8초 구간: 6.5초 무음 마감 카드(제목 "Learn makeup, on your own face", 칩 "4 VTO calls per lesson" / "Retailer SKUs at the end" / "No pilot claimed", URL과 해커톤 프로토타입 표기). 360p 크기에서도 칩과 자막이 읽힘을 확인.
+- 검증: 장면 전환 감지 24곳은 세그먼트 경계, 의도한 디졸브, compare 스크롤 구간뿐. 스켈레톤/빈/배너 프레임 없음.

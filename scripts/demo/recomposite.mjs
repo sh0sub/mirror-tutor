@@ -221,14 +221,15 @@ const SEGMENTS = [
           "<div class=\"vs\"><div><b>Horizontal</b>Our monolid technique<span class=\"plain\">shadow style 1</span></div><div><b>Vertical</b>Generic tutorial way<span class=\"plain\">shadow style 3</span></div></div>",
       },
     ],
+    // C8: re-taken at HEAD (work-c8 frames-compare, mock --sample, 0 units) so the basis box and gradient note carry the corrected wording; scrolls are 13.3-14.5 s and 17.3-18.2 s.
     // C7 source (work-c7 frames-compare, --sample): top of /compare on the eye step 0-3.1 s (original/answer flip), hold, scroll 13.8-14.2 s
     // to the rule table (hold to 17.4 s), scroll 17.4-17.8 s to the new "Same look with a vertical gradient?" section (hold to the end)
     timeline: [
       { at: 0, src: [0, 3.1] },
       { at: { cue: 0, plus: 3.2 }, src: 5 },
-      { at: { cue: 1, plus: -0.1 }, src: [13.8, 14.2] },
+      { at: { cue: 1, plus: -0.1 }, src: [13.3, 14.5] },
       { at: { cue: 1, plus: 0.9 }, src: 16 },
-      { at: { cue: 2, plus: -0.1 }, src: [17.4, 17.8] },
+      { at: { cue: 2, plus: -0.1 }, src: [17.3, 18.2] },
       { at: { cue: 2, plus: 0.9 }, src: 21 },
     ],
     zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 300 }, { at: { cue: 1, plus: 0.9 }, y: 380 }, { at: { cue: 2, plus: -0.1 }, y: 125 }],
@@ -311,14 +312,11 @@ const SEGMENTS = [
     chip: "Stored on this device only · 0 units",
     note: "Best score 91 is the sample score from the grade scene",
     units: 14,
-    lines: [
-      "Come back tomorrow, and your streak and past results are waiting, saved only on this device.",
-      "Returning users skip the analysis, so a new lesson costs just four units.",
-    ],
-    ui: [{ callout: "Streak + past results live on <b>this device</b> only." }, { callout: "Reused profile → only <b>4 units</b> for a new lesson." }],
+    lines: ["Come back tomorrow: your streak and past results wait on this device, and a new lesson costs just four units."],
+    ui: [{ callout: "Streak + past results live on <b>this device</b> only.<br>Reused profile → only <b>4 units</b> for a new lesson." }],
     // C5 source (work-c5 frames-home, mock --setup full, banner scrolled away): scrolled hold 1.4-8.3 s shows streak, past results and the home buttons incl. "Retailer view (concept)"
     timeline: [{ at: 0, src: 4 }],
-    zoom: [{ at: 0, y: 130 }, { at: { cue: 1 }, y: 430 }],
+    zoom: [{ at: 0, y: 130 }, { at: { cue: 0, plus: 2.6 }, y: 430 }],
   },
   {
     id: "share",
@@ -350,6 +348,18 @@ const SEGMENTS = [
     // C5 source (work-c5 frames-share, mock --sample, banner scrolled away, score 91 = the grade scene): hold 0.13-5.6 s, scroll 5.6-5.9 s, then the "Next: retailer view" card below the progress section
     timeline: [{ at: 0, src: 1.5 }, { at: { cue: 1, plus: -0.3 }, src: [5.55, 5.95] }, { at: { cue: 1, plus: 0.9 }, src: 9 }],
     zoom: [{ at: 0, y: 150 }, { at: { cue: 1, plus: -0.3 }, y: 470 }],
+  },
+  {
+    // C8: closing card (5-8 s, silent), plain claims only
+    id: "close",
+    duration: 6.5,
+    card: {
+      kicker: "Mirror Tutor",
+      title: "Learn makeup, on your own face",
+      stack: true,
+      chips: ["4 VTO calls per lesson", "Retailer SKUs at the end", "No pilot claimed"],
+      sub: "mirror-tutor.vercel.app  ·  YouCam Face Analyzer + Makeup VTO  ·  hackathon prototype",
+    },
   },
 ];
 
@@ -750,9 +760,9 @@ function makeCard(seg, dir) {
     .c{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:34px;text-align:center}
     .k{font-size:34px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#a8264a}
     h1{margin:0;font-size:96px;line-height:1.08;font-weight:800;letter-spacing:-.02em;max-width:1800px;white-space:nowrap}
-    .chips{display:flex;gap:24px}.chip{background:#fcebe3;color:#a8264a;border-radius:44px;padding:20px 40px;font-size:44px;font-weight:800;border:3px solid #c8325b}
+    .chips{display:flex;gap:24px;flex-wrap:wrap;justify-content:center}.chips.stack{flex-direction:column;align-items:center;gap:22px}.chip{background:#fcebe3;color:#a8264a;border-radius:44px;padding:20px 40px;font-size:44px;font-weight:800;border:3px solid #c8325b}.stack .chip{font-size:64px;padding:18px 54px}
     .s{font-size:32px;font-weight:600;color:#6b605c}
-    </style></head><body><div class="c"><div class="k">${esc(c.kicker)}</div><h1>${esc(c.title)}</h1><div class="chips">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div></body></html>`,
+    </style></head><body><div class="c"><div class="k">${esc(c.kicker)}</div><h1>${esc(c.title)}</h1><div class="chips${c.stack ? " stack" : ""}">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div></body></html>`,
   );
   screenshot(html, png, W, H);
   const out = path.join(dir, `${seg.id}.mp4`);
