@@ -1,5 +1,5 @@
 /**
- * F8 unit guard. Plan: session cap 20u (per session cookie), global daily cap (env), credit lookup
+ * F8 unit guard. Plan: session cap 24u (per session cookie), global daily cap (env), credit lookup
  * cached 5 minutes, and below 150 remaining units switch to the sample-model demo mode.
  *
  * Units are only charged by YouCam when a task succeeds, so callers `reserve()` before starting a
