@@ -53,6 +53,13 @@ export default function PartnerPage() {
             {t("partnerConcept", lang)}
           </Chip>
           <p className="max-w-[720px] text-[15px] leading-relaxed text-muted">{t("partnerIntro", lang)}</p>
+          <nav aria-label={t("partnerJumpLabel", lang)} className="flex flex-wrap gap-2" data-testid="partner-jumps">
+            {([["cost-calculator", "partnerJumpCalc"], ["two-week-test", "partnerJumpTest"], ["embed-snippet", "partnerJumpSnippet"]] as const).map(([id, key]) => (
+              <a key={id} href={`#${id}`} className="inline-flex min-h-11 items-center rounded-full border border-line-strong/50 bg-panel px-4 text-sm font-bold text-primary-strong hover:bg-panel-2">
+                {t(key, lang)}
+              </a>
+            ))}
+          </nav>
         </div>
 
         <section aria-labelledby="example" className="flex min-w-0 flex-col gap-1.5 rounded-[var(--radius-panel)] border-2 border-primary/30 bg-panel p-4 lg:col-span-2" data-testid="partner-example">
@@ -172,7 +179,7 @@ export default function PartnerPage() {
             )}
           </section>
 
-          <section aria-labelledby="snippet" className="flex min-w-0 flex-col gap-2 rounded-[var(--radius-panel)] bg-panel p-4">
+          <section id="embed-snippet" aria-labelledby="snippet" className="flex min-w-0 scroll-mt-20 flex-col gap-2 rounded-[var(--radius-panel)] bg-panel p-4">
             <h2 id="snippet" className="text-[17px] font-extrabold">
               {t("partnerSnippetTitle", lang)}
             </h2>
@@ -202,7 +209,7 @@ export default function PartnerPage() {
             <p className="text-xs text-muted">{tf("partnerMeterCap", lang, { n: meter.cap })}</p>
           </section>
 
-          <section aria-labelledby="calc" className="flex flex-col gap-3 rounded-[var(--radius-panel)] bg-panel p-4" data-testid="cost-calc">
+          <section id="cost-calculator" aria-labelledby="calc" className="scroll-mt-20 flex flex-col gap-3 rounded-[var(--radius-panel)] bg-panel p-4" data-testid="cost-calc">
             <h2 id="calc" className="text-[17px] font-extrabold">
               {t("partnerCalcTitle", lang)}
             </h2>
@@ -259,7 +266,7 @@ export default function PartnerPage() {
           </section>
         </div>
 
-        <section aria-labelledby="retailer-test" className="flex min-w-0 flex-col gap-2 rounded-[var(--radius-panel)] border-2 border-primary/30 bg-panel p-4 lg:col-span-2" data-testid="retailer-test">
+        <section id="two-week-test" aria-labelledby="retailer-test" className="scroll-mt-20 flex min-w-0 flex-col gap-2 rounded-[var(--radius-panel)] border-2 border-primary/30 bg-panel p-4 lg:col-span-2" data-testid="retailer-test">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 id="retailer-test" className="text-[17px] font-extrabold">
               {t("partnerTestTitle", lang)}

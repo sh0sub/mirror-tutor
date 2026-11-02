@@ -108,7 +108,7 @@ function LessonInner() {
         }
       />
       <ModeBanner />
-      <main className="flex flex-1 flex-col pb-4 lg:grid lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)] lg:content-start lg:items-start lg:gap-x-8 lg:px-6 lg:pt-4">
+      <main className="flex flex-1 flex-col pb-8 lg:pb-4 lg:grid lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)] lg:content-start lg:items-start lg:gap-x-8 lg:px-6 lg:pt-4">
         <div className="lg:col-start-1 lg:row-start-1">
         <CompareSlider
           before={before}
@@ -117,7 +117,7 @@ function LessonInner() {
           beforeLabel={t(sample ? "sampleFace" : "myFace", lang)}
           afterLabel={`${t("answer", lang)} · ${tf("answerCumulative", lang, { n: k })}`}
           // 390x844 phones get a 7:8 box (about 40 px shorter than 4:5) so the step instruction stays above the fold; desktop keeps 4:5.
-          aspect="aspect-[7/8] lg:aspect-[4/5]"
+          aspect="aspect-[7/8] max-lg:max-h-[42dvh] lg:aspect-[4/5]"
           overlay={
             <>
               {eyeStep && technique && eyeOverlay ? (
@@ -138,7 +138,7 @@ function LessonInner() {
         />
 
         {showFixNudge && (
-          <p data-testid="lesson-uncorrected-line" className="mx-4 mt-2 flex items-start gap-1.5 text-xs font-bold leading-snug text-warning lg:mx-0">
+          <p data-testid="lesson-uncorrected-line" className="mx-4 mt-2 hidden items-start lg:flex gap-1.5 text-xs font-bold leading-snug text-warning lg:mx-0">
             <Icon name="warn" className="mt-px h-3.5 w-3.5 flex-none" />
             {t("lessonUncorrectedLine", lang)}
           </p>
@@ -201,7 +201,7 @@ function LessonInner() {
               <div ref={nudgeRef} data-testid="lesson-fix-nudge" className="mt-2 flex scroll-mb-44 flex-col gap-2 rounded-xl bg-warning-soft p-3 text-sm font-bold text-warning">
                 <p className="flex items-start gap-2 whitespace-normal break-words leading-snug">
                   <Icon name="warn" className="mt-0.5 h-4 w-4 flex-none" />
-                  <span className="min-w-0 flex-1">{t("lessonFixNudge", lang)}</span>
+                  <span className="min-w-0 flex-1"><span className="lg:hidden">{t("lessonFixCardPrefix", lang)} </span>{t("lessonFixNudge", lang)}</span>
                 </p>
                 <Button variant="ghost" className="self-start" onClick={() => setFixOpen(true)}>
                   <Icon name="pencil" className="h-4 w-4" />

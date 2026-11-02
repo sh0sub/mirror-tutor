@@ -3,7 +3,7 @@
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { AppBar, BottomBar, Button, Chip, Icon, ModeBanner, Screen, Sheet, Swatch } from "@/components/ui";
+import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, Sheet, Swatch } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { buildLesson, getLesson } from "@/lib/lessons";
@@ -175,6 +175,18 @@ function ShopInner() {
           </Button>
         )}
         <p className="text-xs text-muted">{t("deltaNote", lang)}</p>
+        <nav aria-label={t("shopNextTitle", lang)} data-testid="shop-next" className="flex flex-col gap-2 border-t border-line pt-3">
+          <p className="text-xs font-bold text-muted">{t("shopNextTitle", lang)}</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <ButtonLink href={`/share?lesson=${lessonId}`} variant="soft" className="w-full">
+              <Icon name="sparkle" className="h-4 w-4" />
+              {t("shopShareLink", lang)}
+            </ButtonLink>
+            <ButtonLink href="/partner" variant="ghost" className="w-full">
+              {t("shopRetailerLink", lang)}
+            </ButtonLink>
+          </div>
+        </nav>
         </div>
       </main>
       {cart.length > 0 && (

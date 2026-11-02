@@ -71,3 +71,18 @@ describe("/partner concept page data", () => {
     expect(page).toContain('scrolling="no"');
   });
 });
+
+describe("C23 copy: jump chips, monolid reframe, step-3 card prefix, shop next steps", () => {
+  it("has bilingual jump/next labels and keeps the 'plan, not a result' tag", () => {
+    for (const k of ["partnerJumpCalc", "partnerJumpTest", "partnerJumpSnippet", "shopShareLink", "shopRetailerLink", "lessonFixCardPrefix"] as const) {
+      expect(t(k, "en").length).toBeGreaterThan(2);
+      expect(t(k, "ko").length).toBeGreaterThan(1);
+    }
+    expect(t("partnerTestTag", "en")).toBe("A plan, not a result");
+  });
+  it("reframes the monolid chip as a feature but keeps the honest misread notice", () => {
+    expect(t("sampleMonoHint", "en")).toBe("Correct what the analyzer cannot see");
+    expect(t("sampleMonoFix", "en")).toMatch(/read this monolid face as Double-lid/);
+    expect(t("lessonFixCardPrefix", "en")).toBe("Analyzer misread you can fix:");
+  });
+});
