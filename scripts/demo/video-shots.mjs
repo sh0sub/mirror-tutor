@@ -168,6 +168,33 @@ export const SEGMENTS = [
     ],
   },
   {
+    // C13 live Face Analyzer call (--mode live --only livecall, 10 units): the licensed monolid stock photo (model-c, Unsplash License) is uploaded,
+    // the real analysis runs (bottom bar "Remaining N" before, N-10 after) and the result is shown. Records only; recomposite picks the window.
+    id: "livecall",
+    sampleOnly: true,
+    kicker: "Live call",
+    heading: "One live YouCam call",
+    chip: "YouCam AI Face Analyzer · 10 units",
+    lines: ["One call to YouCam's Face Analyzer reads five features."],
+    prep: [
+      { wait: "document.querySelector('main h2')", timeout: 30000 },
+      { tap: { sel: "button", text: "^Use my own selfie$" }, quiet: true },
+      { sleep: 1.0 },
+      { tap: { sel: "dialog[open] button", text: "Agree and start" }, quiet: true },
+      { wait: "location.pathname === '/capture'" },
+      { sleep: 1.0 },
+      { tap: { sel: "button", text: "Upload photo" }, noClick: true, quiet: true },
+    ],
+    actions: [
+      { sleep: 0.8 },
+      { upload: "public/demo/model-c/original.jpg" },
+      { wait: bodyHas("Analysis done"), fail: bodyHas("Analysis failed"), timeout: 90000 },
+      { sleep: 3.0 },
+      { js: "window.scrollTo(0, 0)" },
+      { sleep: 2.0 },
+    ],
+  },
+  {
     id: "compare",
     kicker: "Two faces, one lesson",
     heading: "Same look, different technique",

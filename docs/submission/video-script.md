@@ -197,3 +197,12 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - partner: 위젯이 실제 `/embed/lesson` iframe이고 스니펫이 iframe으로 바뀌어 재녹화(`--mode live --only partner`). 슬라이더를 iframe 안에서 드래그하고(CDP 마우스), 스니펫과 유닛 미터로 스크롤한다. 개발 서버의 N 표시기는 녹화 중 CSS로 숨김(프로덕션에는 없음). 나레이션 3줄: "For retailers, the lesson is a live widget on the product page, matched to that SKU's shade." / "Integration is one plain iframe. No SDK, and no partner has used it yet." / "First lesson, fourteen units. Then four."(앞 두 줄만 새 marin TTS, 총 2건).
 - `recomposite.mjs`: ffmpeg가 가끔 0% CPU로 멈추는 문제(xfade+루프 정지 이미지)가 있어 `run`에 4분 타임아웃과 재시도를 넣었다.
 - 검증: 장면 전환 감지(gt 0.08) 27곳은 세그먼트 경계, 의도한 디졸브, compare·partner 스크롤뿐. 어두운/스켈레톤/배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열. 길이 176.7초(180초 미만).
+
+## 사이클 13 재합성 (177.7초, YouCam 유닛 10 사용: 잔량 883 -> 873, 라이브 Face Analyzer 1회, 새 TTS 없음)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c13` (work-c12 복사본). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유, 나레이션 문구 변경 없음), 직전 판 `.local/video/mirror-tutor-demo-live-c13prev.mp4`.
+- 라이브 호출 장면: `record-video.mjs --mode live --only livecall`(`video-shots.mjs`의 `livecall` 세그먼트: 동의 -> 업로드 -> 실제 분석). 얼굴은 모노리드 스톡 사진 model-c(Unsplash License). 분석기는 이번에도 Double-lid로 읽었고(오독, 앱의 수정 시트로 고침) 화면 하단 카운터가 Units left 883 -> 873으로 줄어드는 것을 그대로 녹화했다. analyze 장면 0~7.5초에 이 클립(로딩 1.6초 + 결과)을 넣고, 이후 샘플 체험의 raw 읽기 -> Fix the eyelid 흐름이 이어진다. 라벨은 "LIVE YouCam call, 10 units"(`stageSwitch`로 7.5초에 샘플 배지로 복귀). 총 길이는 그대로(기존 정지 구간 교체).
+- analyze(샘플) 재녹화(`--mode mock --sample --only analyze`, 0 유닛): 하단 바 "Fix the eyelid" 기본 버튼 + "Start this lesson" 고스트, 입술 카드 "(not recorded)" 한 겹 괄호.
+- 닫는 카드 6.0초: 저장소 `github.com/sh0sub/mirror-tutor`, 알약 "Open source, MIT"와 "No pilot claimed", 알약 글자 34 -> 44px.
+- `recomposite.mjs`: `ui[i].badge/pill`, `stageSwitch`(한 cue 중간에 배지/콜아웃 교체), 타임라인 `from`으로 livecall 참조.
+- 검증: 장면 전환 감지(gt 0.08)는 C12와 같은 27곳(세그먼트 경계, 앱 스크롤/시트). 어두운/빈/배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열. 라이브 클립의 로딩 스켈레톤 1.6초는 호출 진행을 보여 주려고 일부러 남겼다. 길이 177.7초(180초 미만).

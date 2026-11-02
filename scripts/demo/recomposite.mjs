@@ -227,19 +227,36 @@ const SEGMENTS = [
       "Then our rule table turns those features into try-on settings.",
     ],
     ui: [
-      { callout: "Eyelid · eye shape · lips · face shape · brows<br><span class=\"plain\">Here the analyzer read this monolid face as <b>Double-lid</b></span>" },
+      {
+        // C13: line 0 plays over a real live call (work-c13 frames-livecall, record-video --mode live --only livecall, 10 units spent, balance 883 -> 873)
+        badge: "LIVE YouCam call, 10 units",
+        pill: "Live call <b>10 units</b> · 883 \u2192 873",
+        callout: "<b>LIVE YouCam call, 10 units</b><br>Units left <b>883 \u2192 873</b><br><span class=\"plain\">Eyelid · eye shape · lips · face shape · brows. It read this monolid face as <b>Double-lid</b></span>",
+      },
       { callout: "Face Analyzer read this monolid face as <b>Double-lid</b>.<br>Tap <b>Fix the eyelid</b> → <b>Monolid</b> · <b>0 units</b>" },
       { callout: "<b>Monolid</b> → horizontal gradient + visible liner<br><span class=\"plain\">2-color shadow, style 1 · upper liner, style 6</span>" },
     ],
     // C11 source (work-c11 frames-analyze, mock --sample): raw reading + callout 0-3.2 s; "Fix the eyelid" tap, edit sheet 3.2-5.6 s, Monolid picked 5.6-6.1 s,
     // confirmation + scroll 8.2 s, the rule-table sheet opens 13.7-14.4 s and closes 17.4 s.
+    // C13: from 7.5 s the stage graphic goes back to the sample-trial badge/pill/callout (the live call is over)
+    stageSwitch: [
+      {
+        at: 7.5,
+        ci: 0,
+        ui: { badge: "Sample trial: pre-generated YouCam results (0 units)", pill: "Live call 10 units · here <b>0</b>", callout: "Eyelid · eye shape · lips · face shape · brows<br><span class=\"plain\">Same monolid face, sample trial: the analyzer read <b>Double-lid</b></span>" },
+      },
+    ],
+    // C13: 0-1.6 s the live call in progress (loading, "Units left 883"), 1.6-7.5 s its result ("Analysis done", "Units left 873"); `from: "livecall"` = work-c13 live recording
+    // (the call took 9.8 s, the wait between 2.6 s and 10.3 s is cut). Then the sample trial's raw reading (the same monolid face) with the "Fix the eyelid" bottom bar.
     timeline: [
-      { at: 0, src: 1.5 },
+      { at: 0, src: [1.0, 2.6], from: "livecall" },
+      { at: 1.6, src: [10.3, 15.2], from: "livecall" },
+      { at: 7.5, src: 1.5 },
       { at: { cue: 1, plus: 0.9 }, src: [3.0, 8.6] },
       { at: { cue: 2, plus: -0.2 }, src: [13.4, 14.6] },
       { at: { cue: 2, plus: 0.9 }, src: 16.5 },
     ],
-    zoom: [{ at: 0, y: 40 }, { at: { cue: 0, plus: 4.6 }, y: 330 }, { at: { cue: 1, plus: 1.5 }, y: 498 }, { at: { cue: 1, plus: 3.6 }, y: 330 }, { at: { cue: 2, plus: -0.3 }, y: 498 }],
+    zoom: [{ at: 0, y: 498 }, { at: 7.4, y: 330 }, { at: { cue: 1, plus: 1.5 }, y: 498 }, { at: { cue: 1, plus: 3.6 }, y: 330 }, { at: { cue: 2, plus: -0.3 }, y: 498 }],
   },
   {
     id: "lesson",
@@ -449,12 +466,13 @@ const SEGMENTS = [
     // C8: closing card (5-8 s, silent), plain claims only
     id: "close",
     // C9: the call to action is the biggest thing on the card (URL 120 px + the tap instruction), held for the whole 5 s card
-    duration: 5.0,
+    duration: 6.0,
     card: {
       kicker: "Mirror Tutor",
       title: "Learn makeup, on your own face",
       cta: { url: "mirror-tutor.vercel.app", tap: "Tap \u201cTry with a sample model\u201d \u00b7 0 units" },
-      chips: ["4 VTO calls per lesson", "Retailer SKUs at the end", "No pilot claimed"],
+      repo: "github.com/sh0sub/mirror-tutor",
+      chips: ["4 VTO calls per lesson", "Retailer SKUs at the end", "Open source, MIT", "No pilot claimed"],
       sub: "YouCam Face Analyzer + Makeup VTO  \u00b7  hackathon prototype",
     },
   },
@@ -580,10 +598,10 @@ function coldStageHtml(seg, ci) {
   </body></html>`;
 }
 
-function stageHtml(seg, si0, ci) {
+function stageHtml(seg, si0, ci, uiOver = {}) {
   if (seg.cold) return coldStageHtml(seg, ci);
   const si = Math.max(si0 - HEAD_SEGS, 0);
-  const ui = { heading: seg.heading, chip: seg.chip, callout: "", ...(seg.ui?.[ci] ?? {}) };
+  const ui = { heading: seg.heading, chip: seg.chip, callout: "", ...(seg.ui?.[ci] ?? {}), ...uiOver };
   const total = SEGMENTS.length;
   const cue = seg.cues[ci].text;
   return `<!doctype html><html><head><meta charset="utf-8"><style>
@@ -623,7 +641,7 @@ function stageHtml(seg, si0, ci) {
   .flow li.now{background:#c8325b;border-color:#c8325b;color:#fff;box-shadow:0 6px 16px rgba(200,50,91,.25)}.flow li.now i{background:#fff;color:#a8264a}
   .foot{position:absolute;left:64px;width:${SCR_X - 64 - 52}px;bottom:26px;font-size:17px;line-height:1.35;color:#6b605c}
   </style></head><body>
-  <div class="phone"></div><div class="zoom"></div><div class="badges"><div class="live"><i></i>${esc(seg.badge ?? "YouCam results pre-generated with the live API (0 units now)")}</div><div class="units">${seg.pill ? seg.pill : `Units spent here <b>0</b>`}</div></div>
+  <div class="phone"></div><div class="zoom"></div><div class="badges"><div class="live"><i></i>${esc(ui.badge ?? seg.badge ?? "YouCam results pre-generated with the live API (0 units now)")}</div><div class="units">${ui.pill ?? seg.pill ?? `Units spent here <b>0</b>`}</div></div>
   <div class="left"><div class="kick">${esc(seg.kicker)}</div><h1>${esc(ui.heading)}</h1><div class="chip">${esc(ui.chip)}</div>${seg.tag ? `<div class="bigtag">${esc(seg.tag)}</div>` : ""}${ui.callout ? `<div class="callout">${ui.callout}</div>` : ""}${seg.note && ui.note !== "" ? `<div class="note">${esc(seg.note)}</div>` : ""}</div>
   <div class="sub">${esc(cue)}</div>
   <div class="flow"><div class="fh">${si === 0 ? "How it works" : `Step ${Math.min(si, FLOW.length)} of ${FLOW.length}`}</div><ol>${FLOW.map((f, i) => {
@@ -661,6 +679,15 @@ function renderStage(seg, si, dir) {
     writeFileSync(html, stageHtml(seg, si, ci));
     screenshot(html, png, W, H);
     seg.stage.push(png);
+  }
+  // C13: `stageSwitch` [{ at, ci, ui }]: an extra stage graphic (cue ci's text, ui overrides) from `at` on, for a mid-cue change of badge/callout
+  seg.stageExtra = [];
+  for (const [k, sw] of (seg.stageSwitch ?? []).entries()) {
+    const html = path.join(dir, `${seg.id}-sw${k}.html`);
+    const png = path.join(dir, `${seg.id}-sw${k}.png`);
+    writeFileSync(html, stageHtml(seg, si, sw.ci, sw.ui));
+    screenshot(html, png, W, H);
+    seg.stageExtra.push({ file: png, start: resolveAt(seg, sw.at) });
   }
 }
 
@@ -802,7 +829,7 @@ function encodeSegment(seg, dir) {
   const hN = XF_N / 2;
   const bounds = [0, ...cuts, N];
   const bgList = path.join(dir, `${seg.id}-stage.txt`);
-  concatList(bgList, seg.stage.map((f, i) => ({ file: f, start: i === 0 ? 0 : seg.cues[i].start })), dur);
+  concatList(bgList, [...seg.stage.map((f, i) => ({ file: f, start: i === 0 ? 0 : seg.cues[i].start })), ...(seg.stageExtra ?? [])].sort((a, b) => a.start - b.start), dur);
 
   // zoom anchors: snap moves near a cut onto the cut
   const cutT = cuts.map((c) => c / FPS);
@@ -969,8 +996,8 @@ function makeCard(seg, dir) {
     .chips{display:flex;gap:24px;flex-wrap:wrap;justify-content:center}.chips.stack{flex-direction:column;align-items:center;gap:22px}.chip{background:#fcebe3;color:#a8264a;border-radius:44px;padding:20px 40px;font-size:44px;font-weight:800;border:3px solid #c8325b}.stack .chip{font-size:64px;padding:18px 54px}
     .s{font-size:32px;font-weight:600;color:#6b605c}
     .cta{display:flex;flex-direction:column;align-items:center;gap:14px;background:#c8325b;color:#fff;border-radius:36px;padding:34px 80px 38px;box-shadow:0 14px 40px rgba(200,50,91,.3)}.cta .u{font-size:124px;font-weight:800;letter-spacing:-.02em;line-height:1.05}.cta .t{font-size:58px;font-weight:700}
-    .c.has-cta{gap:30px}.has-cta h1{font-size:72px}.has-cta .chip{font-size:34px;padding:12px 30px}
-    </style></head><body><div class="c${c.cta ? " has-cta" : ""}"><div class="k">${esc(c.kicker)}</div><h1>${esc(c.title)}</h1>${c.cta ? `<div class="cta"><div class="u">${esc(c.cta.url)}</div><div class="t">${esc(c.cta.tap)}</div></div>` : ""}<div class="chips${c.stack ? " stack" : ""}">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div></body></html>`,
+    .c.has-cta{gap:30px}.has-cta h1{font-size:72px}.has-cta .chip{font-size:44px;padding:16px 38px}.repo{font-size:54px;font-weight:800;color:#1f1b1a;letter-spacing:-.01em}.repo span{color:#a8264a}
+    </style></head><body><div class="c${c.cta ? " has-cta" : ""}"><div class="k">${esc(c.kicker)}</div><h1>${esc(c.title)}</h1>${c.cta ? `<div class="cta"><div class="u">${esc(c.cta.url)}</div><div class="t">${esc(c.cta.tap)}</div></div>` : ""}${c.repo ? `<div class="repo"><span>Code:</span> ${esc(c.repo)}</div>` : ""}<div class="chips${c.stack ? " stack" : ""}">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div></body></html>`,
   );
   screenshot(html, png, W, H);
   const out = path.join(dir, `${seg.id}.mp4`);
