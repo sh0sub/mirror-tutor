@@ -285,3 +285,16 @@ describe("C12 uncorrected monolid sample stays on the pre-generated lesson (same
     expect(SAMPLE_GRADES[sampleAttemptFor(sampleModelById("model-c").rawSteps![3])!].grade.total).toBe(SAMPLE_SCORE);
   });
 });
+
+describe("monoSampleNeedsFix (lesson nudge)", () => {
+  const raw = analyzedProfile("model-c");
+  it("is true only for the uncorrected monolid sample", async () => {
+    const { monoSampleNeedsFix } = await import("@/lib/demo/sample");
+    expect(raw.eyelid).not.toBe("monolid");
+    expect(monoSampleNeedsFix(true, "model-c", { profile: raw, edited: [] })).toBe(true);
+    expect(monoSampleNeedsFix(true, "model-c", { profile: { ...raw, eyelid: "monolid" }, edited: ["eyelid"] })).toBe(false);
+    expect(monoSampleNeedsFix(true, "model-a", { profile: raw, edited: [] })).toBe(false);
+    expect(monoSampleNeedsFix(false, "model-c", { profile: raw, edited: [] })).toBe(false);
+    expect(monoSampleNeedsFix(true, "model-c", null)).toBe(false);
+  });
+});

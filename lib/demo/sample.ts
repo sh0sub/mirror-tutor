@@ -65,3 +65,8 @@ export function sampleRecommendation(profile: FaceProfile): Recommendation {
   if (rec.lessonId === SAMPLE_LESSON) return rec;
   return profile.eyelid === "double" ? { lessonId: SAMPLE_LESSON as Recommendation["lessonId"], reason: { ko: "쌍꺼풀 주름을 살린 기본 룩", en: "Everyday look that uses your crease" } } : rec;
 }
+
+/** Monolid sample whose eyelid the visitor has not corrected yet (the analyzer's raw Double-lid reading is still in use). */
+export function monoSampleNeedsFix(sample: boolean, sampleId: SampleId, stored: { profile: FaceProfile; edited: readonly string[] } | null): boolean {
+  return sample && sampleId === "model-c" && !!stored && stored.profile.eyelid !== "monolid" && !stored.edited.includes("eyelid");
+}

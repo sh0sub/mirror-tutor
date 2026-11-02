@@ -132,6 +132,9 @@ export default function ComparePage() {
             </figure>
           ))}
         </div>
+        <p className="text-xs leading-relaxed text-muted" data-testid="why-two-faces">
+          {t("compareWhyTwoFaces", lang)}
+        </p>
         <div className="flex flex-wrap items-center justify-center gap-2">
           <button
             type="button"
@@ -152,6 +155,35 @@ export default function ComparePage() {
             {t("showTechnique", lang)}
           </button>
         </div>
+        {gradient && (
+          <section aria-labelledby="gradient" className="flex flex-col gap-2 rounded-[var(--radius-panel)] bg-panel p-3" data-testid="gradient-pair">
+            <h2 id="gradient" className="text-sm font-extrabold">
+              {t("gradientTitle", lang)}
+            </h2>
+            <div className="grid grid-cols-2 gap-2">
+              {(["horizontal", "vertical"] as const).map((dir) => (
+                <figure key={dir} className="flex flex-col gap-1.5">
+                  <div className="overflow-hidden rounded-xl bg-panel-2">
+                    {overlays[a.id] ? (
+                      <EyeCloseup
+                        src={gradient[dir]}
+                        alt={`${faceName(a, lang)} · ${t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}`}
+                        overlay={overlays[a.id]}
+                        dir={dir}
+                        crease={false}
+                        show={technique}
+                        view={closeupView(overlays[a.id], 1.5)}
+                      />
+                    ) : null}
+                  </div>
+                  <figcaption className="text-xs font-bold leading-snug">{t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}</figcaption>
+                </figure>
+              ))}
+            </div>
+            <p className="text-xs text-muted">{tf("gradientBody", lang, { n: gradient.shadowIntensity })}</p>
+            <p className="text-xs text-muted">{t("gradientNote", lang)}</p>
+          </section>
+        )}
         {eyeStepOn && (
           <section aria-labelledby="technique" className="flex flex-col gap-2 rounded-[var(--radius-panel)] bg-panel p-3" data-testid="technique-closeups">
             <h2 id="technique" className="text-sm font-extrabold">
@@ -182,35 +214,6 @@ export default function ComparePage() {
             })}
             {technique && <p className="text-xs text-muted">{t("techniqueLegend", lang)}</p>}
             <p className="text-xs text-muted">{t("techniqueNote", lang)}</p>
-          </section>
-        )}
-        {gradient && (
-          <section aria-labelledby="gradient" className="flex flex-col gap-3 rounded-[var(--radius-panel)] bg-panel p-4" data-testid="gradient-pair">
-            <h2 id="gradient" className="text-sm font-extrabold">
-              {t("gradientTitle", lang)}
-            </h2>
-            <p className="text-xs text-muted">{tf("gradientBody", lang, { n: gradient.shadowIntensity })}</p>
-            <div className="grid grid-cols-2 gap-2">
-              {(["horizontal", "vertical"] as const).map((dir) => (
-                <figure key={dir} className="flex flex-col gap-1.5">
-                  <div className="overflow-hidden rounded-xl bg-panel-2">
-                    {overlays[a.id] ? (
-                      <EyeCloseup
-                        src={gradient[dir]}
-                        alt={`${faceName(a, lang)} · ${t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}`}
-                        overlay={overlays[a.id]}
-                        dir={dir}
-                        crease={false}
-                        show={technique}
-                        view={closeupView(overlays[a.id], 1.5)}
-                      />
-                    ) : null}
-                  </div>
-                  <figcaption className="text-xs font-bold leading-snug">{t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}</figcaption>
-                </figure>
-              ))}
-            </div>
-            <p className="text-xs text-muted">{t("gradientNote", lang)}</p>
           </section>
         )}
         </div>

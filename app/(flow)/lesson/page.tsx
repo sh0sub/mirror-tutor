@@ -2,13 +2,15 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, Swatch, UnitLine } from "@/components/ui";
+import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, Sheet, Swatch, UnitLine } from "@/components/ui";
 import { EyeOverlaySvg } from "@/components/EyeOverlaySvg";
 import { CompareSlider } from "@/components/CompareSlider";
 import { useFlow, type StepState } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { buildLesson, getLesson, INTENSITY_SCALES, type StepScales } from "@/lib/lessons";
-import { ATTR_NAME } from "@/lib/labels";
+import { ATTR_NAME, valueLabel } from "@/lib/labels";
+import { PROFILE_OPTIONS } from "@/lib/profile";
+import { monoSampleNeedsFix } from "@/lib/demo/sample";
 import { techniqueDir } from "@/lib/eyeOverlay";
 import { guideText } from "@/lib/quality/messages";
 import { regionBoxes } from "@/lib/regions";
@@ -39,7 +41,7 @@ function dotClass(s: StepState | undefined, kind: StepDotKind) {
 
 /** M3 lesson player: skeleton → sequential reveal, before/after slider, step card with "왜 당신은" reasons and hex swatches. */
 function LessonInner() {
-  const { lang, photo, anchors, eyeOverlay, skin, stored, renders, render, mode, scales, setStepScale, sample, loadSampleAttempt } = useFlow();
+  const { lang, photo, anchors, eyeOverlay, skin, stored, renders, render, mode, scales, setStepScale, sample, sampleId, loadSampleAttempt, editProfile } = useFlow();
   const [attemptBusy, setAttemptBusy] = useState(false);
   const router = useRouter();
   const id = useSearchParams().get("id") ?? "daily-k";
@@ -47,6 +49,7 @@ function LessonInner() {
   const [k, setK] = useState(1);
   const [whyOpen, setWhyOpen] = useState(true);
   const [technique, setTechnique] = useState(true);
+  const [fixOpen, setFixOpen] = useState(false);
   const started = useRef<string | null>(null);
 
   const lessonScales = scales[id];
@@ -80,6 +83,8 @@ function LessonInner() {
   // C18: on the eye step, draw the lid area / crease / gradient direction from this photo's landmarks
   const eyeStep = step.region === "eye_lid" && mode !== "demo" && eyeOverlay !== null;
   const eyelid = stored?.profile.eyelid ?? "double";
+  // A1: a visitor who skipped the correction on /analyze would get the double-lid technique here, so nudge on the eye step
+  const showFixNudge = step.region === "eye_lid" && monoSampleNeedsFix(sample, sampleId, stored);
   const boxes = regionBoxes(step.region, mode === "demo" ? null : anchors);
 
   return (
@@ -94,7 +99,7 @@ function LessonInner() {
         }
       />
       <ModeBanner />
-      <main className="flex flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)] lg:content-start lg:items-start lg:gap-x-8 lg:px-6 lg:pt-4">
+      <main className="flex flex-1 flex-col pb-4 lg:grid lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)] lg:content-start lg:items-start lg:gap-x-8 lg:px-6 lg:pt-4">
         <div className="lg:col-start-1 lg:row-start-1">
         <CompareSlider
           before={before}
@@ -176,6 +181,18 @@ function LessonInner() {
               <span className="num">{step.effects.filter((e) => e.category !== "skin_smooth").map((e) => `${e.category} ${e.palettes?.[0]?.colorIntensity ?? ""}`).join(" · ")}</span>
             </p>
             <p className="mt-1 text-[16px] font-bold leading-snug">{step.instruction[lang]}</p>
+            {showFixNudge && (
+              <div data-testid="lesson-fix-nudge" className="mt-2 flex flex-col gap-2 rounded-xl bg-warning-soft p-3 text-sm font-bold text-warning">
+                <p className="flex items-start gap-2 leading-snug">
+                  <Icon name="warn" className="mt-0.5 h-4 w-4 flex-none" />
+                  {t("lessonFixNudge", lang)}
+                </p>
+                <Button variant="ghost" className="self-start" onClick={() => setFixOpen(true)}>
+                  <Icon name="pencil" className="h-4 w-4" />
+                  {t("lessonFixNudgeCta", lang)}
+                </Button>
+              </div>
+            )}
             {eyeStep && (
               <>
                 <button
@@ -279,6 +296,30 @@ function LessonInner() {
           </div>
         </div>
       </BottomBar>
+
+      <Sheet open={fixOpen} onClose={() => setFixOpen(false)} title={`${ATTR_NAME.eyelid[lang]} — ${t("editTitle", lang)}`}>
+        {stored && (
+          <fieldset className="flex flex-col gap-2">
+            <legend className="sr-only">{ATTR_NAME.eyelid[lang]}</legend>
+            {PROFILE_OPTIONS.eyelid.map((opt) => (
+              <label key={opt} className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl px-3 ${stored.profile.eyelid === opt ? "bg-peach-soft" : "bg-panel-2"}`}>
+                <input
+                  type="radio"
+                  name="eyelid"
+                  checked={stored.profile.eyelid === opt}
+                  onChange={() => {
+                    editProfile("eyelid", opt);
+                    setFixOpen(false);
+                  }}
+                  className="h-5 w-5 accent-[var(--color-primary)]"
+                />
+                <span className="text-[15px] font-bold">{valueLabel("eyelid", opt, lang)}</span>
+              </label>
+            ))}
+            <p className="pt-1 text-xs text-muted">{t("fixHint", lang)}</p>
+          </fieldset>
+        )}
+      </Sheet>
     </Screen>
   );
 }

@@ -93,6 +93,11 @@ const DICT = {
     ko: "지금은 분석기의 쌍꺼풀 읽기 그대로라 쌍꺼풀 기법(주름 따라)이에요. 눈꺼풀을 고치면 홑꺼풀 기법으로 바뀌어요.",
     en: "Uncorrected, this is the double-lid technique (follows a crease) from the analyzer's misread. Fix the eyelid to switch to the monolid technique.",
   },
+  lessonFixNudge: {
+    ko: "눈꺼풀이 아직 쌍꺼풀로 읽혀 있어요. 홑꺼풀로 고치면 이 단계가 홑꺼풀 기법으로 바뀌어요.",
+    en: "Eyelid still reads Double-lid. Fix it for the monolid technique.",
+  },
+  lessonFixNudgeCta: { ko: "눈꺼풀 고치기", en: "Fix the eyelid" },
   sampleMonoFixCta: { ko: "눈꺼풀 고치기", en: "Fix the eyelid" },
   gradeComparing: { ko: "부위별 색 비교 중…", en: "Comparing regions…" },
   shopShort: { ko: "제품", en: "Shop" },
@@ -217,6 +222,10 @@ const DICT = {
   whatIfName: { ko: "가정", en: "What-if" },
   same: { ko: "같음", en: "Same" },
   different: { ko: "다름", en: "Different" },
+  compareWhyTwoFaces: {
+    ko: "왜 서로 다른 두 얼굴일까요? 한 사람이 두 눈꺼풀 유형을 함께 가질 수는 없어서 라이선스 스톡 사진 두 장을 썼어요. 바로 아래 같은 얼굴 비교가 직접적인 증거예요.",
+    en: "Why two different faces? One person can't have both lid types, so we used two licensed stock photos. The same-face pair below is the direct proof.",
+  },
   compareSameEyelid: { ko: "두 얼굴의 눈꺼풀이 같은 유형이라 눈 기법 차이는 보이지 않아요.", en: "Both faces have the same eyelid type, so the eye technique doesn't differ here." },
   compareEditedChip: { ko: "분석기 {raw} → 홑꺼풀로 수정", en: "Analyzer read {raw} → corrected to Monolid" },
   compareEdited: { ko: "Face Analyzer 판독: {raw}", en: "Face Analyzer read: {raw}" },

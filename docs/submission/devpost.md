@@ -37,7 +37,7 @@ Buyer: a beauty retailer or brand that sells try-on on its product pages. Try-on
 
 ## Honest notes
 
-- **Analyzer misread, corrected by hand:** Face Analyzer read our monolid stock model as double-lid. The Monolid sample shows that real, wrong reading, the fix is the visitor's tap ("Fix the eyelid", marked "Edited"), and /compare shows both lessons.
+- **Analyzer misread, corrected by hand:** Face Analyzer read our monolid stock model as double-lid. The Monolid sample shows that real, wrong reading, the fix is the visitor's tap ("Fix the eyelid", marked "Edited"; the lesson's eye step also nudges to fix it if skipped), and /compare shows both lessons.
 - **No pilot:** no retailer, user test or measured lift exists; fewer returns after seeing the look in the exact shade is a hypothesis. The monolid horizontal-gradient rule is a rule of thumb from public tutorials, not a Perfect Corp result.
 - **Demo catalog:** 18 fictional "MT Select" SKUs and a fictional store on /partner; the `/embed/lesson` widget itself is real.
 - **Pre-generated sample vs live:** the sample trial and /compare play back real YouCam calls captured live (14 units for the first lesson) at 0 units, and a banner says so on every screen. A selfie on the live site runs the live path.
