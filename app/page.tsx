@@ -253,7 +253,8 @@ export default function Home() {
                   label={t("sliderLabel", lang)}
                   beforeLabel={t("heroBare", lang)}
                   afterLabel={t("heroFull", lang)}
-                  aspect="aspect-[7/8]"
+                  // 390x844: ~34% of the screen (not 7:8) so the tagline and the sample button clear the sticky tray; desktop keeps 7:8
+                  aspect="h-[34dvh] lg:h-auto lg:aspect-[7/8]"
                 />
               </div>
               <figcaption className="text-center text-sm font-extrabold leading-snug text-primary-strong">{t("heroSampleCaption", lang)}</figcaption>

@@ -99,11 +99,12 @@ export default function AnalyzePage() {
         : t("skinFailed", lang);
 
   return (
-    <Screen>
+    <Screen wide>
       <AppBar title={t("analyzeTitle", lang)} backHref="/capture" />
       <ModeBanner />
-      <main className="flex flex-1 flex-col gap-4 px-4 py-4">
-        <section className={phase.kind === "loading" ? "flex items-start gap-3" : "flex flex-col gap-3"}>
+      {/* lg: annotated face (sticky) on the left, features + Fix card + recommended lesson on the right; 390 stays one column */}
+      <main className="flex flex-1 flex-col gap-4 px-4 py-4 lg:grid lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:content-start lg:items-start lg:gap-x-8 lg:px-6">
+        <section className={`${phase.kind === "loading" ? "flex items-start gap-3" : "flex flex-col gap-3"} lg:sticky lg:top-[72px] lg:col-start-1 lg:row-start-1`}>
           {thumb && (
             <PhotoPins
               src={thumb}
@@ -111,7 +112,7 @@ export default function AnalyzePage() {
               pins={pins}
               focus={focus}
               badge={badge}
-              className={phase.kind === "loading" ? "aspect-[3/4] w-[120px] flex-none rounded-[var(--radius-panel)]" : "aspect-[3/2] w-full rounded-[var(--radius-panel)]"}
+              className={phase.kind === "loading" ? "aspect-[3/4] w-[120px] flex-none rounded-[var(--radius-panel)]" : "aspect-[3/2] w-full rounded-[var(--radius-panel)] lg:aspect-square"}
             />
           )}
           <div className="flex min-w-0 flex-col gap-2">
@@ -156,6 +157,8 @@ export default function AnalyzePage() {
           </div>
         </section>
 
+        {phase.kind !== "error" && (
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-2 lg:row-start-1" data-testid="analyze-side">
         {phase.kind === "loading" && (
           <div className="flex flex-col gap-2" aria-hidden>
             <p className="flex items-baseline justify-between text-sm font-bold">
@@ -283,6 +286,8 @@ export default function AnalyzePage() {
               </section>
             )}
           </>
+        )}
+        </div>
         )}
       </main>
       <BottomBar>

@@ -131,7 +131,7 @@ function LessonInner() {
         </nav>
         </div>
 
-        <section className="mx-4 flex flex-col gap-3 lg:col-start-2 lg:row-start-1 lg:mx-0 rounded-[var(--radius-panel)] bg-panel p-4" aria-live="polite">
+        <section className="mx-4 mb-4 flex flex-col gap-3 lg:col-start-2 lg:row-start-1 lg:mx-0 lg:mb-0 rounded-[var(--radius-panel)] bg-panel p-4" aria-live="polite">
           {(!state || state.status === "pending") && (
             <p className="flex items-center gap-2 text-sm font-bold text-muted" role="status">
               <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />

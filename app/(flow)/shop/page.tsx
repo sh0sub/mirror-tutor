@@ -43,7 +43,7 @@ function ShopInner() {
   const focusY = boxes.length ? boxes.reduce((a, b) => a + b.y + b.h / 2, 0) / boxes.length : 0.4;
 
   return (
-    <Screen>
+    <Screen wide>
       <AppBar
         title={t("shopTitle", lang)}
         backHref={`/lesson?id=${lessonId}`}
@@ -55,10 +55,11 @@ function ShopInner() {
         }
       />
       <ModeBanner />
-      <main className="flex flex-1 flex-col">
-        {/* answer image behind the sheet; cover-fit with the face kept in view, so the overlay shares the image's box */}
-        <div className="relative h-[30dvh] flex-none overflow-hidden bg-panel-2 [container-type:inline-size]">
-          <div className="absolute inset-x-0 aspect-[3/4]" style={{ top: `max(calc(30dvh - 133.333cqw), min(0px, calc(15dvh - ${focusY.toFixed(3)} * 133.333cqw)))` }}>
+      <main className="flex flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:content-start lg:items-start lg:gap-x-8 lg:px-6 lg:pt-4">
+        {/* answer image behind the sheet; cover-fit with the face kept in view, so the overlay shares the image's box.
+            lg: the whole 3:4 face sits in a sticky left column and the list is a plain side panel (no sheet) */}
+        <div className="relative h-[30dvh] flex-none overflow-hidden bg-panel-2 [container-type:inline-size] lg:sticky lg:top-[72px] lg:col-start-1 lg:row-start-1 lg:h-auto lg:aspect-[3/4] lg:rounded-[var(--radius-panel)]">
+          <div className="absolute inset-x-0 top-[var(--face-top)] aspect-[3/4] lg:top-0" style={{ "--face-top": `max(calc(30dvh - 133.333cqw), min(0px, calc(15dvh - ${focusY.toFixed(3)} * 133.333cqw)))` } as React.CSSProperties}>
             {/* eslint-disable-next-line @next/next/no-img-element -- in-memory image */}
             {answer && <img src={answer} alt={`${t("answer", lang)} · ${k}`} className="h-full w-full object-cover" />}
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
@@ -69,8 +70,8 @@ function ShopInner() {
           </div>
         </div>
 
-        <div className="relative z-[1] -mt-5 flex min-h-[70dvh] flex-1 flex-col gap-4 rounded-t-[var(--radius-sheet)] bg-panel px-4 pb-6 pt-3 shadow-[0_-8px_24px_rgba(31,27,26,0.12)]">
-        <div className="mx-auto h-1.5 w-10 rounded-full bg-line" aria-hidden />
+        <div className="relative z-[1] -mt-5 flex min-h-[70dvh] flex-1 flex-col gap-4 rounded-t-[var(--radius-sheet)] bg-panel px-4 pb-6 pt-3 shadow-[0_-8px_24px_rgba(31,27,26,0.12)] lg:col-start-2 lg:row-start-1 lg:mt-0 lg:min-h-0 lg:rounded-[var(--radius-panel)] lg:px-5 lg:pt-5 lg:shadow-none" data-testid="shop-panel">
+        <div className="mx-auto h-1.5 w-10 rounded-full bg-line lg:hidden" aria-hidden />
         <h2 className="text-lg font-extrabold">{t("shopTitle", lang)}</h2>
 
         <div role="tablist" aria-label={t("stepsNav", lang)} className="flex gap-1.5 overflow-x-auto">
