@@ -324,3 +324,11 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - 새 장면(약 3.3초, 새 나레이션 없음): analyze 장면 3번째 줄("An optional skin check rewrites your Base step.") 동안 피부 체크 카드가 얼굴 사진 위에 다크서클(보라)·모공(청록) 구역을 그린 채 보인다. 확대 패널이 사진과 범례, "Zones are approximate, drawn from landmarks" 문구를 비춘다. 콜아웃 문구도 "Zones drawn from face landmarks (approximate), only where a rule fired"로 바꿨다. 길이는 늘지 않는다(기존 줄 길이 안에서 처리).
 - 이 구역은 YouCam이 준 픽셀 단위 위치가 아니라, 기기 안 얼굴 랜드마크로 그린 고정 모양이다(영상 문구에도 "approximate"로 표기).
 - 재녹화한 trial 테이크에는 새 배너("Caught a misread: Face Analyzer said Double lid, your eyes are monolid. Tap to correct, 0 units", 흰 카드)와 "Fix the eyelid" 단일 주 버튼이 들어 있다. 확대 패널 두 개(Double lid 원본 읽기, Monolid 수정)의 링 위치는 그대로 맞는 것을 프레임으로 확인했다.
+
+## 사이클 26b 재합성 (168.1초, YouCam 유닛 0 사용, 새 TTS 줄 0개, $0)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c26b` (work-c26 복사본, phone 타임라인 경로만 변경, 재녹화 없음). 재합성 작업 디렉터리 `recomp-oai`(TTS 캐시 전부 적중), 직전 판 `.local/video/mirror-tutor-demo-live-c26prev.mp4`(그 전 판은 `-c26aprev`).
+- 오프닝: split 장면의 중복 자막(큰 헤드라인과 같은 문장)과 소제목을 뺐다. 상단에 번인 캡션 한 줄 "Try-on shows the shade. Mirror Tutor teaches how to wear it on your lid, then grades your try."(나레이션 없음). 무음 "shade" 카드에도 같은 캡션을 하단에 넣고 kicker를 뺐다. 두 장면 모두 콜아웃 하나.
+- 새 줌 비트 `zoomcrops`(7.0초, 무음, gradient 장면 직후): 홑꺼풀 얼굴의 사전 생성 YouCam 렌더(horizontal, vertical)를 전체 폭 크롭으로 보이고 눈꺼풀 오버레이(점선 영역 + 화살표, 랜드마크 기반 근사)를 그렸다. 캡션 "Horizontal: gradient visible on a flat lid" / "Vertical: hidden by the lid fold", 하단에 "Basis: rule of thumb, not validated" 유지.
+- 길이 161.1 -> 168.1초(180초 미만). blackdetect 0건, 장면 전환은 세그먼트 경계와 의도한 디졸브뿐.
+- analyze(피부 구역)와 trial(새 배너)은 work-c26의 재녹화 프레임을 그대로 사용. 배포 사이트는 main loop가 HEAD를 배포하기 전까지 구역과 새 배너가 없어 영상과 다르다.

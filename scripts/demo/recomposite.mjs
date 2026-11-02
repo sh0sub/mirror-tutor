@@ -150,6 +150,7 @@ async function eyeStrip({ img, lm, w, h, arrow, ov, out, spanX = 1.14, radius = 
  * timeline      [{ at, src }]: from `at` (seconds | { cue, plus } | { plus } = from the segment end) play source time `src` (number = hold, [a,b] = play a..b)
  * zoom          [{ at, y, x? }]: css-pixel top (and left) of the zoom window from `at` on, eased in over 0.7 s
  */
+const TOP_CAPTION_CARD = "Try-on shows the shade. Mirror Tutor teaches how to wear it on your lid, then grades your try.";
 const SEGMENTS = [
   {
     // C11 split beat (~10-18 s): the same look on the monolid face and the double-lid face, full-size YouCam eye renders (lesson step 3, the
@@ -172,7 +173,8 @@ const SEGMENTS = [
     id: "claim",
     duration: 3.0, // C25: silent card, 6.25 -> 3.0 s (no narration; the card text is the message)
     card: {
-      kicker: "Beyond try-on",
+      kicker: "",
+      caption: TOP_CAPTION_CARD,
       title: "Try-on shows the shade.",
       chips: ["We teach the technique", "We grade your attempt", "We sell the exact products"],
       stack: true,
@@ -384,6 +386,20 @@ const SEGMENTS = [
       bottom: { img: "model-c/eye-vertical.jpg", arrow: "v", label: "Vertical gradient · generic tutorial way" },
     },
     zoom: [{ at: 0, y: 125 }],
+  },
+  {
+    // C26b: silent zoom beat (7 s, 0 units, no narration): full-width crops of the two pre-generated monolid renders (horizontal, vertical) with the lid overlay.
+    id: "zoomcrops",
+    duration: 7.0,
+    crops: {
+      kicker: "Step 4 · Zoom in",
+      rows: [
+        { img: "model-c/eye-horizontal.jpg", dir: "horizontal", label: "Horizontal: gradient visible on a flat lid", cls: "good" },
+        { img: "model-c/eye-vertical.jpg", dir: "vertical", label: "Vertical: hidden by the lid fold", cls: "bad" },
+      ],
+      note: "Basis: rule of thumb, not validated",
+      sub: "Same monolid face, two real YouCam Makeup VTO renders, pre-generated (0 units) \u00b7 overlay: dashed lid area + arrow from face landmarks (approximate) \u00b7 face: Pexels License stock",
+    },
   },
   {
     id: "grade",
@@ -639,7 +655,7 @@ function frameAt(items, t) {
 }
 
 // C23: text-only caption on screen in the first ~10 s (split beat + start of the hook); no narration of its own
-const TOP_CAPTION = "One widget: try-on shows the shade, we teach the technique and sell the exact products.";
+const TOP_CAPTION = "Try-on shows the shade. Mirror Tutor teaches how to wear it on your lid, then grades your try."; // C26b: one burn-in caption on the open and the silent shade card (no narration, no TTS)
 
 // left-column step list (one entry per segment after the intro)
 const HEAD_SEGS = 1; // the hook and the C11 split beat do not count as steps (C15: the gradient beat has an explicit `step`)
@@ -1045,9 +1061,9 @@ async function makeSplit(seg, dir) {
   const page = (withArrow) => `<!doctype html><html><head><meta charset="utf-8"><style>
     html,body{margin:0;width:${W}px;height:${H}px;background:#fbf7f4;overflow:hidden;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1f1b1a;-webkit-font-smoothing:antialiased}
     .k{position:absolute;left:80px;top:48px;font-size:30px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a8264a}
-    .badge{position:absolute;right:80px;top:40px;background:#c8325b;color:#fff;border-radius:26px;padding:10px 22px;font-size:23px;font-weight:800}
+    .badge{position:absolute;right:80px;top:94px;background:#c8325b;color:#fff;border-radius:26px;padding:10px 22px;font-size:23px;font-weight:800}
     .p{position:absolute;top:164px;width:${PW}px}
-    .tc{position:absolute;left:80px;right:420px;top:94px;font-size:28px;line-height:1.25;font-weight:700;color:#4a403d}
+    .tc{position:absolute;left:80px;right:80px;top:30px;font-size:36px;line-height:1.25;font-weight:800;color:#a8264a}
     .p img{display:block;width:${PW}px;height:${PH}px;border-radius:24px;box-shadow:0 0 0 5px #c8325b,0 16px 40px rgba(31,27,26,.18)}
     .lab{margin-top:26px;display:flex;flex-direction:column;gap:6px}
     .lab b{font-size:40px;font-weight:800}.lab span{font-size:30px;font-weight:700;color:#a8264a;opacity:${withArrow ? 1 : 0.35}}
@@ -1056,12 +1072,12 @@ async function makeSplit(seg, dir) {
     .sub{position:absolute;left:80px;right:80px;top:938px;text-align:center;font-size:38px;font-weight:600;color:#4a403d;min-height:50px}
     .note{position:absolute;left:80px;right:80px;bottom:22px;text-align:center;font-size:19px;color:#6b605c}
   </style></head><body>
-  <div class="k">${esc(sp.kicker)}</div><div class="tc">${esc(TOP_CAPTION)}</div><div class="badge">YouCam VTO, pre-generated (0 units)</div>
+  <div class="tc">${esc(TOP_CAPTION)}</div><div class="badge">YouCam VTO, pre-generated (0 units)</div>
   ${["left", "right"]
     .map((side, i) => `<div class="p" style="left:${80 + i * (PW + 40)}px"><img src="file://${strips[side + (withArrow ? "A" : "N")]}"><div class="lab"><b>${esc(sp[side].name)}</b><span>${esc(sp[side].tech)}</span></div></div>`)
     .join("")}
   <div class="cap">Same look. <em>Different lid.</em> Different technique.</div>
-  <div class="sub">${seg.lines.length > 1 ? (withArrow ? esc(seg.lines[1]) : "") : esc(seg.lines[0])}</div>
+  ${seg.lines.length > 1 ? `<div class="sub">${withArrow ? esc(seg.lines[1]) : ""}</div>` : ""}
   <div class="note">${esc(sp.note)}</div></body></html>`;
   const stills = [];
   for (const withArrow of [false, true]) {
@@ -1083,6 +1099,49 @@ async function makeSplit(seg, dir) {
   return out;
 }
 
+
+// C26b zoom beat: two full-width eye crops (monolid, horizontal vs vertical gradient) with the lid overlay and one caption each; the second row fades in at ~3.2 s
+async function makeCrops(seg, dir) {
+  const c = seg.crops;
+  const PW = 1760, PH = 330;
+  const files = [];
+  for (const [i, r] of c.rows.entries()) {
+    const f = path.join(dir, `${seg.id}-row${i}.png`);
+    await eyeStrip({ img: r.img, lm: LM("model-c"), w: PW, h: PH, ov: { id: "model-c", dir: r.dir, crease: false }, out: f, spanX: 1.9, radius: 24 });
+    files.push(f);
+  }
+  const page = (both) => `<!doctype html><html><head><meta charset="utf-8"><style>
+    html,body{margin:0;width:${W}px;height:${H}px;background:#fbf7f4;overflow:hidden;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1f1b1a;-webkit-font-smoothing:antialiased}
+    .k{position:absolute;left:80px;top:34px;font-size:30px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a8264a}
+    .badge{position:absolute;right:80px;top:28px;background:#c8325b;color:#fff;border-radius:26px;padding:10px 22px;font-size:23px;font-weight:800}
+    .row{position:absolute;left:80px;width:${PW}px}
+    .row img{display:block;width:${PW}px;height:${PH}px;border-radius:24px;box-shadow:0 0 0 5px #c8325b,0 14px 36px rgba(31,27,26,.16)}
+    .lab{font-size:50px;font-weight:800;letter-spacing:-.01em;margin-bottom:14px}.lab.bad{color:#6b605c}
+    .rule{position:absolute;left:80px;right:80px;top:942px;text-align:center;font-size:40px;font-weight:800;color:#a8264a}
+    .sub{position:absolute;left:80px;right:80px;bottom:24px;text-align:center;font-size:21px;color:#6b605c}
+  </style></head><body>
+  <div class="k">${esc(c.kicker)}</div><div class="badge">YouCam VTO, pre-generated (0 units)</div>
+  ${c.rows.map((r, i) => `<div class="row" style="top:${i ? 518 : 96}px;opacity:${i && !both ? 0 : 1}"><div class="lab ${r.cls}">${esc(r.label)}</div><img src="file://${files[i]}"></div>`).join("")}
+  <div class="rule">${esc(c.note)}</div><div class="sub">${esc(c.sub)}</div></body></html>`;
+  const stills = [];
+  for (const both of [false, true]) {
+    const html = path.join(dir, `${seg.id}-${both ? "b" : "a"}.html`), png = path.join(dir, `${seg.id}-${both ? "b" : "a"}.png`);
+    writeFileSync(html, page(both));
+    screenshot(html, png, W, H);
+    stills.push(png);
+  }
+  const XF = 0.5, t1 = 3.0;
+  const out = path.join(dir, `${seg.id}.mp4`);
+  const loop = (f, t) => ["-loop", "1", "-framerate", String(FPS), "-t", t.toFixed(3), "-i", f];
+  run(FFMPEG, [
+    "-y", "-v", "error", ...loop(stills[0], t1 + XF), ...loop(stills[1], seg.duration - t1 + 1), "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+    "-filter_complex", `[0:v]format=yuv420p,setsar=1[a];[1:v]format=yuv420p,setsar=1[b];[a][b]xfade=transition=fade:duration=${XF}:offset=${t1.toFixed(3)},fps=${FPS},scale=${W}:${H}:flags=lanczos,format=yuvj420p[v]`,
+    "-map", "[v]", "-map", "2:a", "-t", seg.duration.toFixed(3), "-r", String(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuvj420p", "-color_range", "pc", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", out,
+  ]);
+  seg.cutTimes = [t1];
+  return out;
+}
+
 // C6 title card: one still (1920x1080) held for seg.duration with a silent audio track, encoded like the other segments
 function makeCard(seg, dir) {
   const c = seg.card;
@@ -1098,10 +1157,10 @@ function makeCard(seg, dir) {
     .chips{display:flex;gap:24px;flex-wrap:wrap;justify-content:center}.chips.stack{flex-direction:column;align-items:center;gap:22px}.chip{background:#fcebe3;color:#a8264a;border-radius:44px;padding:20px 40px;font-size:44px;font-weight:800;border:3px solid #c8325b}.stack .chip{font-size:64px;padding:18px 54px}
     .big{display:flex;flex-direction:column;gap:18px}.b1{font-size:84px;line-height:1.08;font-weight:800;letter-spacing:-.02em;white-space:nowrap}.b2{font-size:104px;line-height:1.08;font-weight:800;letter-spacing:-.02em;color:#c8325b}.has-cta .big+.cta{margin-top:6px}
     .s{font-size:32px;font-weight:600;color:#6b605c}
-    .capt{position:absolute;left:80px;right:80px;bottom:60px;text-align:center;font-size:38px;font-weight:600;color:#4a403d}
+    .capt{position:absolute;left:120px;right:120px;bottom:70px;text-align:center;font-size:44px;line-height:1.25;font-weight:800;color:#a8264a}
     .cta{display:flex;flex-direction:column;align-items:center;gap:14px;background:#c8325b;color:#fff;border-radius:36px;padding:34px 80px 38px;box-shadow:0 14px 40px rgba(200,50,91,.3)}.cta .u{font-size:124px;font-weight:800;letter-spacing:-.02em;line-height:1.05}.cta .t{font-size:58px;font-weight:700}
     .c.has-cta{gap:30px}.has-cta h1{font-size:72px}.has-cta .cta .u{font-size:120px}.has-cta .chip{font-size:44px;padding:16px 38px}.repo{font-size:54px;font-weight:800;color:#1f1b1a;letter-spacing:-.01em}.repo span{color:#a8264a}
-    </style></head><body><div class="c${c.cta ? " has-cta" : ""}"><div class="k">${esc(c.kicker)}</div>${c.big ? `<div class="big">${c.big.map((x, i) => `<div class="${i ? "b2" : "b1"}">${esc(x)}</div>`).join("")}</div>` : `<h1>${esc(c.title)}</h1>`}${c.cta ? `<div class="cta"><div class="u">${esc(c.cta.url)}</div><div class="t">${esc(c.cta.tap)}</div></div>` : ""}${c.repo ? `<div class="repo"><span>Code:</span> ${esc(c.repo)}</div>` : ""}<div class="chips${c.stack ? " stack" : ""}">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div>${c.caption ? `<div class="capt">${esc(seg.lines[0])}</div>` : ""}</body></html>`,
+    </style></head><body><div class="c${c.cta ? " has-cta" : ""}">${c.kicker ? `<div class="k">${esc(c.kicker)}</div>` : ""}${c.big ? `<div class="big">${c.big.map((x, i) => `<div class="${i ? "b2" : "b1"}">${esc(x)}</div>`).join("")}</div>` : `<h1>${esc(c.title)}</h1>`}${c.cta ? `<div class="cta"><div class="u">${esc(c.cta.url)}</div><div class="t">${esc(c.cta.tap)}</div></div>` : ""}${c.repo ? `<div class="repo"><span>Code:</span> ${esc(c.repo)}</div>` : ""}<div class="chips${c.stack ? " stack" : ""}">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div>${c.caption ? `<div class="capt">${esc(c.caption)}</div>` : ""}</body></html>`,
   );
   screenshot(html, png, W, H);
   const out = path.join(dir, `${seg.id}.mp4`);
@@ -1130,6 +1189,11 @@ function applyGeo(g) {
 }
 const outs = [];
 for (const [si, seg] of SEGMENTS.entries()) {
+  if (seg.crops) {
+    outs.push(await makeCrops(seg, segDir));
+    log(`${seg.id}: zoom crops beat, ${seg.duration.toFixed(2)}s`);
+    continue;
+  }
   if (seg.card) {
     if (seg.lines) await buildAudio(seg, audioDir);
     outs.push(makeCard(seg, segDir));
