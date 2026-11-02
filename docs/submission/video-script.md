@@ -290,3 +290,12 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - partner: iframe 스니펫 구간을 빼고 새 marin 줄 "No pilot yet. Here is the two-week test we would run."와 "Two-week retailer test" 카드 큰 확대 2장(각 2.6초, 위/아래 절반)을 넣었다. 계산기(52,000 units / month, 예시 입력, illustrative)와 손익분기(434 extra orders, illustrative) 큰 확대도 추가. 순서: 위젯 -> 14/4 유닛·계산기 -> 테스트 계획("A plan, not a result", 아직 어떤 리테일러도 실행하지 않음).
 - grade: 확대 패널 높이를 560 -> 720으로 늘려 "Mean color per region" 범례 두 줄이 잘리지 않게 했고, ΔE 확대의 제목 줄도 라벨에 가리지 않게 위로 옮겼다.
 - 검증: 길이 166.18초(178초 미만), blackdetect 0건, 장면 전환 감지(gt 0.08)는 세그먼트 경계와 의도한 디졸브/확대 시작뿐, 변경 장면 조밀 프레임에서 스켈레톤/빈/배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열.
+
+## 사이클 23 재합성 (166.2초, YouCam 유닛 0 사용, 새 TTS 줄 0개, $0)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c23` (work-c22 복사본). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시, 나레이션 변경 없음), 직전 판 `.local/video/mirror-tutor-demo-live-c23prev.mp4`.
+- 재녹화(전부 0 유닛): `--mode mock --sample --only lesson|shop`(레슨 이미지 높이 354 px, 3단계 카드, 쇼핑 끝 "Next" 블록), `--mode live --only partner|trial|cold`(로컬 live 서버, 홈 화면만; 새 Monolid 칩 문구 "Correct what the analyzer cannot see", partner 점프 칩). 타임라인 시각은 거의 그대로여서 partner 구간만 +0.2초 조정.
+- 0-10초 캡션: 텍스트만, 새 TTS 없음. "One widget: try-on shows the shade, we teach the technique and sell the exact products."를 split 장면 위쪽과 hook 장면 왼쪽 위에 표시(`TOP_CAPTION`).
+- 확대 패널(pops)과 그라데이션 패널: 라벨 알약을 크롭 위 72 px 여백 띠(오른쪽 위)로 옮겨 내용이 가려지지 않는다. 팝 페이드는 7프레임(안정된 프레임 6-8프레임 유지). partner 진입은 홈 탭 + 디졸브 없이 페이지 상단 프레임에서 바로 시작(하드 컷).
+- 레슨 확대 창 y를 새 이미지 높이에 맞춰 조정, shop은 끝에 "Next"(공유 카드 / 리테일러 보기) 블록을 확대해 보여 주고 콜아웃에 적음. 3단계 병합 카드("Analyzer misread you can fix:")는 영상 흐름이 분석 화면에서 먼저 수정하므로 나오지 않는다(주장 변화 없음).
+- 검증: 길이 166.18초(178초 미만), blackdetect 0건, 장면 전환 감지는 세그먼트 경계와 의도한 디졸브/확대뿐, 40·125·140·145·150초와 레슨·shop 조밀 프레임에서 스켈레톤/빈/배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열.

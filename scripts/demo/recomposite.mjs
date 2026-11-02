@@ -318,7 +318,7 @@ const SEGMENTS = [
       { at: { cue: 2 }, src: [12.2, 15.0] },
       { at: { cue: 3 }, src: [15.0, 20.9] },
     ],
-    zoom: [{ at: 0, y: 150 }, { at: { cue: 1 }, y: 498 }, { at: { cue: 2 }, y: 120 }, { at: { cue: 3 }, y: 498 }, { at: { cue: 3, plus: 3.2 }, y: 380 }],
+    zoom: [{ at: 0, y: 100 }, { at: { cue: 1 }, y: 440 }, { at: { cue: 2 }, y: 100 }, { at: { cue: 3 }, y: 498 }, { at: { cue: 3, plus: 3.2 }, y: 380 }],
   },
   {
     id: "compare",
@@ -450,12 +450,12 @@ const SEGMENTS = [
     units: 14,
     // C17: the demo-data line is dropped to pay for the claim card (the callout, chip and footnote still say "demo catalog"; the partner scene says no partner has used it)
     lines: ["Love a color? Shop the step matches its exact shade to products from a demo catalog, using CIEDE2000 color science."],
-    ui: [{ callout: "Hex colors from the step → closest products (ΔE)<br><span class=\"plain\">Closest first: <b>\u0394E 0.2</b> on the first base row</span><br><span class=\"mono\">Demo catalog · real SKUs would come from a partner feed</span>" }],
+    ui: [{ callout: "Hex colors from the step → closest products (ΔE)<br><span class=\"plain\">Closest first: <b>\u0394E 0.2</b> on the first base row</span><br><span class=\"plain\">Then: <b>Make a share card</b> or the retailer view</span><br><span class=\"mono\">Demo catalog · real SKUs would come from a partner feed</span>" }],
     // C21 re-take: the page opens at step 1 (Base); swatch ~2.2 s, add ~3.6, store sheet 4.5-6.0, closes, rows scroll ~7.0-7.5, hold
     timeline: [{ at: 0, src: [0.8, 7.7] }, { at: 6.9, src: 9.0 }],
     // C14 re-take (work-c14 frames-shop, mock --sample, 0 units): the app's sample chip sits under the app bar, the cart bar is gone until an item is added, the first lip row shows
     // the green "Matches finish" chip. List at css y ~567, "View in store" sheet at source 4.0-5.6 s (output = source - 0.8), scrolled rows + demo footnote from ~9.5 s.
-    zoom: [{ at: 0, y: 470 }, { at: 3.0, y: 498 }, { at: 5.3, y: 470 }, { at: 6.3, y: 400 }],
+    zoom: [{ at: 0, y: 470 }, { at: 3.0, y: 498 }, { at: 5.3, y: 470 }, { at: 6.3, y: 400 }, { at: 7.3, y: 498 }], // C23: the "Next" block (share card / retailer view) closes the page
   },
   {
     // C3: the /partner retailer view (concept screen, 0 units). C12: the widget is a live iframe on the real /embed/lesson route. C14: "Try your own shade" + the cost calculator.
@@ -487,24 +487,24 @@ const SEGMENTS = [
     // C22 re-take (work-c22 frames-partner, live-mode home screen, 0 units; real times from the frame list): tap ~2.0-2.4 s, page top with the worked-example card 2.4-5.1, widget + slider drags 5.4-9.5,
     // Try your own shade ~10.0 (Coral tapped ~11.2), top with Coral 13.9-16.5, calculator + unit bars 16.7-20.3, break-even (52,000 / 434 extra orders) 20.6-24.0, Two-week retailer test card 24.3-29.7
     timeline: [
-      { at: 0, src: [0.9, 2.3] },
-      { at: 1.4, src: 3.6 },
+      // C23: hard cut into the retailer view (no home-screen tap + dissolve): the page top with the jump chips is on screen from the first frame
+      { at: 0, src: 3.6 },
       { at: 3.9, src: [5.3, 7.0] },
       { at: 5.6, src: [7.0, 9.0] },
       { at: { cue: 0, plus: 7.6 }, src: [10.4, 12.2] },
       { at: { cue: 0, plus: 9.2 }, src: 15.0 },
-      { at: { cue: 1, plus: -0.2 }, src: [16.45, 20.3] },
-      { at: { cue: 1, plus: 3.5 }, src: [20.3, 24.0] },
-      { at: { cue: 2, plus: -0.25 }, src: [24.0, 29.7] },
+      { at: { cue: 1, plus: -0.2 }, src: [16.7, 20.5] }, // C23 re-take (work-c23 frames-partner): holds shifted +0.2 s
+      { at: { cue: 1, plus: 3.5 }, src: [20.5, 24.2] },
+      { at: { cue: 2, plus: -0.25 }, src: [24.2, 29.9] },
     ],
     // C22: large crops (held >= 2.2 s): calculator, break-even, then the retailer-test card in two halves (a 390 px wide crop is 346 px tall; the card is about 520 px)
     pops: [
-      { at: { cue: 1, plus: 0.3 }, dur: 2.6, file: "frames-partner/f000233.jpg", crop: { x: 0, y: 446, w: 390 }, label: "52,000 units / month \u00b7 example inputs, illustrative" },
-      { at: { cue: 1, plus: 3.7 }, dur: 2.2, file: "frames-partner/f000251.jpg", crop: { x: 0, y: 408, w: 390 }, label: "434 extra orders to break even \u00b7 illustrative" },
-      { at: { cue: 2, plus: 0 }, dur: 2.6, file: "frames-partner/f000265.jpg", crop: { x: 0, y: 220, w: 390 }, label: "Two-week retailer test \u00b7 a plan, not a result" },
-      { at: { cue: 2, plus: 2.6 }, dur: 2.6, file: "frames-partner/f000265.jpg", crop: { x: 0, y: 404, w: 390 }, label: "Decision rule + cost ceiling \u00b7 no retailer has run it" },
+      { at: { cue: 1, plus: 0.3 }, dur: 2.6, file: "frames-partner/f000242.jpg", crop: { x: 0, y: 500, w: 390 }, label: "52,000 units / month \u00b7 example inputs, illustrative" },
+      { at: { cue: 1, plus: 3.7 }, dur: 2.2, file: "frames-partner/f000260.jpg", crop: { x: 0, y: 466, w: 390 }, label: "434 extra orders to break even \u00b7 illustrative" },
+      { at: { cue: 2, plus: 0 }, dur: 2.6, file: "frames-partner/f000274.jpg", crop: { x: 0, y: 222, w: 390 }, label: "Two-week retailer test \u00b7 a plan, not a result" },
+      { at: { cue: 2, plus: 2.6 }, dur: 2.6, file: "frames-partner/f000274.jpg", crop: { x: 0, y: 424, w: 390 }, label: "Decision rule + cost ceiling \u00b7 no retailer has run it" },
     ],
-    zoom: [{ at: 0, y: 507 }, { at: 1.4, y: 250 }, { at: 3.9, y: 140 }, { at: 5.6, y: 120 }, { at: { cue: 0, plus: 7.6 }, y: 230 }, { at: { cue: 0, plus: 9.2 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 480 }, { at: { cue: 1, plus: 3.5 }, y: 420 }, { at: { cue: 2, plus: -0.25 }, y: 240 }],
+    zoom: [{ at: 0, y: 300 }, { at: 3.9, y: 140 }, { at: 5.6, y: 120 }, { at: { cue: 0, plus: 7.6 }, y: 230 }, { at: { cue: 0, plus: 9.2 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 480 }, { at: { cue: 1, plus: 3.5 }, y: 420 }, { at: { cue: 2, plus: -0.25 }, y: 240 }],
   },
   {
     id: "share",
@@ -647,6 +647,9 @@ function frameAt(items, t) {
   return cur.file;
 }
 
+// C23: text-only caption on screen in the first ~10 s (split beat + start of the hook); no narration of its own
+const TOP_CAPTION = "One widget: try-on shows the shade, we teach the technique and sell the exact products.";
+
 // left-column step list (one entry per segment after the intro)
 const HEAD_SEGS = 2; // the hook and the C11 split beat do not count as steps (C15: the gradient beat has an explicit `step`)
 const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Retailer", "Share"];
@@ -666,7 +669,9 @@ function coldStageHtml(seg, ci) {
   .cap{font-size:64px;line-height:1.12;font-weight:800;letter-spacing:-.015em}
   .cap .dim{color:#9a8f8b;text-decoration:line-through;text-decoration-thickness:4px;text-decoration-color:#c8325b}.cap .acc{color:#c8325b}
   .tags{display:flex;gap:12px;flex-wrap:wrap}.tag{background:#fcebe3;color:#a8264a;border-radius:22px;padding:10px 18px;font-size:22px;font-weight:700}
+  .topcap{position:absolute;left:72px;top:44px;width:${SCR_X - 72 - 56}px;font-size:27px;line-height:1.3;font-weight:700;color:#4a403d;border-left:6px solid #c8325b;padding:2px 0 2px 18px}
   </style></head><body>
+  <div class="topcap">${esc(TOP_CAPTION)}</div>
   <div class="phone"></div><div class="zoom"></div>
   <div class="badges"><div class="live"><i></i>${esc(seg.badge)}</div></div><div class="note">${esc(seg.note)}</div>
   <div class="left"><div class="kick">${esc(seg.kicker)}</div><div class="cap">${seg.cold[ci]}</div><div class="tags">${(seg.tags ?? []).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div></div>
@@ -934,7 +939,7 @@ function encodeSegment(seg, dir) {
   // C11: optional opaque panel laid over the zoom window from seg.zoomOverlay.at on; C16: plus timed 2.5 s zoom panels (seg.pops)
   const panels = [
     ...(seg.zoomPanelFile ? [{ file: seg.zoomPanelFile, at: resolveAt(seg, seg.zoomOverlay.at), until: seg.zoomOverlay.until ? resolveAt(seg, seg.zoomOverlay.until) : null, fin: 0.5, fout: 0.4 }] : []),
-    ...(seg.popFiles ?? []).map((p) => ({ file: p.file, at: p.at, until: p.at + p.dur, fin: 0.25, fout: 0.25 })),
+    ...(seg.popFiles ?? []).map((p) => ({ file: p.file, at: p.at, until: p.at + p.dur, fin: 7 / FPS, fout: 7 / FPS })),
   ];
   for (let k = 0; k < shots; k++) {
     const s0 = bounds[k], s1 = bounds[k + 1];
@@ -996,8 +1001,9 @@ async function makeZoomPanel(seg, dir) {
     await eyeStrip({ img: c.img, lm: LM(c.lm ?? "model-c"), w: ZW, h: SH, ov: { id: c.lm ?? "model-c", dir: c.arrow === "h" ? "horizontal" : "vertical", crease: false }, out: f, spanX: 1.2, radius: 20 });
     files.push(f);
   }
-  const pill = (y, text) => `<g><rect x="16" y="${y}" width="${Math.round(text.length * 12.6 + 34)}" height="40" rx="20" fill="#1f1b1a" fill-opacity=".86"/><text x="33" y="${y + 27}" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="21" fill="#fff">${esc(text)}</text></g>`;
-  const labels = `<svg xmlns="http://www.w3.org/2000/svg" width="${ZW}" height="${ZH}">${pill(SH - 56, z.top.label)}${pill(SH + 22 + SH - 56, z.bottom.label)}</svg>`;
+  // C23: pills sit in the top-right margin of each strip (never over the lids)
+  const pill = (y, text) => { const pw = Math.round(text.length * 12.6 + 34), x = ZW - pw - 16; return `<g><rect x="${x}" y="${y}" width="${pw}" height="40" rx="20" fill="#1f1b1a" fill-opacity=".86"/><text x="${x + 17}" y="${y + 27}" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="21" fill="#fff">${esc(text)}</text></g>`; };
+  const labels = `<svg xmlns="http://www.w3.org/2000/svg" width="${ZW}" height="${ZH}">${pill(14, z.top.label)}${pill(SH + 22 + 14, z.bottom.label)}</svg>`;
   const mask = `<svg xmlns="http://www.w3.org/2000/svg" width="${ZW}" height="${ZH}"><rect width="${ZW}" height="${ZH}" rx="26" fill="#fff"/></svg>`;
   const out = path.join(dir, `${seg.id}-zoompanel.png`);
   await sharp({ create: { width: ZW, height: ZH, channels: 4, background: "#fbf7f4" } })
@@ -1014,18 +1020,20 @@ async function makePops(seg, dir) {
   seg.popFiles = [];
   for (const [i, pop] of seg.pops.entries()) {
     const frame = pop.file ? path.join(SRC, pop.file) : frameAt(items, pop.src);
-    const cw = pop.crop.w, ch = Math.round((cw * ZH) / ZW);
+    // C23: a PAD px band on top holds the label pill (the crop is never covered); the crop fills the rest of the panel
+    const PAD = 72, CH = ZH - PAD;
+    const cw = pop.crop.w, ch = Math.round((cw * CH) / ZW);
     const k = ZW / cw;
     const x0 = Math.max(0, Math.min(CSS_W - cw, pop.crop.x)), y0 = Math.max(0, Math.min(CSS_H - ch, pop.crop.y));
-    const base = await sharp(frame).extract({ left: Math.round(x0), top: Math.round(y0), width: cw, height: ch }).resize(ZW, ZH, { kernel: "lanczos3" }).sharpen({ sigma: 1.0 }).toBuffer();
+    const base = await sharp(frame).extract({ left: Math.round(x0), top: Math.round(y0), width: cw, height: ch }).resize(ZW, CH, { kernel: "lanczos3" }).sharpen({ sigma: 1.0 }).toBuffer();
     const ring = pop.ring
-      ? `<rect x="${((pop.ring.x - x0) * k).toFixed(1)}" y="${((pop.ring.y - y0) * k).toFixed(1)}" width="${(pop.ring.w * k).toFixed(1)}" height="${(pop.ring.h * k).toFixed(1)}" rx="14" fill="none" stroke="#fff" stroke-width="10"/><rect x="${((pop.ring.x - x0) * k).toFixed(1)}" y="${((pop.ring.y - y0) * k).toFixed(1)}" width="${(pop.ring.w * k).toFixed(1)}" height="${(pop.ring.h * k).toFixed(1)}" rx="14" fill="none" stroke="#c8325b" stroke-width="5"/>`
+      ? `<rect x="${((pop.ring.x - x0) * k).toFixed(1)}" y="${((pop.ring.y - y0) * k + PAD).toFixed(1)}" width="${(pop.ring.w * k).toFixed(1)}" height="${(pop.ring.h * k).toFixed(1)}" rx="14" fill="none" stroke="#fff" stroke-width="10"/><rect x="${((pop.ring.x - x0) * k).toFixed(1)}" y="${((pop.ring.y - y0) * k + PAD).toFixed(1)}" width="${(pop.ring.w * k).toFixed(1)}" height="${(pop.ring.h * k).toFixed(1)}" rx="14" fill="none" stroke="#c8325b" stroke-width="5"/>`
       : "";
     const pw = Math.round(pop.label.length * 13.2 + 40);
-    const overlay = `<svg xmlns="http://www.w3.org/2000/svg" width="${ZW}" height="${ZH}">${ring}<g><rect x="18" y="18" width="${pw}" height="44" rx="22" fill="#1f1b1a" fill-opacity=".88"/><text x="38" y="49" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="23" fill="#fff">${esc(pop.label)}</text></g></svg>`;
+    const overlay = `<svg xmlns="http://www.w3.org/2000/svg" width="${ZW}" height="${ZH}">${ring}<g><rect x="${ZW - pw - 18}" y="14" width="${pw}" height="44" rx="22" fill="#1f1b1a" fill-opacity=".88"/><text x="${ZW - pw - 18 + 20}" y="45" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="23" fill="#fff">${esc(pop.label)}</text></g></svg>`;
     const mask = `<svg xmlns="http://www.w3.org/2000/svg" width="${ZW}" height="${ZH}"><rect width="${ZW}" height="${ZH}" rx="26" fill="#fff"/></svg>`;
     const out = path.join(dir, `${seg.id}-pop${i}.png`);
-    await sharp(base).composite([{ input: Buffer.from(overlay) }, { input: Buffer.from(mask), blend: "dest-in" }]).png().toFile(out);
+    await sharp({ create: { width: ZW, height: ZH, channels: 4, background: "#fbf7f4" } }).composite([{ input: base, top: PAD, left: 0 }, { input: Buffer.from(overlay) }, { input: Buffer.from(mask), blend: "dest-in" }]).png().toFile(out);
     seg.popFiles.push({ file: out, at: resolveAt(seg, pop.at), dur: pop.dur });
   }
 }
@@ -1033,7 +1041,7 @@ async function makePops(seg, dir) {
 // C11 split beat: two stills (eye renders; the arrows and the second line appear with line 2), cross-faded, with the narration audio
 async function makeSplit(seg, dir) {
   const sp = seg.split;
-  const PW = 860, PH = 540;
+  const PW = 860, PH = 490;
   const strips = {};
   for (const side of ["left", "right"]) {
     for (const withArrow of [false, true]) {
@@ -1047,7 +1055,8 @@ async function makeSplit(seg, dir) {
     html,body{margin:0;width:${W}px;height:${H}px;background:#fbf7f4;overflow:hidden;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1f1b1a;-webkit-font-smoothing:antialiased}
     .k{position:absolute;left:80px;top:48px;font-size:30px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#a8264a}
     .badge{position:absolute;right:80px;top:40px;background:#c8325b;color:#fff;border-radius:26px;padding:10px 22px;font-size:23px;font-weight:800}
-    .p{position:absolute;top:118px;width:${PW}px}
+    .p{position:absolute;top:164px;width:${PW}px}
+    .tc{position:absolute;left:80px;right:420px;top:94px;font-size:28px;line-height:1.25;font-weight:700;color:#4a403d}
     .p img{display:block;width:${PW}px;height:${PH}px;border-radius:24px;box-shadow:0 0 0 5px #c8325b,0 16px 40px rgba(31,27,26,.18)}
     .lab{margin-top:26px;display:flex;flex-direction:column;gap:6px}
     .lab b{font-size:40px;font-weight:800}.lab span{font-size:30px;font-weight:700;color:#a8264a;opacity:${withArrow ? 1 : 0.35}}
@@ -1056,7 +1065,7 @@ async function makeSplit(seg, dir) {
     .sub{position:absolute;left:80px;right:80px;top:938px;text-align:center;font-size:38px;font-weight:600;color:#4a403d;min-height:50px}
     .note{position:absolute;left:80px;right:80px;bottom:22px;text-align:center;font-size:19px;color:#6b605c}
   </style></head><body>
-  <div class="k">${esc(sp.kicker)}</div><div class="badge">YouCam VTO, pre-generated (0 units)</div>
+  <div class="k">${esc(sp.kicker)}</div><div class="tc">${esc(TOP_CAPTION)}</div><div class="badge">YouCam VTO, pre-generated (0 units)</div>
   ${["left", "right"]
     .map((side, i) => `<div class="p" style="left:${80 + i * (PW + 40)}px"><img src="file://${strips[side + (withArrow ? "A" : "N")]}"><div class="lab"><b>${esc(sp[side].name)}</b><span>${esc(sp[side].tech)}</span></div></div>`)
     .join("")}
