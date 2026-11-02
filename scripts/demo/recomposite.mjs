@@ -337,7 +337,7 @@ const SEGMENTS = [
       {
         heading: "Analyzer misread, user corrected",
         chip: "Analyzer read Double-lid, corrected to Monolid",
-        callout: "Analyzer read <b>Double-lid</b> → corrected to <b>Monolid</b><br><span class=\"plain\">Step 3 now uses the horizontal gradient, a real pre-generated YouCam render (0 units)</span>",
+        callout: "Analyzer read <b>Double-lid</b> → corrected to <b>Monolid</b><br><span class=\"plain\">Step 3 now uses the horizontal gradient, a real pre-generated YouCam render (0 units)</span><br><span class=\"plain\">Two licensed stock faces: one person cannot have both lid types. The same-face pair is the direct proof.</span>",
       },
       {
         heading: "Two eyelids, two techniques",
@@ -356,10 +356,12 @@ const SEGMENTS = [
     timeline: [
       { at: 0, src: [0, 3.1] },
       { at: { cue: 0, plus: 3.2 }, src: 5 },
-      { at: { cue: 1, plus: -0.1 }, src: [13.8, 14.4] },
-      { at: { cue: 1, plus: 0.9 }, src: 15.5 },
+      { at: { cue: 1, plus: -0.1 }, src: [17.2, 17.8] },
+      { at: { cue: 1, plus: 0.9 }, src: 20 },
     ],
-    zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 410 }, { at: { cue: 1, plus: 2.4 }, y: 500 }],
+    // C19 re-take (work-c19, mock --sample, 0 units): layout is faces (+ correction chip + new honesty line "Why two different faces?...") -> same-face gradient pair -> eye close-ups.
+    // Line 1 stays on the top: zoom to the correction chip and the honesty line; line 2 scrolls to the close-ups (src 17.2-17.8, hold to the end).
+    zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 440 }, { at: { cue: 1, plus: -0.1 }, y: 520 }],
   },
   {
     // C14: the horizontal-vs-vertical beat moved here from the compare scene (right after the split beat). Source: the same compare recording
@@ -384,7 +386,7 @@ const SEGMENTS = [
       },
     ],
     // C18: the gradient pair now sits below the two technique close-ups: scroll src 17.2-17.8, hold to the end of the take
-    timeline: [{ at: 0, src: [17.1, 17.8] }, { at: 0.9, src: 20 }],
+    timeline: [{ at: 0, src: [13.8, 14.4] }, { at: 0.9, src: 15.5 }], // C19: gradient pair now sits ABOVE the close-ups (scroll 13.8-14.4, hold to 17.2)
     zoomOverlay: {
       at: 0.5,
       top: { img: "model-c/eye-horizontal.jpg", arrow: "h", label: "Horizontal gradient · our monolid technique" },
@@ -437,10 +439,10 @@ const SEGMENTS = [
     badge: "YouCam VTO, pre-generated (0 units)",
     kicker: "Step 6 · Shop the step",
     heading: "Exact colors to products",
-    chip: "CIEDE2000 matching · demo catalog",
+    chip: "Demo catalog, fictional SKUs · CIEDE2000 matching",
     units: 14,
     // C17: the demo-data line is dropped to pay for the claim card (the callout, chip and footnote still say "demo catalog"; the partner scene says no partner has used it)
-    lines: ["Love a color? Shop the step matches its exact shade to products, using CIEDE2000 color science."],
+    lines: ["Love a color? Shop the step matches its exact shade to products from a demo catalog, using CIEDE2000 color science."],
     ui: [{ callout: "Hex colors from the step → closest products (ΔE)<br><span class=\"plain\">Finish check: <b>Matches finish</b> on the first lip row</span><br><span class=\"mono\">Demo catalog · real SKUs would come from a partner feed</span>" }],
     timeline: [{ at: 0, src: [0.8, 6.2] }, { at: { plus: -2.3 }, src: [9.6, 12.0] }],
     // C14 re-take (work-c14 frames-shop, mock --sample, 0 units): the app's sample chip sits under the app bar, the cart bar is gone until an item is added, the first lip row shows
@@ -461,14 +463,14 @@ const SEGMENTS = [
     lines: [
       "In your store: a widget beside the lip product, a four-step lesson in its exact shade, then add to cart. Try your own shade: no units spent.",
       "Integration is one plain iframe. No SDK, and no partner has used it yet.",
-      "First lesson, fourteen units, then four. Enter your own visits, price and margin to see the break-even. Example inputs, no promised lift.",
+      "First lesson, fourteen units. Then four.", // C19: the calculator beat is cut (cached C12 line)
     ],
     ui: [
       { callout: "<b>In your store</b>: product page widget \u2192 4-step lesson in this shade \u2192 add to cart<br><span class=\"mono\">Try your own shade \u00b7 demo catalog, not a partner feed \u00b7 0 units</span>" },
       { heading: "Integration is one iframe", callout: "<b>One plain iframe</b> \u00b7 no SDK<br><span class=\"mono\">A real route in this repo \u00b7 no partner has used it yet</span>" },
       {
-        heading: "Unit meter, calculator, break-even",
-        callout: "<div class=\"vs\"><div><b>Unit meter</b>First lesson <em>14</em> units, then <em>4</em></div><div><b>Calculator + break-even</b>Your visits, price, margin in<span class=\"mono\">Example inputs \u00b7 no lift claimed</span></div></div>",
+        heading: "Unit meter",
+        callout: "<div class=\"vs\"><div><b>Unit meter</b>First lesson <em>14</em> units (10 analysis + 4 renders), then <em>4</em><span class=\"mono\">A 20-unit session cap bounds the cost</span></div></div>",
       },
     ],
     // C16 source (work-c16 frames-partner, live mode home screen only, no API call, 0 units): tap "Retailer view" 1.6-2.3 s, page top 2.3-2.9 s (the widget iframe flashes Korean 2.6-3.2 s, skipped),
@@ -481,50 +483,31 @@ const SEGMENTS = [
       { at: { cue: 0, plus: 6.2 }, src: [8.2, 10.6] },
       { at: { cue: 0, plus: 8.2 }, src: 12.5 },
       { at: { cue: 1, plus: -0.2 }, src: [17.5, 18.0] },
-      { at: { cue: 1, plus: 0.8 }, src: 18.8 },
-      { at: { cue: 2, plus: -0.2 }, src: [19.4, 22.2] },
-      { at: { cue: 2, plus: 3.4 }, src: 25 },
+      { at: { cue: 1, plus: 0.8 }, src: 18.0 },
     ],
-    zoom: [{ at: 0, y: 507 }, { at: 1.3, y: 140 }, { at: 4.6, y: 120 }, { at: { cue: 0, plus: 6.2 }, y: 230 }, { at: { cue: 0, plus: 8.2 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 60 }, { at: { cue: 2, plus: -0.2 }, y: 330 }, { at: { cue: 2, plus: 3.4 }, y: 450 }],
-  },
-  {
-    id: "home",
-    step: 8,
-    badge: "Saved on this device (0 units)",
-    kicker: "Come back tomorrow",
-    heading: "Practice streak and past results",
-    chip: "Stored on this device only · 0 units",
-    note: "Past result seeded to the sample score (79) from the grade scene, for this demo",
-    units: 14,
-    lines: ["Come back tomorrow: your streak and past results wait on this device."],
-    tail: 0.2,
-    ui: [{ callout: "Streak + past results live on <b>this device</b> only.<br>Reused profile → <b>4 units</b> for a new lesson." }],
-    // C5 source (work-c5 frames-home, mock --setup full, banner scrolled away): scrolled hold 1.4-8.3 s shows streak, past results and the home buttons incl. "Retailer view (concept)"
-    timeline: [{ at: 0, src: 4 }],
-    zoom: [{ at: 0, y: 130 }, { at: { cue: 0, plus: 2.6 }, y: 430 }],
+    zoom: [{ at: 0, y: 507 }, { at: 1.3, y: 140 }, { at: 4.6, y: 120 }, { at: { cue: 0, plus: 6.2 }, y: 230 }, { at: { cue: 0, plus: 8.2 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 60 }, { at: { cue: 2, plus: -0.2 }, y: 190 }],
   },
   {
     id: "share",
-    step: 9,
+    step: 8, // C19: the streak scene is cut, share is step 8
     badge: "YouCam API, sample trial (0 units)",
     tail: 0.4, // C10: 1.0 -> 0.4 to pay for the longer cold open and grade scene
     kicker: "Share",
     heading: "Private by default",
     chip: "Photos never stored · units capped per session",
     units: 14,
+    // C19: trimmed to ~6 s of narration: the privacy line is the honest blur rule (the app's "Blur faces" toggle says "stock photo, blur not needed"), then the tagline.
+    // The "Never stored / 20-unit cap" line is dropped (still on the claim card, the Devpost copy and the app).
     lines: [
-      "Share your result with a card drawn on your device, faces blurred by default.",
-      "Private by design. Nothing is stored, and every session is capped at twenty units.",
+      "Your selfie is blurred by default; stock samples are not.",
       "Mirror Tutor. Learn makeup, on your own face.",
     ],
     speak: [
       null,
-      "[[rate 150]] Private by design. [[slnc 300]] Nothing is stored, [[slnc 160]] and every session is capped [[slnc 80]] at twenty units.",
       "[[rate 160; pbas +2]] Mirror Tutor. [[slnc 450]] [[rate 140; pbas -2]] Learn makeup, [[slnc 200]] on [[emph +]] your own [[emph -]] face.",
     ],
     ui: [
-      { callout: "Card drawn on the device · faces <b>blurred</b> by default." },
-      { callout: "<b>Never stored</b> · <b>20-unit</b> session cap · daily cap too" },
+      { callout: "Your <b>selfie</b>: faces <b>blurred</b> by default<br><span class=\"plain\">A stock sample model is not blurred (the toggle says so)</span>" },
       {
         heading: "Try it yourself",
         chip: "Live YouCam API · sample trial 0 units",
@@ -533,13 +516,13 @@ const SEGMENTS = [
     ],
     // C5 source (work-c5 frames-share, mock --sample, banner scrolled away, score 79 = the grade scene): hold 0.13-5.6 s, scroll 5.6-5.9 s, then the "Next: retailer view" card below the progress section
     timeline: [{ at: 0, src: 1.5 }, { at: { cue: 1, plus: -0.3 }, src: [5.55, 5.95] }, { at: { cue: 1, plus: 0.9 }, src: 9 }],
-    zoom: [{ at: 0, y: 150 }, { at: { cue: 1, plus: -0.3 }, y: 470 }],
+    zoom: [{ at: 0, y: 150 }, { at: { cue: 0, plus: 0.8 }, y: 470 }],
   },
   {
     // C8: closing card (5-8 s, silent), plain claims only
     id: "close",
     // C9: the call to action is the biggest thing on the card (URL 120 px + the tap instruction), held for the whole 5 s card
-    duration: 3.5, // C15: 6.0 -> 3.5 s
+    duration: 4.5, // C15: 6.0 -> 3.5 s; C19: 4.5 s (the close card now comes right after share)
     card: {
       kicker: "Mirror Tutor",
       title: "Learn makeup, on your own face",
@@ -647,7 +630,7 @@ function frameAt(items, t) {
 
 // left-column step list (one entry per segment after the intro)
 const HEAD_SEGS = 2; // the hook and the C11 split beat do not count as steps (C15: the gradient beat has an explicit `step`)
-const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Retailer", "Streak", "Share"];
+const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Retailer", "Share"];
 
 // C10 cold open: no step list or heading, just the thesis as a large caption (it is the subtitle) beside the phone and the face close-up
 function coldStageHtml(seg, ci) {
