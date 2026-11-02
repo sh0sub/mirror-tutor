@@ -299,3 +299,11 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - 확대 패널(pops)과 그라데이션 패널: 라벨 알약을 크롭 위 72 px 여백 띠(오른쪽 위)로 옮겨 내용이 가려지지 않는다. 팝 페이드는 7프레임(안정된 프레임 6-8프레임 유지). partner 진입은 홈 탭 + 디졸브 없이 페이지 상단 프레임에서 바로 시작(하드 컷).
 - 레슨 확대 창 y를 새 이미지 높이에 맞춰 조정, shop은 끝에 "Next"(공유 카드 / 리테일러 보기) 블록을 확대해 보여 주고 콜아웃에 적음. 3단계 병합 카드("Analyzer misread you can fix:")는 영상 흐름이 분석 화면에서 먼저 수정하므로 나오지 않는다(주장 변화 없음).
 - 검증: 길이 166.18초(178초 미만), blackdetect 0건, 장면 전환 감지는 세그먼트 경계와 의도한 디졸브/확대뿐, 40·125·140·145·150초와 레슨·shop 조밀 프레임에서 스켈레톤/빈/배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열.
+
+## 사이클 24 재합성 (173.7초, YouCam 유닛 0 사용, 새 TTS 줄 4개 + 미사용 시험 1개, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c24` (work-c23 복사본). 재합성 작업 디렉터리 `recomp-oai`, 직전 판 `.local/video/mirror-tutor-demo-live-c24prev.mp4`.
+- 재녹화(0 유닛): `--mode live --only trial`(Skin check 카드와 "How your Base step changes" 박스를 스크롤로 보여 줌), `--mode mock --sample --only lesson`(Base 단계 "Why this fits you: From your skin check" 블록), `--mode live --only partner`(새 hero·API 칩·아코디언 순서), `--mode mock --setup full91 --only home`(영상에는 쓰이지 않음).
+- analyze: 줄 "An optional skin check rewrites your Base step." / "Skin AI reads your skin, Face Analyzer reads your eyes, VTO draws it." 추가, 피부 카드와 베이스 변화가 약 5초 보임. lesson 4번째 줄과 partner 2번째 줄(skin +9)도 새 marin TTS.
+- 카드·캡션: claim 부제에 "Three YouCam APIs ... +9 optional skin check", trial 콜아웃과 닫는 카드에 Skin Analysis 추가. 콜아웃 글자 28 -> 31 px.
+- 피부 결과는 샘플 모델의 미리 만든 결과(0 유닛)로 표기. live 장면(capture/livecall)은 옛 프레임 그대로(재녹화 안 함).

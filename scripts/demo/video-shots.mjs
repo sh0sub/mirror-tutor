@@ -139,6 +139,10 @@ export const SEGMENTS = [
       { drag: { sel: "[role=slider]", parent: true, from: 0.12, to: 0.88, dur: 1.1 } },
       { drag: { sel: "[role=slider]", parent: true, from: 0.88, to: 0.5, dur: 0.6 } },
       { at: 3 },
+      // C24: the Base step's "Why this fits you: From your skin check" block (skin check card -> Base step change)
+      { scroll: { sel: "[data-testid=skin-reason] p", offset: 400 }, dur: 1.0 },
+      { sleep: 3.4 },
+      { scroll: { y: 0 }, dur: 0.6 },
       { tap: { sel: "button", text: "^Next step$" } },
       { sleep: 0.6 },
       { tap: { sel: "button", text: "^Next step$" } },
@@ -188,11 +192,16 @@ export const SEGMENTS = [
       { tap: { sel: "button", text: "^Fix the eyelid" } },
       { sleep: 2.0 },
       { tap: { sel: "label", text: "Monolid" } },
+      { sleep: 2.6 },
+      // C24: Skin check card (sample: pre-generated Skin Analysis, 0 units), then the "How your Base step changes" box
+      { scroll: { sel: "h2", text: "^Skin check", offset: 735 }, dur: 1.2 },
+      { sleep: 3.2 },
+      { scroll: { sel: "p", text: "How your Base step changes", offset: 330 }, dur: 1.0 },
       { sleep: 3.4 },
-      { scroll: { sel: "button", text: "See the rule table", offset: 420 }, dur: 1.4 },
-      { sleep: 3.0 },
+      { scroll: { sel: "button", text: "See the rule table", offset: 420 }, dur: 1.2 },
+      { sleep: 1.0 },
       { tap: { sel: "button", text: "See the rule table" } },
-      { sleep: 3.4 },
+      { sleep: 3.0 },
       { tap: { sel: "dialog[open] button", text: "^Close$" } },
       { sleep: 0.6 },
     ],
@@ -349,14 +358,14 @@ export const SEGMENTS = [
       { wait: "!!document.querySelector('[data-testid=partner-widget] iframe')" },
       { wait: "!!document.querySelector('[data-testid=partner-widget] iframe')?.contentDocument?.querySelector('[data-testid=embed-match]')", timeout: 30000 },
       { js: "(() => { const css = 'nextjs-portal{display:none!important}'; for (const d of [document, document.querySelector('[data-testid=partner-widget] iframe')?.contentDocument]) { if (!d) continue; const st = d.createElement('style'); st.textContent = css; d.head.appendChild(st); } })()" }, // hide the dev-only indicator (absent in production)
-      { sleep: 2.2 }, // C21: hold the page top: the worked-example monthly-cost card sits above the store strip
+      { sleep: 3.4 }, // C24: the new hero (concept chip, headline, the three YouCam API chips) on screen first
       { scroll: { sel: "[data-testid=partner-widget] p", offset: 150 }, dur: 0.8 },
       { sleep: 0.3 },
       { drag: { sel: "[data-testid=partner-widget] iframe", from: 0.5, to: 0.1, dur: 0.7 } },
       { drag: { sel: "[data-testid=partner-widget] iframe", from: 0.1, to: 0.9, dur: 0.9 } },
       { drag: { sel: "[data-testid=partner-widget] iframe", from: 0.9, to: 0.5, dur: 0.5 } },
       { sleep: 0.3 },
-      // C14: "Try your own shade" (swatch tap re-renders the widget, no units) then the iframe snippet, the unit meter and the cost calculator
+      // "Try your own shade" (swatch tap re-renders the widget, no units)
       { scroll: { sel: "h2", text: "Try your own shade", offset: 160 }, dur: 1.0 },
       { sleep: 0.5 },
       { tap: { sel: "button[aria-label*='#E8705A']" } },
@@ -364,15 +373,23 @@ export const SEGMENTS = [
       { wait: "!!document.querySelector('[data-testid=partner-widget] iframe')?.contentDocument?.querySelector('[data-testid=embed-match]')", timeout: 30000 },
       { scroll: { sel: "[data-testid=partner-widget] p", offset: 150 }, dur: 1.0 },
       { sleep: 1.6 },
-      { scroll: { sel: "h2", text: "Cost calculator", offset: 330 }, dur: 1.2 },
+      // C24: the cost block is now an accordion (closed by default): open it, then the worked example, calculator and break-even
+      { scroll: { sel: "summary", text: "^Cost", offset: 600 }, dur: 1.0 },
+      { sleep: 0.4 },
+      { tap: { sel: "summary", text: "^Cost" } },
+      { sleep: 0.6 },
+      { scroll: { sel: "[data-testid=partner-example] p", offset: 330 }, dur: 0.8 },
+      { sleep: 2.0 },
+      { scroll: { sel: "[data-testid=cost-calc] input", offset: 420 }, dur: 1.0 },
       { sleep: 0.6 },
       { js: "(() => { const set = (el, v) => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, v); el.dispatchEvent(new Event('input', { bubbles: true })); }; const ins = document.querySelectorAll('[data-testid=cost-calc] input'); set(ins[0], '2000'); set(ins[1], '6000'); })()" },
       { sleep: 1.8 },
-      // C16: the break-even block under the calculator (example price 0.05 and margin 6 are the page defaults; the page says they are not a Perfect Corp price)
       { scroll: { sel: "[data-testid=break-even] p", offset: 120 }, dur: 1.0 },
       { sleep: 2.4 },
-      // C22: the two-week retailer test card at the bottom of the page (a plan, not a result)
-      { scroll: { sel: "[data-testid=retailer-test] h2", offset: 720 }, dur: 1.0 },
+      // the two-week retailer test accordion (a plan, not a result)
+      { tap: { sel: "summary", text: "^Two-week retailer test" } },
+      { sleep: 0.5 },
+      { scroll: { sel: "[data-testid=retailer-test] summary", offset: 720 }, dur: 1.0 },
       { sleep: 4.5 },
     ],
   },

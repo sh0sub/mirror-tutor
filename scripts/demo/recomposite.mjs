@@ -201,7 +201,7 @@ const SEGMENTS = [
       title: "Try-on shows the shade.",
       chips: ["We teach the technique", "We grade your attempt", "We sell the exact products"],
       stack: true,
-      sub: "First lesson 14 units \u00b7 then 4 \u00b7 sample 0",
+      sub: "Three YouCam APIs \u00b7 first lesson 14 units (+9 optional skin check) \u00b7 then 4 \u00b7 sample 0",
       caption: true,
     },
   },
@@ -218,7 +218,7 @@ const SEGMENTS = [
     units: 0,
     lead: 0.3,
     lines: ["Tap the sample model. Zero units, no selfie needed."],
-    ui: [{ callout: "<b>Face Analyzer</b> reads features · 10 units<br><b>Makeup VTO</b> renders each step · 4 units<br><span class=\"plain\">Sample trial: pre-generated real YouCam results · <b>0 units</b></span>" }],
+    ui: [{ callout: "<b>Face Analyzer</b> reads eyes, lips, face · 10 units<br><b>Skin Analysis</b> reads skin (optional) · 9 units<br><b>Makeup VTO</b> renders each step · 4 units<br><span class=\"plain\">Sample trial: pre-generated real YouCam results · <b>0 units</b></span>" }],
     timeline: [{ at: 0, src: 1.0 }, { at: 0.45, src: [1.85, 2.15] }, { at: 0.95, src: 4.0 }],
     zoom: [{ at: 0, y: 498 }, { at: 0.95, y: 400 }],
   },
@@ -238,26 +238,40 @@ const SEGMENTS = [
     lines: [
       "One Face Analyzer call reads five features. This time it read the monolid as double lid.",
       "That's ten units. And if it gets something wrong? Just tap to fix it.",
-      "Then our rule table turns those features into try-on settings.",
+      "An optional skin check rewrites your Base step.", // C24 marin line
+      "Skin AI reads your skin, Face Analyzer reads your eyes, VTO draws it.", // C24 marin line
     ],
     ui: [
       { callout: "Eyelid · eye shape · lips · face shape · brows<br><span class=\"plain\">Face Analyzer read this monolid face as <b>Double-lid</b> (sample trial, 0 units)</span>" },
-      { callout: "Face Analyzer read this monolid face as <b>Double-lid</b>.<br>Tap <b>Fix the eyelid</b> → <b>Monolid</b> · <b>0 units</b>" },
-      { callout: "<b>Monolid</b> → horizontal gradient + visible liner<br><span class=\"plain\">2-color shadow, style 1 · upper liner, style 6</span>" },
+      { callout: "Face Analyzer read this monolid face as <b>Double-lid</b>.<br>Tap <b>Fix the eyelid</b> \u2192 <b>Monolid</b> \u00b7 <b>0 units</b>" },
+      {
+        heading: "Skin check changes the Base step",
+        chip: "YouCam Skin Analysis \u00b7 optional, 9 units live",
+        pill: "Skin check 9 units live \u00b7 here <b>0</b>",
+        callout: "Dark circles <b>79</b> \u00b7 pores <b>81</b> (mild)<br><span class=\"plain\">Each concern that is not clear adds one <b>Base step</b> tip: peach corrector, blurring primer. Pre-generated sample result, 0 units.</span>",
+      },
+      {
+        heading: "Three YouCam APIs, one lesson",
+        chip: "Face Analyzer \u00b7 Skin Analysis \u00b7 Makeup VTO",
+        callout: "<b>Skin Analysis</b> \u2192 Base step<br><b>Face Analyzer</b> \u2192 eye technique<br><b>Makeup VTO</b> \u2192 draws it<br><span class=\"plain\">Monolid \u2192 horizontal gradient + visible liner (rule table)</span>",
+      },
     ],
-    // trial take: raw reading 3.5-6.0 s, fix tap 6.1-6.6, edit sheet 6.7-8.4, Monolid picked ~8.5, corrected state 9.7-12.1 s (holds to 16.5 s after a scroll),
-    // rule-table tap 16.6-17.2 s, sheet open 17.2-20.3 s
+    // C24 re-take (work-c24 frames-trial, `--mode live --only trial`, 0 units; times from phone.txt): raw reading 3.5-5.6 s, fix tap ~6.4-7.0, edit sheet 7.2-8.9,
+    // corrected state 9.4-11.8, scroll to the Skin check card 11.8-12.2, card + "How your Base step changes" box on screen 12.2-16.6 (src 14.0),
+    // scroll to the rule-table link ~21.2-23.9, tap ~24.0, rule-table sheet open 24.2-26.8
     timeline: [
       { at: 0, src: 4.0 },
       { at: { cue: 1, plus: 0.9 }, src: [5.4, 11.3] },
-      { at: { cue: 2, plus: -0.2 }, src: [15.8, 16.9] },
-      { at: { cue: 2, plus: 0.9 }, src: 18.4 },
+      { at: { cue: 2, plus: -0.1 }, src: [11.4, 12.4] },
+      { at: { cue: 2, plus: 0.9 }, src: 14.0 },
+      { at: { cue: 3, plus: 0.9 }, src: [23.5, 24.4] },
+      { at: { cue: 3, plus: 2.0 }, src: 25.5 },
     ],
     pops: [
       { at: { cue: 0, plus: 2.4 }, dur: 2.5, src: 4.0, crop: { x: 12, y: 452, w: 348 }, ring: { x: 20, y: 604, w: 124, h: 44 }, label: "Raw read: Double lid (wrong for this face)" },
       { at: { cue: 1, plus: 3.2 }, dur: 2.5, src: 10.4, crop: { x: 12, y: 452, w: 348 }, ring: { x: 20, y: 584, w: 104, h: 56 }, label: "Fixed in the app: Monolid, Edited" },
     ],
-    zoom: [{ at: 0, y: 400 }, { at: { cue: 1, plus: 0.9 }, y: 400 }, { at: { cue: 1, plus: 3.2 }, y: 440 }, { at: { cue: 2, plus: -0.3 }, y: 400 }],
+    zoom: [{ at: 0, y: 400 }, { at: { cue: 1, plus: 0.9 }, y: 400 }, { at: { cue: 1, plus: 3.2 }, y: 440 }, { at: { cue: 2, plus: -0.1 }, y: 400 }, { at: { cue: 2, plus: 0.9 }, y: 62 }, { at: { cue: 3, plus: 0.7 }, y: 400 }],
   },
   {
     // C16 (was the capture scene + the first 7.5 s of analyze): "or bring your own selfie": consent sheet and quality gate (capture take, work-c15 frames, 0 units),
@@ -305,20 +319,22 @@ const SEGMENTS = [
       "Now the fun part. Makeup Virtual Try-On renders each step on your photo, one layer at a time.",
       "One unit per step. Each render becomes your answer key, and the stepper shows what's done, and what's next.",
       "Drag to compare. Before, and after.",
-      "And every step tells you why it suits this face, with the exact colors it uses.",
+      "The skin check rewrites the Base step, and every step tells you why it suits this face.", // C24 marin line
     ],
     ui: [
       { callout: "Same photo, steps stack up: base, brows, eyes, lips." },
       { callout: "<b>1 unit</b> per step · <b>4 units</b> per lesson<br>Stepper: done · active · pending" },
       { callout: "Slide between <b>My face</b> and the <b>answer</b>." },
-      { callout: "Reason chip: why this technique fits <b>this</b> face." },
+      { callout: "Base step: <b>Why this fits you</b>, from your skin check<br><span class=\"plain\">Dark circles 79 \u2192 peach corrector \u00b7 pores 81 \u2192 blurring primer. A text tip: the VTO image only paints colour.</span>" },
     ],
+    // C24 re-take (work-c24 frames-lesson, mock --sample, 0 units): base step 4.3-12.4, slider drags 12.4-15.3, scroll to the skin-check reason 15.3-16.9,
+    // "Why this fits you: From your skin check" on screen 16.9-21.3, Next step taps 21.3-22.7, step 3 reason 24.3-26.0
     timeline: [
       { at: 0, src: 3 },
-      { at: { cue: 2 }, src: [12.2, 15.0] },
-      { at: { cue: 3 }, src: [15.0, 20.9] },
+      { at: { cue: 2 }, src: [12.2, 15.3] },
+      { at: { cue: 3 }, src: [15.3, 21.3] },
     ],
-    zoom: [{ at: 0, y: 100 }, { at: { cue: 1 }, y: 440 }, { at: { cue: 2 }, y: 100 }, { at: { cue: 3 }, y: 498 }, { at: { cue: 3, plus: 3.2 }, y: 380 }],
+    zoom: [{ at: 0, y: 100 }, { at: { cue: 1 }, y: 440 }, { at: { cue: 2 }, y: 100 }, { at: { cue: 3, plus: 1.2 }, y: 380 }],
   },
   {
     id: "compare",
@@ -470,41 +486,41 @@ const SEGMENTS = [
     units: 14,
     lines: [
       "In your store: a widget beside the lip product, a four-step lesson in its exact shade, then add to cart. Try your own shade: no units spent.",
-      "14 units for the first lesson, 4 after; you plug in your own price and break-even.", // C20 marin line
+      "First lesson 14 units, then 4, plus 9 for the optional skin check; plug in your own break-even.", // C24 marin line (skin check added)
       "No pilot yet. Here is the two-week test we would run.", // C22: new marin line (the iframe-snippet beat is dropped for the Two-week retailer test card)
     ],
     ui: [
-      { callout: "<b>In your store</b>: product page widget \u2192 4-step lesson in this shade \u2192 add to cart<br><span class=\"mono\">Worked example on the page: 2,000 first + 6,000 repeat visits = 52,000 units / month (illustrative)</span>" },
+      { callout: "<b>In your store</b>: product page widget \u2192 4-step lesson in this shade \u2192 add to cart<br><span class=\"plain\">Three YouCam APIs: Face Analyzer 10 \u00b7 Skin Analysis optional 9 \u00b7 Makeup VTO 1 per step</span>" },
       {
         heading: "Unit meter and calculator",
-        callout: "<div class=\"vs\"><div><b>Unit meter</b>First lesson <em>14</em> units (10 analysis + 4 renders), then <em>4</em><span class=\"mono\">Your inputs: 52,000 units / month, 434 extra orders to break even (illustrative, not a Perfect Corp price)</span></div></div>",
+        callout: "<div class=\"vs\"><div><b>Unit meter</b>First lesson <em>14</em> units (10 analysis + 4 renders), then <em>4</em>; optional skin check <em>+9</em><span class=\"mono\">Example inputs: 52,000 units / month, 434 extra orders to break even (illustrative, not a Perfect Corp price)</span></div></div>",
       },
       {
         heading: "Two-week retailer test",
         callout: "<b>A plan, not a result</b> \u00b7 50/50 split on one lip SKU<br><span class=\"mono\">6,144 sessions per arm \u00b7 cost ceiling 86,016 units \u00b7 4% baseline is illustrative \u00b7 no retailer has run this yet</span>",
       },
     ],
-    // C22 re-take (work-c22 frames-partner, live-mode home screen, 0 units; real times from the frame list): tap ~2.0-2.4 s, page top with the worked-example card 2.4-5.1, widget + slider drags 5.4-9.5,
-    // Try your own shade ~10.0 (Coral tapped ~11.2), top with Coral 13.9-16.5, calculator + unit bars 16.7-20.3, break-even (52,000 / 434 extra orders) 20.6-24.0, Two-week retailer test card 24.3-29.7
+    // C24 re-take (work-c24 frames-partner, live-mode home screen, 0 units; times from phone.txt): new hero with the three API chips 3.4-6.4 (src 4.0), widget scroll + slider drags 6.4-11.1,
+    // Try your own shade 11.1-14.9 (Coral tapped ~12), widget with Coral 14.9-17.5, "Cost" accordion opened ~17.6, worked-example card 20.1-22.9 (src 21.0), calculator + unit bars 23.0-26.4 (src 25.5),
+    // break-even (434 extra orders) 26.7-30.1 (src 28.0), Two-week retailer test accordion opened ~30.5, card 31.3-36.8 (src 34.0)
     timeline: [
-      // C23: hard cut into the retailer view (no home-screen tap + dissolve): the page top with the jump chips is on screen from the first frame
-      { at: 0, src: 3.6 },
-      { at: 3.9, src: [5.3, 7.0] },
-      { at: 5.6, src: [7.0, 9.0] },
-      { at: { cue: 0, plus: 7.6 }, src: [10.4, 12.2] },
-      { at: { cue: 0, plus: 9.2 }, src: 15.0 },
-      { at: { cue: 1, plus: -0.2 }, src: [16.7, 20.5] }, // C23 re-take (work-c23 frames-partner): holds shifted +0.2 s
-      { at: { cue: 1, plus: 3.5 }, src: [20.5, 24.2] },
-      { at: { cue: 2, plus: -0.25 }, src: [24.2, 29.9] },
+      { at: 0, src: 4.0 },
+      { at: 3.4, src: [6.4, 9.6] },
+      { at: 6.6, src: [11.1, 14.0] },
+      { at: 9.5, src: 15.5 },
+      { at: { cue: 1, plus: -0.2 }, src: [17.6, 19.4] },
+      { at: { cue: 1, plus: 1.6 }, src: 21.0 },
+      { at: { cue: 1, plus: 4.0 }, src: [23.1, 26.4] },
+      { at: { cue: 1, plus: 7.3 }, src: 28.0 },
+      { at: { cue: 2, plus: -0.25 }, src: [30.1, 36.7] },
     ],
-    // C22: large crops (held >= 2.2 s): calculator, break-even, then the retailer-test card in two halves (a 390 px wide crop is 346 px tall; the card is about 520 px)
     pops: [
-      { at: { cue: 1, plus: 0.3 }, dur: 2.6, file: "frames-partner/f000242.jpg", crop: { x: 0, y: 500, w: 390 }, label: "52,000 units / month \u00b7 example inputs, illustrative" },
-      { at: { cue: 1, plus: 3.7 }, dur: 2.2, file: "frames-partner/f000260.jpg", crop: { x: 0, y: 466, w: 390 }, label: "434 extra orders to break even \u00b7 illustrative" },
-      { at: { cue: 2, plus: 0 }, dur: 2.6, file: "frames-partner/f000274.jpg", crop: { x: 0, y: 222, w: 390 }, label: "Two-week retailer test \u00b7 a plan, not a result" },
-      { at: { cue: 2, plus: 2.6 }, dur: 2.6, file: "frames-partner/f000274.jpg", crop: { x: 0, y: 424, w: 390 }, label: "Decision rule + cost ceiling \u00b7 no retailer has run it" },
+      { at: { cue: 1, plus: 1.7 }, dur: 2.3, file: "frames-partner/f000261.jpg", crop: { x: 0, y: 480, w: 390 }, label: "52,000 units / month \u00b7 example inputs, illustrative" },
+      { at: { cue: 1, plus: 7.4 }, dur: 2.2, file: "frames-partner/f000285.jpg", crop: { x: 0, y: 430, w: 390 }, label: "434 extra orders to break even \u00b7 illustrative" },
+      { at: { cue: 2, plus: 0.6 }, dur: 2.6, file: "frames-partner/f000337.jpg", crop: { x: 0, y: 70, w: 390 }, label: "Two-week retailer test \u00b7 a plan, not a result" },
+      { at: { cue: 2, plus: 3.4 }, dur: 2.6, file: "frames-partner/f000337.jpg", crop: { x: 0, y: 400, w: 390 }, label: "Decision rule + cost ceiling \u00b7 no retailer has run it" },
     ],
-    zoom: [{ at: 0, y: 300 }, { at: 3.9, y: 140 }, { at: 5.6, y: 120 }, { at: { cue: 0, plus: 7.6 }, y: 230 }, { at: { cue: 0, plus: 9.2 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 480 }, { at: { cue: 1, plus: 3.5 }, y: 420 }, { at: { cue: 2, plus: -0.25 }, y: 240 }],
+    zoom: [{ at: 0, y: 150 }, { at: 3.4, y: 140 }, { at: 6.6, y: 230 }, { at: 9.5, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 250 }, { at: { cue: 1, plus: 1.6 }, y: 480 }, { at: { cue: 1, plus: 4.0 }, y: 440 }, { at: { cue: 1, plus: 7.3 }, y: 430 }, { at: { cue: 2, plus: -0.25 }, y: 60 }],
   },
   {
     id: "share",
@@ -548,7 +564,7 @@ const SEGMENTS = [
       cta: { url: "mirror-tutor.vercel.app", tap: "Tap \u201cTry with a sample model\u201d \u00b7 0 units" },
       repo: "github.com/sh0sub/mirror-tutor",
       chips: ["4 VTO calls per lesson", "Retailer SKUs at the end", "Open source, MIT", "No pilot claimed"],
-      sub: "YouCam Face Analyzer + Makeup VTO  \u00b7  hackathon prototype",
+      sub: "YouCam Face Analyzer + Skin Analysis + Makeup VTO  \u00b7  hackathon prototype",
     },
   },
 ];
@@ -698,13 +714,13 @@ function stageHtml(seg, si0, ci, uiOver = {}) {
   .kick{font-size:23px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a8264a}
   h1{margin:0;font-size:50px;line-height:1.1;font-weight:800;letter-spacing:-.01em}
   .chip{align-self:flex-start;background:#fcebe3;color:#a8264a;border-radius:22px;padding:12px 20px;font-size:22px;font-weight:700;line-height:1.25}
-  .callout{background:#fff;border:2px solid #eadfd8;border-left:8px solid #c8325b;border-radius:16px;padding:20px 22px;font-size:28px;line-height:1.35;font-weight:600;box-shadow:0 6px 18px rgba(31,27,26,.07)}
-  .callout b{color:#a8264a}.mono{font-family:ui-monospace,Menlo,monospace;font-size:21px;color:#6b605c;font-weight:600}
+  .callout{background:#fff;border:2px solid #eadfd8;border-left:8px solid #c8325b;border-radius:16px;padding:20px 22px;font-size:31px;line-height:1.35;font-weight:600;box-shadow:0 6px 18px rgba(31,27,26,.07)}
+  .callout b{color:#a8264a}.mono{font-family:ui-monospace,Menlo,monospace;font-size:23px;color:#6b605c;font-weight:600}
   .vs{display:flex;flex-direction:column;gap:16px;font-size:26px}.vs b{display:block;font-size:22px;margin-bottom:2px}.vs span{display:block;margin-top:2px}
   .vs>div{padding-bottom:12px;border-bottom:1px solid #eadfd8}.vs>div:last-child{border:0;padding:0}
   .vs .basis{font-size:21px;font-weight:600;color:#4a403d}.vs .basis b{display:inline;font-size:21px;margin:0 8px 0 0}
   .vs em{font-style:normal;font-weight:800;color:#a8264a}
-  .plain{font-size:20px;font-weight:600;color:#6b605c;line-height:1.3}
+  .plain{font-size:22px;font-weight:600;color:#6b605c;line-height:1.3}
   .url{display:block;white-space:nowrap;font-size:34px;font-weight:800;color:#a8264a;letter-spacing:-.01em;margin:8px 0 10px}
   .note{font-size:20px;color:#6b605c;line-height:1.4;margin-top:24px}
   .bigtag{align-self:flex-start;background:#1f1b1a;color:#fff;border-radius:14px;padding:10px 22px;font-size:34px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
