@@ -14,14 +14,15 @@ import sharp from "sharp";
 import { regionPolygons, type Pt } from "../../lib/grade/landmarks";
 import { GRADE_REGIONS, type GradeRegion } from "../../lib/regions";
 
+// C20: optional 7th arg = top of the thumbnails in the frame (72 before the sample-model chip, 118 with it)
 // C11: optional 5th/6th args pick the landmark file (default model-a; model-c-landmarks.json for the monolid sample) and the top (frame px) of the
 // highlight box around the Eyeliner delta-E line in the scrolled frame (default 309, the C10 layout; 324 in the C11 layout with the note below the ring).
-const [dir, topName, rowName, outDir, lmFile = "model-a-landmarks.json", rowY = "309"] = process.argv.slice(2);
+const [dir, topName, rowName, outDir, lmFile = "model-a-landmarks.json", rowY = "309", thumbY = "72"] = process.argv.slice(2);
 if (!outDir) throw new Error("usage: grade-overlay.ts <frames dir> <top frame> <scrolled frame> <out dir> [landmarks.json] [row y]");
 const lm = JSON.parse(readFileSync(path.join(import.meta.dirname, lmFile), "utf8")) as Pt[];
 
 const IMG_W = 600, IMG_H = 800;
-const THUMB_W = 175, THUMB_H = (THUMB_W * 4) / 3, THUMB_Y = 72, ANSWER_X = 16, ATTEMPT_X = 199;
+const THUMB_W = 175, THUMB_H = (THUMB_W * 4) / 3, THUMB_Y = Number(thumbY), ANSWER_X = 16, ATTEMPT_X = 199;
 const COLORS: Record<GradeRegion, string> = { eye_line: "#ffd400", eye_lid: "#b45cff", cheek: "#19d3ff", lip: "#3ddc84" };
 const k = THUMB_W / IMG_W;
 

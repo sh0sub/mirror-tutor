@@ -254,7 +254,7 @@ export const SEGMENTS = [
   {
     id: "grade",
     kicker: "Step 4 · Grade",
-    heading: "Score your real attempt",
+    heading: "Score your attempt",
     chip: "0 YouCam units",
     note: "A stock image stands in for a real attempt",
     lines: [

@@ -264,3 +264,11 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - compare/gradient: 새 /compare 레이아웃(얼굴 쌍 + 정정 칩 + 새 정직 문구 "Why two different faces?..." -> 같은 얼굴 그라데이션 쌍 -> 눈 클로즈업)에 맞춰 compare는 첫 줄에서 정정 칩과 정직 문구로 확대, 둘째 줄에서 클로즈업, gradient 장면은 그라데이션 쌍 위치로 스크롤. 정직 문구를 콜아웃에도 적음.
 - lesson 3단계: 앱의 보정 안 된 홑꺼풀 경로 경고 상자와 "Fix the eyelid" 버튼은 영상 흐름(분석 화면에서 먼저 수정)에는 영향이 없어 재녹화하지 않음.
 - 검증: 길이 160.48초, 끝 프레임 끝 카드, 장면 전환 감지(gt 0.08) 27곳은 세그먼트 경계와 의도한 디졸브/앱 스크롤뿐, 0.5초 간격 밝기 검사에서 어두운 프레임 없음, 접촉 시트에서 스켈레톤/배너/빈 프레임 없음, 자막은 나레이션 줄과 같은 문자열.
+
+## 사이클 20 재합성 (162.8초, YouCam 유닛 0 사용, 새 TTS 줄 1개, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c20` (work-c19 복사본, phone 타임라인 경로를 work-c20으로 변경, `--mode mock --sample --only grade`만 재녹화, 0 유닛). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유), 직전 판 `.local/video/mirror-tutor-demo-live-c20prev.mp4`.
+- grade: 제목을 "Score your attempt"로 변경(영상 왼쪽 제목, `video-shots.mjs`, 앱 /grade 앱바 `gradeTitle` ko "내 시도 채점"). 앱바 제목이 프레임에 보이므로 grade를 새 앱으로 다시 녹화했고, 오버레이 프레임은 `grade-overlay.ts`(7번째 인자 썸네일 상단 118)로 다시 만들었다. 새 "Try it: change the attempt color" 칩이 스크롤 뒤에 보인다. 나레이션 변경 없음.
+- 디졸브: `XF_N` 10 -> 6프레임(0.33 -> 0.2초 페이드). 장면 안 모든 이어 붙이기에 적용(오분석 정정 -> 두 레슨 구간 포함).
+- partner: 새 marin 줄 "14 units for the first lesson, 4 after; you plug in your own price and break-even."(기존 "First lesson, fourteen units. Then four." 대체). iframe 스니펫 스크롤 -> 유닛 막대 -> 계산기 입력과 손익분기(예시 값, "illustrative" 표기)를 보여 준다. 콜아웃에도 같은 표기.
+- 검증: 길이 162.82초(180초 미만), 장면 전환 감지(gt 0.08)는 세그먼트 경계와 의도한 스크롤/디졸브뿐, blackdetect 0건, 접촉 시트와 조밀 프레임에서 스켈레톤/빈/배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열. compare는 재녹화하지 않았다(선택 사항).

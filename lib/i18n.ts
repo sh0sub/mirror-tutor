@@ -130,7 +130,7 @@ const DICT = {
   nextStep: { ko: "다음 단계", en: "Next step" },
   takeAttempt: { ko: "내 시도 찍기", en: "Snap your attempt" },
   sliderLabel: { ko: "전/후 비교 슬라이더", en: "Before/after slider" },
-  gradeTitle: { ko: "내 시도 확인", en: "Check your attempt" },
+  gradeTitle: { ko: "내 시도 채점", en: "Score your attempt" },
   grading: { ko: "비교 중… 약 5초", en: "Comparing… about 5 s" },
   gradeDone: { ko: "채점 완료 · 부위 4곳 비교", en: "Graded · 4 regions compared" },
   confidence: { ko: "신뢰도", en: "Confidence" },

@@ -401,7 +401,7 @@ const SEGMENTS = [
     // C10: wider-than-tall zoom panel is 560 px high so the thumbnails (and later the score ring + Eyeliner card) fit without clipping a text line
     geo: { ZH: 560 },
     kicker: "Step 5 · Grade",
-    heading: "Score your real attempt",
+    heading: "Score your attempt",
     chip: "0 YouCam units",
     tag: "Simulated attempt",
     units: 14, // the SIMULATED ATTEMPT tag replaces the old note (a sample score, 79)
@@ -426,12 +426,12 @@ const SEGMENTS = [
     // Eyeliner delta-E line. The scroll between them is the original frames, 4.2-4.7 s.
     timeline: [
       { at: 0, file: "overlay-grade/grade-top.jpg" },
-      { at: { cue: 2, plus: -0.35 }, src: [3.95, 5.05] },
+      { at: { cue: 2, plus: -0.35 }, src: [3.6, 4.4] },
       { at: { cue: 2, plus: 0.8 }, file: "overlay-grade/grade-row.jpg" },
     ],
     // C16: 2.5 s zoom panel on the Eyeliner delta-E line (boxed in grade-row.jpg)
-    pops: [{ at: { cue: 2, plus: 1.5 }, dur: 2.5, file: "overlay-grade/grade-row.jpg", crop: { x: 40, y: 232, w: 300 }, label: "\u0394E2000 6.8 \u00b7 #A57D64 vs #BB9074" }],
-    zoom: [{ at: 0, y: 40 }, { at: { cue: 2, plus: -0.35 }, y: 62 }],
+    pops: [{ at: { cue: 2, plus: 1.5 }, dur: 2.5, file: "overlay-grade/grade-row.jpg", crop: { x: 40, y: 425, w: 300 }, label: "\u0394E2000 6.8 \u00b7 #A57D64 vs #BB9074" }],
+    zoom: [{ at: 0, y: 100 }, { at: { cue: 2, plus: -0.35 }, y: 330 }],
   },
   {
     id: "shop",
@@ -463,14 +463,14 @@ const SEGMENTS = [
     lines: [
       "In your store: a widget beside the lip product, a four-step lesson in its exact shade, then add to cart. Try your own shade: no units spent.",
       "Integration is one plain iframe. No SDK, and no partner has used it yet.",
-      "First lesson, fourteen units. Then four.", // C19: the calculator beat is cut (cached C12 line)
+      "14 units for the first lesson, 4 after; you plug in your own price and break-even.", // C20: new marin line; shows the unit bars, then the calculator (illustrative)
     ],
     ui: [
       { callout: "<b>In your store</b>: product page widget \u2192 4-step lesson in this shade \u2192 add to cart<br><span class=\"mono\">Try your own shade \u00b7 demo catalog, not a partner feed \u00b7 0 units</span>" },
       { heading: "Integration is one iframe", callout: "<b>One plain iframe</b> \u00b7 no SDK<br><span class=\"mono\">A real route in this repo \u00b7 no partner has used it yet</span>" },
       {
         heading: "Unit meter",
-        callout: "<div class=\"vs\"><div><b>Unit meter</b>First lesson <em>14</em> units (10 analysis + 4 renders), then <em>4</em><span class=\"mono\">A 20-unit session cap bounds the cost</span></div></div>",
+        callout: "<div class=\"vs\"><div><b>Unit meter</b>First lesson <em>14</em> units (10 analysis + 4 renders), then <em>4</em><span class=\"mono\">A 20-unit session cap bounds the cost \u00b7 break-even from your own inputs (illustrative)</span></div></div>",
       },
     ],
     // C16 source (work-c16 frames-partner, live mode home screen only, no API call, 0 units): tap "Retailer view" 1.6-2.3 s, page top 2.3-2.9 s (the widget iframe flashes Korean 2.6-3.2 s, skipped),
@@ -484,8 +484,10 @@ const SEGMENTS = [
       { at: { cue: 0, plus: 8.2 }, src: 12.5 },
       { at: { cue: 1, plus: -0.2 }, src: [17.5, 18.0] },
       { at: { cue: 1, plus: 0.8 }, src: 18.0 },
+      // C20: line 3 shows the unit bars, then the calculator typed (19.8-20.2) and the break-even scroll (21.5-21.8)
+      { at: { cue: 2, plus: 2.4 }, src: [19.7, 25.5] },
     ],
-    zoom: [{ at: 0, y: 507 }, { at: 1.3, y: 140 }, { at: 4.6, y: 120 }, { at: { cue: 0, plus: 6.2 }, y: 230 }, { at: { cue: 0, plus: 8.2 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 60 }, { at: { cue: 2, plus: -0.2 }, y: 190 }],
+    zoom: [{ at: 0, y: 507 }, { at: 1.3, y: 140 }, { at: 4.6, y: 120 }, { at: { cue: 0, plus: 6.2 }, y: 230 }, { at: { cue: 0, plus: 8.2 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 60 }, { at: { cue: 2, plus: -0.2 }, y: 190 }, { at: { cue: 2, plus: 2.4 }, y: 330 }, { at: { cue: 2, plus: 3.0 }, y: 560 }],
   },
   {
     id: "share",
@@ -776,7 +778,7 @@ let masks;
  * 3. Each shot is encoded with its own zoom window and shots are joined with an XF_N-frame cross-dissolve;
  *    zoom moves within ZOOM_SNAP of a cut happen at the cut (hidden by the dissolve) instead of jump-then-slide.
  */
-const XF_N = 10, HOLD_N = 12, BURST_N = 9, MIN_SHOT_N = 18, MOTION_MAX = 0.2, ZOOM_SNAP = 0.8;
+const XF_N = 6, HOLD_N = 12, BURST_N = 9, MIN_SHOT_N = 18, MOTION_MAX = 0.2, ZOOM_SNAP = 0.8;
 
 function rangePieces(items, total, a, b, L) {
   const pieces = [];
