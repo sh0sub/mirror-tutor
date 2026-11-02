@@ -4,9 +4,13 @@ import { Button, Chip, Icon } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { guideText } from "@/lib/quality/messages";
-import { baseChanges, CONCERN_NAME, LEVEL_NAME, SKIN_CONCERN_KEYS, type SkinLevel } from "@/lib/skin/concerns";
+import type { Pt } from "@/lib/grade/landmarks";
+import { zonesView, type SkinZones } from "@/lib/skin/zones";
+import { baseChanges, CONCERN_NAME, LEVEL_NAME, SKIN_CONCERN_KEYS, type SkinConcernKey, type SkinLevel } from "@/lib/skin/concerns";
 
 const LEVEL_TONE: Record<SkinLevel, "ok" | "warn" | "bad"> = { clear: "ok", mild: "warn", noticeable: "bad" };
+/** Zone colours: distinct hues (not the level colours) so each legend swatch maps to one area. */
+const ZONE_COLOR: Record<SkinConcernKey, string> = { dark_circle: "#6d4cff", redness: "#e0245e", pores: "#0b8fa8", oiliness: "#d98200" };
 const BAR: Record<SkinLevel, string> = { clear: "bg-success", mild: "bg-warning", noticeable: "bg-primary" };
 
 /**
@@ -14,7 +18,7 @@ const BAR: Record<SkinLevel, string> = { clear: "bg-success", mild: "bg-warning"
  * pre-generated result is shown at once (0 units) and labelled as such. Each concern that is not clear maps to one Base-step change.
  */
 export function SkinCheckCard({ allowRun }: { allowRun: boolean }) {
-  const { lang, sample, skinCheck, skinBusy, skinError, runSkinCheck } = useFlow();
+  const { lang, sample, skinCheck, skinBusy, skinError, runSkinCheck, skinZones, photo, mode } = useFlow();
   const changes = baseChanges(skinCheck);
 
   if (!skinCheck) {
@@ -50,6 +54,7 @@ export function SkinCheckCard({ allowRun }: { allowRun: boolean }) {
         </h2>
         <Chip tone="neutral">{t(skinCheck.source === "sample" ? "skinCheckBySample" : "skinCheckByLive", lang)}</Chip>
       </div>
+      {skinZones && photo && mode !== "demo" && changes.length > 0 && <SkinZoneFigure src={photo.url} zones={skinZones} keys={changes.map((c) => c.key)} lang={lang} />}
       <ul className="grid grid-cols-1 gap-x-4 gap-y-2.5 min-[380px]:grid-cols-2">
         {SKIN_CONCERN_KEYS.map((k) => {
           const r = skinCheck.readings.find((x) => x.key === k);
@@ -98,4 +103,40 @@ export function SkinCheckCard({ allowRun }: { allowRun: boolean }) {
 /** One-line "why this fits you" reason for the Base step: the concerns that changed it. */
 export function skinReasonLine(lang: "ko" | "en", changes: ReturnType<typeof baseChanges>): string {
   return changes.map((c) => tf("skinCheckWhyLine", lang, { concern: CONCERN_NAME[c.key][lang], score: c.score })).join(" + ");
+}
+
+const PW = 600;
+const PH = 800;
+const path = (pts: Pt[]) => pts.map((p, i) => `${i ? "L" : "M"}${(p.x * PW).toFixed(1)},${(p.y * PH).toFixed(1)}`).join("") + "Z";
+
+/** The user's photo cropped to the flagged areas, with only the zones whose rule fired, a legend and the honesty note. */
+function SkinZoneFigure({ src, zones, keys, lang }: { src: string; zones: SkinZones; keys: SkinConcernKey[]; lang: "ko" | "en" }) {
+  const view = zonesView(keys.flatMap((k) => zones[k]));
+  return (
+    <figure className="flex flex-col gap-1.5" data-testid="skin-zones">
+      <svg
+        viewBox={`${view.x * PW} ${view.y * PH} ${view.w * PW} ${view.h * PH}`}
+        role="img"
+        aria-label={t("skinZonesAlt", lang)}
+        className="block h-auto w-full overflow-hidden rounded-xl bg-panel-2"
+        style={{ aspectRatio: `${view.w * PW} / ${view.h * PH}` }}
+      >
+        <image href={src} x={0} y={0} width={PW} height={PH} preserveAspectRatio="none" />
+        {keys.map((k) =>
+          zones[k].map((poly, i) => (
+            <path key={`${k}${i}`} d={path(poly)} data-zone={k} fill={ZONE_COLOR[k]} fillOpacity={0.28} stroke="#fff" strokeWidth={1.8} strokeDasharray="5 4" vectorEffect="non-scaling-stroke" />
+          )),
+        )}
+      </svg>
+      <ul className="flex flex-wrap gap-x-3 gap-y-1 text-xs font-bold">
+        {keys.map((k) => (
+          <li key={k} className="inline-flex items-center gap-1.5">
+            <span className="h-3 w-3 rounded-sm border border-white shadow-sm" style={{ background: ZONE_COLOR[k] }} aria-hidden />
+            {CONCERN_NAME[k][lang]}
+          </li>
+        ))}
+      </ul>
+      <figcaption className="text-xs text-muted">{t("skinZonesNote", lang)}</figcaption>
+    </figure>
+  );
 }

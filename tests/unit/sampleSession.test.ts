@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loadSampleSession, saveSampleSession, SAMPLE_SESSION_KEY } from "@/lib/demo/sampleSession";
+import { loadSampleSession, saveSampleSession, shouldResumeSample, SAMPLE_SESSION_KEY } from "@/lib/demo/sampleSession";
 
 const mem = () => {
   const m = new Map<string, string>();
@@ -30,5 +30,12 @@ describe("sample trial survives a reload (sessionStorage)", () => {
     const bad = { getItem: () => { throw new Error("x"); }, setItem: () => { throw new Error("x"); }, removeItem: () => { throw new Error("x"); } };
     expect(() => saveSampleSession(bad, null)).not.toThrow();
     expect(loadSampleSession(bad)).toBeNull();
+  });
+});
+
+describe("home never resumes a saved trial (P6)", () => {
+  it("only in-flow paths resume", () => {
+    expect(shouldResumeSample("/")).toBe(false);
+    for (const p of ["/analyze", "/lesson", "/compare", "/partner"]) expect(shouldResumeSample(p)).toBe(true);
   });
 });

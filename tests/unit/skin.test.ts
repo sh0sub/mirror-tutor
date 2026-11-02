@@ -1,3 +1,7 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { SKIN_CONCERN_KEYS } from "@/lib/skin/concerns";
+import { skinZonesFromLandmarks, zonesView } from "@/lib/skin/zones";
 import { afterEach, describe, expect, it } from "vitest";
 import { deltaEHex, hexToLab, hexToRgb, labToHex, type Lab } from "@/lib/color";
 import { LANDMARK_POLYGONS, type Pt, type RgbaImage } from "@/lib/grade/landmarks";
@@ -164,5 +168,32 @@ describe("POST /api/render skinShade", () => {
     expect(await post("25W")).toBe("#D9AE8E");
     expect(await post("#123456")).toBe("#F1D4C0");
     expect(await post()).toBe("#F1D4C0");
+  });
+});
+
+describe("skin zones from landmarks (P1)", () => {
+  const lm = (id: string) => JSON.parse(readFileSync(path.join(process.cwd(), "scripts/demo", `${id}-landmarks.json`), "utf8")) as { x: number; y: number }[];
+  for (const id of ["model-a", "model-c"]) {
+    it(`${id}: every concern gets zones inside the photo, under-eye sits below the eyes, forehead above`, () => {
+      const f = lm(id);
+      const z = skinZonesFromLandmarks(f)!;
+      expect(z).not.toBeNull();
+      for (const k of SKIN_CONCERN_KEYS) {
+        expect(z[k].length).toBeGreaterThan(0);
+        for (const p of z[k].flat()) expect(p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1).toBe(true);
+      }
+      const eyeY = (f[145].y + f[374].y) / 2;
+      expect(Math.min(...z.dark_circle.flat().map((p) => p.y))).toBeLessThan(eyeY + 0.01);
+      expect(Math.max(...z.dark_circle.flat().map((p) => p.y))).toBeGreaterThan(eyeY);
+      expect(Math.max(...z.oiliness[0].map((p) => p.y))).toBeLessThan(eyeY);
+      const v = zonesView([...z.dark_circle, ...z.pores]);
+      expect(v.x).toBeGreaterThanOrEqual(0);
+      expect(v.y).toBeGreaterThanOrEqual(0);
+      expect(v.x + v.w).toBeLessThanOrEqual(1.0001);
+      expect(v.y + v.h).toBeLessThanOrEqual(1.0001);
+    });
+  }
+  it("incomplete mesh gives no zones (never a guessed position)", () => {
+    expect(skinZonesFromLandmarks(lm("model-a").slice(0, 100))).toBeNull();
   });
 });

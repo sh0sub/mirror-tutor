@@ -15,9 +15,10 @@ import { loadLang, saveLang } from "@/lib/i18n";
 import type { FaceDetection } from "@/lib/client/landmarker";
 import type { EyeOverlay } from "@/lib/eyeOverlay";
 import type { FacePins } from "@/lib/facePins";
+import type { SkinZones } from "@/lib/skin/zones";
 import type { SkinMeasure } from "@/lib/skin/measure";
 import { nearestShade } from "@/lib/skin/shades";
-import { loadSampleSession, saveSampleSession } from "@/lib/demo/sampleSession";
+import { loadSampleSession, saveSampleSession, shouldResumeSample } from "@/lib/demo/sampleSession";
 import { DEFAULT_SAMPLE, sampleAttemptFor, sampleModelById, sampleOwnAttempt, type SampleId } from "@/lib/demo/sample";
 import { EMPTY_LOG, clearPractice, loadConsent, loadPractice, recordPractice, saveConsent, savePractice, type PracticeLog } from "@/lib/practice";
 
@@ -60,6 +61,8 @@ interface FlowState {
   eyeOverlay: EyeOverlay | null;
   /** M2 attribute pin points of `photo` (MediaPipe, in this tab). null until detected or on failure. */
   facePins: FacePins | null;
+  /** Landmark zones for the Skin check overlay (null until detected / no face). */
+  skinZones: SkinZones | null;
   /** null without a photo. */
   skin: SkinState | null;
   /** Override the measured shade (0 units; lessons re-render on next open, 1 unit per uncached step). */
@@ -181,6 +184,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const anchors = detection?.result?.anchors ?? null;
   const eyeOverlay = photo && detection?.blob === photo.blob ? (detection.result?.overlay ?? null) : null;
   const facePins = photo && detection?.blob === photo.blob ? (detection.result?.pins ?? null) : null;
+  const skinZones = photo && detection?.blob === photo.blob ? (detection.result?.skinZones ?? null) : null;
   const skin = useMemo<SkinState | null>(() => {
     if (!photo || sample) return null; // the sample model is not the visitor's face → lessons keep their default base color
     const measured = detection?.blob === photo.blob ? (detection.result?.skin ?? null) : null;
@@ -219,7 +223,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     setHydrated(true);
     void fetchCredit().then(setCredit);
     // A reload inside a sample trial (or a deep link in the same tab) comes back as the same trial; home always starts clean.
-    const snap = window.location.pathname === "/" ? null : loadSampleSession(window.sessionStorage);
+    const snap = shouldResumeSample(window.location.pathname) ? loadSampleSession(window.sessionStorage) : null;
     if (snap) {
       setRestoring(true);
       void fetchBlob(sampleModelById(snap.id).original)
@@ -451,10 +455,10 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const value = useMemo<FlowState>(
     () => ({
       lang, setLang, consented, setConsented, practice, photo, setPhoto, stored: activeStored, hydrated, setStored, editProfile, deleteProfile,
-      anchors, eyeOverlay, facePins, skin, setSkinShade, skinCheck, skinBusy, skinError, runSkinCheck, sample, sampleId, startSample, restoring, loadSampleAttempt, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
+      anchors, eyeOverlay, facePins, skinZones, skin, setSkinShade, skinCheck, skinBusy, skinError, runSkinCheck, sample, sampleId, startSample, restoring, loadSampleAttempt, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
       cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession,
     }),
-    [lang, setLang, consented, setConsented, practice, photo, setPhoto, anchors, eyeOverlay, facePins, skin, setSkinShade, skinCheck, skinBusy, skinError, runSkinCheck, sample, sampleId, startSample, restoring, loadSampleAttempt, activeStored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
+    [lang, setLang, consented, setConsented, practice, photo, setPhoto, anchors, eyeOverlay, facePins, skinZones, skin, setSkinShade, skinCheck, skinBusy, skinError, runSkinCheck, sample, sampleId, startSample, restoring, loadSampleAttempt, activeStored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

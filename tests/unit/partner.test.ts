@@ -83,7 +83,7 @@ describe("C23 copy: jump chips, monolid reframe, step-3 card prefix, shop next s
   });
   it("reframes the monolid chip as a feature but keeps the honest misread notice", () => {
     expect(t("sampleMonoHint", "en")).toBe("Correct what the analyzer cannot see");
-    expect(t("sampleMonoFix", "en")).toMatch(/read this monolid face as Double-lid/);
+    expect(t("sampleMonoFix", "en")).toMatch(/Caught a misread: Face Analyzer said Double lid, your eyes are monolid/);
     expect(t("lessonFixCardPrefix", "en")).toBe("Analyzer misread you can fix:");
   });
 });

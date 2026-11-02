@@ -192,9 +192,9 @@ export default function AnalyzePage() {
         {phase.kind === "done" && stored && (
           <>
             {needsFix && (
-              <div ref={fixNoticeRef} data-testid="sample-mono-fix" role="status" className="flex scroll-mt-20 flex-col gap-2 rounded-[var(--radius-panel)] border border-primary/30 bg-peach-soft p-3">
+              <div ref={fixNoticeRef} data-testid="sample-mono-fix" role="status" className="flex scroll-mt-20 flex-col gap-2 rounded-[var(--radius-panel)] border border-line-strong/40 bg-panel p-3 shadow-sm">
                 <p className="flex items-start gap-2 text-sm font-bold leading-snug text-ink">
-                  <Icon name="info" className="mt-0.5 h-4 w-4 flex-none text-primary-strong" />
+                  <Icon name="sparkle" className="mt-0.5 h-4 w-4 flex-none text-primary-strong" />
                   {t("sampleMonoFix", lang)}
                 </p>
               </div>

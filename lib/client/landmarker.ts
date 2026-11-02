@@ -4,6 +4,7 @@ import { landmarkMeasure, type LandmarkMeasure, type Pt, type RgbaImage } from "
 import type { FaceAnchors } from "../regions";
 import { measureSkin, type SkinMeasure } from "../skin/measure";
 import { eyeOverlayFromLandmarks, type EyeOverlay } from "../eyeOverlay";
+import { skinZonesFromLandmarks, type SkinZones } from "../skin/zones";
 import { facePinsFromLandmarks, gradePinsFromLandmarks, type FacePins, type GradePins } from "../facePins";
 
 /**
@@ -70,6 +71,8 @@ export interface FaceDetection {
   pins: FacePins | null;
   /** C18 "Show technique": lid band / crease / arrows from this photo's own mesh (stay on this device). null when the mesh is incomplete. */
   overlay: EyeOverlay | null;
+  /** Skin-check zones (dark circles, redness, pores, oiliness) from this photo's own mesh (stay on this device). null when the mesh is incomplete. */
+  skinZones: SkinZones | null;
 }
 
 /**
@@ -87,7 +90,7 @@ export async function detectFace(photo: Blob, timeoutMs = 12_000): Promise<FaceD
         const a = mean(f, [33, 133]);
         const b = mean(f, [362, 263]);
         const [leftEye, rightEye] = a.x <= b.x ? [a, b] : [b, a];
-        return { anchors: { leftEye, rightEye, mouth: mean(f, [61, 291, 13, 14]) }, skin: measureSkin(pixels(c), f), pins: facePinsFromLandmarks(f), overlay: eyeOverlayFromLandmarks(f, c.width / c.height) };
+        return { anchors: { leftEye, rightEye, mouth: mean(f, [61, 291, 13, 14]) }, skin: measureSkin(pixels(c), f), pins: facePinsFromLandmarks(f), overlay: eyeOverlayFromLandmarks(f, c.width / c.height), skinZones: skinZonesFromLandmarks(f) };
       })(),
       timeoutMs,
     );

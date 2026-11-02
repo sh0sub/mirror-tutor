@@ -91,8 +91,8 @@ const DICT = {
   sampleDouble: { ko: "쌍꺼풀", en: "Double-lid" },
   sampleDoubleHint: { ko: "분석 그대로 진행", en: "Analysis as read" },
   sampleMonoFix: {
-    ko: "Face Analyzer가 이 홑꺼풀 얼굴을 쌍꺼풀로 읽었어요. '눈꺼풀' 카드를 눌러 홑꺼풀로 고치면 레슨이 가로 그라데이션으로 바뀌어요(0 유닛).",
-    en: "Face Analyzer read this monolid face as Double-lid. Tap the Eyelid card and pick Monolid: the lesson switches to the horizontal gradient (0 units).",
+    ko: "잘못 읽은 걸 잡았어요: Face Analyzer는 쌍꺼풀이라고 했지만 이 눈은 홑꺼풀이에요. 눌러서 고치면 레슨이 가로 그라데이션으로 바뀌어요(0 유닛).",
+    en: "Caught a misread: Face Analyzer said Double lid, your eyes are monolid. Tap to correct, 0 units: the lesson switches to the horizontal gradient.",
   },
   sampleMonoFixed: {
     ko: "홑꺼풀로 고쳤어요. 3단계 섀도가 가로 그라데이션으로 바뀌었고, 미리 만든 실제 YouCam 결과예요(0 유닛).",
@@ -355,6 +355,8 @@ const DICT = {
     en: "On the two sample faces redness and oiliness read clear, so only the dark-circle and pore rules show here.",
   },
   skinCheckRender: { ko: "VTO 이미지는 색만 그려서, 프라이머·컨실러 팁은 글로만 보여요.", en: "The VTO image only paints colour, so primer and corrector tips are text only." },
+  skinZonesNote: { ko: "구역은 얼굴 랜드마크로 그린 대략적인 위치예요 (YouCam은 항목별 점수만 줘요).", en: "Zones are approximate, drawn from landmarks (YouCam returns one score per concern)." },
+  skinZonesAlt: { ko: "피부 체크에서 걸린 부위를 표시한 얼굴 사진", en: "Face photo with the zones the skin check flagged" },
   skinCheckChip: { ko: "피부 체크 반영", en: "From your skin check" },
   skinCheckWhyLine: { ko: "{concern} {score}/100", en: "{concern} {score}/100" },
   apiFieldsTitle: { ko: "읽은 값의 API 필드 이름", en: "API field names of the readings" },

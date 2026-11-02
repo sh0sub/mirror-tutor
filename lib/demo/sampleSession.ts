@@ -40,3 +40,8 @@ export function loadSampleSession(storage: StorageLike): SampleSnapshot | null {
     return null;
   }
 }
+
+/** Home ("/") always starts clean: a saved trial is resumed only on a deep link or reload inside the flow (/analyze, /lesson, ...). */
+export function shouldResumeSample(pathname: string): boolean {
+  return pathname !== "/" && pathname !== "";
+}

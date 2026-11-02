@@ -8,7 +8,8 @@ Track: **eCommerce VTO**. (Face Attribute & Ratio Analysis is a supporting input
 
 - **Misread and fix:** Face Analyzer read our monolid stock model as double-lid; one tap corrects it and the technique changes (/compare?lang=en shows both lessons side by side).
 - **Answer key and grading:** Makeup VTO renders each step as the answer key; your real attempt is graded per region with CIEDE2000 (deterministic on the landmark path; the LLM only phrases the one-line correction).
-- **Three YouCam APIs:** Face Analyzer, Makeup VTO and an opt-in Skin Analysis check (9 units) whose dark circles, redness, oiliness and pores change the Base step through a hand-written rule table.
+- **Three YouCam APIs:** Face Analyzer, Makeup VTO and an opt-in Skin Analysis check (9 units) whose dark circles, redness, oiliness and pores are drawn as landmark zones on your photo (only the ones that fired, approximate) and change the Base step through a hand-written rule table.
+- **Impact, checkable:** the market is beauty retailers and brands that already sell try-on on YouCam APIs, whose try-on answers "how does this shade look on me" but not "how do I wear it". /partner turns your own numbers into a break-even: 14 units for a first lesson and 4 after, so 2,000 first + 6,000 repeat lessons a month = 52,000 units and N = ceil(52,000 x unit price / margin per order) extra orders. The two-week 50/50 A/B (add-to-cart per product-page session) is judged against the 4.3% beauty-return baseline (PYMNTS, citing NRF: https://www.pymnts.com/news/ecommerce/2024/perfect-corp-ar-try-on-reduces-returns-for-ecommerce-beauty-brands/). **No pilot exists and no retailer data**: the counts are illustrative and the baseline is context, not our result.
 - **Retailer fit:** one iframe widget; /partner?lang=en has the cost calculator and a two-week A/B test plan.
 
 ## Pitch
@@ -73,7 +74,7 @@ Also: Korean and English UI, per-session and daily unit caps, a render cache, an
 ## Accomplishments that we're proud of
 
 - A misread caught and fixed in one tap, and the whole lesson changes; a real attempt graded per region with CIEDE2000 against the VTO answer; an embeddable widget at 0 units.
-- 273 tests (33 files) run offline against recorded API bodies; typecheck and lint are clean.
+- 278 tests (33 files) run offline against recorded API bodies; typecheck and lint are clean.
 
 ## How we built it
 
