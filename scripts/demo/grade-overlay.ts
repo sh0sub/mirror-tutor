@@ -37,7 +37,7 @@ function masks(x0: number): string {
 const pill = (x: number, text: string, fill: string, w: number) =>
   `<g><rect x="${x + (THUMB_W - w) / 2}" y="${THUMB_Y + THUMB_H - 28}" width="${w}" height="22" rx="11" fill="${fill}"/><text x="${x + THUMB_W / 2}" y="${THUMB_Y + THUMB_H - 12.5}" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="12.5" fill="#fff" letter-spacing=".4">${text}</text></g>`;
 
-const topSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844">${masks(ANSWER_X)}${masks(ATTEMPT_X)}${pill(ANSWER_X, "ANSWER KEY", "#c8325b", 112)}${pill(ATTEMPT_X, "SIMULATED ATTEMPT", "#1f1b1a", 160)}</svg>`;
+const topSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844">${masks(ANSWER_X)}${process.env.ANSWER_ONLY ? "" : masks(ATTEMPT_X)}${pill(ANSWER_X, "ANSWER KEY", "#c8325b", 112)}${pill(ATTEMPT_X, "SIMULATED ATTEMPT", "#1f1b1a", 160)}</svg>`;
 // delta-E line of the Eyeliner card in the scrolled frame (frame px)
 const rowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844"><rect x="60" y="${rowY}" width="272" height="26" rx="8" fill="#c8325b" fill-opacity="0.10" stroke="#c8325b" stroke-width="2.5"/></svg>`;
 

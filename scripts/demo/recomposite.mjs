@@ -152,6 +152,23 @@ async function eyeStrip({ img, lm, w, h, arrow, ov, out, spanX = 1.14, radius = 
  */
 const SEGMENTS = [
   {
+    // C11 split beat (~10-18 s): the same look on the monolid face and the double-lid face, full-size YouCam eye renders (lesson step 3, the
+    // compare assets), the gradient direction marked on each lid. Full-screen still pair (arrows fade in on line 2), no phone.
+    id: "split",
+    split: {
+      kicker: "Same look, different lid.",
+      left: { img: "model-c/step-3.jpg", lm: "model-c", ov: { id: "model-c", dir: "horizontal", crease: false }, name: "Monolid face", tech: "Horizontal gradient + visible liner" },
+      right: { img: "model-a/step-3.jpg", lm: "model-a", ov: { id: "model-a", dir: "vertical", crease: true }, name: "Double-lid face", tech: "Crease shading + thin liner" },
+      note: "Real YouCam Makeup VTO renders, lesson step 3 (eyes), pre-generated, 0 units now · overlay: dashed lid area + crease guide from face landmarks (approximate), arrow = our rule-table direction · faces: Unsplash and Pexels License stock",
+    },
+    lead: 0.1,
+    tail: 0.1,
+    units: 0,
+    // C16: one line (was two, 8.1 s -> ~5.5 s); the arrows fade in `arrowAt` seconds in
+    lines: ["Same look, different lid. Monolid: horizontal gradient. Double lid: crease shading."],
+    arrowAt: 1.9,
+  },
+  {
     // C10 cold open (0-~10 s): the sample model's own face with the real YouCam Makeup VTO look (lesson step 4, answer
     // render), the before/after slider swept from "My face" to the finished look. Source: work-c10 cold recording
     // (`record-video.mjs --mode mock --sample --only cold`, 0 units). Phone at 80 % of the frame height (864 of 1080 px,
@@ -184,26 +201,9 @@ const SEGMENTS = [
       title: "Try-on shows the shade.",
       chips: ["We teach the technique", "We grade your attempt", "We sell the exact products"],
       stack: true,
-      sub: "First lesson 14 units (10 analysis + 4 renders) \u00b7 every lesson after 4 \u00b7 sample trial 0",
+      sub: "First lesson 14 units \u00b7 then 4 \u00b7 sample 0",
       caption: true,
     },
-  },
-  {
-    // C11 split beat (~10-18 s): the same look on the monolid face and the double-lid face, full-size YouCam eye renders (lesson step 3, the
-    // compare assets), the gradient direction marked on each lid. Full-screen still pair (arrows fade in on line 2), no phone.
-    id: "split",
-    split: {
-      kicker: "Same look · two lids",
-      left: { img: "model-c/step-3.jpg", lm: "model-c", ov: { id: "model-c", dir: "horizontal", crease: false }, name: "Monolid face", tech: "Horizontal gradient + visible liner" },
-      right: { img: "model-a/step-3.jpg", lm: "model-a", ov: { id: "model-a", dir: "vertical", crease: true }, name: "Double-lid face", tech: "Crease shading + thin liner" },
-      note: "Real YouCam Makeup VTO renders, lesson step 3 (eyes), pre-generated, 0 units now · overlay: dashed lid area + crease guide from face landmarks (approximate), arrow = our rule-table direction · faces: Unsplash and Pexels License stock",
-    },
-    lead: 0.1,
-    tail: 0.1,
-    units: 0,
-    // C16: one line (was two, 8.1 s -> ~5.5 s); the arrows fade in `arrowAt` seconds in
-    lines: ["Same look, different lid. Monolid: horizontal gradient. Double lid: crease shading."],
-    arrowAt: 1.9,
   },
   {
     // C16 (replaces the intro): the real 390 sample-trial tap on the home screen (live-mode local app, 0 units) and the first analysis screen.
@@ -219,7 +219,7 @@ const SEGMENTS = [
     lead: 0.3,
     lines: ["Tap the sample model. Zero units, no selfie needed."],
     ui: [{ callout: "<b>Face Analyzer</b> reads features · 10 units<br><b>Makeup VTO</b> renders each step · 4 units<br><span class=\"plain\">Sample trial: pre-generated real YouCam results · <b>0 units</b></span>" }],
-    timeline: [{ at: 0, src: 1.0 }, { at: 0.45, src: [1.95, 2.3] }, { at: 0.95, src: 4.0 }],
+    timeline: [{ at: 0, src: 1.0 }, { at: 0.45, src: [1.85, 2.15] }, { at: 0.95, src: 4.0 }],
     zoom: [{ at: 0, y: 498 }, { at: 0.95, y: 400 }],
   },
   {
@@ -249,13 +249,13 @@ const SEGMENTS = [
     // rule-table tap 16.6-17.2 s, sheet open 17.2-20.3 s
     timeline: [
       { at: 0, src: 4.0 },
-      { at: { cue: 1, plus: 0.9 }, src: [6.0, 11.9] },
-      { at: { cue: 2, plus: -0.2 }, src: [16.4, 17.5] },
-      { at: { cue: 2, plus: 0.9 }, src: 19 },
+      { at: { cue: 1, plus: 0.9 }, src: [5.4, 11.3] },
+      { at: { cue: 2, plus: -0.2 }, src: [15.8, 16.9] },
+      { at: { cue: 2, plus: 0.9 }, src: 18.4 },
     ],
     pops: [
-      { at: { cue: 0, plus: 2.4 }, dur: 2.5, src: 4.5, crop: { x: 12, y: 412, w: 348 }, ring: { x: 18, y: 598, w: 128, h: 40 }, label: "Raw read: Double lid (wrong for this face)" },
-      { at: { cue: 1, plus: 3.2 }, dur: 2.5, src: 11, crop: { x: 14, y: 535, w: 310 }, ring: { x: 18, y: 604, w: 96, h: 40 }, label: "Fixed in the app: Monolid, Edited" },
+      { at: { cue: 0, plus: 2.4 }, dur: 2.5, src: 4.0, crop: { x: 12, y: 452, w: 348 }, ring: { x: 20, y: 604, w: 124, h: 44 }, label: "Raw read: Double lid (wrong for this face)" },
+      { at: { cue: 1, plus: 3.2 }, dur: 2.5, src: 10.4, crop: { x: 12, y: 452, w: 348 }, ring: { x: 20, y: 584, w: 104, h: 56 }, label: "Fixed in the app: Monolid, Edited" },
     ],
     zoom: [{ at: 0, y: 400 }, { at: { cue: 1, plus: 0.9 }, y: 400 }, { at: { cue: 1, plus: 3.2 }, y: 440 }, { at: { cue: 2, plus: -0.3 }, y: 400 }],
   },
@@ -409,6 +409,7 @@ const SEGMENTS = [
       "Now draw the look, snap it. A simulated attempt stands in.",
       "The YouCam render is our answer key. Each region is compared by color difference.",
       "Eyeliner: six point eight apart. Make it a bit stronger.",
+      "Tap a shade: same grader, new score.", // C21: the in-browser "Try it" chips (Lips -> Same as answer: lips 64 -> 100, total 79 -> 88)
       "You get a score, one clear fix, and an honest confidence level.",
     ],
     ui: [
@@ -418,6 +419,7 @@ const SEGMENTS = [
           "<div class=\"key\">YouCam render = answer key</div><span class=\"lgd\"><i style=\"background:#ffd400\"></i>Eyeliner <i style=\"background:#b45cff\"></i>Eyelid <i style=\"background:#19d3ff\"></i>Cheeks <i style=\"background:#3ddc84\"></i>Lips</span>",
       },
       { callout: "<div class=\"key\">YouCam render = answer key</div>Eyeliner <b>ΔE2000 6.8</b><br><span class=\"mono\">#A57D64 vs #BB9074</span>" },
+      { callout: "<div class=\"key\">Try it: tap a Lips shade</div>Lips <b>64 \u2192 100</b> \u00b7 total <b>79 \u2192 88</b><br><span class=\"plain\">\u201cSame as answer\u201d chip \u00b7 same CIEDE2000 grader, in the browser \u00b7 0 units</span>" },
       { callout: "Score + <b>one-line correction</b> + confidence" },
     ],
     // C11: re-taken at the C11 app (work-c11 frames-grade, monolid sample, instant result); overlay-grade made from f000162 (top) and f000200 (scrolled) with model-c landmarks.
@@ -426,12 +428,17 @@ const SEGMENTS = [
     // Eyeliner delta-E line. The scroll between them is the original frames, 4.2-4.7 s.
     timeline: [
       { at: 0, file: "overlay-grade/grade-top.jpg" },
-      { at: { cue: 2, plus: -0.35 }, src: [3.6, 4.4] },
+      { at: { cue: 2, plus: -0.35 }, src: [3.7, 4.4] },
       { at: { cue: 2, plus: 0.8 }, file: "overlay-grade/grade-row.jpg" },
+      // C21 (work-c21 frames-grade, mock --sample): lips scroll 8.8-9.1 s, chip tapped ~11.9 s (lips 64 -> 100, +36 badge), scroll back up 14.3-14.7 s (total 88, "Great job"), hold to the end
+      { at: { cue: 3, plus: -0.9 }, src: [8.7, 9.5] },
+      { at: { cue: 3, plus: -0.1 }, src: [11.0, 13.1] },
+      { at: { cue: 3, plus: 2.0 }, src: [14.2, 14.9] },
+      { at: { cue: 3, plus: 2.7 }, src: 19 },
     ],
     // C16: 2.5 s zoom panel on the Eyeliner delta-E line (boxed in grade-row.jpg)
-    pops: [{ at: { cue: 2, plus: 1.5 }, dur: 2.5, file: "overlay-grade/grade-row.jpg", crop: { x: 40, y: 425, w: 300 }, label: "\u0394E2000 6.8 \u00b7 #A57D64 vs #BB9074" }],
-    zoom: [{ at: 0, y: 100 }, { at: { cue: 2, plus: -0.35 }, y: 330 }],
+    pops: [{ at: { cue: 2, plus: 1.5 }, dur: 2.5, file: "overlay-grade/grade-row.jpg", crop: { x: 40, y: 490, w: 300 }, label: "\u0394E2000 6.8 \u00b7 #A57D64 vs #BB9074" }],
+    zoom: [{ at: 0, y: 100 }, { at: { cue: 2, plus: -0.35 }, y: 330 }, { at: { cue: 3, plus: -0.9 }, y: 350 }, { at: { cue: 3, plus: 2.0 }, y: 110 }],
   },
   {
     id: "shop",
@@ -443,11 +450,12 @@ const SEGMENTS = [
     units: 14,
     // C17: the demo-data line is dropped to pay for the claim card (the callout, chip and footnote still say "demo catalog"; the partner scene says no partner has used it)
     lines: ["Love a color? Shop the step matches its exact shade to products from a demo catalog, using CIEDE2000 color science."],
-    ui: [{ callout: "Hex colors from the step → closest products (ΔE)<br><span class=\"plain\">Finish check: <b>Matches finish</b> on the first lip row</span><br><span class=\"mono\">Demo catalog · real SKUs would come from a partner feed</span>" }],
-    timeline: [{ at: 0, src: [0.8, 6.2] }, { at: { plus: -2.3 }, src: [9.6, 12.0] }],
+    ui: [{ callout: "Hex colors from the step → closest products (ΔE)<br><span class=\"plain\">Closest first: <b>\u0394E 0.2</b> on the first base row</span><br><span class=\"mono\">Demo catalog · real SKUs would come from a partner feed</span>" }],
+    // C21 re-take: the page opens at step 1 (Base); swatch ~2.2 s, add ~3.6, store sheet 4.5-6.0, closes, rows scroll ~7.0-7.5, hold
+    timeline: [{ at: 0, src: [0.8, 7.7] }, { at: 6.9, src: 9.0 }],
     // C14 re-take (work-c14 frames-shop, mock --sample, 0 units): the app's sample chip sits under the app bar, the cart bar is gone until an item is added, the first lip row shows
     // the green "Matches finish" chip. List at css y ~567, "View in store" sheet at source 4.0-5.6 s (output = source - 0.8), scrolled rows + demo footnote from ~9.5 s.
-    zoom: [{ at: 0, y: 470 }, { at: 3.2, y: 498 }, { at: 4.9, y: 470 }, { at: { plus: -2.3 }, y: 400 }],
+    zoom: [{ at: 0, y: 470 }, { at: 3.0, y: 498 }, { at: 5.3, y: 470 }, { at: 6.3, y: 400 }],
   },
   {
     // C3: the /partner retailer view (concept screen, 0 units). C12: the widget is a live iframe on the real /embed/lesson route. C14: "Try your own shade" + the cost calculator.
@@ -466,7 +474,7 @@ const SEGMENTS = [
       "14 units for the first lesson, 4 after; you plug in your own price and break-even.", // C20: new marin line; shows the unit bars, then the calculator (illustrative)
     ],
     ui: [
-      { callout: "<b>In your store</b>: product page widget \u2192 4-step lesson in this shade \u2192 add to cart<br><span class=\"mono\">Try your own shade \u00b7 demo catalog, not a partner feed \u00b7 0 units</span>" },
+      { callout: "<b>In your store</b>: product page widget \u2192 4-step lesson in this shade \u2192 add to cart<br><span class=\"mono\">Worked example on the page: 2,000 first + 6,000 repeat visits = 52,000 units / month (illustrative)</span>" },
       { heading: "Integration is one iframe", callout: "<b>One plain iframe</b> \u00b7 no SDK<br><span class=\"mono\">A real route in this repo \u00b7 no partner has used it yet</span>" },
       {
         heading: "Unit meter",
@@ -477,17 +485,21 @@ const SEGMENTS = [
     // "In your store" strip + product card hold 3.3-4.4 s, scroll to the widget and slider drags 4.4-8.0 s, "Try your own shade" 8.1-10.6 s, Coral tapped ~10.8 s (the widget re-renders),
     // top with the Coral SKU 11.8-14.5 s, snippet scroll ~17.6-17.9 s (hold to 19.7), calculator typed ~19.8-20.2 s (52,000 units / month), break-even scroll 21.5-21.8 s, hold to 25.8 s
     timeline: [
-      { at: 0, src: [0.9, 2.2] },
-      { at: 1.3, src: 3.8 },
-      { at: 4.6, src: [4.5, 8.0] },
-      { at: { cue: 0, plus: 6.2 }, src: [8.2, 10.6] },
-      { at: { cue: 0, plus: 8.2 }, src: 12.5 },
-      { at: { cue: 1, plus: -0.2 }, src: [17.5, 18.0] },
-      { at: { cue: 1, plus: 0.8 }, src: 18.0 },
-      // C20: line 3 shows the unit bars, then the calculator typed (19.8-20.2) and the break-even scroll (21.5-21.8)
-      { at: { cue: 2, plus: 2.4 }, src: [19.7, 25.5] },
+      // C21 re-take (work-c21 frames-partner, live-mode home screen, 0 units; real times from the frame list): tap 2.0-2.3 s, page top with the worked-example card 2.4-5.4 s (2.2 s hold added to the recording),
+      // scroll to the store strip ~5.5-6.0, widget + slider drags ~6.5-10.0, Try your own shade ~10.5 (Coral tapped ~11.4), top with Coral 12-16.5, snippet scroll ~19.8-20.4, units bars 21-23.5, break-even scroll ~23.8-24.2
+      { at: 0, src: [0.9, 2.3] },
+      { at: 1.4, src: 3.6 },
+      { at: 3.9, src: [5.3, 7.0] },
+      { at: 5.6, src: [7.0, 9.0] },
+      { at: { cue: 0, plus: 7.6 }, src: [10.4, 12.2] },
+      { at: { cue: 0, plus: 9.2 }, src: 15.0 },
+      { at: { cue: 1, plus: -0.2 }, src: [19.7, 20.6] },
+      { at: { cue: 1, plus: 0.8 }, src: 20.7 },
+      { at: { cue: 2, plus: -0.2 }, src: 22.0 },
+      // C20: line 3 shows the unit bars, then the calculator defaults (2,000 / 6,000) and the break-even scroll
+      { at: { cue: 2, plus: 2.4 }, src: [23.2, 27.0] },
     ],
-    zoom: [{ at: 0, y: 507 }, { at: 1.3, y: 140 }, { at: 4.6, y: 120 }, { at: { cue: 0, plus: 6.2 }, y: 230 }, { at: { cue: 0, plus: 8.2 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 60 }, { at: { cue: 2, plus: -0.2 }, y: 190 }, { at: { cue: 2, plus: 2.4 }, y: 330 }, { at: { cue: 2, plus: 3.0 }, y: 560 }],
+    zoom: [{ at: 0, y: 507 }, { at: 1.4, y: 250 }, { at: 3.9, y: 140 }, { at: 5.6, y: 120 }, { at: { cue: 0, plus: 7.6 }, y: 230 }, { at: { cue: 0, plus: 9.2 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 60 }, { at: { cue: 2, plus: -0.2 }, y: 190 }, { at: { cue: 2, plus: 2.4 }, y: 330 }, { at: { cue: 2, plus: 3.0 }, y: 560 }],
   },
   {
     id: "share",

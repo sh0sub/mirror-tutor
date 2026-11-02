@@ -272,3 +272,13 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - 디졸브: `XF_N` 10 -> 6프레임(0.33 -> 0.2초 페이드). 장면 안 모든 이어 붙이기에 적용(오분석 정정 -> 두 레슨 구간 포함).
 - partner: 새 marin 줄 "14 units for the first lesson, 4 after; you plug in your own price and break-even."(기존 "First lesson, fourteen units. Then four." 대체). iframe 스니펫 스크롤 -> 유닛 막대 -> 계산기 입력과 손익분기(예시 값, "illustrative" 표기)를 보여 준다. 콜아웃에도 같은 표기.
 - 검증: 길이 162.82초(180초 미만), 장면 전환 감지(gt 0.08)는 세그먼트 경계와 의도한 스크롤/디졸브뿐, blackdetect 0건, 접촉 시트와 조밀 프레임에서 스켈레톤/빈/배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열. compare는 재녹화하지 않았다(선택 사항).
+
+## 사이클 21 재합성 (166.4초, YouCam 유닛 0 사용, 새 TTS 줄 1개, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c21` (work-c20 복사본, phone 타임라인 경로를 work-c21로 변경). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유), 직전 판 `.local/video/mirror-tutor-demo-live-c21prev.mp4`.
+- 재녹화(전부 0 유닛): `--mode live --only trial|partner`(로컬 live 서버, 홈 화면만), `--mode mock --sample --only grade|lesson|shop`. 앱의 새 UI(분석 카드 자동 스크롤·펄스, 채점 범례·칩 이름과 hex·+delta 배지·"Shop these 4 colors", 쇼핑이 1단계에서 열림, partner 예시 월 비용 카드·계산기 기본값 2,000/6,000)에 맞춰 타임라인을 다시 맞췄다. 주의: 프레임 목록의 실제 시각은 `phone.txt` 누적 duration이고, ffmpeg concat으로 만든 접촉 시트의 시각은 어긋날 수 있다.
+- 순서: split("Same look, different lid.") -> hook -> claim 카드(부제를 "First lesson 14 units · then 4 · sample 0"로 줄임) -> trial -> analyze -> live -> lesson -> compare -> gradient -> grade -> shop -> partner -> share -> 끝 카드. 영상은 홑꺼풀 vs 쌍꺼풀 랜드마크 오버레이 분할 장면으로 시작한다.
+- grade: 새 나레이션 줄 "Tap a shade: same grader, new score."(marin TTS 1건). `video-shots.mjs` 샘플 액션이 입술 Try it 칩("Same as answer")을 눌러 입술 64 -> 100(+36 배지)을 보이고 위로 스크롤해 총점 79 -> 88("Great job")을 보인다. 오버레이 프레임은 `grade-overlay.ts`(`ANSWER_ONLY=1`로 앱이 이미 칩을 그리는 시도 썸네일의 마스크는 생략, 7번째 인자 118)로 다시 만들었다. 채점 점수는 가상 시도(샘플)의 값이며 이 칩 결과는 브라우저에서 같은 CIEDE2000 함수로 다시 계산한 것이다.
+- analyze/trial: 새 앱에서는 분석 결과가 눈꺼풀 카드가 보이도록 자동 스크롤되어 수정 탭·시트·규칙표 시각이 약 0.6초 앞당겨졌고, 확대 패널 링 좌표를 새 레이아웃에 맞췄다. 분석기가 홑꺼풀을 쌍꺼풀로 읽었고 앱 수정 시트에서 고쳤다는 표기는 그대로.
+- shop: 버튼 "Shop these 4 colors", 쇼핑이 1단계(Base)에서 열리므로 콜아웃의 "Matches finish on the first lip row"를 "Closest first: ΔE 0.2 on the first base row"로 바꿨다. partner: 페이지 위 예시 카드(2,000 첫 레슨 + 6,000 재방문 = 월 52,000유닛, 예시 값·단가 가정 없음)를 보이도록 녹화에 2.2초 정지를 추가했고 콜아웃에 "illustrative"로 적었다.
+- 검증: 길이 166.39초(180초 미만), blackdetect 0건, 장면 전환 감지(gt 0.08)는 세그먼트 경계와 의도한 스크롤/디졸브뿐, 변경 장면의 조밀 프레임에서 스켈레톤/빈/배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열.

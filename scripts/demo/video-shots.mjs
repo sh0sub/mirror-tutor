@@ -281,6 +281,13 @@ export const SEGMENTS = [
         { sleep: 2.5 },
         { scroll: { y: 360 }, dur: 1.6 },
         { sleep: 3.0 },
+        // C21: "Try it" shade chips: re-pick the Lips shade, the region score and the total move (same grader, in-browser)
+        { scroll: { sel: "[data-testid=try-lip]", offset: 330 }, dur: 1.4 },
+        { sleep: 1.6 },
+        { tap: { sel: "[data-testid=shade-lip-match]" } },
+        { sleep: 2.2 },
+        { scroll: { sel: "section[aria-label$='/ 100']", offset: 150 }, dur: 1.2 },
+        { sleep: 3.0 },
       ],
     },
     actions: [
@@ -342,6 +349,7 @@ export const SEGMENTS = [
       { wait: "!!document.querySelector('[data-testid=partner-widget] iframe')" },
       { wait: "!!document.querySelector('[data-testid=partner-widget] iframe')?.contentDocument?.querySelector('[data-testid=embed-match]')", timeout: 30000 },
       { js: "(() => { const css = 'nextjs-portal{display:none!important}'; for (const d of [document, document.querySelector('[data-testid=partner-widget] iframe')?.contentDocument]) { if (!d) continue; const st = d.createElement('style'); st.textContent = css; d.head.appendChild(st); } })()" }, // hide the dev-only indicator (absent in production)
+      { sleep: 2.2 }, // C21: hold the page top: the worked-example monthly-cost card sits above the store strip
       { scroll: { sel: "[data-testid=partner-widget] p", offset: 150 }, dur: 0.8 },
       { sleep: 0.3 },
       { drag: { sel: "[data-testid=partner-widget] iframe", from: 0.5, to: 0.1, dur: 0.7 } },
