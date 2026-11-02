@@ -338,8 +338,8 @@ export const SEGMENTS = [
     chip: "Concept screen · fictional store",
     lines: [
       "For retailers, the lesson is a live widget on the product page. Try your own shade: no units spent.",
-      "Integration is one plain iframe. No SDK, and no partner has used it yet.",
-      "First lesson, fourteen units. Then four. A calculator turns your own visit counts into monthly units.",
+      "14 units for the first lesson, 4 after; you plug in your own price and break-even.",
+      "No pilot yet. Here is the two-week test we would run.",
     ],
     // C5: the entry path from home ("Retailer view (concept)" beside the sample button), then the widget
     prep: [{ route: "/" }, { wait: "location.pathname === '/' && document.body.innerText.includes('Retailer view')" }, { sleep: 1.0 }],
@@ -364,15 +364,16 @@ export const SEGMENTS = [
       { wait: "!!document.querySelector('[data-testid=partner-widget] iframe')?.contentDocument?.querySelector('[data-testid=embed-match]')", timeout: 30000 },
       { scroll: { sel: "[data-testid=partner-widget] p", offset: 150 }, dur: 1.0 },
       { sleep: 1.6 },
-      { scroll: { sel: "h2", text: "Integration is one iframe", offset: 200 }, dur: 1.2 },
-      { sleep: 1.8 },
       { scroll: { sel: "h2", text: "Cost calculator", offset: 330 }, dur: 1.2 },
       { sleep: 0.6 },
       { js: "(() => { const set = (el, v) => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, v); el.dispatchEvent(new Event('input', { bubbles: true })); }; const ins = document.querySelectorAll('[data-testid=cost-calc] input'); set(ins[0], '2000'); set(ins[1], '6000'); })()" },
       { sleep: 1.8 },
       // C16: the break-even block under the calculator (example price 0.05 and margin 6 are the page defaults; the page says they are not a Perfect Corp price)
       { scroll: { sel: "[data-testid=break-even] p", offset: 120 }, dur: 1.0 },
-      { sleep: 3.0 },
+      { sleep: 2.4 },
+      // C22: the two-week retailer test card at the bottom of the page (a plan, not a result)
+      { scroll: { sel: "[data-testid=retailer-test] h2", offset: 720 }, dur: 1.0 },
+      { sleep: 4.5 },
     ],
   },
   {

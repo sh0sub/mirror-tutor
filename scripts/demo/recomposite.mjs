@@ -287,8 +287,8 @@ const SEGMENTS = [
       { at: 1.0, src: 4.2 },
       { at: 1.7, src: [6.3, 8.4] },
       { at: 2.5, src: 9.8 },
-      { at: { cue: 1, plus: -0.05 }, src: [1.0, 2.6], from: "livecall" },
-      { at: { cue: 1, plus: 1.55 }, src: [10.3, 13.6], from: "livecall" },
+      // C22: the skeleton wait (livecall 1.0-10.7 s) is skipped: the live call's result frame ("Analysis: YouCam Face Analyzer, 10 units", units 883 -> 873) is held from the cue on
+      { at: { cue: 1, plus: -0.05 }, src: [10.8, 15.2], from: "livecall" },
     ],
     zoom: [{ at: 0, y: 498 }, { at: 1.0, y: 267 }, { at: { cue: 1, plus: -0.05 }, y: 498 }],
   },
@@ -398,8 +398,8 @@ const SEGMENTS = [
     id: "grade",
     step: 5,
     badge: "YouCam VTO, pre-generated (0 units)",
-    // C10: wider-than-tall zoom panel is 560 px high so the thumbnails (and later the score ring + Eyeliner card) fit without clipping a text line
-    geo: { ZH: 560 },
+    // C22: 720 px zoom panel (was 560 in C10): the thumbnails plus both "Mean color per region" legend rows fit without cutting a line
+    geo: { ZH: 720 },
     kicker: "Step 5 · Grade",
     heading: "Score your attempt",
     chip: "0 YouCam units",
@@ -437,8 +437,8 @@ const SEGMENTS = [
       { at: { cue: 3, plus: 2.7 }, src: 19 },
     ],
     // C16: 2.5 s zoom panel on the Eyeliner delta-E line (boxed in grade-row.jpg)
-    pops: [{ at: { cue: 2, plus: 1.5 }, dur: 2.5, file: "overlay-grade/grade-row.jpg", crop: { x: 40, y: 490, w: 300 }, label: "\u0394E2000 6.8 \u00b7 #A57D64 vs #BB9074" }],
-    zoom: [{ at: 0, y: 100 }, { at: { cue: 2, plus: -0.35 }, y: 330 }, { at: { cue: 3, plus: -0.9 }, y: 350 }, { at: { cue: 3, plus: 2.0 }, y: 110 }],
+    pops: [{ at: { cue: 2, plus: 1.5 }, dur: 2.5, file: "overlay-grade/grade-row.jpg", crop: { x: 40, y: 468, w: 300 }, label: "\u0394E2000 6.8 \u00b7 #A57D64 vs #BB9074" }],
+    zoom: [{ at: 0, y: 92 }, { at: { cue: 2, plus: -0.35 }, y: 330 }, { at: { cue: 3, plus: -0.9 }, y: 350 }, { at: { cue: 3, plus: 2.0 }, y: 92 }],
   },
   {
     id: "shop",
@@ -462,7 +462,7 @@ const SEGMENTS = [
     // Source: work-c14 frames-partner (live mode, home screen only, no API call, 0 units).
     id: "partner",
     step: 7,
-    tail: 0.2, // C10: shorter dwell to pay for the longer cold open and grade scene
+    tail: 2.5, // C22: the two-week test card (two crops, 5.2 s) is held after the last line
     badge: "YouCam VTO, pre-generated (0 units)",
     kicker: "For retailers",
     heading: "The lesson as an iframe widget",
@@ -470,36 +470,41 @@ const SEGMENTS = [
     units: 14,
     lines: [
       "In your store: a widget beside the lip product, a four-step lesson in its exact shade, then add to cart. Try your own shade: no units spent.",
-      "Integration is one plain iframe. No SDK, and no partner has used it yet.",
-      "14 units for the first lesson, 4 after; you plug in your own price and break-even.", // C20: new marin line; shows the unit bars, then the calculator (illustrative)
+      "14 units for the first lesson, 4 after; you plug in your own price and break-even.", // C20 marin line
+      "No pilot yet. Here is the two-week test we would run.", // C22: new marin line (the iframe-snippet beat is dropped for the Two-week retailer test card)
     ],
     ui: [
       { callout: "<b>In your store</b>: product page widget \u2192 4-step lesson in this shade \u2192 add to cart<br><span class=\"mono\">Worked example on the page: 2,000 first + 6,000 repeat visits = 52,000 units / month (illustrative)</span>" },
-      { heading: "Integration is one iframe", callout: "<b>One plain iframe</b> \u00b7 no SDK<br><span class=\"mono\">A real route in this repo \u00b7 no partner has used it yet</span>" },
       {
-        heading: "Unit meter",
-        callout: "<div class=\"vs\"><div><b>Unit meter</b>First lesson <em>14</em> units (10 analysis + 4 renders), then <em>4</em><span class=\"mono\">A 20-unit session cap bounds the cost \u00b7 break-even from your own inputs (illustrative)</span></div></div>",
+        heading: "Unit meter and calculator",
+        callout: "<div class=\"vs\"><div><b>Unit meter</b>First lesson <em>14</em> units (10 analysis + 4 renders), then <em>4</em><span class=\"mono\">Your inputs: 52,000 units / month, 434 extra orders to break even (illustrative, not a Perfect Corp price)</span></div></div>",
+      },
+      {
+        heading: "Two-week retailer test",
+        callout: "<b>A plan, not a result</b> \u00b7 50/50 split on one lip SKU<br><span class=\"mono\">6,144 sessions per arm \u00b7 cost ceiling 86,016 units \u00b7 4% baseline is illustrative \u00b7 no retailer has run this yet</span>",
       },
     ],
-    // C16 source (work-c16 frames-partner, live mode home screen only, no API call, 0 units): tap "Retailer view" 1.6-2.3 s, page top 2.3-2.9 s (the widget iframe flashes Korean 2.6-3.2 s, skipped),
-    // "In your store" strip + product card hold 3.3-4.4 s, scroll to the widget and slider drags 4.4-8.0 s, "Try your own shade" 8.1-10.6 s, Coral tapped ~10.8 s (the widget re-renders),
-    // top with the Coral SKU 11.8-14.5 s, snippet scroll ~17.6-17.9 s (hold to 19.7), calculator typed ~19.8-20.2 s (52,000 units / month), break-even scroll 21.5-21.8 s, hold to 25.8 s
+    // C22 re-take (work-c22 frames-partner, live-mode home screen, 0 units; real times from the frame list): tap ~2.0-2.4 s, page top with the worked-example card 2.4-5.1, widget + slider drags 5.4-9.5,
+    // Try your own shade ~10.0 (Coral tapped ~11.2), top with Coral 13.9-16.5, calculator + unit bars 16.7-20.3, break-even (52,000 / 434 extra orders) 20.6-24.0, Two-week retailer test card 24.3-29.7
     timeline: [
-      // C21 re-take (work-c21 frames-partner, live-mode home screen, 0 units; real times from the frame list): tap 2.0-2.3 s, page top with the worked-example card 2.4-5.4 s (2.2 s hold added to the recording),
-      // scroll to the store strip ~5.5-6.0, widget + slider drags ~6.5-10.0, Try your own shade ~10.5 (Coral tapped ~11.4), top with Coral 12-16.5, snippet scroll ~19.8-20.4, units bars 21-23.5, break-even scroll ~23.8-24.2
       { at: 0, src: [0.9, 2.3] },
       { at: 1.4, src: 3.6 },
       { at: 3.9, src: [5.3, 7.0] },
       { at: 5.6, src: [7.0, 9.0] },
       { at: { cue: 0, plus: 7.6 }, src: [10.4, 12.2] },
       { at: { cue: 0, plus: 9.2 }, src: 15.0 },
-      { at: { cue: 1, plus: -0.2 }, src: [19.7, 20.6] },
-      { at: { cue: 1, plus: 0.8 }, src: 20.7 },
-      { at: { cue: 2, plus: -0.2 }, src: 22.0 },
-      // C20: line 3 shows the unit bars, then the calculator defaults (2,000 / 6,000) and the break-even scroll
-      { at: { cue: 2, plus: 2.4 }, src: [23.2, 27.0] },
+      { at: { cue: 1, plus: -0.2 }, src: [16.45, 20.3] },
+      { at: { cue: 1, plus: 3.5 }, src: [20.3, 24.0] },
+      { at: { cue: 2, plus: -0.25 }, src: [24.0, 29.7] },
     ],
-    zoom: [{ at: 0, y: 507 }, { at: 1.4, y: 250 }, { at: 3.9, y: 140 }, { at: 5.6, y: 120 }, { at: { cue: 0, plus: 7.6 }, y: 230 }, { at: { cue: 0, plus: 9.2 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 60 }, { at: { cue: 2, plus: -0.2 }, y: 190 }, { at: { cue: 2, plus: 2.4 }, y: 330 }, { at: { cue: 2, plus: 3.0 }, y: 560 }],
+    // C22: large crops (held >= 2.2 s): calculator, break-even, then the retailer-test card in two halves (a 390 px wide crop is 346 px tall; the card is about 520 px)
+    pops: [
+      { at: { cue: 1, plus: 0.3 }, dur: 2.6, file: "frames-partner/f000233.jpg", crop: { x: 0, y: 446, w: 390 }, label: "52,000 units / month \u00b7 example inputs, illustrative" },
+      { at: { cue: 1, plus: 3.7 }, dur: 2.2, file: "frames-partner/f000251.jpg", crop: { x: 0, y: 408, w: 390 }, label: "434 extra orders to break even \u00b7 illustrative" },
+      { at: { cue: 2, plus: 0 }, dur: 2.6, file: "frames-partner/f000265.jpg", crop: { x: 0, y: 220, w: 390 }, label: "Two-week retailer test \u00b7 a plan, not a result" },
+      { at: { cue: 2, plus: 2.6 }, dur: 2.6, file: "frames-partner/f000265.jpg", crop: { x: 0, y: 404, w: 390 }, label: "Decision rule + cost ceiling \u00b7 no retailer has run it" },
+    ],
+    zoom: [{ at: 0, y: 507 }, { at: 1.4, y: 250 }, { at: 3.9, y: 140 }, { at: 5.6, y: 120 }, { at: { cue: 0, plus: 7.6 }, y: 230 }, { at: { cue: 0, plus: 9.2 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 480 }, { at: { cue: 1, plus: 3.5 }, y: 420 }, { at: { cue: 2, plus: -0.25 }, y: 240 }],
   },
   {
     id: "share",

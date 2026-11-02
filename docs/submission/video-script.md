@@ -282,3 +282,11 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - analyze/trial: 새 앱에서는 분석 결과가 눈꺼풀 카드가 보이도록 자동 스크롤되어 수정 탭·시트·규칙표 시각이 약 0.6초 앞당겨졌고, 확대 패널 링 좌표를 새 레이아웃에 맞췄다. 분석기가 홑꺼풀을 쌍꺼풀로 읽었고 앱 수정 시트에서 고쳤다는 표기는 그대로.
 - shop: 버튼 "Shop these 4 colors", 쇼핑이 1단계(Base)에서 열리므로 콜아웃의 "Matches finish on the first lip row"를 "Closest first: ΔE 0.2 on the first base row"로 바꿨다. partner: 페이지 위 예시 카드(2,000 첫 레슨 + 6,000 재방문 = 월 52,000유닛, 예시 값·단가 가정 없음)를 보이도록 녹화에 2.2초 정지를 추가했고 콜아웃에 "illustrative"로 적었다.
 - 검증: 길이 166.39초(180초 미만), blackdetect 0건, 장면 전환 감지(gt 0.08)는 세그먼트 경계와 의도한 스크롤/디졸브뿐, 변경 장면의 조밀 프레임에서 스켈레톤/빈/배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열.
+
+## 사이클 22 재합성 (166.2초, YouCam 유닛 0 사용, 새 TTS 줄 1개, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c22` (work-c21 복사본, `--mode live --only partner`만 재녹화, 로컬 live 서버 홈 화면, API 호출 0). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유), 직전 판 `.local/video/mirror-tutor-demo-live-c22prev.mp4`. analyze/lesson 재녹화는 하지 않았다(선택 사항, 사실과 어긋나는 주장 없음).
+- live: 스켈레톤 구간(livecall 1.0-10.7초)을 건너뛰고 결과 프레임("Analysis: YouCam Face Analyzer, 10 units · Units left 873")을 줄 시작부터 유지.
+- partner: iframe 스니펫 구간을 빼고 새 marin 줄 "No pilot yet. Here is the two-week test we would run."와 "Two-week retailer test" 카드 큰 확대 2장(각 2.6초, 위/아래 절반)을 넣었다. 계산기(52,000 units / month, 예시 입력, illustrative)와 손익분기(434 extra orders, illustrative) 큰 확대도 추가. 순서: 위젯 -> 14/4 유닛·계산기 -> 테스트 계획("A plan, not a result", 아직 어떤 리테일러도 실행하지 않음).
+- grade: 확대 패널 높이를 560 -> 720으로 늘려 "Mean color per region" 범례 두 줄이 잘리지 않게 했고, ΔE 확대의 제목 줄도 라벨에 가리지 않게 위로 옮겼다.
+- 검증: 길이 166.18초(178초 미만), blackdetect 0건, 장면 전환 감지(gt 0.08)는 세그먼트 경계와 의도한 디졸브/확대 시작뿐, 변경 장면 조밀 프레임에서 스켈레톤/빈/배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열.
