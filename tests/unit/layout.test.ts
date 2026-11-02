@@ -29,6 +29,17 @@ describe("responsive layout guards", () => {
     expect(s).toContain('aspect="h-[23dvh] lg:h-auto lg:aspect-[7/8]"');
   });
 
+  it("A5 lesson: 'Why this fits you' boxes start collapsed on mobile (one line + Show), always open at lg", () => {
+    const s = src("app/(flow)/lesson/page.tsx");
+    expect(s).toContain("useState(false)");
+    expect(s).toContain('whyOpen ? "" : "max-lg:hidden"');
+    expect(s).toContain('skinOpen ? "" : "max-lg:hidden"');
+    expect(s).toContain("truncate lg:whitespace-normal");
+    expect(s).toContain("pb-10 lg:pb-4");
+    expect(s).toContain("max-lg:order-1");
+    expect(MESSAGES.whyMore.en).toBeTruthy();
+  });
+
   it("lesson: summary card keeps a bottom margin so the intensity chips clear the sticky bar", () => {
     expect(src("app/(flow)/lesson/page.tsx")).toContain("mx-4 mb-4 flex flex-col gap-3");
   });

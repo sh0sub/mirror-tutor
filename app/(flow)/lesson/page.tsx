@@ -49,7 +49,9 @@ function LessonInner() {
   const id = useSearchParams().get("id") ?? "daily-k";
   const lesson = getLesson(id);
   const [k, setK] = useState(1);
-  const [whyOpen, setWhyOpen] = useState(true);
+  // Mobile: the reason boxes start as one line with an expand control; desktop always shows them in full (lg:block).
+  const [whyOpen, setWhyOpen] = useState(false);
+  const [skinOpen, setSkinOpen] = useState(false);
   const [technique, setTechnique] = useState(true);
   const [fixOpen, setFixOpen] = useState(false);
   const started = useRef<string | null>(null);
@@ -112,7 +114,7 @@ function LessonInner() {
         }
       />
       <ModeBanner />
-      <main className="flex flex-1 flex-col pb-8 lg:pb-4 lg:grid lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)] lg:content-start lg:items-start lg:gap-x-8 lg:px-6 lg:pt-4">
+      <main className="flex flex-1 flex-col pb-10 lg:pb-4 lg:grid lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)] lg:content-start lg:items-start lg:gap-x-8 lg:px-6 lg:pt-4">
         <div className="lg:col-start-1 lg:row-start-1">
         <CompareSlider
           before={before}
@@ -229,7 +231,7 @@ function LessonInner() {
               </>
             )}
           </div>
-          <fieldset className="flex flex-col gap-1.5">
+          <fieldset className="flex flex-col gap-1.5 max-lg:order-2">
             <legend className="mb-1.5 text-xs font-bold text-muted">{t("intensityLabel", lang)}</legend>
             <div className="grid grid-cols-3 gap-1.5">
               {INTENSITY_SCALES.map((sc) => {
@@ -254,30 +256,35 @@ function LessonInner() {
             <p className="text-xs text-muted">{t(sample ? "samplePreviewCost" : "intensityCost", lang)}</p>
           </fieldset>
           {skinChanges.length > 0 && (
-            <div className="rounded-xl bg-peach-soft p-3" data-testid="skin-reason">
-              <p className="flex min-h-10 items-center gap-2 text-sm font-extrabold text-primary-strong">
+            <div className="rounded-xl bg-peach-soft p-3 max-lg:order-1" data-testid="skin-reason">
+              <button type="button" onClick={() => setSkinOpen((v) => !v)} aria-expanded={skinOpen} className="flex min-h-10 w-full items-center gap-2 text-left text-sm font-extrabold text-primary-strong lg:pointer-events-none">
                 <Icon name="sparkle" className="h-4 w-4 flex-none" />
-                {t("whyYou", lang)}: {t("skinCheckChip", lang)} · {skinReasonLine(lang, skinChanges)}
-              </p>
-              <ul className="mt-1 flex flex-col gap-1.5 text-sm leading-relaxed">
-                {skinChanges.map((c) => (
-                  <li key={c.key}>
-                    {c.change[lang]}
-                    <span className="mt-0.5 block text-xs text-muted">{c.why[lang]}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-1 text-xs text-muted">{t("skinCheckRender", lang)}</p>
+                <span className="min-w-0 flex-1 truncate lg:whitespace-normal">
+                  {t("whyYou", lang)}: {t("skinCheckChip", lang)} · {skinReasonLine(lang, skinChanges)}
+                </span>
+                <span className="flex-none text-xs lg:hidden">{t(skinOpen ? "whyLess" : "whyMore", lang)}</span>
+              </button>
+              <div className={skinOpen ? "" : "max-lg:hidden"}>
+                <ul className="mt-1 flex flex-col gap-1.5 text-sm leading-relaxed">
+                  {skinChanges.map((c) => (
+                    <li key={c.key}>
+                      {c.change[lang]}
+                      <span className="mt-0.5 block text-xs text-muted">{c.why[lang]}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-1 text-xs text-muted">{t("skinCheckRender", lang)}</p>
+              </div>
             </div>
           )}
           {step.reasons.length > 0 && (
-            <div className="rounded-xl bg-peach-soft p-3">
-              <button type="button" onClick={() => setWhyOpen((v) => !v)} aria-expanded={whyOpen} className="flex min-h-10 w-full items-center gap-2 text-left text-sm font-extrabold text-primary-strong">
-                <Icon name="sparkle" className="h-4 w-4" />
-                {t("whyYou", lang)}: {step.reasons.map((r) => r.label[lang]).join(" + ")}
+            <div className="rounded-xl bg-peach-soft p-3 max-lg:order-1">
+              <button type="button" onClick={() => setWhyOpen((v) => !v)} aria-expanded={whyOpen} className="flex min-h-10 w-full items-center gap-2 text-left text-sm font-extrabold text-primary-strong lg:pointer-events-none">
+                <Icon name="sparkle" className="h-4 w-4 flex-none" />
+                <span className="min-w-0 flex-1 truncate lg:whitespace-normal">{t("whyYou", lang)}: {step.reasons.map((r) => r.label[lang]).join(" + ")}</span>
+                <span className="flex-none text-xs lg:hidden">{t(whyOpen ? "whyLess" : "whyMore", lang)}</span>
               </button>
-              {whyOpen && (
-                <ul className="mt-1 flex flex-col gap-1.5 text-sm leading-relaxed">
+              <ul className={`mt-1 ${whyOpen ? "" : "max-lg:hidden"} flex flex-col gap-1.5 text-sm leading-relaxed`}>
                   {step.reasons.map((r, i) => (
                     <li key={i}>
                       <span className="font-bold">{ATTR_NAME[r.attr][lang]}</span> — {r.why[lang]}
@@ -285,10 +292,9 @@ function LessonInner() {
                     </li>
                   ))}
                 </ul>
-              )}
             </div>
           )}
-          <div className="flex flex-wrap gap-1.5" aria-label={t("colorsUsed", lang)}>
+          <div className="flex flex-wrap gap-1.5 max-lg:order-3" aria-label={t("colorsUsed", lang)}>
             {step.colors.map((c, i) => (
               <Swatch key={`${c.hex}-${i}`} hex={c.hex} />
             ))}

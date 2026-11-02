@@ -4,12 +4,12 @@ Track: **eCommerce VTO**. (Face Attribute & Ratio Analysis is a supporting input
 
 ## Judge in 60 seconds
 
-- **Misread and fix:** Face Analyzer read our monolid stock model as double-lid; one tap corrects it and the technique changes (/compare?lang=en shows both lessons side by side).
-- **Answer key and grading:** Makeup VTO renders each step as the answer key; your real attempt is graded per region with CIEDE2000 (scores are deterministic on the landmark path, and the LLM only phrases the one-line correction text).
-- **Three YouCam APIs:** Face Analyzer, Makeup VTO and an opt-in **Skin Analysis** check (9 units) that turns dark circles, redness, oiliness and pores into a change to the lesson's Base step (a hand-written rule table, for example dark circles -> peach corrector). The sample trial shows its pre-generated result at 0 units.
-- **Retailer fit, no pilot:** one iframe widget, 14 YouCam units for a first lesson and 4 after (+9 for the optional skin check); no pilot exists, so /partner?lang=en carries a two-week A/B test plan (a plan, not a result).
+**A shopper sees the shade, learns the technique on their own face, gets a misread caught, is graded with CIEDE2000 on a real attempt, and lands on the exact products; 14 YouCam units for a first lesson, 4 after. Try it at 0 units, no selfie: https://mirror-tutor.vercel.app/?lang=en (tap "Try with a sample model").**
 
-**Why a brand pays:** try-on shows the shade; Mirror Tutor teaches the technique on the shopper's own face, grades the real attempt, and ends in the exact products, as a drop-in widget priced at 14 YouCam units for a first lesson and 4 for each later one.
+- **Misread and fix:** Face Analyzer read our monolid stock model as double-lid; one tap corrects it and the technique changes (/compare?lang=en shows both lessons side by side).
+- **Answer key and grading:** Makeup VTO renders each step as the answer key; your real attempt is graded per region with CIEDE2000 (deterministic on the landmark path; the LLM only phrases the one-line correction).
+- **Three YouCam APIs:** Face Analyzer, Makeup VTO and an opt-in Skin Analysis check (9 units) whose dark circles, redness, oiliness and pores change the Base step through a hand-written rule table.
+- **Retailer fit:** one iframe widget; /partner?lang=en has the cost calculator and a two-week A/B test plan.
 
 ## Pitch
 
@@ -24,8 +24,7 @@ Buyer: a beauty retailer or brand that sells try-on on its product pages. Try-on
 - **One checkable number:** a first lesson costs **14 YouCam units** (10 analysis + 4 renders), every later lesson **4**, session cap 24 (the opt-in skin check adds 9). The baseline it must beat is the **4.3%** blended beauty-retail return rate (PYMNTS, 27 Feb 2024, citing National Retail Federation data: https://www.pymnts.com/news/ecommerce/2024/perfect-corp-ar-try-on-reduces-returns-for-ecommerce-beauty-brands/). That rate is demand context, not a result for our app.
 - **Drop-in today:** `/embed/lesson?sku=...` (or `?hex=...&name=...` for a shade outside our demo catalog), a chrome-less iframe: stepper, bare/finished slider, the shade matched to the lesson color with CIEDE2000, then the lesson's own products to the cart (the store handles checkout).
 - **Worked example first:** /partner opens with 2,000 first lessons x 14 + 6,000 repeat visits x 4 = 52,000 units a month, and break-even is N = ceil(52,000 x your unit price / margin per order) extra orders. The counts are illustrative and no unit price is assumed.
-- **Break-even from your inputs:** /partner turns your session counts into monthly units and, with your own unit price and margin per order, into the extra orders needed to break even. Example inputs only, no assumed traffic, conversion or price. The KPI to measure is shop-the-step conversion against a plain product page; we found no independent data on eyelid-specific tutorial demand and claim none.
-
+- **Your own numbers:** /partner turns your session counts, unit price and margin per order into the extra orders needed to break even (example inputs only). The KPI is shop-the-step conversion against a plain product page; we found no independent data on eyelid-specific tutorial demand and claim none.
 - **Two-week retailer test (a plan, not a result):** 50/50 A/B on one lip SKU; primary metric add-to-cart per product-page session, secondary lesson completion to step 4 and shop-the-step clicks; n per arm = 16p(1-p)/d^2, about 6,144 sessions per arm at an illustrative 4% baseline and a 1 pt lift; success is a lift of 1 pt or more, otherwise stop; widget-arm cost is at most 86,016 units (14 per first lesson). The baseline is illustrative, not measured.
 
 ## Try it (no selfie, 0 units)

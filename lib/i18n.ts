@@ -158,6 +158,8 @@ const DICT = {
   stepFailed: { ko: "이 단계 생성 실패", en: "This step failed" },
   retryStep: { ko: "다시 시도(1 유닛)", en: "Retry (1 unit)" },
   blocked: { ko: "세션 유닛 한도에 도달했어요", en: "Session unit limit reached" },
+  whyMore: { ko: "펼치기", en: "Show" },
+  whyLess: { ko: "접기", en: "Hide" },
   whyYou: { ko: "왜 당신은", en: "Why this fits you" },
   shopStep: { ko: "이 단계 제품", en: "Shop this step" },
   nextStep: { ko: "다음 단계", en: "Next step" },
