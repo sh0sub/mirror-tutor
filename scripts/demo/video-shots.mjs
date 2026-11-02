@@ -148,28 +148,24 @@ export const SEGMENTS = [
     ],
   },
   {
-    // C10 cold open (--mode mock --sample --only cold, 0 units): the sample model's lesson at step 4 (the full YouCam VTO look),
-    // the before/after slider swept from "My face" to the finished look. Only used with --sample; never part of a full take.
+    // C12 cold open (--mode live --only cold --base <local live server>, 0 units, home screen only): the home hero is now the bare -> full look
+    // slider (real YouCam Makeup VTO result, lesson step 4, on the monolid sample). The slider is swept in the first seconds. Only used with --only.
     id: "cold",
     sampleOnly: true,
     kicker: "Cold open",
     heading: "Rendered on your face",
     chip: "YouCam Makeup Virtual Try-On",
     lines: ["Tutorials are filmed on someone else's face. This one is rendered on yours.", "Mirror Tutor redraws the look for your lid, monolid or double."],
-    actions: [],
-    sample: {
-      prep: [],
-      actions: [
-        { js: "document.querySelector('header ~ p[role=status]')?.remove(); window.scrollTo(0, 0)" },
-        { sleep: 1.0 },
-        { drag: { sel: "[role=slider]", parent: true, from: 0.5, to: 0.96, dur: 0.7 } },
-        { sleep: 0.8 },
-        { drag: { sel: "[role=slider]", parent: true, from: 0.96, to: 0.03, dur: 2.4 } },
-        { sleep: 3.2 },
-        { drag: { sel: "[role=slider]", parent: true, from: 0.03, to: 0.5, dur: 1.4 } },
-        { sleep: 2.2 },
-      ],
-    },
+    actions: [
+      { wait: "!!document.querySelector('[data-testid=hero-slider] [role=slider]')", timeout: 30000 },
+      { sleep: 0.9 },
+      { drag: { sel: "[data-testid=hero-slider] [role=slider]", parent: true, from: 0.5, to: 0.96, dur: 0.7 } },
+      { sleep: 0.6 },
+      { drag: { sel: "[data-testid=hero-slider] [role=slider]", parent: true, from: 0.96, to: 0.03, dur: 2.4 } },
+      { sleep: 3.2 },
+      { drag: { sel: "[data-testid=hero-slider] [role=slider]", parent: true, from: 0.03, to: 0.5, dur: 1.4 } },
+      { sleep: 2.2 },
+    ],
   },
   {
     id: "compare",
@@ -271,28 +267,34 @@ export const SEGMENTS = [
     ],
   },
   {
-    // C3: the retailer view (/partner, concept screen). Static page, 0 units, no API call.
+    // C3: the retailer view (/partner, concept screen). C12: the widget is a live iframe on the real /embed/lesson route (0 units, no API call).
     id: "partner",
     kicker: "For retailers",
-    heading: "The lesson as a product-page widget",
+    heading: "The lesson as an iframe widget",
     chip: "Concept screen · fictional store",
     lines: [
-      "For retailers, the lesson drops into a product page. A concept screen, with a fictional store.",
-      "First lesson, fourteen units. Then four. Capped per session.",
+      "For retailers, the lesson is a live widget on the product page, matched to that SKU's shade.",
+      "Integration is one plain iframe. No SDK, and no partner has used it yet.",
+      "First lesson, fourteen units. Then four.",
     ],
     // C5: the entry path from home ("Retailer view (concept)" beside the sample button), then the widget
     prep: [{ route: "/" }, { wait: "location.pathname === '/' && document.body.innerText.includes('Retailer view')" }, { sleep: 1.0 }],
     actions: [
       { sleep: 1.6 },
       { tap: { sel: "a", text: "Retailer view" } },
-      { wait: "!!document.querySelector('[data-testid=partner-widget]')" },
-      { sleep: 1.2 },
-      { tap: { sel: "[data-testid=partner-widget] button", text: "^3 " } },
-      { sleep: 1.4 },
-      { scroll: { sel: "h2", text: "YouCam units per session", offset: 240 }, dur: 1.4 },
-      { sleep: 2.4 },
-      { scroll: { sel: "h2", text: "measured on", offset: 300 }, dur: 1.2 },
-      { sleep: 1.5 },
+      { wait: "!!document.querySelector('[data-testid=partner-widget] iframe')" },
+      { wait: "!!document.querySelector('[data-testid=partner-widget] iframe')?.contentDocument?.querySelector('[data-testid=embed-match]')", timeout: 30000 },
+      { js: "(() => { const css = 'nextjs-portal{display:none!important}'; for (const d of [document, document.querySelector('[data-testid=partner-widget] iframe')?.contentDocument]) { if (!d) continue; const st = d.createElement('style'); st.textContent = css; d.head.appendChild(st); } })()" }, // hide the dev-only indicator (absent in production)
+      { scroll: { sel: "[data-testid=partner-widget] p", offset: 150 }, dur: 0.8 },
+      { sleep: 0.3 },
+      { drag: { sel: "[data-testid=partner-widget] iframe", from: 0.5, to: 0.1, dur: 0.7 } },
+      { drag: { sel: "[data-testid=partner-widget] iframe", from: 0.1, to: 0.9, dur: 0.9 } },
+      { drag: { sel: "[data-testid=partner-widget] iframe", from: 0.9, to: 0.5, dur: 0.5 } },
+      { sleep: 0.3 },
+      { scroll: { sel: "h2", text: "Integration is one iframe", offset: 200 }, dur: 1.4 },
+      { sleep: 3.0 },
+      { scroll: { sel: "h2", text: "YouCam units per session", offset: 240 }, dur: 1.2 },
+      { sleep: 2.6 },
     ],
   },
   {

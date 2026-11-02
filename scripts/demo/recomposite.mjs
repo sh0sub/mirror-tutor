@@ -56,7 +56,17 @@ setGeo();
 // Kept short so the whole video lands at 172-176 s (hard limit 180 s).
 const LEAD = 0.35, GAP = 0.35, TAIL = 0.35, ZOOM_MOVE = 0.7;
 
-const run = (cmd, argv) => execFileSync(cmd, argv, { stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64 << 20 }).toString();
+// ffmpeg's xfade + looped-still graphs occasionally deadlock (0 % CPU, output stuck); a hung call is killed after 4 minutes and retried
+const run = (cmd, argv) => {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return execFileSync(cmd, argv, { stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64 << 20, timeout: 240000, killSignal: "SIGKILL" }).toString();
+    } catch (e) {
+      if (e.code !== "ETIMEDOUT" || attempt >= 4) throw e;
+      console.error(`[recomp] ${cmd} hung, retry ${attempt}`);
+    }
+  }
+};
 const probe = (f) => Number(run(FFPROBE, ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f]).trim());
 const log = (...a) => console.log("[recomp]", ...a);
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -141,8 +151,9 @@ const SEGMENTS = [
       `Tutorials are filmed on <span class="dim">someone else's face.</span> This one is rendered on <span class="acc">yours.</span>`,
       `Mirror Tutor redraws the look for <span class="acc">your own lid.</span>`,
     ],
-    timeline: [{ at: 0, src: 2.6 }, { at: 0.9, src: [3.2, 6.45] }, { at: 4.2, src: 7.3 }, { at: { cue: 1, plus: 0.8 }, src: [10.3, 11.9] }, { at: { cue: 1, plus: 2.5 }, src: 12.5 }],
-    zoom: [{ at: 0, y: 110 }],
+    // C12 source (work-c12 frames-cold, live mode home screen, 0 units): the home hero slider (Bare / Full look): drag to the Bare end 1.0-1.8 s, sweep to the Full look 2.9-6.0 s, hold, back to the middle 9.7-11.5 s
+    timeline: [{ at: 0, src: 2.6 }, { at: 0.9, src: [3.0, 6.1] }, { at: 4.2, src: 7.3 }, { at: { cue: 1, plus: 0.8 }, src: [9.6, 11.5] }, { at: { cue: 1, plus: 2.5 }, src: 12.2 }],
+    zoom: [{ at: 0, y: 90 }],
   },
   {
     // C11 split beat (~10-18 s): the same look on the monolid face and the double-lid face, full-size YouCam eye renders (lesson step 3, the
@@ -267,8 +278,8 @@ const SEGMENTS = [
     units: 14,
     lines: [
       "The analyzer missed the monolid, so we let the user correct it and the lesson changes.",
-      "A monolid gets a horizontal gradient and a visible liner. A double lid gets crease shading.",
       "Same look with a vertical gradient, the generic tutorial way, beside ours. Both are real YouCam renders.",
+      "A monolid gets a horizontal gradient and a visible liner. A double lid gets crease shading.",
     ],
     ui: [
       {
@@ -277,38 +288,38 @@ const SEGMENTS = [
         callout: "Analyzer read <b>Double-lid</b> → corrected to <b>Monolid</b><br><span class=\"plain\">Step 3 now uses the horizontal gradient, a real pre-generated YouCam render (0 units)</span>",
       },
       {
-        heading: "Two eyelids, two techniques",
-        note: "", // the licence line is also in the footer; the tall callout leaves no room above the step list
-        chip: "Basis: rule of thumb, not validated",
-        callout:
-          "<div class=\"vs\"><div><b>Monolid face</b>Horizontal gradient + visible liner<span class=\"plain\">2-color shadow, style 1 · upper liner, style 6</span></div><div><b>Double-lid face</b>Crease shading + thin liner<span class=\"plain\">2-color shadow, style 3 · upper liner, style 11</span></div></div>",
-      },
-      {
         heading: "Horizontal vs vertical gradient",
         note: "",
         chip: "Same monolid face · 2 pre-generated renders",
         callout:
           "<div class=\"vs\"><div><b>Horizontal</b>Our monolid technique<span class=\"plain\">shadow style 1</span></div><div><b>Vertical</b>Generic tutorial way<span class=\"plain\">shadow style 3</span></div></div>",
       },
+      {
+        heading: "Two eyelids, two techniques",
+        note: "", // the licence line is also in the footer; the tall callout leaves no room above the step list
+        chip: "Basis: rule of thumb, not validated",
+        callout:
+          "<div class=\"vs\"><div><b>Monolid face</b>Horizontal gradient + visible liner<span class=\"plain\">2-color shadow, style 1 · upper liner, style 6</span></div><div><b>Double-lid face</b>Crease shading + thin liner<span class=\"plain\">2-color shadow, style 3 · upper liner, style 11</span></div></div>",
+      },
     ],
-    // C8: re-taken at HEAD (work-c8 frames-compare, mock --sample, 0 units) so the basis box and gradient note carry the corrected wording; scrolls are 13.3-14.5 s and 17.3-18.2 s.
-    // C7 source (work-c7 frames-compare, --sample): top of /compare on the eye step 0-3.1 s (original/answer flip), hold, scroll 13.8-14.2 s
-    // to the rule table (hold to 17.4 s), scroll 17.4-17.8 s to the new "Same look with a vertical gradient?" section (hold to the end)
+    // C12 source (work-c12 frames-compare, mock --sample, 0 units): the technique crops (horizontal vs vertical) now come first on /compare, then the rule table.
+    // top of the page on the eye step 0-3.1 s (original/answer flip), hold, scroll to the crops 13.8-14.1 s (hold to 17.4 s), scroll to the rule table 17.4-17.7 s (hold to the end)
     timeline: [
       { at: 0, src: [0, 3.1] },
       { at: { cue: 0, plus: 3.2 }, src: 5 },
-      { at: { cue: 1, plus: -0.1 }, src: [13.3, 14.5] },
+      { at: { cue: 1, plus: -0.1 }, src: [13.7, 14.15] },
       { at: { cue: 1, plus: 0.9 }, src: 16 },
-      { at: { cue: 2, plus: -0.1 }, src: [17.3, 18.2] },
+      { at: { cue: 2, plus: -0.1 }, src: [17.4, 17.7] },
       { at: { cue: 2, plus: 0.9 }, src: 21 },
     ],
-    // C11: from the third line on, the zoom window shows the two eye crops enlarged with the gradient direction marked (horizontal vs vertical)
+    // C11: from the second line on, the zoom window shows the two eye crops enlarged with the gradient direction marked (horizontal vs vertical); C12: it ends when the rule table line starts
     zoomOverlay: {
-      at: { cue: 2, plus: 0.5 },
+      at: { cue: 1, plus: 0.5 },
+      until: { cue: 2, plus: -0.3 },
       top: { img: "model-c/eye-horizontal.jpg", arrow: "h", label: "Horizontal gradient · our monolid technique" },
       bottom: { img: "model-c/eye-vertical.jpg", arrow: "v", label: "Vertical gradient · generic tutorial way" },
     },
-    zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 300 }, { at: { cue: 1, plus: 0.9 }, y: 380 }, { at: { cue: 2, plus: -0.1 }, y: 125 }],
+    zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 125 }, { at: { cue: 2, plus: -0.1 }, y: 380 }],
   },
   {
     id: "grade",
@@ -363,32 +374,31 @@ const SEGMENTS = [
     zoom: [{ at: 0, y: 304 }, { at: 4.2, y: 480 }, { at: 6.6, y: 304 }, { at: { cue: 1 }, y: 170 }], // 4.2-6.6 s: "View in store" sheet
   },
   {
-    // C3: the /partner retailer view (concept screen, static page, 0 units). Source: work-c3 frames-partner.
+    // C3: the /partner retailer view (concept screen, 0 units). C12: the widget is a live iframe on the real /embed/lesson route. Source: work-c12 frames-partner (live mode, no API call).
     id: "partner",
     tail: 0.2, // C10: shorter dwell to pay for the longer cold open and grade scene
     badge: "YouCam VTO, pre-generated (0 units)",
     kicker: "For retailers",
-    heading: "The lesson as a product-page widget",
+    heading: "The lesson as an iframe widget",
     chip: "Concept screen · fictional store · 0 units",
     units: 14,
     lines: [
-      "A retailer swaps in its own SKUs; about four VTO renders per lesson.",
+      "For retailers, the lesson is a live widget on the product page, matched to that SKU's shade.",
+      "Integration is one plain iframe. No SDK, and no partner has used it yet.",
       "First lesson, fourteen units. Then four.",
     ],
     ui: [
-      { callout: "Retailer swaps in its <b>own SKUs</b> · about <b>4 VTO renders</b> per lesson<br><span class=\"mono\">Integration shape is illustrative: there is no published SDK</span>" },
+      { callout: "Live <b>iframe widget</b> on the product page<br><span class=\"mono\">Lip shade matched by CIEDE2000 · pre-generated renders, 0 units</span>" },
+      { heading: "Integration is one iframe", callout: "<b>One plain iframe</b> · no SDK<br><span class=\"mono\">A real route in this repo · no partner has used it yet</span>" },
       {
-        heading: "Unit meter and KPI hypotheses",
-        callout:
-          "<div class=\"vs\"><div><b>Unit meter · live on the page</b>First lesson <em>14</em> units, then <em>4</em><span>under the <em>20</em>-unit session cap</span></div><div><b>KPI hypotheses</b>Shop-the-step conversion · lesson completion · return lessons<span class=\"mono\">Hypothesis · not measured</span></div></div>",
+        heading: "Unit meter",
+        callout: "<div class=\"vs\"><div><b>Unit meter · live on the page</b>First lesson <em>14</em> units, then <em>4</em><span>under the <em>20</em>-unit session cap</span></div><div><b>KPI hypotheses</b>Shop-the-step conversion · lesson completion · return lessons<span class=\"mono\">Hypothesis · not measured</span></div></div>",
       },
     ],
-    // C4 source (work-c4 = work-c3 frames-partner): (the scene opens on the widget; the chip says concept screen, fictional store) 1.8-3.0 s widget with the SKU snippet below,
-    // from 7.2 s the unit meter (14 / 4) and the "Hypothesis · not measured" KPI chip are both on the phone at once.
-    // C5 source (work-c5 frames-partner, live mode, 0 units): the scene now starts on the home bottom bar and taps "Retailer view (concept)" (1.6-2.2 s) into the widget (hold from 2.5 s);
-    // scroll to the unit meter 5.4 s, to the KPI chip 9.4-9.6 s (meter + KPI chip on the phone together from 9.7 s)
-    timeline: [{ at: 0, src: [0, 2.6] }, { at: 3.3, src: 3.0 }, { at: { cue: 1, plus: -0.3 }, src: [8.4, 9.5] }, { at: { cue: 1, plus: 0.9 }, src: 11.5 }],
-    zoom: [{ at: 0, y: 507 }, { at: 3.0, y: 300 }, { at: { cue: 1, plus: -0.3 }, y: 240 }],
+    // C12 source (work-c12 frames-partner): tap "Retailer view" 1.6-2.3 s, the widget iframe loads (blank 2.3-2.9 s, skipped), scroll to it 3.9 s, slider drags 4.5-7.7 s,
+    // scroll to the snippet 8.3-8.5 s (hold to 12.9 s), scroll to the unit meter + KPI chip 12.9-13.2 s (hold to the end)
+    timeline: [{ at: 0, src: [0.9, 2.2] }, { at: 1.3, src: [3.0, 8.2] }, { at: { cue: 1, plus: -0.2 }, src: [8.2, 8.6] }, { at: { cue: 1, plus: 0.8 }, src: 11 }, { at: { cue: 2, plus: -0.2 }, src: [12.8, 13.3] }, { at: { cue: 2, plus: 0.8 }, src: 15.5 }],
+    zoom: [{ at: 0, y: 507 }, { at: 1.3, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 300 }, { at: { cue: 2, plus: -0.2 }, y: 240 }],
   },
   {
     id: "home",
@@ -853,7 +863,7 @@ function encodeSegment(seg, dir) {
     `[bg][scr]overlay=${SCR_X}:${SCR_Y}:eof_action=repeat[b1]`,
     ...(zoomPanel
       ? [
-          `[${4 + shots}:v]format=rgba,fade=t=in:st=${resolveAt(seg, seg.zoomOverlay.at).toFixed(3)}:d=0.5:alpha=1[zp]`,
+          `[${4 + shots}:v]format=rgba,fade=t=in:st=${resolveAt(seg, seg.zoomOverlay.at).toFixed(3)}:d=0.5:alpha=1${seg.zoomOverlay.until ? `,fade=t=out:st=${resolveAt(seg, seg.zoomOverlay.until).toFixed(3)}:d=0.4:alpha=1` : ""}[zp]`,
           `[b1][zm]overlay=${ZX}:${ZY}:eof_action=repeat[b2]`,
           `[b2][zp]overlay=${ZX}:${ZY}:eof_action=repeat,format=yuv420p[v]`,
         ]

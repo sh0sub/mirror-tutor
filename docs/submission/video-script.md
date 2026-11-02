@@ -187,3 +187,13 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - compare: 세 번째 줄부터 확대 창이 같은 홑꺼풀 얼굴의 가로/세로 그라데이션 눈 클로즈업(eye-horizontal / eye-vertical)을 전체 크기로 보여 주고 방향 화살표를 표시. 왼쪽 callout은 앱 문구("Analyzer read Double-lid -> corrected to Monolid", "Step 3 now uses the horizontal gradient, a real pre-generated YouCam render (0 units)")와 맞춤. 노트에 24 px 위 여백, 높은 callout 컷에서는 노트를 숨김(푸터에 같은 라이선스 문구).
 - capture 5.3초(줄 1개로 압축), analyze 19.4초(피부톤 줄 제외: 샘플 모드에는 피부톤 카드가 없다), grade는 앱이 즉시 결과(약 0.5초, 카운트업)를 보여 주므로 스켈레톤 대기가 없고 오버레이 프레임을 새로 만듦(`grade-overlay.ts`에 랜드마크 파일/행 위치 인자 추가, model-c). 새 grade 나레이션 "Eyeliner: six point eight apart."(ΔE 6.8, #A57D64 vs #BB9074). 모든 장면의 배지는 "샘플 체험 · 미리 생성한 실제 YouCam 결과(0 유닛)"으로 바꿨고 오른쪽 위 유닛 알약은 "Units spent here 0"(분석/레슨은 실제 호출 비용 병기).
 - 검증: 장면 전환 감지(gt 0.08) 25곳은 세그먼트 경계, 의도한 디졸브, 앱 스크롤/시트뿐. 스켈레톤/빈/배너 프레임 없음. 자막은 나레이션 줄과 같은 문자열. 길이 171.6초(180초 미만).
+
+## 사이클 12 재합성 (176.7초, YouCam 유닛 0 사용, 새 TTS 줄 1개 + 기존 줄 순서 변경, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c12` (work-c11 복사본, 아래 장면만 재녹화, 전부 0 유닛). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유), 직전 판 `.local/video/mirror-tutor-demo-live-c12prev.mp4`.
+- 콜드 오픈(hook, 0~10.4초): 홈 히어로가 맨얼굴 / 완성 룩 슬라이더가 되었으므로 레슨 화면 대신 실제 홈 히어로를 `--mode live --only cold`(홈 화면만, API 호출 0)로 녹화. 처음 몇 초 안에 슬라이더가 Bare에서 Full look까지 쓸려 간다. 나레이션은 그대로.
+- intro·home: 새 홈(슬라이더 히어로)으로 재녹화(`--mode live --only intro`, `--mode mock --setup full91 --only home`).
+- compare: 새 레이아웃(기법 크롭이 규칙표보다 먼저)에 맞춰 재녹화. 줄 순서를 바꿔 2번째 줄이 가로/세로 그라데이션 크롭(확대 창 오버레이), 3번째 줄이 규칙표("A monolid gets a horizontal gradient...")다. 문구는 기존 캐시 줄 그대로. `recomposite.mjs`의 `zoomOverlay.until` 추가(규칙표 줄에서 오버레이가 사라짐).
+- partner: 위젯이 실제 `/embed/lesson` iframe이고 스니펫이 iframe으로 바뀌어 재녹화(`--mode live --only partner`). 슬라이더를 iframe 안에서 드래그하고(CDP 마우스), 스니펫과 유닛 미터로 스크롤한다. 개발 서버의 N 표시기는 녹화 중 CSS로 숨김(프로덕션에는 없음). 나레이션 3줄: "For retailers, the lesson is a live widget on the product page, matched to that SKU's shade." / "Integration is one plain iframe. No SDK, and no partner has used it yet." / "First lesson, fourteen units. Then four."(앞 두 줄만 새 marin TTS, 총 2건).
+- `recomposite.mjs`: ffmpeg가 가끔 0% CPU로 멈추는 문제(xfade+루프 정지 이미지)가 있어 `run`에 4분 타임아웃과 재시도를 넣었다.
+- 검증: 장면 전환 감지(gt 0.08) 27곳은 세그먼트 경계, 의도한 디졸브, compare·partner 스크롤뿐. 어두운/스켈레톤/배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열. 길이 176.7초(180초 미만).
