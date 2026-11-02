@@ -641,7 +641,7 @@ function stageHtml(seg, si0, ci, uiOver = {}) {
   .badges{position:absolute;left:${ZX}px;top:${ZY + ZH + 16}px;width:${ZW}px;display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}
   .live{display:flex;align-items:center;gap:9px;background:#c8325b;color:#fff;border-radius:24px;padding:9px 18px;font-size:19px;font-weight:800;line-height:1.1;white-space:nowrap}
   .live i{width:11px;height:11px;border-radius:6px;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.35)}
-  .units{margin-left:auto;display:flex;align-items:baseline;gap:8px;background:#fff;border:2px solid #c8325b;border-radius:24px;padding:6px 18px;font-size:17px;font-weight:700;color:#4a403d;white-space:nowrap}
+  .units{position:absolute;right:16px;top:${-(ZH + 16) + 16}px;box-shadow:0 2px 10px rgba(0,0,0,.18);display:flex;align-items:baseline;gap:8px;background:#fff;border:2px solid #c8325b;border-radius:24px;padding:6px 18px;font-size:17px;font-weight:700;color:#4a403d;white-space:nowrap}
   .units b{font-size:27px;font-weight:800;color:#a8264a;font-variant-numeric:tabular-nums}
   .left{position:absolute;left:64px;top:60px;width:${SCR_X - 64 - 52}px;display:flex;flex-direction:column;gap:22px}
   .kick{font-size:23px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a8264a}
