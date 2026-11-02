@@ -143,16 +143,12 @@ const SEGMENTS = [
     kicker: "Mirror Tutor",
     note: "Sample face (monolid): Unsplash License stock photo. Pre-generated with the YouCam API, 0 units spent here.",
     units: 0,
-    lines: [
-      "Tutorials are filmed on someone else's face. This one is rendered on yours.",
-      "Mirror Tutor redraws the look for your own lid.",
-    ],
-    cold: [
-      `Tutorials are filmed on <span class="dim">someone else's face.</span> This one is rendered on <span class="acc">yours.</span>`,
-      `Mirror Tutor redraws the look for <span class="acc">your own lid.</span>`,
-    ],
+    // C16: one line, the tagline folded in (the closing line of the share scene still repeats it); the hook is ~6 s so the sample-trial tap lands at ~0:12
+    lines: ["Tutorials are filmed on someone else's face. Learn makeup, on your own face."],
+    cold: [`Tutorials are filmed on <span class="dim">someone else's face.</span> Learn makeup, <span class="acc">on your own face.</span>`],
     // C12 source (work-c12 frames-cold, live mode home screen, 0 units): the home hero slider (Bare / Full look): drag to the Bare end 1.0-1.8 s, sweep to the Full look 2.9-6.0 s, hold, back to the middle 9.7-11.5 s
-    timeline: [{ at: 0, src: 2.6 }, { at: 0.9, src: [3.0, 6.1] }, { at: 4.2, src: 7.3 }, { at: { cue: 1, plus: 0.8 }, src: [9.6, 11.5] }, { at: { cue: 1, plus: 2.5 }, src: 12.2 }],
+    // C16: slider sweep 0.9-4.0 s, then hold the finished look to the end (the second line and the swipe back are gone)
+    timeline: [{ at: 0, src: 2.6 }, { at: 0.9, src: [3.0, 6.1] }, { at: 4.0, src: 7.3 }],
     zoom: [{ at: 0, y: 70 }],
   },
   {
@@ -168,100 +164,100 @@ const SEGMENTS = [
     lead: 0.1,
     tail: 0.1,
     units: 0,
-    lines: ["Same look. Different lid. Different technique.", "Monolid: horizontal gradient. Double lid: crease shading."],
+    // C16: one line (was two, 8.1 s -> ~5.5 s); the arrows fade in `arrowAt` seconds in
+    lines: ["Same look, different lid. Monolid: horizontal gradient. Double lid: crease shading."],
+    arrowAt: 1.9,
   },
   {
-    id: "intro",
-    badge: "YouCam VTO, pre-generated (0 units)",
-    lead: 0.5,
-    kicker: "What it does",
-    heading: "Tutorials fit someone else's eyes",
-    chip: "YouCam AI Face Analyzer + Makeup Virtual Try-On",
-    // C3: one outcome line (the problem is carried by the hook): what it does, the YouCam calls, the unit cost
+    // C16 (replaces the intro): the real 390 sample-trial tap on the home screen (live-mode local app, 0 units) and the first analysis screen.
+    // Source: work-c16 trial take (`record-video.mjs --mode live --only trial`): steps hold 0.6-2.0 s, tap ripple 2.03-2.4 s, loading skeleton ~2.4-2.9 s (skipped),
+    // result from 2.93 s. The same take continues into the analyze scene (raw reading, fix, rule table).
+    id: "trial",
+    badge: "Sample trial: pre-generated YouCam results (0 units)",
+    step: 0,
+    kicker: "Try it",
+    heading: "Tap the sample model",
+    chip: "No selfie needed · 0 units",
     units: 0,
-    // C6: the montage and title card already name the product and both YouCam APIs, so this line is shorter
-    lines: ["Face Analyzer reads your face. Makeup Virtual Try-On paints each step. A full lesson costs fourteen units."],
-    ui: [{ heading: "Makeup lessons on your own face", callout: "<b>Face Analyzer</b> reads features · 10 units<br><b>Rule table</b> picks the technique<br><b>Makeup VTO</b> renders each step · 4 units" }],
-    // C15 source (work-c15 frames-intro, live mode, 0 units; the home hero is now the shorter 390 layout): the hook already shows the hero, so this scene
-    // opens directly on the three steps below it (re-take with scroll y 540: stable from ~8.0 s to 10.5 s, heading scrolled out) instead of repeating the hero ("Learn K-makeup...") card
-    timeline: [{ at: 0, src: 9.0 }],
-    zoom: [{ at: 0, y: 150 }],
+    lead: 0.3,
+    lines: ["Tap the sample model. Zero units, no selfie needed."],
+    ui: [{ callout: "<b>Face Analyzer</b> reads features · 10 units<br><b>Makeup VTO</b> renders each step · 4 units<br><span class=\"plain\">Sample trial: pre-generated real YouCam results · <b>0 units</b></span>" }],
+    timeline: [{ at: 0, src: 1.0 }, { at: 0.45, src: [1.95, 2.3] }, { at: 0.95, src: 4.0 }],
+    zoom: [{ at: 0, y: 498 }, { at: 0.95, y: 400 }],
   },
   {
-    id: "capture",
-    badge: "On-device quality gate (0 units)",
-    kicker: "Step 1 · Capture",
-    heading: "Consent, then a quality gate",
-    chip: "Quality gate · 0 units",
-    note: "The camera feed here is a licensed stock photo (Pexels License), no real user face",
-    units: 0,
-    // C11: one ~5 s line (was two lines, 12.3 s) to pay for the split beat
-    lines: ["Consent first. Then a quality gate."],
-    tail: 0.2, // C14: trimmed from 5.3 s
-    ui: [
-      { callout: "Consent first. Processed in memory, <b>never stored</b>.<br>Gate: <b>front</b> · <b>bright</b> · <b>forehead visible</b> · face width <b>at least 60%</b>" },
-    ],
-    // C3 source (work-c3 frames-capture): consent sheet 0-1.9 s, then the quality gate on a camera feed that is a stock photo:
-    // "face too small" (44%) 2.9-6.6 s, digital zoom 6.7-8.5 s, "Looks good" (74%) from 8.8 s. The dark "checking photo" frame (~2.0 s) is skipped.
-    // C15 re-take (work-c15 frames-capture, live mode + fake cam, 0 units): the consent sheet is held on one frame (src 1.6 s) and hard-cut to the gate, so the
-    // sheet animation / home flash between them is not shown. Gate: 44 % from 2.8 s, digital zoom 6.3-8.4 s, "Looks good" from 8.6 s.
-    timeline: [
-      { at: 0, src: 1.6 },
-      { at: 1.2, src: 4.2 },
-      { at: 1.9, src: [6.3, 8.4] },
-      { at: 2.7, src: 9.8 },
-    ],
-    zoom: [{ at: 0, y: 498 }, { at: 1.2, y: 267 }],
-  },
-  {
-    // C11: the monolid sample trial (record-video --mode mock --sample --only analyze, 0 units): Face Analyzer's raw reading is Double-lid,
-    // the app's "Fix the eyelid" callout, the edit sheet, "Corrected to Monolid", then the rule table.
+    // C16: the sample trial's first analysis (same take as the trial scene, so the page and strip match): raw Double-lid reading, "Fix the eyelid" tap, edit sheet,
+    // "Corrected to Monolid", rule table. Two 2.5 s zoom panels (raw reading, Edited chip). The live call moved to the "live" scene.
     id: "analyze",
+    srcId: "trial",
     badge: "Sample trial: pre-generated YouCam results (0 units)",
     pill: "Live call 10 units · here <b>0</b>",
+    step: 2,
     kicker: "Step 2 · Analyze",
     heading: "Five features, one call",
     chip: "YouCam AI Face Analyzer · 10 units per live call",
     units: 0,
+    lead: 0.15,
     lines: [
-      "One call to YouCam's Face Analyzer reads five features: eyelid, eye shape, lips, face shape and brows.",
+      "One Face Analyzer call reads five features. This time it read the monolid as double lid.",
       "That's ten units. And if it gets something wrong? Just tap to fix it.",
       "Then our rule table turns those features into try-on settings.",
     ],
     ui: [
-      {
-        // C13: line 0 plays over a real live call (work-c13 frames-livecall, record-video --mode live --only livecall, 10 units spent, balance 883 -> 873)
-        badge: "LIVE YouCam call, 10 units",
-        pill: "Live call <b>10 units</b> · 883 \u2192 873",
-        callout: "<b>LIVE YouCam call, 10 units</b><br>Units left <b>883 \u2192 873</b><br><span class=\"plain\">Eyelid · eye shape · lips · face shape · brows. It read this monolid face as <b>Double-lid</b></span>",
-      },
+      { callout: "Eyelid · eye shape · lips · face shape · brows<br><span class=\"plain\">Face Analyzer read this monolid face as <b>Double-lid</b> (sample trial, 0 units)</span>" },
       { callout: "Face Analyzer read this monolid face as <b>Double-lid</b>.<br>Tap <b>Fix the eyelid</b> → <b>Monolid</b> · <b>0 units</b>" },
       { callout: "<b>Monolid</b> → horizontal gradient + visible liner<br><span class=\"plain\">2-color shadow, style 1 · upper liner, style 6</span>" },
     ],
-    // C11 source (work-c11 frames-analyze, mock --sample): raw reading + callout 0-3.2 s; "Fix the eyelid" tap, edit sheet 3.2-5.6 s, Monolid picked 5.6-6.1 s,
-    // confirmation + scroll 8.2 s, the rule-table sheet opens 13.7-14.4 s and closes 17.4 s.
-    // C13: from 7.5 s the stage graphic goes back to the sample-trial badge/pill/callout (the live call is over)
-    stageSwitch: [
+    // trial take: raw reading 3.5-6.0 s, fix tap 6.1-6.6, edit sheet 6.7-8.4, Monolid picked ~8.5, corrected state 9.7-12.1 s (holds to 16.5 s after a scroll),
+    // rule-table tap 16.6-17.2 s, sheet open 17.2-20.3 s
+    timeline: [
+      { at: 0, src: 4.0 },
+      { at: { cue: 1, plus: 0.9 }, src: [6.0, 11.9] },
+      { at: { cue: 2, plus: -0.2 }, src: [16.4, 17.5] },
+      { at: { cue: 2, plus: 0.9 }, src: 19 },
+    ],
+    pops: [
+      { at: { cue: 0, plus: 2.4 }, dur: 2.5, src: 4.5, crop: { x: 12, y: 412, w: 348 }, ring: { x: 18, y: 598, w: 128, h: 40 }, label: "Raw read: Double lid (wrong for this face)" },
+      { at: { cue: 1, plus: 3.2 }, dur: 2.5, src: 11, crop: { x: 14, y: 535, w: 310 }, ring: { x: 18, y: 604, w: 96, h: 40 }, label: "Fixed in the app: Monolid, Edited" },
+    ],
+    zoom: [{ at: 0, y: 400 }, { at: { cue: 1, plus: 0.9 }, y: 400 }, { at: { cue: 1, plus: 3.2 }, y: 440 }, { at: { cue: 2, plus: -0.3 }, y: 400 }],
+  },
+  {
+    // C16 (was the capture scene + the first 7.5 s of analyze): "or bring your own selfie": consent sheet and quality gate (capture take, work-c15 frames, 0 units),
+    // then the live Face Analyzer call (work-c13 livecall, 10 units, 883 -> 873): loading 1.6 s, result.
+    id: "live",
+    srcId: "capture",
+    badge: "On-device quality gate (0 units)",
+    step: 1,
+    kicker: "Or your own selfie",
+    heading: "Consent, quality gate, live call",
+    chip: "Quality gate 0 units · live call 10 units",
+    note: "Camera feed and uploaded photo are licensed stock photos (Pexels / Unsplash License), no real user face",
+    units: 0,
+    lead: 0.3,
+    lines: ["Consent first. Then a quality gate.", "With your own selfie, the same call runs live: ten units."],
+    ui: [
+      { callout: "Consent first. Processed in memory, <b>never stored</b>.<br>Gate: <b>front</b> · <b>bright</b> · <b>forehead visible</b> · face width <b>at least 60%</b>" },
       {
-        at: 7.5,
-        ci: 0,
-        ui: { badge: "Sample trial: pre-generated YouCam results (0 units)", pill: "Live call 10 units · here <b>0</b>", callout: "Eyelid · eye shape · lips · face shape · brows<br><span class=\"plain\">Same monolid face, sample trial: the analyzer read <b>Double-lid</b></span>" },
+        badge: "LIVE YouCam call, 10 units",
+        pill: "Live call <b>10 units</b> · 883 \u2192 873",
+        callout: "<b>LIVE YouCam call, 10 units</b><br>Units left <b>883 \u2192 873</b><br><span class=\"plain\">It read this monolid stock photo as <b>Double-lid</b>, same as the sample trial</span>",
       },
     ],
-    // C13: 0-1.6 s the live call in progress (loading, "Units left 883"), 1.6-7.5 s its result ("Analysis done", "Units left 873"); `from: "livecall"` = work-c13 live recording
-    // (the call took 9.8 s, the wait between 2.6 s and 10.3 s is cut). Then the sample trial's raw reading (the same monolid face) with the "Fix the eyelid" bottom bar.
+    // capture take (work-c15 frames-capture): consent sheet held on src 1.6, gate 44 % from 2.8 s, digital zoom 6.3-8.4 s, "Looks good" from 8.6 s
     timeline: [
-      { at: 0, src: [1.0, 2.6], from: "livecall" },
-      { at: 1.6, src: [10.3, 15.2], from: "livecall" },
-      { at: 7.5, src: 1.5 },
-      { at: { cue: 1, plus: 0.9 }, src: [3.0, 8.6] },
-      { at: { cue: 2, plus: -0.2 }, src: [13.4, 14.6] },
-      { at: { cue: 2, plus: 0.9 }, src: 16.5 },
+      { at: 0, src: 1.6 },
+      { at: 1.0, src: 4.2 },
+      { at: 1.7, src: [6.3, 8.4] },
+      { at: 2.5, src: 9.8 },
+      { at: { cue: 1, plus: -0.05 }, src: [1.0, 2.6], from: "livecall" },
+      { at: { cue: 1, plus: 1.55 }, src: [10.3, 13.6], from: "livecall" },
     ],
-    zoom: [{ at: 0, y: 498 }, { at: 7.4, y: 330 }, { at: { cue: 1, plus: 1.5 }, y: 498 }, { at: { cue: 1, plus: 3.6 }, y: 330 }, { at: { cue: 2, plus: -0.3 }, y: 498 }],
+    zoom: [{ at: 0, y: 498 }, { at: 1.0, y: 267 }, { at: { cue: 1, plus: -0.05 }, y: 498 }],
   },
   {
     id: "lesson",
+    step: 3,
     badge: "Sample trial: pre-generated YouCam renders (0 units)",
     pill: "Live lesson 4 units · here <b>0</b>",
     kicker: "Step 3 · Learn",
@@ -289,6 +285,7 @@ const SEGMENTS = [
   },
   {
     id: "compare",
+    step: 4,
     badge: "YouCam VTO, pre-generated (0 units)",
     kicker: "Step 4 · Two faces",
     heading: "Same look, different technique",
@@ -356,6 +353,7 @@ const SEGMENTS = [
   },
   {
     id: "grade",
+    step: 5,
     badge: "YouCam VTO, pre-generated (0 units)",
     // C10: wider-than-tall zoom panel is 560 px high so the thumbnails (and later the score ring + Eyeliner card) fit without clipping a text line
     geo: { ZH: 560 },
@@ -388,10 +386,13 @@ const SEGMENTS = [
       { at: { cue: 2, plus: -0.35 }, src: [3.95, 5.05] },
       { at: { cue: 2, plus: 0.8 }, file: "overlay-grade/grade-row.jpg" },
     ],
+    // C16: 2.5 s zoom panel on the Eyeliner delta-E line (boxed in grade-row.jpg)
+    pops: [{ at: { cue: 2, plus: 1.5 }, dur: 2.5, file: "overlay-grade/grade-row.jpg", crop: { x: 40, y: 232, w: 300 }, label: "\u0394E2000 6.8 \u00b7 #A57D64 vs #BB9074" }],
     zoom: [{ at: 0, y: 40 }, { at: { cue: 2, plus: -0.35 }, y: 62 }],
   },
   {
     id: "shop",
+    step: 6,
     badge: "YouCam VTO, pre-generated (0 units)",
     kicker: "Step 6 · Shop the step",
     heading: "Exact colors to products",
@@ -411,6 +412,7 @@ const SEGMENTS = [
     // C3: the /partner retailer view (concept screen, 0 units). C12: the widget is a live iframe on the real /embed/lesson route. C14: "Try your own shade" + the cost calculator.
     // Source: work-c14 frames-partner (live mode, home screen only, no API call, 0 units).
     id: "partner",
+    step: 7,
     tail: 0.2, // C10: shorter dwell to pay for the longer cold open and grade scene
     badge: "YouCam VTO, pre-generated (0 units)",
     kicker: "For retailers",
@@ -418,35 +420,37 @@ const SEGMENTS = [
     chip: "Concept screen · fictional store · 0 units",
     units: 14,
     lines: [
-      "For retailers, the lesson is a live widget on the product page. Try your own shade: no units spent.",
+      "In your store: a widget beside the lip product, a four-step lesson in its exact shade, then add to cart. Try your own shade: no units spent.",
       "Integration is one plain iframe. No SDK, and no partner has used it yet.",
-      "First lesson, fourteen units. Then four. A calculator turns your own visit counts into monthly units.",
+      "First lesson, fourteen units, then four. Enter your own visits, price and margin to see the break-even. Example inputs, no promised lift.",
     ],
     ui: [
-      { callout: "Live <b>iframe widget</b> on the product page<br><span class=\"mono\">Try your own shade · demo catalog, not a partner feed · 0 units</span>" },
-      { heading: "Integration is one iframe", callout: "<b>One plain iframe</b> · no SDK<br><span class=\"mono\">A real route in this repo · no partner has used it yet</span>" },
+      { callout: "<b>In your store</b>: product page widget \u2192 4-step lesson in this shade \u2192 add to cart<br><span class=\"mono\">Try your own shade \u00b7 demo catalog, not a partner feed \u00b7 0 units</span>" },
+      { heading: "Integration is one iframe", callout: "<b>One plain iframe</b> \u00b7 no SDK<br><span class=\"mono\">A real route in this repo \u00b7 no partner has used it yet</span>" },
       {
-        heading: "Unit meter and calculator",
-        callout: "<div class=\"vs\"><div><b>Unit meter · live on the page</b>First lesson <em>14</em> units, then <em>4</em><span>under the <em>20</em>-unit session cap</span></div><div><b>Cost calculator</b>Your visit counts in, monthly units out<span class=\"mono\">Your inputs · no conversion or revenue estimated</span></div></div>",
+        heading: "Unit meter, calculator, break-even",
+        callout: "<div class=\"vs\"><div><b>Unit meter</b>First lesson <em>14</em> units, then <em>4</em></div><div><b>Calculator + break-even</b>Your visits, price, margin in<span class=\"mono\">Example inputs \u00b7 no lift claimed</span></div></div>",
       },
     ],
-    // C14 source (work-c14 frames-partner): tap "Retailer view" 1.6-2.3 s, the widget iframe loads (blank 2.3-2.9 s, skipped), slider drags 4.5-7.7 s, scroll to "Try your own shade" 8.4-9.5 s,
-    // swatch Coral tapped ~10 s (the widget re-renders Coral), top of the page with the Coral SKU 11.2-13.5 s, scroll to the snippet 13.5-14 s, scroll to the unit meter + calculator ~16.4-17.8 s,
-    // values typed 17.8 s (52,000 units / month), hold to the end
+    // C16 source (work-c16 frames-partner, live mode home screen only, no API call, 0 units): tap "Retailer view" 1.6-2.3 s, page top 2.3-2.9 s (the widget iframe flashes Korean 2.6-3.2 s, skipped),
+    // "In your store" strip + product card hold 3.3-4.4 s, scroll to the widget and slider drags 4.4-8.0 s, "Try your own shade" 8.1-10.6 s, Coral tapped ~10.8 s (the widget re-renders),
+    // top with the Coral SKU 11.8-14.5 s, snippet scroll ~17.6-17.9 s (hold to 19.7), calculator typed ~19.8-20.2 s (52,000 units / month), break-even scroll 21.5-21.8 s, hold to 25.8 s
     timeline: [
       { at: 0, src: [0.9, 2.2] },
-      { at: 1.3, src: [3.0, 6.0] },
-      { at: { cue: 0, plus: 2.6 }, src: [8.4, 10.6] },
-      { at: { cue: 0, plus: 4.8 }, src: 12 },
-      { at: { cue: 1, plus: -0.2 }, src: [13.4, 14.1] },
-      { at: { cue: 1, plus: 0.8 }, src: 15 },
-      { at: { cue: 2, plus: -0.2 }, src: [16.4, 18.3] },
-      { at: { cue: 2, plus: 1.9 }, src: 21.5 },
+      { at: 1.3, src: 3.8 },
+      { at: 4.6, src: [4.5, 8.0] },
+      { at: { cue: 0, plus: 6.2 }, src: [8.2, 10.6] },
+      { at: { cue: 0, plus: 8.2 }, src: 12.5 },
+      { at: { cue: 1, plus: -0.2 }, src: [17.5, 18.0] },
+      { at: { cue: 1, plus: 0.8 }, src: 18.8 },
+      { at: { cue: 2, plus: -0.2 }, src: [19.4, 22.2] },
+      { at: { cue: 2, plus: 3.4 }, src: 25 },
     ],
-    zoom: [{ at: 0, y: 507 }, { at: 1.3, y: 120 }, { at: { cue: 0, plus: 2.6 }, y: 230 }, { at: { cue: 0, plus: 4.8 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 470 }, { at: { cue: 2, plus: -0.2 }, y: 420 }],
+    zoom: [{ at: 0, y: 507 }, { at: 1.3, y: 140 }, { at: 4.6, y: 120 }, { at: { cue: 0, plus: 6.2 }, y: 230 }, { at: { cue: 0, plus: 8.2 }, y: 120 }, { at: { cue: 1, plus: -0.2 }, y: 60 }, { at: { cue: 2, plus: -0.2 }, y: 330 }, { at: { cue: 2, plus: 3.4 }, y: 450 }],
   },
   {
     id: "home",
+    step: 8,
     badge: "Saved on this device (0 units)",
     kicker: "Come back tomorrow",
     heading: "Practice streak and past results",
@@ -462,6 +466,7 @@ const SEGMENTS = [
   },
   {
     id: "share",
+    step: 9,
     badge: "YouCam API, sample trial (0 units)",
     tail: 0.4, // C10: 1.0 -> 0.4 to pay for the longer cold open and grade scene
     kicker: "Share",
@@ -885,7 +890,11 @@ function encodeSegment(seg, dir) {
   const inputs = [];
   const filter = [];
   const shots = bounds.length - 1;
-  const zoomPanel = seg.zoomPanelFile ?? null; // C11: optional opaque panel laid over the zoom window from seg.zoomOverlay.at on
+  // C11: optional opaque panel laid over the zoom window from seg.zoomOverlay.at on; C16: plus timed 2.5 s zoom panels (seg.pops)
+  const panels = [
+    ...(seg.zoomPanelFile ? [{ file: seg.zoomPanelFile, at: resolveAt(seg, seg.zoomOverlay.at), until: seg.zoomOverlay.until ? resolveAt(seg, seg.zoomOverlay.until) : null, fin: 0.5, fout: 0.4 }] : []),
+    ...(seg.popFiles ?? []).map((p) => ({ file: p.file, at: p.at, until: p.at + p.dur, fin: 0.25, fout: 0.25 })),
+  ];
   for (let k = 0; k < shots; k++) {
     const s0 = bounds[k], s1 = bounds[k + 1];
     const w0 = k === 0 ? 0 : s0 - hN, w1 = k === shots - 1 ? N : s1 + hN;
@@ -918,20 +927,19 @@ function encodeSegment(seg, dir) {
     `[z0][m2]alphamerge[zm]`,
     `[0:v]scale=${W}:${H},fps=${FPS}[bg]`,
     `[bg][scr]overlay=${SCR_X}:${SCR_Y}:eof_action=repeat[b1]`,
-    ...(zoomPanel
-      ? [
-          `[${4 + shots}:v]format=rgba,fade=t=in:st=${resolveAt(seg, seg.zoomOverlay.at).toFixed(3)}:d=0.5:alpha=1${seg.zoomOverlay.until ? `,fade=t=out:st=${resolveAt(seg, seg.zoomOverlay.until).toFixed(3)}:d=0.4:alpha=1` : ""}[zp]`,
-          `[b1][zm]overlay=${ZX}:${ZY}:eof_action=repeat[b2]`,
-          `[b2][zp]overlay=${ZX}:${ZY}:eof_action=repeat,format=yuv420p[v]`,
-        ]
-      : [`[b1][zm]overlay=${ZX}:${ZY}:eof_action=repeat,format=yuv420p[v]`]),
+    `[b1][zm]overlay=${ZX}:${ZY}:eof_action=repeat[b2]`,
+    ...panels.flatMap((pn, i) => [
+      `[${4 + shots + i}:v]format=rgba,fade=t=in:st=${pn.at.toFixed(3)}:d=${pn.fin}:alpha=1${pn.until ? `,fade=t=out:st=${(pn.until - pn.fout).toFixed(3)}:d=${pn.fout}:alpha=1` : ""}[zp${i}]`,
+      `[b${i + 2}][zp${i}]overlay=${ZX}:${ZY}:eof_action=repeat${i === panels.length - 1 ? ",format=yuv420p[v]" : `[b${i + 3}]`}`,
+    ]),
+    ...(panels.length ? [] : [`[b2]format=yuv420p[v]`]),
     `[1:a]apad[a]`,
   );
   const fs = path.join(dir, `${seg.id}-filter.txt`);
   writeFileSync(fs, filter.join(";\n"));
   const out = path.join(dir, `${seg.id}.mp4`);
   const loop = (f) => ["-loop", "1", "-framerate", String(FPS), "-t", (dur + 1).toFixed(2), "-i", f];
-  run(FFMPEG, ["-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", bgList, "-i", seg.audio, ...loop(masks.phone), ...loop(masks.zoom), ...inputs, ...(zoomPanel ? loop(zoomPanel) : []), "-filter_complex_script", fs, "-map", "[v]", "-map", "[a]", "-t", dur.toFixed(3), "-r", String(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", out]);
+  run(FFMPEG, ["-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", bgList, "-i", seg.audio, ...loop(masks.phone), ...loop(masks.zoom), ...inputs, ...panels.flatMap((pn) => loop(pn.file)), "-filter_complex_script", fs, "-map", "[v]", "-map", "[a]", "-t", dur.toFixed(3), "-r", String(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", out]);
   seg.cutTimes = cutT;
   return out;
 }
@@ -956,6 +964,29 @@ async function makeZoomPanel(seg, dir) {
     .png()
     .toFile(out);
   return out;
+}
+
+// C16 zoom panels: a 2.5 s magnified crop of one source frame (css px crop {x, y, w}; the height follows the panel's aspect) over the zoom window,
+// an optional ring ({x, y, w, h} in the same css px) and a label pill. `src` = a time in the segment's source take, `file` = a prepared frame in the source dir.
+async function makePops(seg, dir) {
+  const { items } = sourceOf(seg.srcId ?? seg.id);
+  seg.popFiles = [];
+  for (const [i, pop] of seg.pops.entries()) {
+    const frame = pop.file ? path.join(SRC, pop.file) : frameAt(items, pop.src);
+    const cw = pop.crop.w, ch = Math.round((cw * ZH) / ZW);
+    const k = ZW / cw;
+    const x0 = Math.max(0, Math.min(CSS_W - cw, pop.crop.x)), y0 = Math.max(0, Math.min(CSS_H - ch, pop.crop.y));
+    const base = await sharp(frame).extract({ left: Math.round(x0), top: Math.round(y0), width: cw, height: ch }).resize(ZW, ZH, { kernel: "lanczos3" }).sharpen({ sigma: 1.0 }).toBuffer();
+    const ring = pop.ring
+      ? `<rect x="${((pop.ring.x - x0) * k).toFixed(1)}" y="${((pop.ring.y - y0) * k).toFixed(1)}" width="${(pop.ring.w * k).toFixed(1)}" height="${(pop.ring.h * k).toFixed(1)}" rx="14" fill="none" stroke="#fff" stroke-width="10"/><rect x="${((pop.ring.x - x0) * k).toFixed(1)}" y="${((pop.ring.y - y0) * k).toFixed(1)}" width="${(pop.ring.w * k).toFixed(1)}" height="${(pop.ring.h * k).toFixed(1)}" rx="14" fill="none" stroke="#c8325b" stroke-width="5"/>`
+      : "";
+    const pw = Math.round(pop.label.length * 13.2 + 40);
+    const overlay = `<svg xmlns="http://www.w3.org/2000/svg" width="${ZW}" height="${ZH}">${ring}<g><rect x="18" y="18" width="${pw}" height="44" rx="22" fill="#1f1b1a" fill-opacity=".88"/><text x="38" y="49" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="23" fill="#fff">${esc(pop.label)}</text></g></svg>`;
+    const mask = `<svg xmlns="http://www.w3.org/2000/svg" width="${ZW}" height="${ZH}"><rect width="${ZW}" height="${ZH}" rx="26" fill="#fff"/></svg>`;
+    const out = path.join(dir, `${seg.id}-pop${i}.png`);
+    await sharp(base).composite([{ input: Buffer.from(overlay) }, { input: Buffer.from(mask), blend: "dest-in" }]).png().toFile(out);
+    seg.popFiles.push({ file: out, at: resolveAt(seg, pop.at), dur: pop.dur });
+  }
 }
 
 // C11 split beat: two stills (eye renders; the arrows and the second line appear with line 2), cross-faded, with the narration audio
@@ -989,7 +1020,7 @@ async function makeSplit(seg, dir) {
     .map((side, i) => `<div class="p" style="left:${80 + i * (PW + 40)}px"><img src="file://${strips[side + (withArrow ? "A" : "N")]}"><div class="lab"><b>${esc(sp[side].name)}</b><span>${esc(sp[side].tech)}</span></div></div>`)
     .join("")}
   <div class="cap">Same look. <em>Different lid.</em> Different technique.</div>
-  <div class="sub">${withArrow ? esc(seg.lines[1]) : ""}</div>
+  <div class="sub">${seg.lines.length > 1 ? (withArrow ? esc(seg.lines[1]) : "") : esc(seg.lines[0])}</div>
   <div class="note">${esc(sp.note)}</div></body></html>`;
   const stills = [];
   for (const withArrow of [false, true]) {
@@ -999,7 +1030,7 @@ async function makeSplit(seg, dir) {
     screenshot(html, png, W, H);
     stills.push(png);
   }
-  const XF = 0.4, t1 = seg.cues[1].start - 0.1; // second still from just before line 2
+  const XF = 0.4, t1 = seg.arrowAt ?? seg.cues[1].start - 0.1; // second still from just before line 2 (C16: or `arrowAt` seconds in)
   const out = path.join(dir, `${seg.id}.mp4`);
   const loop = (f, t) => ["-loop", "1", "-framerate", String(FPS), "-t", t.toFixed(3), "-i", f];
   run(FFMPEG, [
@@ -1070,6 +1101,7 @@ for (const [si, seg] of SEGMENTS.entries()) {
   }
   applyGeo(seg.geo);
   if (seg.zoomOverlay) seg.zoomPanelFile = await makeZoomPanel(seg, stageDir);
+  if (seg.pops) await makePops(seg, stageDir);
   renderStage(seg, si, stageDir);
   outs.push(encodeSegment(seg, segDir));
   log(`${seg.id}: ${seg.duration.toFixed(2)}s, cues ${seg.cues.map((c) => c.start.toFixed(1)).join("/")}, dissolves ${seg.cutTimes.map((c) => c.toFixed(2)).join("/") || "none"}`);

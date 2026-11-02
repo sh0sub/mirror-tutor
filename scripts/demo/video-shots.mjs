@@ -168,6 +168,36 @@ export const SEGMENTS = [
     ],
   },
   {
+    // C16 sample-trial tap (--mode live --only trial, 0 units: the sample trial plays back pre-generated results): the home screen scrolled to the
+    // three steps (as in the C15 intro), the real tap on "Try with a sample model", the first /analyze screen. Replaces the old intro scene.
+    id: "trial",
+    sampleOnly: true,
+    kicker: "Try it",
+    heading: "Tap the sample model",
+    chip: "0 units",
+    lines: ["Two YouCam APIs, fourteen units a lesson. Tap the sample model: zero units."],
+    actions: [
+      { wait: "document.querySelector('main h2')", timeout: 30000 },
+      { scroll: { y: 540 }, dur: 0.2 },
+      { sleep: 1.4 },
+      { tap: { sel: "button", text: "^Try with a sample model" } },
+      { wait: "location.pathname === '/analyze'", timeout: 20000 },
+      { wait: bodyHas("Analysis done"), fail: bodyHas("Analysis failed"), timeout: 60000 },
+      // the analyze scene continues in the same take (same live-mode page): raw Double-lid reading, Fix the eyelid -> Monolid, rule table
+      { sleep: 3.2 },
+      { tap: { sel: "button", text: "^Fix the eyelid" } },
+      { sleep: 2.0 },
+      { tap: { sel: "label", text: "Monolid" } },
+      { sleep: 3.4 },
+      { scroll: { sel: "button", text: "See the rule table", offset: 420 }, dur: 1.4 },
+      { sleep: 3.0 },
+      { tap: { sel: "button", text: "See the rule table" } },
+      { sleep: 3.4 },
+      { tap: { sel: "dialog[open] button", text: "^Close$" } },
+      { sleep: 0.6 },
+    ],
+  },
+  {
     // C13 live Face Analyzer call (--mode live --only livecall, 10 units): the licensed monolid stock photo (model-c, Unsplash License) is uploaded,
     // the real analysis runs (bottom bar "Remaining N" before, N-10 after) and the result is shown. Records only; recomposite picks the window.
     id: "livecall",
@@ -331,6 +361,9 @@ export const SEGMENTS = [
       { scroll: { sel: "h2", text: "Cost calculator", offset: 330 }, dur: 1.2 },
       { sleep: 0.6 },
       { js: "(() => { const set = (el, v) => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, v); el.dispatchEvent(new Event('input', { bubbles: true })); }; const ins = document.querySelectorAll('[data-testid=cost-calc] input'); set(ins[0], '2000'); set(ins[1], '6000'); })()" },
+      { sleep: 1.8 },
+      // C16: the break-even block under the calculator (example price 0.05 and margin 6 are the page defaults; the page says they are not a Perfect Corp price)
+      { scroll: { sel: "[data-testid=break-even] p", offset: 120 }, dur: 1.0 },
       { sleep: 3.0 },
     ],
   },

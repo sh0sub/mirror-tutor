@@ -87,5 +87,5 @@ Next.js, React, TypeScript, Tailwind CSS, YouCam API (Face Attribute & Ratio Ana
 - Live demo: https://mirror-tutor.vercel.app/?lang=en (if the YouCam balance is low it shows pre-generated sample models and says so)
 - Retailer view: https://mirror-tutor.vercel.app/partner?lang=en ; widget: https://mirror-tutor.vercel.app/embed/lesson?sku=MT-VT-07&lang=en
 - Source code: https://github.com/sh0sub/mirror-tutor (public, MIT)
-- Video: YouTube link (add after upload). About 2:56 (175.7 s), faceless (stock photos only); the analyze scene opens with a live Face Analyzer call on a stock monolid face (unit counter 883 -> 873, 10 units; it read Double-lid again).
+- Video: YouTube link (add after upload). About 2:55 (175.3 s), faceless (stock photos only); the real tap on "Try with a sample model" lands at about 0:14 and the first analysis screen follows, with zoom panels on the raw Double-lid reading and the Edited chip; a later scene shows a live Face Analyzer call on a stock monolid face (unit counter 883 -> 873, 10 units; it read Double-lid again).
 - Test images: `public/demo/model-a`, `model-b` (Pexels License), `model-c` (Unsplash License); `model-a/sample-attempt.jpg` is a simulated attempt derived from model-a's answer image

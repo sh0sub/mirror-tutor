@@ -227,3 +227,13 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - capture: 동의 시트를 한 프레임(원본 1.6초)으로 1.2초 유지한 뒤 카메라 게이트로 하드 컷(시트 애니메이션/홈 깜박임 제거). 확대 창 첫 구간은 시트가 있는 하단.
 - 검증: 장면 전환 감지(gt 0.08) 31곳은 세그먼트 경계, 의도한 디졸브, 앱 스크롤/시트/iframe 교체뿐. 어두운/스켈레톤/빈 프레임 없음(라이브 클립의 로딩 스켈레톤 1.6초는 호출 진행을 보여 주려고 남김), 자막은 나레이션 줄과 같은 문자열(줄 변경 없음). 길이 175.66초(180초 미만), devpost.md와 checklist.md의 길이 문구를 175.7초로 맞춤.
 - C15b (메인 루프): "Spent here" 알약이 배지 줄 wrap 때 나레이션 자막 첫 줄을 가려서, 알약을 확대 패널 위 오른쪽 절대 위치로 옮김(확대 패널 합성에 가려 사실상 숨김). 유닛 근거는 왼쪽 콜아웃(883 -> 873)과 앱 화면 "Units left"에 남음. 같은 work-c15 / recomp-oai, 캐시 음성만, 175.66초. 직전 판 `-c15aprev.mp4`.
+
+## 사이클 16 재합성 (175.3초, YouCam 유닛 0 사용: 잔량 873 그대로, 새 TTS 줄 7개, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c16` (work-c15 복사본, phone 타임라인 경로를 work-c16으로 바꿈). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유), 직전 판 `.local/video/mirror-tutor-demo-live-c16prev.mp4`.
+- 재녹화(전부 0 유닛, 로컬 `YOUCAM_MODE=live` 서버, API 호출 0): `--mode live --only trial`(새 `trial` 세그먼트: 홈 3단계 -> 실제 "Try with a sample model" 탭 -> 첫 분석 화면 -> 같은 테이크에서 원본 읽기, Fix the eyelid, 규칙표까지), `--mode live --only partner`("In your store" 3단계 띠, 손익분기 블록, "Demo catalog" 칩 없는 새 /partner). 나머지 장면은 기존 프레임. grade/share는 390 폭 캡처가 앱 변경 영향이 없어 그대로(two-column은 lg 이상만).
+- 순서: hook(단일 줄에 태그라인 접어 넣음, 6.8초) -> split(한 줄, 6.4초) -> trial(4.7초, 탭이 약 0:14, 첫 분석 화면 약 0:15) -> analyze(샘플 원본 읽기 -> 수정 -> 규칙표) -> live(동의 시트·품질 게이트 + 실제 호출 10유닛 883 -> 873, 로딩 스켈레톤은 호출 진행 표시로 일부러 남김) -> lesson -> compare -> gradient -> grade -> shop -> partner -> home -> share -> 끝 카드. 이전 intro 장면과 analyze 앞 7.5초 live 클립은 live 장면으로 이동.
+- 확대 패널(2.5초씩, `recomposite.mjs`의 `pops`, 소스 프레임 크롭 + 링 + 라벨): 분석기 원본 읽기 "Double lid (wrong for this face)", 앱 수정 후 "Monolid, Edited" 칩, 채점 아이라인 ΔE 6.8 줄. 나레이션 구간 위에 겹치므로 시간을 더 쓰지 않는다.
+- 새 marin TTS 줄: hook, split, trial, analyze 1번, live 2번, partner 1번과 3번. partner 문구는 입력값 기준임을 밝힘("Example inputs, no promised lift"; 단가 0.05와 마진 6은 앱 기본 예시값이며 Perfect Corp 가격 아님).
+- 정직 표기: 분석기가 홑꺼풀을 쌍꺼풀로 읽었고 앱 수정 시트에서 고쳤다는 문구를 analyze 나레이션과 확대 패널 라벨에 그대로 둠.
+- 검증: 장면 전환 감지(gt 0.08) 29곳은 세그먼트 경계, 의도한 디졸브, 앱 스크롤/시트뿐. 1초 간격 밀집 프레임에서 어두운/빈/배너 프레임 없음(동의 시트 뒤 딤은 앱 화면), 자막은 나레이션 줄과 같은 문자열. 길이 175.31초(178초 미만).
