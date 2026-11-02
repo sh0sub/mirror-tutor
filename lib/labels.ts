@@ -79,5 +79,6 @@ export const FACE_NAME: Record<FaceProfile["eyelid"], Text> = {
 };
 
 export function sourceCaption(raw: string): string {
-  return Array.from(new Set(raw.split("/").map((s) => s.trim()).filter(Boolean))).join(" / ");
+  // A source already wrapped in parentheses (the "(not recorded)" placeholder) must not get a second pair from the caller.
+  return Array.from(new Set(raw.split("/").map((s) => s.trim().replace(/^\(([^()]*)\)$/, "$1").trim()).filter(Boolean))).join(" / ");
 }

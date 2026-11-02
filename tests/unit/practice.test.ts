@@ -60,6 +60,7 @@ describe("F1 consent persistence", () => {
 describe("analyzer caption", () => {
   it("collapses identical left/right labels", () => {
     expect(sourceCaption("Single-lid / Single-lid")).toBe("Single-lid");
+    expect(sourceCaption("(not recorded)")).toBe("not recorded");
     expect(sourceCaption("Single-lid / Double-lid")).toBe("Single-lid / Double-lid");
   });
   it("shop title is localized in Korean", () => {

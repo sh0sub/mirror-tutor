@@ -175,10 +175,6 @@ export default function AnalyzePage() {
                   <Icon name="info" className="mt-0.5 h-4 w-4 flex-none text-primary-strong" />
                   {t("sampleMonoFix", lang)}
                 </p>
-                <Button className="w-full" onClick={() => setEditing("eyelid")}>
-                  <Icon name="pencil" className="h-4 w-4" />
-                  {t("sampleMonoFixCta", lang)}
-                </Button>
               </div>
             )}
             {fixed && (
@@ -271,6 +267,11 @@ export default function AnalyzePage() {
                   </span>
                 </p>
                 <p className="text-sm text-muted">{rec.reason[lang]}</p>
+                {needsFix && (
+                  <p data-testid="sample-mono-lesson-note" className="mt-1 text-xs font-bold text-warning">
+                    {t("sampleMonoLessonNote", lang)}
+                  </p>
+                )}
                 <p className="mt-2 text-xs font-bold text-muted">{t("otherLessons", lang)}</p>
                 <div className="mt-1 flex flex-wrap gap-2">
                   {LESSONS.filter((l) => l.id !== rec.lessonId).map((l) => (
@@ -294,7 +295,13 @@ export default function AnalyzePage() {
         ) : (
           <div className="flex flex-col gap-2">
             <UnitLine costKey="analyzerCost" />
-            <Button className="w-full" disabled={phase.kind !== "done" || !rec} onClick={() => rec && router.push(`/lesson?id=${rec.lessonId}`)}>
+            {needsFix && (
+              <Button className="w-full" data-testid="sample-mono-fix-primary" onClick={() => setEditing("eyelid")}>
+                <Icon name="pencil" className="h-4 w-4" />
+                {t("sampleMonoFixCta", lang)}
+              </Button>
+            )}
+            <Button variant={needsFix ? "ghost" : "primary"} className="w-full" disabled={phase.kind !== "done" || !rec} onClick={() => rec && router.push(`/lesson?id=${rec.lessonId}`)}>
               {t("startLesson", lang)}
             </Button>
           </div>

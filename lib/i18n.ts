@@ -88,6 +88,10 @@ const DICT = {
     ko: "홑꺼풀로 고쳤어요. 3단계 섀도가 가로 그라데이션으로 바뀌었고, 미리 만든 실제 YouCam 결과예요(0 유닛).",
     en: "Corrected to Monolid. Step 3 now uses the horizontal gradient, a real pre-generated YouCam render (0 units).",
   },
+  sampleMonoLessonNote: {
+    ko: "지금은 분석기의 쌍꺼풀 읽기 그대로라 쌍꺼풀 기법(주름 따라)이에요. 눈꺼풀을 고치면 홑꺼풀 기법으로 바뀌어요.",
+    en: "Uncorrected, this is the double-lid technique (follows a crease) from the analyzer's misread. Fix the eyelid to switch to the monolid technique.",
+  },
   sampleMonoFixCta: { ko: "눈꺼풀 고치기", en: "Fix the eyelid" },
   gradeComparing: { ko: "부위별 색 비교 중…", en: "Comparing regions…" },
   shopShort: { ko: "제품", en: "Shop" },
