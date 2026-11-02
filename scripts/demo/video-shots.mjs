@@ -140,15 +140,19 @@ export const SEGMENTS = [
       { drag: { sel: "[role=slider]", parent: true, from: 0.88, to: 0.5, dur: 0.6 } },
       { at: 3 },
       // C24: the Base step's "Why this fits you: From your skin check" block (skin check card -> Base step change)
-      { scroll: { sel: "[data-testid=skin-reason] p", offset: 400 }, dur: 1.0 },
-      { sleep: 3.4 },
+      // C25: on phone width the reason boxes start collapsed (one line + "Show"), so the take taps Show to reveal the text
+      { scroll: { sel: "[data-testid=skin-reason] button", offset: 400 }, dur: 1.0 },
+      { sleep: 0.6 },
+      { tap: { sel: "[data-testid=skin-reason] button", text: "Show" } },
+      { sleep: 3.0 },
       { scroll: { y: 0 }, dur: 0.6 },
       { tap: { sel: "button", text: "^Next step$" } },
       { sleep: 0.6 },
       { tap: { sel: "button", text: "^Next step$" } },
       { sleep: 0.5 },
       { scroll: { sel: "button", text: "^Why this fits you", offset: 200 }, dur: 1.0 },
-      { sleep: 0.8 },
+      { tap: { sel: "button", text: "^Why this fits you" } },
+      { sleep: 1.2 },
     ],
   },
   {

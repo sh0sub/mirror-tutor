@@ -162,47 +162,21 @@ const SEGMENTS = [
       note: "Real YouCam Makeup VTO renders, lesson step 3 (eyes), pre-generated, 0 units now · overlay: dashed lid area + crease guide from face landmarks (approximate), arrow = our rule-table direction · faces: Unsplash and Pexels License stock",
     },
     lead: 0.1,
-    tail: 0.1,
+    tail: 1.0, // C25: ~4 s open (0-4 s): one cached marin line (2.9 s) over the split-face render, then straight to the sample tap
     units: 0,
-    // C16: one line (was two, 8.1 s -> ~5.5 s); the arrows fade in `arrowAt` seconds in
-    lines: ["Same look, different lid. Monolid: horizontal gradient. Double lid: crease shading."],
-    arrowAt: 1.9,
-  },
-  {
-    // C10 cold open (0-~10 s): the sample model's own face with the real YouCam Makeup VTO look (lesson step 4, answer
-    // render), the before/after slider swept from "My face" to the finished look. Source: work-c10 cold recording
-    // (`record-video.mjs --mode mock --sample --only cold`, 0 units). Phone at 80 % of the frame height (864 of 1080 px,
-    // frames shown at ~1:1), face close-up on the right, the thesis as the large caption (it is the subtitle).
-    id: "hook",
-    srcId: "cold",
-    lead: 0.35,
-    tail: 0.2,
-    geo: { SCR_W: 399, SCR_H: 864, SCR_X: 700, SCR_Y: 108, ZX: 1170, ZY: 60, ZW: 690, ZH: 690 },
-    badge: "Real YouCam Makeup VTO render",
-    kicker: "Mirror Tutor",
-    note: "Sample face (monolid): Unsplash License stock photo. Pre-generated with the YouCam API, 0 units spent here.",
-    units: 0,
-    // C16: one line, the tagline folded in (the closing line of the share scene still repeats it); the hook is ~6 s so the sample-trial tap lands at ~0:12
-    lines: ["Tutorials are filmed on someone else's face. Learn makeup, on your own face."],
-    cold: [`Tutorials are filmed on <span class="dim">someone else's face.</span> Learn makeup, <span class="acc">on your own face.</span>`],
-    // C12 source (work-c12 frames-cold, live mode home screen, 0 units): the home hero slider (Bare / Full look): drag to the Bare end 1.0-1.8 s, sweep to the Full look 2.9-6.0 s, hold, back to the middle 9.7-11.5 s
-    // C16: slider sweep 0.9-4.0 s, then hold the finished look to the end (the second line and the swipe back are gone)
-    timeline: [{ at: 0, src: 2.6 }, { at: 0.9, src: [3.0, 6.1] }, { at: 4.0, src: 7.3 }],
-    zoom: [{ at: 0, y: 70 }],
+    lines: ["Same look. Different lid. Different technique."],
+    arrowAt: 1.1,
   },
   {
     // C17: positioning card (narrated, ~6 s). C18: moved to right after the hook (about 0:06-0:12), before the lid split and the sample tap. Truthful: unit math from the app (10 analysis + 4 render first lesson, 4 renders after), no pilot claimed.
     id: "claim",
-    lead: 0.15,
-    tail: 0.2,
-    lines: ["Try-on shows the shade. We teach the technique, grade it, and sell the exact products."],
+    duration: 3.0, // C25: silent card, 6.25 -> 3.0 s (no narration; the card text is the message)
     card: {
       kicker: "Beyond try-on",
       title: "Try-on shows the shade.",
       chips: ["We teach the technique", "We grade your attempt", "We sell the exact products"],
       stack: true,
       sub: "Three YouCam APIs \u00b7 first lesson 14 units (+9 optional skin check) \u00b7 then 4 \u00b7 sample 0",
-      caption: true,
     },
   },
   {
@@ -331,10 +305,10 @@ const SEGMENTS = [
     // "Why this fits you: From your skin check" on screen 16.9-21.3, Next step taps 21.3-22.7, step 3 reason 24.3-26.0
     timeline: [
       { at: 0, src: 3 },
-      { at: { cue: 2 }, src: [12.2, 15.3] },
-      { at: { cue: 3 }, src: [15.3, 21.3] },
+      { at: { cue: 2 }, src: [12.2, 15.9] },
+      { at: { cue: 3 }, src: [17.0, 22.3] }, // C25 re-take: scroll 17.0-18.3, Show tapped ~18.6, skin reason open to ~23
     ],
-    zoom: [{ at: 0, y: 100 }, { at: { cue: 1 }, y: 440 }, { at: { cue: 2 }, y: 100 }, { at: { cue: 3, plus: 1.2 }, y: 380 }],
+    zoom: [{ at: 0, y: 100 }, { at: { cue: 1 }, y: 440 }, { at: { cue: 2 }, y: 100 }, { at: { cue: 3, plus: 1.2 }, y: 360 }],
   },
   {
     id: "compare",
@@ -478,7 +452,7 @@ const SEGMENTS = [
     // Source: work-c14 frames-partner (live mode, home screen only, no API call, 0 units).
     id: "partner",
     step: 7,
-    tail: 2.5, // C22: the two-week test card (two crops, 5.2 s) is held after the last line
+    tail: 1.8, // C25: 2.5 -> 1.8 (calculator dwell trimmed). C22: the two-week test card (two crops, 5.2 s) is held after the last line
     badge: "YouCam VTO, pre-generated (0 units)",
     kicker: "For retailers",
     heading: "The lesson as an iframe widget",
@@ -515,8 +489,8 @@ const SEGMENTS = [
       { at: { cue: 2, plus: -0.25 }, src: [30.1, 36.7] },
     ],
     pops: [
-      { at: { cue: 1, plus: 1.7 }, dur: 2.3, file: "frames-partner/f000261.jpg", crop: { x: 0, y: 480, w: 390 }, label: "52,000 units / month \u00b7 example inputs, illustrative" },
-      { at: { cue: 1, plus: 7.4 }, dur: 2.2, file: "frames-partner/f000285.jpg", crop: { x: 0, y: 430, w: 390 }, label: "434 extra orders to break even \u00b7 illustrative" },
+      { at: { cue: 1, plus: 1.7 }, dur: 1.9, file: "frames-partner/f000261.jpg", crop: { x: 0, y: 480, w: 390 }, label: "52,000 units / month \u00b7 example inputs, illustrative" },
+      { at: { cue: 1, plus: 7.4 }, dur: 1.6, file: "frames-partner/f000285.jpg", crop: { x: 0, y: 430, w: 390 }, label: "434 extra orders to break even \u00b7 illustrative" },
       { at: { cue: 2, plus: 0.6 }, dur: 2.6, file: "frames-partner/f000337.jpg", crop: { x: 0, y: 70, w: 390 }, label: "Two-week retailer test \u00b7 a plan, not a result" },
       { at: { cue: 2, plus: 3.4 }, dur: 2.6, file: "frames-partner/f000337.jpg", crop: { x: 0, y: 400, w: 390 }, label: "Decision rule + cost ceiling \u00b7 no retailer has run it" },
     ],
@@ -557,14 +531,14 @@ const SEGMENTS = [
     // C8: closing card (5-8 s, silent), plain claims only
     id: "close",
     // C9: the call to action is the biggest thing on the card (URL 120 px + the tap instruction), held for the whole 5 s card
-    duration: 4.5, // C15: 6.0 -> 3.5 s; C19: 4.5 s (the close card now comes right after share)
+    duration: 5.0, // C25: the business summary in large type + URL
     card: {
       kicker: "Mirror Tutor",
-      title: "Learn makeup, on your own face",
+      big: ["Face Analyzer + Skin Analysis + Makeup VTO.", "14 units first lesson, 4 after."],
+      title: "",
       cta: { url: "mirror-tutor.vercel.app", tap: "Tap \u201cTry with a sample model\u201d \u00b7 0 units" },
-      repo: "github.com/sh0sub/mirror-tutor",
-      chips: ["4 VTO calls per lesson", "Retailer SKUs at the end", "Open source, MIT", "No pilot claimed"],
-      sub: "YouCam Face Analyzer + Skin Analysis + Makeup VTO  \u00b7  hackathon prototype",
+      chips: [],
+      sub: "+9 units for the optional skin check  \u00b7  hackathon prototype, no pilot claimed  \u00b7  github.com/sh0sub/mirror-tutor",
     },
   },
 ];
@@ -667,7 +641,7 @@ function frameAt(items, t) {
 const TOP_CAPTION = "One widget: try-on shows the shade, we teach the technique and sell the exact products.";
 
 // left-column step list (one entry per segment after the intro)
-const HEAD_SEGS = 2; // the hook and the C11 split beat do not count as steps (C15: the gradient beat has an explicit `step`)
+const HEAD_SEGS = 1; // the hook and the C11 split beat do not count as steps (C15: the gradient beat has an explicit `step`)
 const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Retailer", "Share"];
 
 // C10 cold open: no step list or heading, just the thesis as a large caption (it is the subtitle) beside the phone and the face close-up
@@ -1121,11 +1095,12 @@ function makeCard(seg, dir) {
     .k{font-size:34px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#a8264a}
     h1{margin:0;font-size:96px;line-height:1.08;font-weight:800;letter-spacing:-.02em;max-width:1800px;white-space:nowrap}
     .chips{display:flex;gap:24px;flex-wrap:wrap;justify-content:center}.chips.stack{flex-direction:column;align-items:center;gap:22px}.chip{background:#fcebe3;color:#a8264a;border-radius:44px;padding:20px 40px;font-size:44px;font-weight:800;border:3px solid #c8325b}.stack .chip{font-size:64px;padding:18px 54px}
+    .big{display:flex;flex-direction:column;gap:18px}.b1{font-size:84px;line-height:1.08;font-weight:800;letter-spacing:-.02em;white-space:nowrap}.b2{font-size:104px;line-height:1.08;font-weight:800;letter-spacing:-.02em;color:#c8325b}.has-cta .big+.cta{margin-top:6px}
     .s{font-size:32px;font-weight:600;color:#6b605c}
     .capt{position:absolute;left:80px;right:80px;bottom:60px;text-align:center;font-size:38px;font-weight:600;color:#4a403d}
     .cta{display:flex;flex-direction:column;align-items:center;gap:14px;background:#c8325b;color:#fff;border-radius:36px;padding:34px 80px 38px;box-shadow:0 14px 40px rgba(200,50,91,.3)}.cta .u{font-size:124px;font-weight:800;letter-spacing:-.02em;line-height:1.05}.cta .t{font-size:58px;font-weight:700}
-    .c.has-cta{gap:30px}.has-cta h1{font-size:72px}.has-cta .chip{font-size:44px;padding:16px 38px}.repo{font-size:54px;font-weight:800;color:#1f1b1a;letter-spacing:-.01em}.repo span{color:#a8264a}
-    </style></head><body><div class="c${c.cta ? " has-cta" : ""}"><div class="k">${esc(c.kicker)}</div><h1>${esc(c.title)}</h1>${c.cta ? `<div class="cta"><div class="u">${esc(c.cta.url)}</div><div class="t">${esc(c.cta.tap)}</div></div>` : ""}${c.repo ? `<div class="repo"><span>Code:</span> ${esc(c.repo)}</div>` : ""}<div class="chips${c.stack ? " stack" : ""}">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div>${c.caption ? `<div class="capt">${esc(seg.lines[0])}</div>` : ""}</body></html>`,
+    .c.has-cta{gap:30px}.has-cta h1{font-size:72px}.has-cta .cta .u{font-size:120px}.has-cta .chip{font-size:44px;padding:16px 38px}.repo{font-size:54px;font-weight:800;color:#1f1b1a;letter-spacing:-.01em}.repo span{color:#a8264a}
+    </style></head><body><div class="c${c.cta ? " has-cta" : ""}"><div class="k">${esc(c.kicker)}</div>${c.big ? `<div class="big">${c.big.map((x, i) => `<div class="${i ? "b2" : "b1"}">${esc(x)}</div>`).join("")}</div>` : `<h1>${esc(c.title)}</h1>`}${c.cta ? `<div class="cta"><div class="u">${esc(c.cta.url)}</div><div class="t">${esc(c.cta.tap)}</div></div>` : ""}${c.repo ? `<div class="repo"><span>Code:</span> ${esc(c.repo)}</div>` : ""}<div class="chips${c.stack ? " stack" : ""}">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div>${c.caption ? `<div class="capt">${esc(seg.lines[0])}</div>` : ""}</body></html>`,
   );
   screenshot(html, png, W, H);
   const out = path.join(dir, `${seg.id}.mp4`);

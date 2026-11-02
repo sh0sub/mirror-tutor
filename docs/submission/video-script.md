@@ -307,3 +307,13 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - analyze: 줄 "An optional skin check rewrites your Base step." / "Skin AI reads your skin, Face Analyzer reads your eyes, VTO draws it." 추가, 피부 카드와 베이스 변화가 약 5초 보임. lesson 4번째 줄과 partner 2번째 줄(skin +9)도 새 marin TTS.
 - 카드·캡션: claim 부제에 "Three YouCam APIs ... +9 optional skin check", trial 콜아웃과 닫는 카드에 Skin Analysis 추가. 콜아웃 글자 28 -> 31 px.
 - 피부 결과는 샘플 모델의 미리 만든 결과(0 유닛)로 표기. live 장면(capture/livecall)은 옛 프레임 그대로(재녹화 안 함).
+
+## 사이클 25 재합성 (161.1초, YouCam 유닛 0 사용, 새 TTS 줄 0개, $0)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c25` (work-c24 복사본, phone 타임라인 경로를 work-c25로 변경). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시, 전부 캐시 적중), 직전 판 `.local/video/mirror-tutor-demo-live-c25prev.mp4`.
+- 오프닝 재편집: split 장면 한 줄(캐시된 "Same look. Different lid. Different technique.", 약 4초) -> "Try-on shows the shade" 카드(무음 3.0초, 6.25 -> 3.0) -> 샘플 탭. 홈 슬라이더 hook 장면 삭제(7초). 샘플 탭은 약 7초에 시작.
+- 끝 카드: 큰 글씨 "Face Analyzer + Skin Analysis + Makeup VTO." / "14 units first lesson, 4 after." + URL(120px) + 탭 안내, 작은 줄에 "+9 units for the optional skin check, hackathon prototype, no pilot claimed". 5.0초.
+- partner: 계산기 확대 두 장을 2.3/2.2 -> 1.9/1.6초로, 끝 정지 2.5 -> 1.8초로 줄였다(나레이션 줄 길이가 하한이라 약 0.7초만 단축).
+- lesson 재녹화(`--mode mock --sample --only lesson`, 0 유닛): 모바일에서 이유 박스가 접힌 채 시작하므로 `video-shots.mjs`가 "Show"를 눌러 피부 체크 이유 문구를 보여 주고, 3단계에서도 Show를 누른다. 강도 칩이 이유 박스 아래로 내려간 새 레이아웃을 영상에 반영.
+- 길이 173.7 -> 161.1초(180초 미만). 줄어든 약 12초는 몰라이드(A2) 확대 장면에 쓸 수 있다.
+- 검증: blackdetect 0건, 장면 전환 감지는 세그먼트 경계와 의도한 디졸브뿐, 접촉 시트와 오프닝/끝 카드/lesson 조밀 프레임에서 스켈레톤·빈·배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열.
