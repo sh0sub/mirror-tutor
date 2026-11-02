@@ -222,7 +222,7 @@ const SEGMENTS = [
         heading: "Skin check changes the Base step",
         chip: "YouCam Skin Analysis \u00b7 optional, 9 units live",
         pill: "Skin check 9 units live \u00b7 here <b>0</b>",
-        callout: "Dark circles <b>79</b> \u00b7 pores <b>81</b> (mild)<br><span class=\"plain\">Each concern that is not clear adds one <b>Base step</b> tip: peach corrector, blurring primer. Pre-generated sample result, 0 units.</span>",
+        callout: "Dark circles <b>79</b> \u00b7 pores <b>81</b> (mild)<br><span class=\"plain\">Zones drawn from face landmarks (approximate), only where a rule fired. Each adds a <b>Base step</b> tip. Sample result, 0 units.</span>",
       },
       {
         heading: "Three YouCam APIs, one lesson",
@@ -230,6 +230,7 @@ const SEGMENTS = [
         callout: "<b>Skin Analysis</b> \u2192 Base step<br><b>Face Analyzer</b> \u2192 eye technique<br><b>Makeup VTO</b> \u2192 draws it<br><span class=\"plain\">Monolid \u2192 horizontal gradient + visible liner (rule table)</span>",
       },
     ],
+    // C26 re-take (work-c26 frames-trial, same actions; the Skin check card now opens on the landmark zone figure, src 14.0 = zones + legend + note)
     // C24 re-take (work-c24 frames-trial, `--mode live --only trial`, 0 units; times from phone.txt): raw reading 3.5-5.6 s, fix tap ~6.4-7.0, edit sheet 7.2-8.9,
     // corrected state 9.4-11.8, scroll to the Skin check card 11.8-12.2, card + "How your Base step changes" box on screen 12.2-16.6 (src 14.0),
     // scroll to the rule-table link ~21.2-23.9, tap ~24.0, rule-table sheet open 24.2-26.8
@@ -245,7 +246,7 @@ const SEGMENTS = [
       { at: { cue: 0, plus: 2.4 }, dur: 2.5, src: 4.0, crop: { x: 12, y: 452, w: 348 }, ring: { x: 20, y: 604, w: 124, h: 44 }, label: "Raw read: Double lid (wrong for this face)" },
       { at: { cue: 1, plus: 3.2 }, dur: 2.5, src: 10.4, crop: { x: 12, y: 452, w: 348 }, ring: { x: 20, y: 584, w: 104, h: 56 }, label: "Fixed in the app: Monolid, Edited" },
     ],
-    zoom: [{ at: 0, y: 400 }, { at: { cue: 1, plus: 0.9 }, y: 400 }, { at: { cue: 1, plus: 3.2 }, y: 440 }, { at: { cue: 2, plus: -0.1 }, y: 400 }, { at: { cue: 2, plus: 0.9 }, y: 62 }, { at: { cue: 3, plus: 0.7 }, y: 400 }],
+    zoom: [{ at: 0, y: 400 }, { at: { cue: 1, plus: 0.9 }, y: 400 }, { at: { cue: 1, plus: 3.2 }, y: 440 }, { at: { cue: 2, plus: -0.1 }, y: 400 }, { at: { cue: 2, plus: 0.9 }, y: 96 }, { at: { cue: 3, plus: 0.7 }, y: 400 }],
   },
   {
     // C16 (was the capture scene + the first 7.5 s of analyze): "or bring your own selfie": consent sheet and quality gate (capture take, work-c15 frames, 0 units),

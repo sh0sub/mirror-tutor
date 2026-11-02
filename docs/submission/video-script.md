@@ -317,3 +317,10 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - lesson 재녹화(`--mode mock --sample --only lesson`, 0 유닛): 모바일에서 이유 박스가 접힌 채 시작하므로 `video-shots.mjs`가 "Show"를 눌러 피부 체크 이유 문구를 보여 주고, 3단계에서도 Show를 누른다. 강도 칩이 이유 박스 아래로 내려간 새 레이아웃을 영상에 반영.
 - 길이 173.7 -> 161.1초(180초 미만). 줄어든 약 12초는 몰라이드(A2) 확대 장면에 쓸 수 있다.
 - 검증: blackdetect 0건, 장면 전환 감지는 세그먼트 경계와 의도한 디졸브뿐, 접촉 시트와 오프닝/끝 카드/lesson 조밀 프레임에서 스켈레톤·빈·배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열.
+
+## 사이클 26 재합성 (161.1초, YouCam 유닛 0 사용, 새 TTS 줄 0개, $0)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c26` (work-c25 복사본, `trial`만 재녹화: `--mode live --only trial`, 샘플 체험이라 0 유닛, 시작/끝 잔량 855). 재합성 작업 디렉터리 `recomp-oai`(TTS 캐시 전부 적중), 직전 판 `.local/video/mirror-tutor-demo-live-c26prev.mp4`.
+- 새 장면(약 3.3초, 새 나레이션 없음): analyze 장면 3번째 줄("An optional skin check rewrites your Base step.") 동안 피부 체크 카드가 얼굴 사진 위에 다크서클(보라)·모공(청록) 구역을 그린 채 보인다. 확대 패널이 사진과 범례, "Zones are approximate, drawn from landmarks" 문구를 비춘다. 콜아웃 문구도 "Zones drawn from face landmarks (approximate), only where a rule fired"로 바꿨다. 길이는 늘지 않는다(기존 줄 길이 안에서 처리).
+- 이 구역은 YouCam이 준 픽셀 단위 위치가 아니라, 기기 안 얼굴 랜드마크로 그린 고정 모양이다(영상 문구에도 "approximate"로 표기).
+- 재녹화한 trial 테이크에는 새 배너("Caught a misread: Face Analyzer said Double lid, your eyes are monolid. Tap to correct, 0 units", 흰 카드)와 "Fix the eyelid" 단일 주 버튼이 들어 있다. 확대 패널 두 개(Double lid 원본 읽기, Monolid 수정)의 링 위치는 그대로 맞는 것을 프레임으로 확인했다.
