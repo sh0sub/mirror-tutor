@@ -1,4 +1,4 @@
-# 데모 영상 스크립트 (약 2:52, 171.6초)
+# 데모 영상 스크립트 (약 2:58, 178.2초)
 
 이슈 #28 시나리오를 현재 앱 라우트(`/capture` `/analyze` `/lesson` `/compare` `/grade` `/shop` `/share`)에 맞춘 촬영안. 영상은 1~3분, YouTube 공개, 제3자 상표·음악 없음, 실기기 구동 장면 포함. 나레이션은 영어(Devpost 심사용), 자막은 한국어를 기본으로 하고 영어 자막은 나레이션과 같은 문장을 쓴다.
 
@@ -206,3 +206,14 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - 닫는 카드 6.0초: 저장소 `github.com/sh0sub/mirror-tutor`, 알약 "Open source, MIT"와 "No pilot claimed", 알약 글자 34 -> 44px.
 - `recomposite.mjs`: `ui[i].badge/pill`, `stageSwitch`(한 cue 중간에 배지/콜아웃 교체), 타임라인 `from`으로 livecall 참조.
 - 검증: 장면 전환 감지(gt 0.08)는 C12와 같은 27곳(세그먼트 경계, 앱 스크롤/시트). 어두운/빈/배너 프레임 없음, 자막은 나레이션 줄과 같은 문자열. 라이브 클립의 로딩 스켈레톤 1.6초는 호출 진행을 보여 주려고 일부러 남겼다. 길이 177.7초(180초 미만).
+
+## 사이클 14 재합성 (178.2초, YouCam 유닛 0 사용, 새 TTS 줄 4개, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c14` (work-c13 복사본). 재녹화(전부 0 유닛): `--mode mock --sample --only analyze|lesson|compare|grade|shop|share`(샘플 칩 한 줄 레이아웃, 장바구니 바 없음, 첫 립 행 "Matches finish"), `--mode live --only partner`(홈 화면과 /partner만, API 호출 0; 유닛 잔량 873 그대로). 나머지 장면(cold, intro, capture, home, livecall)은 기존 프레임. 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유), 직전 판 `.local/video/mirror-tutor-demo-live-c14prev.mp4`.
+- 순서 변경: 가로 vs 세로 그라데이션 장면을 compare에서 떼어 새 `gradient` 장면(18.5~27.5초)으로 분할 장면 바로 뒤에 놓았다. compare 녹화의 같은 프레임(스크롤 13.7초 후 확대 창 가로/세로 눈 크롭)을 `srcId: "compare"`로 재사용하고, 나레이션 줄은 기존 캐시 그대로. compare는 분석기 오독 줄과 규칙표 줄 두 개만 남는다(20.7 -> 11.8초). 단계 목록은 hook, split, gradient를 단계로 세지 않는다(`HEAD_SEGS` 3).
+- 출처: 홑꺼풀 기법에 대한 단일하고 확실한 공개 전문가 출처를 찾지 못했다(가로를 권하는 글과 세로를 권하는 글이 갈리고 용어도 제각각, 대부분 브랜드 블로그). 그래서 3초 출처 줄을 넣지 않았고 "rule of thumb" 문구를 유지한다. 근거는 `docs/spec-matrix.md` P1-source.
+- 시간 보전: capture 5.3 -> 4.2초(줄 "Consent first. Then a quality gate."), home 8.96 -> 4.9초(줄 "Come back tomorrow: your streak and past results wait on this device."). partner는 15.8 -> 21.3초로 늘었다.
+- shop: 새 레이아웃에 맞춰 확대 창 위치와 콜아웃을 다시 잡았다("Finish check: Matches finish on the first lip row"). 샘플 칩이 앱 바 아래에 한 줄로 보이는 것은 앱의 실제 표시다.
+- partner: "Try your own shade"에서 Coral(#E8705A) 스와치를 눌러 위젯이 다시 그려지고(미리 생성한 렌더, 유닛 0, 데모 카탈로그), iframe 스니펫에 `?hex=E8705A&name=Coral`이 들어가며, 비용 계산기에 월 첫 레슨 2,000, 재방문 6,000을 넣으면 52,000 units / month(14x2000 + 4x6000)가 나온다. 새 나레이션 줄 2개("...Try your own shade: no units spent.", "...A calculator turns your own visit counts into monthly units."). 계산기 값은 입력값이며 전환율이나 매출을 말하지 않는다.
+- share는 앱 변경 영향이 없으나 같은 샘플 칩 레이아웃으로 다시 녹화했다(점수 79 그대로).
+- 검증: 장면 전환 감지(gt 0.08) 32곳은 세그먼트 경계, 의도한 디졸브, 앱 스크롤/시트/iframe 교체뿐. 어두운/스켈레톤/빈 프레임 없음, 자막은 나레이션 줄과 같은 문자열. 길이 178.2초(180초 미만).
