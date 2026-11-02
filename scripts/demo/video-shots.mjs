@@ -38,7 +38,7 @@ export const SEGMENTS = [
       "Mirror Tutor teaches makeup on yours.",
       "It reads your features, renders every step on your own photo as the answer key, and grades your real attempt.",
     ],
-    actions: [{ wait: "document.querySelector('main h2')", timeout: 30000 }, { at: 2 }, { scroll: { y: 260 }, dur: 1.4 }, { sleep: 2.2 }, { scroll: { y: 0 }, dur: 1.2 }],
+    actions: [{ wait: "document.querySelector('main h2')", timeout: 30000 }, { at: 2 }, { scroll: { y: 540 }, dur: 1.4 }, { sleep: 2.2 }, { scroll: { y: 0 }, dur: 1.2 }], // C15: y 260 -> 540 so the hero heading ("Learn K-makeup...") scrolls out and only the three steps remain
   },
   {
     id: "capture",

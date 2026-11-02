@@ -217,3 +217,12 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - partner: "Try your own shade"에서 Coral(#E8705A) 스와치를 눌러 위젯이 다시 그려지고(미리 생성한 렌더, 유닛 0, 데모 카탈로그), iframe 스니펫에 `?hex=E8705A&name=Coral`이 들어가며, 비용 계산기에 월 첫 레슨 2,000, 재방문 6,000을 넣으면 52,000 units / month(14x2000 + 4x6000)가 나온다. 새 나레이션 줄 2개("...Try your own shade: no units spent.", "...A calculator turns your own visit counts into monthly units."). 계산기 값은 입력값이며 전환율이나 매출을 말하지 않는다.
 - share는 앱 변경 영향이 없으나 같은 샘플 칩 레이아웃으로 다시 녹화했다(점수 79 그대로).
 - 검증: 장면 전환 감지(gt 0.08) 32곳은 세그먼트 경계, 의도한 디졸브, 앱 스크롤/시트/iframe 교체뿐. 어두운/스켈레톤/빈 프레임 없음, 자막은 나레이션 줄과 같은 문자열. 길이 178.2초(180초 미만).
+
+## 사이클 15 재합성 (175.7초, YouCam 유닛 0 사용: 잔량 873 그대로, 새 TTS 없음)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c15` (work-c14 복사본, phone 타임라인 경로를 work-c15로 바꿈). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시만 사용, 합성은 `OPENAI_API_KEY` 없이 실행해 새 줄이 생기면 실패하도록 함), 직전 판 `.local/video/mirror-tutor-demo-live-c15prev.mp4`.
+- 재녹화(전부 0 유닛, 로컬 `YOUCAM_MODE=live` 서버, 홈·/capture·/partner 화면만): `--mode live --only cold,intro`(앱 홈 히어로가 390폭에서 낮아졌고 `video-shots.mjs`의 intro 스크롤을 260 -> 540으로 늘려 히어로 제목이 화면 밖으로 나가고 3단계 카드만 남음), `--only capture --fake-cam <스톡 사진 mjpeg>`(동의 시트 뒤 배경이 새 히어로), `--only partner`(새 히어로에서 시작). 나머지(analyze, lesson, compare, grade, shop, home, share, livecall)는 앱 390 화면이 바뀌지 않아 기존 프레임 그대로.
+- 순서: hook(홈 히어로 슬라이더, 0~6초 훅 줄) -> split(홑꺼풀 vs 쌍꺼풀 카드) -> intro -> capture -> analyze -> lesson -> compare(분석기 오독 수정 -> 규칙표) -> gradient(가로 vs 세로) -> grade -> ... 이전에는 gradient가 split 바로 뒤였다. 중복 "Learn K-makeup" 히어로 카드는 intro에서 뺐다(intro는 3단계 카드에서 바로 시작).
+- 레일/레이아웃: gradient 장면은 `step: 4`로 레일 "Two faces" 활성(단계 번호가 compare와 같음), 왼쪽 크레딧 문구는 장면에서 빼고 하단 푸터에만 둠, 진행 막대는 화면 맨 아래 가장자리에 전폭으로 고정(푸터와 겹치지 않음), 알약 문구 "Spent here: 0 units"로 단축 + 배지 줄 wrap 허용, 키커 번호를 레일과 맞춤(Grade 5, Shop 6). `HEAD_SEGS` 3 -> 2. 닫는 카드 6.0 -> 3.5초.
+- capture: 동의 시트를 한 프레임(원본 1.6초)으로 1.2초 유지한 뒤 카메라 게이트로 하드 컷(시트 애니메이션/홈 깜박임 제거). 확대 창 첫 구간은 시트가 있는 하단.
+- 검증: 장면 전환 감지(gt 0.08) 31곳은 세그먼트 경계, 의도한 디졸브, 앱 스크롤/시트/iframe 교체뿐. 어두운/스켈레톤/빈 프레임 없음(라이브 클립의 로딩 스켈레톤 1.6초는 호출 진행을 보여 주려고 남김), 자막은 나레이션 줄과 같은 문자열(줄 변경 없음). 길이 175.66초(180초 미만), devpost.md와 checklist.md의 길이 문구를 175.7초로 맞춤.

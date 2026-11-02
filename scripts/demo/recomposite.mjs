@@ -153,7 +153,7 @@ const SEGMENTS = [
     ],
     // C12 source (work-c12 frames-cold, live mode home screen, 0 units): the home hero slider (Bare / Full look): drag to the Bare end 1.0-1.8 s, sweep to the Full look 2.9-6.0 s, hold, back to the middle 9.7-11.5 s
     timeline: [{ at: 0, src: 2.6 }, { at: 0.9, src: [3.0, 6.1] }, { at: 4.2, src: 7.3 }, { at: { cue: 1, plus: 0.8 }, src: [9.6, 11.5] }, { at: { cue: 1, plus: 2.5 }, src: 12.2 }],
-    zoom: [{ at: 0, y: 90 }],
+    zoom: [{ at: 0, y: 70 }],
   },
   {
     // C11 split beat (~10-18 s): the same look on the monolid face and the double-lid face, full-size YouCam eye renders (lesson step 3, the
@@ -171,35 +171,6 @@ const SEGMENTS = [
     lines: ["Same look. Different lid. Different technique.", "Monolid: horizontal gradient. Double lid: crease shading."],
   },
   {
-    // C14: the horizontal-vs-vertical beat moved here from the compare scene (right after the split beat). Source: the same compare recording
-    // (work-c14 frames-compare, mock --sample, 0 units): scroll from the eye step to the two gradient crops 13.7-14.15 s, hold to 17.4 s.
-    // No citation: no solid named public professional source for the monolid technique was found (docs/spec-matrix.md, P1-source), so it stays a rule of thumb.
-    id: "gradient",
-    srcId: "compare",
-    badge: "YouCam VTO, pre-generated (0 units)",
-    kicker: "Two gradients",
-    heading: "Horizontal vs vertical gradient",
-    chip: "Same monolid face · 2 pre-generated renders · rule of thumb",
-    note: "Faces: Pexels and Unsplash License stock",
-    units: 14,
-    lead: 0.2,
-    tail: 0.2,
-    lines: ["Same look with a vertical gradient, the generic tutorial way, beside ours. Both are real YouCam renders."],
-    ui: [
-      {
-        callout:
-          "<div class=\"vs\"><div><b>Horizontal</b>Our monolid technique<span class=\"plain\">shadow style 1</span></div><div><b>Vertical</b>Generic tutorial way<span class=\"plain\">shadow style 3</span></div></div>",
-      },
-    ],
-    timeline: [{ at: 0, src: [13.6, 14.15] }, { at: 0.9, src: 16 }],
-    zoomOverlay: {
-      at: 0.5,
-      top: { img: "model-c/eye-horizontal.jpg", arrow: "h", label: "Horizontal gradient · our monolid technique" },
-      bottom: { img: "model-c/eye-vertical.jpg", arrow: "v", label: "Vertical gradient · generic tutorial way" },
-    },
-    zoom: [{ at: 0, y: 125 }],
-  },
-  {
     id: "intro",
     badge: "YouCam VTO, pre-generated (0 units)",
     lead: 0.5,
@@ -211,10 +182,10 @@ const SEGMENTS = [
     // C6: the montage and title card already name the product and both YouCam APIs, so this line is shorter
     lines: ["Face Analyzer reads your face. Makeup Virtual Try-On paints each step. A full lesson costs fourteen units."],
     ui: [{ heading: "Makeup lessons on your own face", callout: "<b>Face Analyzer</b> reads features · 10 units<br><b>Rule table</b> picks the technique<br><b>Makeup VTO</b> renders each step · 4 units" }],
-    // source = the hero (monolid face vs double-lid face) at the top of the home page, then the scroll to the three steps
-    // C5 source (work-c5 frames-intro, live mode, 0 units): the hero with the bottom bar (C9 re-take: primary "Try with a sample model", "Use my own selfie", "Retailer view (concept)"), scroll 7.1-7.4 s to the three steps
-    timeline: [{ at: 0, src: 1.5 }, { at: { cue: 0, plus: 3.4 }, src: [7.0, 7.45] }, { at: { cue: 0, plus: 4.4 }, src: 8.2 }],
-    zoom: [{ at: 0, y: 40 }, { at: { cue: 0, plus: 3.4 }, y: 40 }, { at: { cue: 0, plus: 4.4 }, y: 300 }],
+    // C15 source (work-c15 frames-intro, live mode, 0 units; the home hero is now the shorter 390 layout): the hook already shows the hero, so this scene
+    // opens directly on the three steps below it (re-take with scroll y 540: stable from ~8.0 s to 10.5 s, heading scrolled out) instead of repeating the hero ("Learn K-makeup...") card
+    timeline: [{ at: 0, src: 9.0 }],
+    zoom: [{ at: 0, y: 150 }],
   },
   {
     id: "capture",
@@ -232,14 +203,15 @@ const SEGMENTS = [
     ],
     // C3 source (work-c3 frames-capture): consent sheet 0-1.9 s, then the quality gate on a camera feed that is a stock photo:
     // "face too small" (44%) 2.9-6.6 s, digital zoom 6.7-8.5 s, "Looks good" (74%) from 8.8 s. The dark "checking photo" frame (~2.0 s) is skipped.
+    // C15 re-take (work-c15 frames-capture, live mode + fake cam, 0 units): the consent sheet is held on one frame (src 1.6 s) and hard-cut to the gate, so the
+    // sheet animation / home flash between them is not shown. Gate: 44 % from 2.8 s, digital zoom 6.3-8.4 s, "Looks good" from 8.6 s.
     timeline: [
-      { at: 0, src: [0, 0.55] },
-      { at: 0.5, src: [0.55, 1.4] },
-      { at: 1.2, src: 4.6 },
-      { at: 1.9, src: [6.6, 8.2] },
-      { at: 2.7, src: 10.5 },
+      { at: 0, src: 1.6 },
+      { at: 1.2, src: 4.2 },
+      { at: 1.9, src: [6.3, 8.4] },
+      { at: 2.7, src: 9.8 },
     ],
-    zoom: [{ at: 0, y: 40 }, { at: 1.2, y: 267 }],
+    zoom: [{ at: 0, y: 498 }, { at: 1.2, y: 267 }],
   },
   {
     // C11: the monolid sample trial (record-video --mode mock --sample --only analyze, 0 units): Face Analyzer's raw reading is Double-lid,
@@ -318,7 +290,7 @@ const SEGMENTS = [
   {
     id: "compare",
     badge: "YouCam VTO, pre-generated (0 units)",
-    kicker: "Two faces, one lesson",
+    kicker: "Step 4 · Two faces",
     heading: "Same look, different technique",
     chip: "Pre-generated with the live API · 0 units now",
     note: "Faces: Pexels and Unsplash License stock",
@@ -353,11 +325,41 @@ const SEGMENTS = [
     zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 380 }],
   },
   {
+    // C14: the horizontal-vs-vertical beat moved here from the compare scene (right after the split beat). Source: the same compare recording
+    // (work-c14 frames-compare, mock --sample, 0 units): scroll from the eye step to the two gradient crops 13.7-14.15 s, hold to 17.4 s.
+    // No citation: no solid named public professional source for the monolid technique was found (docs/spec-matrix.md, P1-source), so it stays a rule of thumb.
+    id: "gradient",
+    srcId: "compare",
+    badge: "YouCam VTO, pre-generated (0 units)",
+    kicker: "Step 4 · Two gradients",
+    step: 4, // C15: the gradient beat follows the correction beat and sits under the "Two faces" rail step,
+    heading: "Horizontal vs vertical gradient",
+    chip: "Same monolid face · 2 pre-generated renders · rule of thumb",
+    // C15: no left-column credit note here (the footer carries it), so the callout stays clear of the rail
+    units: 14,
+    lead: 0.2,
+    tail: 0.2,
+    lines: ["Same look with a vertical gradient, the generic tutorial way, beside ours. Both are real YouCam renders."],
+    ui: [
+      {
+        callout:
+          "<div class=\"vs\"><div><b>Horizontal</b>Our monolid technique<span class=\"plain\">shadow style 1</span></div><div><b>Vertical</b>Generic tutorial way<span class=\"plain\">shadow style 3</span></div></div>",
+      },
+    ],
+    timeline: [{ at: 0, src: [13.6, 14.15] }, { at: 0.9, src: 16 }],
+    zoomOverlay: {
+      at: 0.5,
+      top: { img: "model-c/eye-horizontal.jpg", arrow: "h", label: "Horizontal gradient · our monolid technique" },
+      bottom: { img: "model-c/eye-vertical.jpg", arrow: "v", label: "Vertical gradient · generic tutorial way" },
+    },
+    zoom: [{ at: 0, y: 125 }],
+  },
+  {
     id: "grade",
     badge: "YouCam VTO, pre-generated (0 units)",
     // C10: wider-than-tall zoom panel is 560 px high so the thumbnails (and later the score ring + Eyeliner card) fit without clipping a text line
     geo: { ZH: 560 },
-    kicker: "Step 4 · Grade",
+    kicker: "Step 5 · Grade",
     heading: "Score your real attempt",
     chip: "0 YouCam units",
     tag: "Simulated attempt",
@@ -391,7 +393,7 @@ const SEGMENTS = [
   {
     id: "shop",
     badge: "YouCam VTO, pre-generated (0 units)",
-    kicker: "Step 5 · Shop the step",
+    kicker: "Step 6 · Shop the step",
     heading: "Exact colors to products",
     chip: "CIEDE2000 matching · demo catalog",
     units: 14,
@@ -493,7 +495,7 @@ const SEGMENTS = [
     // C8: closing card (5-8 s, silent), plain claims only
     id: "close",
     // C9: the call to action is the biggest thing on the card (URL 120 px + the tap instruction), held for the whole 5 s card
-    duration: 6.0,
+    duration: 3.5, // C15: 6.0 -> 3.5 s
     card: {
       kicker: "Mirror Tutor",
       title: "Learn makeup, on your own face",
@@ -600,7 +602,7 @@ function frameAt(items, t) {
 }
 
 // left-column step list (one entry per segment after the intro)
-const HEAD_SEGS = 3; // the hook, the C11 split beat and the C14 gradient beat do not count as steps
+const HEAD_SEGS = 2; // the hook and the C11 split beat do not count as steps (C15: the gradient beat has an explicit `step`)
 const FLOW = ["Capture", "Analyze", "Learn", "Two faces", "Grade", "Shop", "Retailer", "Streak", "Share"];
 
 // C10 cold open: no step list or heading, just the thesis as a large caption (it is the subtitle) beside the phone and the face close-up
@@ -627,7 +629,8 @@ function coldStageHtml(seg, ci) {
 
 function stageHtml(seg, si0, ci, uiOver = {}) {
   if (seg.cold) return coldStageHtml(seg, ci);
-  const si = Math.max(si0 - HEAD_SEGS, 0);
+  const gi = SEGMENTS.findIndex((x) => x.step);
+  const si = seg.step ?? Math.max(si0 - HEAD_SEGS - (gi >= 0 && gi < si0 ? 1 : 0), 0);
   const ui = { heading: seg.heading, chip: seg.chip, callout: "", ...(seg.ui?.[ci] ?? {}), ...uiOver };
   const total = SEGMENTS.length;
   const cue = seg.cues[ci].text;
@@ -635,7 +638,7 @@ function stageHtml(seg, si0, ci, uiOver = {}) {
   html,body{margin:0;width:${W}px;height:${H}px;background:#fbf7f4;overflow:hidden;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1f1b1a;-webkit-font-smoothing:antialiased}
   .phone{position:absolute;left:${SCR_X}px;top:${SCR_Y}px;width:${SCR_W}px;height:${SCR_H}px;border-radius:34px;box-shadow:0 0 0 14px #1f1b1a,0 0 0 15px #3a3331,0 30px 60px 14px rgba(31,27,26,.28);background:#000}
   .zoom{position:absolute;left:${ZX}px;top:${ZY}px;width:${ZW}px;height:${ZH}px;border-radius:26px;box-shadow:0 0 0 6px #c8325b,0 18px 44px 6px rgba(31,27,26,.2);background:#000}
-  .badges{position:absolute;left:${ZX}px;top:${ZY + ZH + 16}px;width:${ZW}px;display:flex;align-items:center;gap:12px}
+  .badges{position:absolute;left:${ZX}px;top:${ZY + ZH + 16}px;width:${ZW}px;display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}
   .live{display:flex;align-items:center;gap:9px;background:#c8325b;color:#fff;border-radius:24px;padding:9px 18px;font-size:19px;font-weight:800;line-height:1.1;white-space:nowrap}
   .live i{width:11px;height:11px;border-radius:6px;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.35)}
   .units{margin-left:auto;display:flex;align-items:baseline;gap:8px;background:#fff;border:2px solid #c8325b;border-radius:24px;padding:6px 18px;font-size:17px;font-weight:700;color:#4a403d;white-space:nowrap}
@@ -657,8 +660,8 @@ function stageHtml(seg, si0, ci, uiOver = {}) {
   .key{font-size:31px;line-height:1.15;font-weight:800;color:#a8264a;margin-bottom:10px}
   .lgd{font-size:21px;font-weight:700;white-space:nowrap}.lgd i{display:inline-block;width:18px;height:18px;border-radius:9px;margin:0 6px -2px 8px;border:2px solid #fff;box-shadow:0 0 0 1px #6b605c}.lgd i:first-child{margin-left:0}
   .sub{position:absolute;left:${ZX}px;width:${ZW}px;top:${ZY + ZH + 62}px;border-left:6px solid #c8325b;padding:4px 0 4px 24px;font-size:35px;line-height:1.33;font-weight:600;box-sizing:border-box}
-  .bar{position:absolute;left:64px;bottom:92px;width:${SCR_X - 64 - 52}px;height:6px;border-radius:3px;background:#eadfd8}
-  .bar i{display:block;height:6px;border-radius:3px;background:#c8325b;width:${(((si0 + 1) / total) * 100).toFixed(1)}%}
+  .bar{position:absolute;left:0;right:0;bottom:0;height:8px;background:#eadfd8}
+  .bar i{display:block;height:8px;background:#c8325b;width:${(((si0 + 1) / total) * 100).toFixed(1)}%}
   .flow{position:absolute;left:64px;bottom:128px;width:${SCR_X - 64 - 52}px}
   .flow .fh{font-size:17px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6b605c;margin-bottom:12px}
   .flow ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
@@ -668,7 +671,7 @@ function stageHtml(seg, si0, ci, uiOver = {}) {
   .flow li.now{background:#c8325b;border-color:#c8325b;color:#fff;box-shadow:0 6px 16px rgba(200,50,91,.25)}.flow li.now i{background:#fff;color:#a8264a}
   .foot{position:absolute;left:64px;width:${SCR_X - 64 - 52}px;bottom:26px;font-size:17px;line-height:1.35;color:#6b605c}
   </style></head><body>
-  <div class="phone"></div><div class="zoom"></div><div class="badges"><div class="live"><i></i>${esc(ui.badge ?? seg.badge ?? "YouCam results pre-generated with the live API (0 units now)")}</div><div class="units">${ui.pill ?? seg.pill ?? `Units spent here <b>0</b>`}</div></div>
+  <div class="phone"></div><div class="zoom"></div><div class="badges"><div class="live"><i></i>${esc(ui.badge ?? seg.badge ?? "YouCam results pre-generated with the live API (0 units now)")}</div><div class="units">${ui.pill ?? seg.pill ?? `Spent here: <b>0</b> units`}</div></div>
   <div class="left"><div class="kick">${esc(seg.kicker)}</div><h1>${esc(ui.heading)}</h1><div class="chip">${esc(ui.chip)}</div>${seg.tag ? `<div class="bigtag">${esc(seg.tag)}</div>` : ""}${ui.callout ? `<div class="callout">${ui.callout}</div>` : ""}${seg.note && ui.note !== "" ? `<div class="note">${esc(seg.note)}</div>` : ""}</div>
   <div class="sub">${esc(cue)}</div>
   <div class="flow"><div class="fh">${si === 0 ? "How it works" : `Step ${Math.min(si, FLOW.length)} of ${FLOW.length}`}</div><ol>${FLOW.map((f, i) => {
