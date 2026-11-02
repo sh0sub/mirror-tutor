@@ -20,7 +20,7 @@ Buyer: a beauty retailer or brand that sells try-on on its product pages. Try-on
 
 - **30-second walk-through:** https://mirror-tutor.vercel.app/?lang=en - pick **Monolid** (the analyzer misreads it, you fix it) or **Double-lid**, tap the filled button "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛"), then walk analysis, a 4-step lesson, grading and shop the step. To use your own photo instead, tap "Use my own selfie" (asks for consent).
 - **Retailer view (live widget in a fictional store):** https://mirror-tutor.vercel.app/partner?lang=en - the "In your store" strip, your own lip shade, the iframe snippet, a cost calculator and an illustrative break-even from your own inputs.
-- **Two faces side by side:** https://mirror-tutor.vercel.app/compare?lang=en
+- **Two faces side by side:** https://mirror-tutor.vercel.app/compare?lang=en - opens on the eye step with a default-on "Show technique" toggle: lid area, crease guide and gradient direction drawn from face landmarks on both faces (the lid area and crease are landmark approximations, the direction is our rule table; the same overlay appears on lesson step 3).
 - Deep links (`/shop`, `/grade`, `/share`) opened cold or reloaded offer the same one-tap sample trial, so no page is a dead end.
 
 ## How we use YouCam

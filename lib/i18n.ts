@@ -146,6 +146,7 @@ const DICT = {
   shareTitle: { ko: "공유하기", en: "Share" },
   original: { ko: "원본", en: "Original" },
   attempt: { ko: "내 시도", en: "My attempt" },
+  blurNotNeeded: { ko: "스톡 사진이라 흐리지 않아도 돼요", en: "stock photo, blur not needed" },
   blurFaces: { ko: "얼굴 흐리기", en: "Blur faces" },
   hideScore: { ko: "점수 숨기기", en: "Hide score" },
   save: { ko: "이미지 저장", en: "Save image" },
@@ -234,6 +235,12 @@ const DICT = {
     ko: "가로·세로 방향은 YouCam 패턴 스타일(1번과 3번)에 우리가 붙인 이름이에요. 둘 다 렌더되고 차이는 미묘해요. 가로가 더 깔끔한 깊이감으로 보인다는 건 규칙표의 경험칙일 뿐 검증된 결과가 아니니 직접 비교해 보세요. 눈꺼풀은 수정 시트에서 홑꺼풀로 고친 값이에요.",
     en: "Horizontal and vertical are our names for YouCam pattern styles 1 and 3. Both render and the difference is subtle. Horizontal reading as cleaner depth is a rule of thumb, not a validated result, so compare them yourself. The eyelid was corrected to monolid in the edit sheet.",
   },
+  showTechnique: { ko: "기법 표시", en: "Show technique" },
+  techniqueTitle: { ko: "눈 확대: 섀도 자리와 그라데이션 방향", en: "Eye close-up: shadow zone and gradient direction" },
+  techniqueLegend: { ko: "점선 = 섀도가 놓이는 눈두덩이(얼굴 랜드마크) · 흰 선 = 쌍꺼풀 주름 위치 가이드 · 화살표 = 그라데이션 방향", en: "Dashed = lid area where shadow sits (face landmarks) · white line = crease guide · arrow = gradient direction" },
+  techniqueMono: { ko: "가로로 펴요. 접히는 주름이 없어서 위로 쌓지 않아요.", en: "Spread sideways. No fold to stop at, so don't stack it upward." },
+  techniqueDouble: { ko: "주름선까지 위로 펴요. 주름이 음영 가이드가 돼요.", en: "Shade up to the crease. The crease is the built-in guide." },
+  techniqueNote: { ko: "눈두덩이와 주름선은 얼굴 랜드마크 링으로 그린 근사치이고, 화살표 방향은 규칙표 값이에요.", en: "Lid area and crease line are approximations from landmark rings; arrow directions come from the rule table." },
   compareEyeStep: { ko: "눈 단계", en: "Eye step" },
   compareInnerNote: { ko: "Face Analyzer가 한쪽 눈은 홑꺼풀, 다른 쪽은 쌍꺼풀로 읽어 속쌍꺼풀 기법을 골랐어요.", en: "Face Analyzer read one eye as a monolid and the other as a double lid, so the inner double lid technique was picked." },
   compareCredit: { ko: "사진: Pexels·Unsplash 무료 스톡(상업 이용 가능, 실제 사용자 아님) · YouCam Face Analyzer + Makeup VTO로 사전 생성(최근 {date}) · 지금 화면은 유닛 0", en: "Photos: Pexels and Unsplash free stock (commercial use allowed, not real users) · pre-generated with YouCam Face Analyzer + Makeup VTO (latest {date}) · this screen uses 0 units" },
@@ -376,8 +383,8 @@ export function loadLang(storage: KV | null | undefined, browserLang?: string, s
   } catch {
     /* storage blocked (private mode) → fall through */
   }
-  if (browserLang && !browserLang.toLowerCase().startsWith("ko")) return "en";
-  return "ko";
+  // same rule as the preload script in app/layout.tsx: only a Korean browser starts in Korean (empty/unknown → English)
+  return browserLang?.toLowerCase().startsWith("ko") ? "ko" : "en";
 }
 
 export function saveLang(storage: KV | null | undefined, lang: Lang): void {

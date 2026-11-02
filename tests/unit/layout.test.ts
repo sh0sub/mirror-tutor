@@ -25,7 +25,7 @@ describe("responsive layout guards", () => {
 
   it("home: 390 hero is viewport-relative (tagline clears the CTA tray), desktop keeps 7:8", () => {
     const s = src("app/page.tsx");
-    expect(s).toContain('aspect="h-[34dvh] lg:h-auto lg:aspect-[7/8]"');
+    expect(s).toContain('aspect="h-[23dvh] lg:h-auto lg:aspect-[7/8]"');
   });
 
   it("lesson: summary card keeps a bottom margin so the intensity chips clear the sticky bar", () => {

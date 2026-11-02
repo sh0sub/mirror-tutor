@@ -3,11 +3,13 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, Swatch, UnitLine } from "@/components/ui";
+import { EyeOverlaySvg } from "@/components/EyeOverlaySvg";
 import { CompareSlider } from "@/components/CompareSlider";
 import { useFlow, type StepState } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { buildLesson, getLesson, INTENSITY_SCALES, type StepScales } from "@/lib/lessons";
 import { ATTR_NAME } from "@/lib/labels";
+import { techniqueDir } from "@/lib/eyeOverlay";
 import { guideText } from "@/lib/quality/messages";
 import { regionBoxes } from "@/lib/regions";
 import { stepDotKind, type StepDotKind } from "@/lib/stepper";
@@ -37,13 +39,14 @@ function dotClass(s: StepState | undefined, kind: StepDotKind) {
 
 /** M3 lesson player: skeleton → sequential reveal, before/after slider, step card with "왜 당신은" reasons and hex swatches. */
 function LessonInner() {
-  const { lang, photo, anchors, skin, stored, renders, render, mode, scales, setStepScale, sample, loadSampleAttempt } = useFlow();
+  const { lang, photo, anchors, eyeOverlay, skin, stored, renders, render, mode, scales, setStepScale, sample, loadSampleAttempt } = useFlow();
   const [attemptBusy, setAttemptBusy] = useState(false);
   const router = useRouter();
   const id = useSearchParams().get("id") ?? "daily-k";
   const lesson = getLesson(id);
   const [k, setK] = useState(1);
   const [whyOpen, setWhyOpen] = useState(true);
+  const [technique, setTechnique] = useState(true);
   const started = useRef<string | null>(null);
 
   const lessonScales = scales[id];
@@ -74,6 +77,9 @@ function LessonInner() {
   const finalState = steps[plan.steps.length];
   const answerImage = finalState?.status === "done" ? finalState.image : null;
   // demo mode shows the sample model (canonical position); otherwise fit the boxes to this photo's face
+  // C18: on the eye step, draw the lid area / crease / gradient direction from this photo's landmarks
+  const eyeStep = step.region === "eye_lid" && mode !== "demo" && eyeOverlay !== null;
+  const eyelid = stored?.profile.eyelid ?? "double";
   const boxes = regionBoxes(step.region, mode === "demo" ? null : anchors);
 
   return (
@@ -100,8 +106,19 @@ function LessonInner() {
           aspect="aspect-[7/8] lg:aspect-[4/5]"
           overlay={
             <>
-              <RegionOverlay boxes={boxes} visible={VISIBLE_78} className="lg:hidden" />
-              <RegionOverlay boxes={boxes} visible={VISIBLE_45} className="max-lg:hidden" />
+              {eyeStep && technique && eyeOverlay ? (
+                [
+                  { visible: VISIBLE_78, className: "lg:hidden" },
+                  { visible: VISIBLE_45, className: "max-lg:hidden" },
+                ].map((o) => (
+                  <EyeOverlaySvg key={o.className} overlay={eyeOverlay} dir={techniqueDir(eyelid)} crease={eyelid !== "monolid"} view={{ x: 0, y: (1 - o.visible) / 2, w: 1, h: o.visible }} head={22} className={o.className} />
+                ))
+              ) : (
+                <>
+                  <RegionOverlay boxes={boxes} visible={VISIBLE_78} className="lg:hidden" />
+                  <RegionOverlay boxes={boxes} visible={VISIBLE_45} className="max-lg:hidden" />
+                </>
+              )}
             </>
           }
         />
@@ -159,6 +176,21 @@ function LessonInner() {
               <span className="num">{step.effects.filter((e) => e.category !== "skin_smooth").map((e) => `${e.category} ${e.palettes?.[0]?.colorIntensity ?? ""}`).join(" · ")}</span>
             </p>
             <p className="mt-1 text-[16px] font-bold leading-snug">{step.instruction[lang]}</p>
+            {eyeStep && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setTechnique((v) => !v)}
+                  aria-pressed={technique}
+                  data-testid="technique-toggle"
+                  className={`mt-2 inline-flex min-h-10 items-center gap-1.5 rounded-full px-3 text-xs font-bold ${technique ? "bg-peach-soft text-primary-strong ring-2 ring-primary" : "border border-line-strong/50 bg-panel text-muted"}`}
+                >
+                  <Icon name="sparkle" className="h-4 w-4" />
+                  {t("showTechnique", lang)}
+                </button>
+                {technique && <p className="mt-1 text-xs text-muted">{t(eyelid === "monolid" ? "techniqueMono" : "techniqueDouble", lang)} {t("techniqueNote", lang)}</p>}
+              </>
+            )}
           </div>
           <fieldset className="flex flex-col gap-1.5">
             <legend className="mb-1.5 text-xs font-bold text-muted">{t("intensityLabel", lang)}</legend>

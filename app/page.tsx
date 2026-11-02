@@ -15,6 +15,18 @@ import { streakDays, weekDots } from "@/lib/practice";
 import { CompareSlider } from "@/components/CompareSlider";
 import { sampleModelById } from "@/lib/demo/sample";
 
+/** "Try with a sample model · 0 units": keep "0 units" on one line when the button wraps. */
+function sampleLabel(lang: Parameters<typeof t>[1]) {
+  const [head, tail] = t("sampleTry", lang).split(" · ");
+  return tail ? (
+    <>
+      {head} · <span className="whitespace-nowrap">{tail}</span>
+    </>
+  ) : (
+    head
+  );
+}
+
 /** Onboarding (M1 entry, consent) and the returning-user home (flow B: profile → lesson, no re-analysis). */
 export default function Home() {
   const { lang, consented, setConsented, stored, hydrated, deleteProfile, completed, photo, endSession, practice, attempt, gradedLesson, sample, startSample, setPhoto } = useFlow();
@@ -47,14 +59,14 @@ export default function Home() {
   const sampleButton = (
     <Button variant="soft" className="min-w-0 flex-[1.5] border border-primary/30 px-3 leading-tight" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-hint">
       <Icon name="user" className="h-4 w-4" />
-      {t("sampleTry", lang)}
+      {sampleLabel(lang)}
     </Button>
   );
   // First visit: the 0-unit sample walk-through is the filled primary action (no selfie, no consent); the own-selfie path is secondary.
   const samplePrimary = (
     <Button className="w-full px-3 leading-tight" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-noselfie">
       <Icon name="user" className="h-4 w-4" />
-      {t("sampleTry", lang)}
+      {sampleLabel(lang)}
     </Button>
   );
   // Retailer/business value is a first-class secondary action next to the sample trial (Impact criterion), not a text link.
@@ -205,7 +217,7 @@ export default function Home() {
                 YouCam Face Analyzer + Makeup VTO
               </Chip>
               <h2 className="text-[28px] font-extrabold leading-tight lg:text-[36px]">{t("tagline", lang)}</h2>
-              <p className="text-[16px] leading-relaxed text-muted">{t("heroBody", lang)}</p>
+              <p className="text-[15px] leading-snug text-muted lg:text-[16px] lg:leading-relaxed">{t("heroBody", lang)}</p>
               <ol className="mt-2 flex flex-col gap-3 text-sm">
                 {(["homeStep1", "homeStep2", "homeStep3"] as const).map((key, i) => (
                   <li key={i} className="flex items-center gap-3 rounded-xl bg-panel p-3">
@@ -222,7 +234,7 @@ export default function Home() {
                   {samplePicker}
                   <Button className="w-full px-3 leading-tight" onClick={trySample} disabled={sampleBusy} aria-describedby="sample-noselfie-d">
                     <Icon name="user" className="h-4 w-4" />
-                    {t("sampleTry", lang)}
+                    {sampleLabel(lang)}
                   </Button>
                   <p id="sample-noselfie-d" className="text-center text-xs font-bold text-primary-strong">
                     {t("sampleNoSelfie", lang)}
@@ -254,7 +266,7 @@ export default function Home() {
                   beforeLabel={t("heroBare", lang)}
                   afterLabel={t("heroFull", lang)}
                   // 390x844: ~34% of the screen (not 7:8) so the tagline and the sample button clear the sticky tray; desktop keeps 7:8
-                  aspect="h-[34dvh] lg:h-auto lg:aspect-[7/8]"
+                  aspect="h-[23dvh] lg:h-auto lg:aspect-[7/8]"
                 />
               </div>
               <figcaption className="text-center text-sm font-extrabold leading-snug text-primary-strong">{t("heroSampleCaption", lang)}</figcaption>

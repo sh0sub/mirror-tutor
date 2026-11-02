@@ -64,7 +64,8 @@ describe("S5 language toggle (#21)", () => {
     saveLang(s, "en");
     expect(s.m.get(LANG_STORAGE_KEY)).toBe("en");
     expect(loadLang(s, "ko-KR")).toBe("en");
-    expect(loadLang(memStorage({ [LANG_STORAGE_KEY]: "fr" }), undefined)).toBe("ko");
+    expect(loadLang(memStorage({ [LANG_STORAGE_KEY]: "fr" }), undefined)).toBe("en");
+    expect(loadLang(null, "")).toBe("en");
     const blocked = {
       getItem: () => {
         throw new Error("denied");

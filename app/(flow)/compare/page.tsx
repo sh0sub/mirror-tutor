@@ -10,9 +10,14 @@ import { resolveTechniques } from "@/lib/rules/engine";
 import { buildLesson } from "@/lib/lessons";
 import { ATTR_NAME, FACE_NAME, sourceCaption, valueLabel } from "@/lib/labels";
 import { comparePair, compareStep, eyelidStep, sameEyelid, type CompareManifest, type CompareModel, type TechniqueRow } from "@/lib/demo/compare";
+import { EyeCloseup, EyeOverlaySvg } from "@/components/EyeOverlaySvg";
+import { closeupView, techniqueDir, type EyeOverlay } from "@/lib/eyeOverlay";
 import manifestJson from "@/public/demo/compare.json";
+import overlayJson from "@/public/demo/eye-overlay.json";
 
 const manifest = manifestJson as CompareManifest;
+/** Landmark overlays per demo model (scripts/demo/make-eye-overlay.ts). */
+const overlays = overlayJson as Record<string, EyeOverlay>;
 const faceName = (m: CompareModel, lang: Lang) => FACE_NAME[m.profile.eyelid][lang];
 
 function RuleList({ rows, lang, names }: { rows: TechniqueRow[]; lang: Lang; names: [string, string] }) {
@@ -43,19 +48,6 @@ function RuleList({ rows, lang, names }: { rows: TechniqueRow[]; lang: Lang; nam
   );
 }
 
-/** Direction cue over an eye crop: a horizontal double arrow (shadow fades side to side) or a vertical one (fades up and down), over the lid. */
-function GradientArrow({ dir }: { dir: "horizontal" | "vertical" }) {
-  const d = dir === "horizontal" ? "M16 34H84M16 34l9-7M16 34l9 7M84 34l-9-7M84 34l-9 7" : "M50 14V70M50 14l-7 9M50 14l7 9M50 70l-7-9M50 70l7-9";
-  return (
-    <svg viewBox="0 0 100 100" aria-hidden data-arrow={dir} className="pointer-events-none absolute inset-0 h-full w-full" preserveAspectRatio="none">
-      <g fill="none" strokeLinecap="round" strokeLinejoin="round">
-        <path d={d} stroke="rgba(0,0,0,0.55)" strokeWidth={4} vectorEffect="non-scaling-stroke" />
-        <path d={d} stroke="#fff" strokeWidth={2} vectorEffect="non-scaling-stroke" />
-      </g>
-    </svg>
-  );
-}
-
 /** Pair shown on /compare (monolid face vs double-lid face) and the step whose eye technique differs. */
 const pair = comparePair(manifest);
 const gradient = pair[0].gradientPair;
@@ -68,6 +60,8 @@ export default function ComparePage() {
   // Open on the eye step: that's where the monolid and double-lid techniques split.
   const [k, setK] = useState(eyeStep ?? 4);
   const [before, setBefore] = useState(false);
+  // C18: lid area / crease / gradient direction drawn from landmarks, on by default
+  const [technique, setTechnique] = useState(true);
   // What-if: the rule table's other branches (inner double, hooded, lip shapes) on the double-lid face. Text only, 0 units.
   const wiEyelids = EYELIDS.filter((e) => e !== b.profile.eyelid && e !== a.profile.eyelid);
   const [wiEyelid, setWiEyelid] = useState<Eyelid>(wiEyelids.includes("hooded") ? "hooded" : (wiEyelids[0] ?? b.profile.eyelid));
@@ -78,12 +72,13 @@ export default function ComparePage() {
   const rows = useMemo(() => compareStep(manifest.lessonId, a.profile, b.profile, k, lang), [a.profile, b.profile, k, lang]);
   const step = plan.steps[k - 1];
   const basis = rows.some((r) => r.attr === "eyelid") ? pair.map((m) => resolveTechniques(m.profile).eye.reasons.find((x) => x.attr === "eyelid")?.basis).find(Boolean) : undefined;
+  const eyeStepOn = k === eyeStep;
   const edited = pair.find((m) => m.edited?.includes("eyelid"));
 
   return (
     <Screen wide>
       <AppBar title={t("compareTitle", lang)} backHref="/" />
-      <main className="flex flex-1 flex-col gap-4 px-4 pb-24 pt-4 lg:grid lg:grid-cols-2 lg:content-start lg:gap-x-8 lg:px-6 lg:pb-8">
+      <main className="flex flex-1 flex-col gap-4 px-4 pb-6 pt-4 lg:grid lg:grid-cols-2 lg:content-start lg:gap-x-8 lg:px-6 lg:pb-8">
         <div className="lg:col-span-2">
           <p className="text-lg font-extrabold">{plan.title[lang]}</p>
           <p className="text-sm text-muted">{t("compareIntro", lang)}</p>
@@ -119,6 +114,9 @@ export default function ComparePage() {
                   width={600}
                   height={800}
                 />
+                {technique && eyeStepOn && overlays[m.id] && (
+                  <EyeOverlaySvg overlay={overlays[m.id]} dir={techniqueDir(m.profile.eyelid)} crease={m.profile.eyelid !== "monolid"} head={20} />
+                )}
                 <span className="absolute left-2 top-2 rounded-full bg-ink/70 px-2 py-0.5 text-xs font-bold text-canvas">{before ? t("original", lang) : t("answer", lang)}</span>
               </div>
               <figcaption className="flex flex-col items-start gap-1">
@@ -134,14 +132,58 @@ export default function ComparePage() {
             </figure>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={() => setBefore((v) => !v)}
-          aria-pressed={before}
-          className="min-h-12 self-center rounded-[var(--radius-button)] border border-line-strong/50 bg-panel px-5 text-sm font-bold hover:bg-panel-2"
-        >
-          {before ? t("showAfter", lang) : t("showBefore", lang)}
-        </button>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => setBefore((v) => !v)}
+            aria-pressed={before}
+            className="min-h-12 rounded-[var(--radius-button)] border border-line-strong/50 bg-panel px-5 text-sm font-bold hover:bg-panel-2"
+          >
+            {before ? t("showAfter", lang) : t("showBefore", lang)}
+          </button>
+          <button
+            type="button"
+            onClick={() => setTechnique((v) => !v)}
+            aria-pressed={technique}
+            data-testid="technique-toggle"
+            className={`inline-flex min-h-12 items-center gap-2 rounded-[var(--radius-button)] px-5 text-sm font-bold ${technique ? "bg-peach-soft text-primary-strong ring-2 ring-primary" : "border border-line-strong/50 bg-panel hover:bg-panel-2"}`}
+          >
+            <Icon name="sparkle" className="h-4 w-4" />
+            {t("showTechnique", lang)}
+          </button>
+        </div>
+        {eyeStepOn && (
+          <section aria-labelledby="technique" className="flex flex-col gap-2 rounded-[var(--radius-panel)] bg-panel p-3" data-testid="technique-closeups">
+            <h2 id="technique" className="text-sm font-extrabold">
+              {t("techniqueTitle", lang)}
+            </h2>
+            {pair.map((m) => {
+              const o = overlays[m.id];
+              if (!o) return null;
+              const mono = m.profile.eyelid === "monolid";
+              return (
+                <figure key={m.id} className="flex flex-col gap-1">
+                  <div className="overflow-hidden rounded-xl bg-panel-2">
+                    <EyeCloseup
+                      src={before ? m.original : m.steps[k - 1]}
+                      alt={`${faceName(m, lang)} · ${t("techniqueTitle", lang)}`}
+                      overlay={o}
+                      dir={techniqueDir(m.profile.eyelid)}
+                      crease={!mono}
+                      show={technique}
+                      view={closeupView(o, 2)}
+                    />
+                  </div>
+                  <figcaption className="text-xs leading-snug">
+                    <span className="font-extrabold">{faceName(m, lang)}</span> · {t(mono ? "techniqueMono" : "techniqueDouble", lang)}
+                  </figcaption>
+                </figure>
+              );
+            })}
+            {technique && <p className="text-xs text-muted">{t("techniqueLegend", lang)}</p>}
+            <p className="text-xs text-muted">{t("techniqueNote", lang)}</p>
+          </section>
+        )}
         {gradient && (
           <section aria-labelledby="gradient" className="flex flex-col gap-3 rounded-[var(--radius-panel)] bg-panel p-4" data-testid="gradient-pair">
             <h2 id="gradient" className="text-sm font-extrabold">
@@ -151,17 +193,18 @@ export default function ComparePage() {
             <div className="grid grid-cols-2 gap-2">
               {(["horizontal", "vertical"] as const).map((dir) => (
                 <figure key={dir} className="flex flex-col gap-1.5">
-                  <div className="relative aspect-[3/2] overflow-hidden rounded-xl bg-panel-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- static pre-generated demo asset, cropped to the eyes by CSS */}
-                    <img
-                      src={gradient[dir]}
-                      alt={`${faceName(a, lang)} · ${t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}`}
-                      className="h-full w-full object-cover"
-                      style={{ objectPosition: "50% 35%", transform: "scale(1.6)" }}
-                      width={600}
-                      height={800}
-                    />
-                    <GradientArrow dir={dir} />
+                  <div className="overflow-hidden rounded-xl bg-panel-2">
+                    {overlays[a.id] ? (
+                      <EyeCloseup
+                        src={gradient[dir]}
+                        alt={`${faceName(a, lang)} · ${t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}`}
+                        overlay={overlays[a.id]}
+                        dir={dir}
+                        crease={false}
+                        show={technique}
+                        view={closeupView(overlays[a.id], 1.5)}
+                      />
+                    ) : null}
                   </div>
                   <figcaption className="text-xs font-bold leading-snug">{t(dir === "horizontal" ? "gradientHorizontal" : "gradientVertical", lang)}</figcaption>
                 </figure>
@@ -242,7 +285,8 @@ export default function ComparePage() {
         <p className="text-xs leading-relaxed text-muted">{tf("compareCredit", lang, { date: manifest.generatedAt })}</p>
         </div>
       </main>
-      <BottomBar>
+      {/* not sticky here: a pinned bar would cover the close-ups this page is about */}
+      <BottomBar className="static!">
         <ButtonLink href="/" className="w-full">
           {t("tryMyFace", lang)}
         </ButtonLink>

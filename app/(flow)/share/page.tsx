@@ -11,7 +11,7 @@ import { loadHtmlImage } from "@/lib/client/image";
 import { getLesson, LESSONS } from "@/lib/lessons";
 import { valueLabel } from "@/lib/labels";
 
-/** M7 share card: built on a client canvas, never uploaded (privacy ⑥). Face blur on by default. */
+/** M7 share card: built on a client canvas, never uploaded (privacy ⑥). Face blur on by default for selfies, off for the sample trial (stock photos). */
 function ShareInner() {
   const { lang, photo, renders, attempt, grade, gradedLesson, stored, completed, mode, sample } = useFlow();
   const lessonId = useSearchParams().get("lesson") ?? "daily-k";
@@ -19,7 +19,9 @@ function ShareInner() {
   const noSession = useNoSession();
   const lesson = getLesson(lessonId);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [blur, setBlur] = useState(true);
+  // Real selfies: blur on. The sample trial uses licensed stock faces (not a person's selfie), so blur is off unless the visitor turns it on.
+  const [blurChoice, setBlur] = useState<boolean | null>(null);
+  const blur = blurChoice ?? !sample;
   const [hideScore, setHideScore] = useState(false);
   const [ready, setReady] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -106,7 +108,7 @@ function ShareInner() {
         <div className="flex min-w-0 flex-col gap-4 lg:col-start-2 lg:row-start-1" data-testid="share-side">
         <div className="flex flex-col divide-y divide-line rounded-[var(--radius-panel)] bg-panel">
           {[
-            { label: t("blurFaces", lang), sub: "8px", value: blur, set: setBlur },
+            { label: t("blurFaces", lang), sub: sample ? t("blurNotNeeded", lang) : "8px", value: blur, set: setBlur },
             { label: t("hideScore", lang), value: hideScore, set: setHideScore },
           ].map((o) => (
             <label key={o.label} className="flex min-h-14 cursor-pointer items-center justify-between gap-3 px-4">
