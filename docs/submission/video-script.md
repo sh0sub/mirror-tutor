@@ -245,3 +245,12 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - 새 `claim` 카드(샘플 탭 직후, 약 6초, 나레이션 포함): "Try-on shows the shade. We teach the technique, grade it, and sell the exact products." 칩 3개(기법 가르침, 시도 채점, 정확한 상품)와 유닛 계산(첫 레슨 14 = 분석 10 + 렌더 4, 이후 레슨 4, 샘플 체험 0). 파일럿 주장 없음. `makeCard`가 `lines`가 있으면 나레이션을 붙임.
 - 시간 보전: shop 장면의 "This catalog is demo data..." 줄을 뺌(13.6 -> 8.0초). 왼쪽 콜아웃에 "Demo catalog · real SKUs would come from a partner feed"를 옮겨 두었고 칩, 영상 끝의 데모 푸터, partner 장면의 "no partner has used it yet"가 그대로 남는다.
 - 검증: 장면 전환 감지 29곳은 세그먼트 경계, 의도한 디졸브, 앱 스크롤/시트뿐. 0.5초 간격 밝기 검사로 어두운 프레임 없음, 스켈레톤/배너/빈 프레임 없음, 자막은 나레이션 줄과 같은 문자열. 길이 175.98초(180초 미만).
+
+## 사이클 18 재합성 (175.98초, YouCam 유닛 0 사용: 잔량 873 그대로, 새 TTS 줄 0개)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c18` (work-c17 복사본, phone 타임라인 경로를 work-c18로 변경). 재합성 작업 디렉터리 `recomp-oai`(marin TTS 캐시 공유, 나레이션 변경이 없어 캐시만 사용), 직전 판 `.local/video/mirror-tutor-demo-live-c18prev.mp4`.
+- 재녹화(전부 0 유닛): `--mode mock --sample --only compare|share`(compare는 새 기법 오버레이와 눈 클로즈업, share는 샘플 체험이라 얼굴 블러 꺼짐), `--mode live --only cold|trial|partner`와 `--only capture --fake-cam`(로컬 live 서버, 홈 히어로가 낮아진 새 390 화면, API 호출 0). 나머지 장면은 기존 프레임.
+- 순서: hook -> claim 카드(약 0:07-0:13, 훅 바로 뒤로 이동) -> split(새 오버레이) -> trial(샘플 탭 약 0:20) -> analyze -> ... 클레임 카드를 훅 바로 뒤에 두려고 샘플 탭이 약 6초 늦어졌다.
+- split: `eyeStrip`이 앱과 같은 `public/demo/eye-overlay.json`(랜드마크 기반 점선 눈꺼풀 영역, 쌍꺼풀 얼굴만 주름 가이드 선, 규칙표 방향 화살표)을 그린다. 화면 노트에 "랜드마크 기반 근사치, 화살표는 우리 규칙표 방향"이라고 밝혔다. gradient 장면의 전체 크기 패널도 같은 오버레이.
+- compare: 두 얼굴 위 오버레이(0~5초)와 눈 클로즈업 두 장(둘째 줄 나레이션 구간), 확대 패널이 클로즈업을 따라 내려간다. gradient 장면은 새 "vertical gradient" 블록 위치로 스크롤 타이밍 변경.
+- 검증: 장면 전환 감지(gt 0.08)는 세그먼트 경계와 의도한 디졸브/스크롤뿐, 0.5초 간격 밝기 검사에서 어두운 프레임 없음, 스켈레톤/배너/빈 프레임 없음, 자막은 나레이션 줄과 같은 문자열(줄 변경 없음). 길이 175.98초(180초 미만).

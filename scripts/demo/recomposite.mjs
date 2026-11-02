@@ -78,7 +78,10 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
  */
 const ROOT = path.resolve(import.meta.dirname, "../..");
 const LM = (name) => JSON.parse(readFileSync(path.join(ROOT, "scripts/demo", `${name}-landmarks.json`), "utf8"));
-async function eyeStrip({ img, lm, w, h, arrow, out, spanX = 1.14, radius = 24 }) {
+// C18: `ov` = { id, dir: "horizontal"|"vertical", crease } draws the app's technique overlay (public/demo/eye-overlay.json, lib/eyeOverlay.ts): dashed lid band,
+// crease guide (double lids only) and the gradient arrow, instead of the older plain arrows (`arrow`).
+const OVERLAYS = JSON.parse(readFileSync(path.join(import.meta.dirname, "../../public/demo/eye-overlay.json"), "utf8"));
+async function eyeStrip({ img, lm, w, h, arrow, ov, out, spanX = 1.14, radius = 24 }) {
   const P = (i) => ({ x: lm[i].x * 600, y: lm[i].y * 800 });
   const eyes = [
     { o: P(33), i: P(133), u: P(159), l: P(145) },
@@ -93,7 +96,26 @@ async function eyeStrip({ img, lm, w, h, arrow, out, spanX = 1.14, radius = 24 }
     const L = 15, a = Math.atan2(dy, dx), b = 0.5;
     return `M${x},${y}L${(x - L * Math.cos(a - b)).toFixed(1)},${(y - L * Math.sin(a - b)).toFixed(1)}M${x},${y}L${(x - L * Math.cos(a + b)).toFixed(1)},${(y - L * Math.sin(a + b)).toFixed(1)}`;
   };
-  const arrows = arrow
+  const OP = (q) => `${X(q.x * 600)},${Y(q.y * 800)}`;
+  const OL = (pts) => pts.map((q, i) => `${i ? "L" : "M"}${OP(q)}`).join("");
+  const ovSvg = ov
+    ? OVERLAYS[ov.id].eyes
+        .map((e) => {
+          const a = e.arrows[ov.dir], fx = a.from.x * 600, fy = a.from.y * 800, tx = a.to.x * 600, ty = a.to.y * 800;
+          const ang = Math.atan2(ty - fy, tx - fx), L = 30, b = 0.5;
+          const hd = `M${X(tx)},${Y(ty)}l${(-L * Math.cos(ang + b)).toFixed(1)},${(-L * Math.sin(ang + b)).toFixed(1)}M${X(tx)},${Y(ty)}l${(-L * Math.cos(ang - b)).toFixed(1)},${(-L * Math.sin(ang - b)).toFixed(1)}`;
+          const ar = `M${X(fx)},${Y(fy)}L${X(tx)},${Y(ty)}${hd}`;
+          return (
+            `<path d="${OL(e.lid)}Z" fill="rgba(200,50,91,0.24)" stroke="#fff" stroke-width="4" stroke-dasharray="14 10" stroke-linejoin="round"/>` +
+            (ov.crease ? `<path d="${OL(e.crease)}" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><path d="${OL(e.crease)}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>` : "") +
+            `<path d="${ar}" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><path d="${ar}" fill="none" stroke="#c8325b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`
+          );
+        })
+        .join("")
+    : "";
+  const arrows = ov
+    ? ovSvg
+    : arrow
     ? eyes
         .map((e) => {
           const ew = Math.abs(e.i.x - e.o.x), mx = (e.i.x + e.o.x) / 2;
@@ -152,14 +174,29 @@ const SEGMENTS = [
     zoom: [{ at: 0, y: 70 }],
   },
   {
+    // C17: positioning card (narrated, ~6 s). C18: moved to right after the hook (about 0:06-0:12), before the lid split and the sample tap. Truthful: unit math from the app (10 analysis + 4 render first lesson, 4 renders after), no pilot claimed.
+    id: "claim",
+    lead: 0.15,
+    tail: 0.2,
+    lines: ["Try-on shows the shade. We teach the technique, grade it, and sell the exact products."],
+    card: {
+      kicker: "Beyond try-on",
+      title: "Try-on shows the shade.",
+      chips: ["We teach the technique", "We grade your attempt", "We sell the exact products"],
+      stack: true,
+      sub: "First lesson 14 units (10 analysis + 4 renders) \u00b7 every lesson after 4 \u00b7 sample trial 0",
+      caption: true,
+    },
+  },
+  {
     // C11 split beat (~10-18 s): the same look on the monolid face and the double-lid face, full-size YouCam eye renders (lesson step 3, the
     // compare assets), the gradient direction marked on each lid. Full-screen still pair (arrows fade in on line 2), no phone.
     id: "split",
     split: {
       kicker: "Same look · two lids",
-      left: { img: "model-c/step-3.jpg", lm: "model-c", arrow: "h", name: "Monolid face", tech: "Horizontal gradient + visible liner" },
-      right: { img: "model-a/step-3.jpg", lm: "model-a", arrow: "v", name: "Double-lid face", tech: "Crease shading + thin liner" },
-      note: "Real YouCam Makeup VTO renders, lesson step 3 (eyes), pre-generated · 0 units now · faces: Unsplash and Pexels License stock",
+      left: { img: "model-c/step-3.jpg", lm: "model-c", ov: { id: "model-c", dir: "horizontal", crease: false }, name: "Monolid face", tech: "Horizontal gradient + visible liner" },
+      right: { img: "model-a/step-3.jpg", lm: "model-a", ov: { id: "model-a", dir: "vertical", crease: true }, name: "Double-lid face", tech: "Crease shading + thin liner" },
+      note: "Real YouCam Makeup VTO renders, lesson step 3 (eyes), pre-generated, 0 units now · overlay: dashed lid area + crease guide from face landmarks (approximate), arrow = our rule-table direction · faces: Unsplash and Pexels License stock",
     },
     lead: 0.1,
     tail: 0.1,
@@ -184,21 +221,6 @@ const SEGMENTS = [
     ui: [{ callout: "<b>Face Analyzer</b> reads features · 10 units<br><b>Makeup VTO</b> renders each step · 4 units<br><span class=\"plain\">Sample trial: pre-generated real YouCam results · <b>0 units</b></span>" }],
     timeline: [{ at: 0, src: 1.0 }, { at: 0.45, src: [1.95, 2.3] }, { at: 0.95, src: 4.0 }],
     zoom: [{ at: 0, y: 498 }, { at: 0.95, y: 400 }],
-  },
-  {
-    // C17: positioning card right after the sample tap (narrated, ~4.5 s). Truthful: unit math from the app (10 analysis + 4 render first lesson, 4 renders after), no pilot claimed.
-    id: "claim",
-    lead: 0.15,
-    tail: 0.2,
-    lines: ["Try-on shows the shade. We teach the technique, grade it, and sell the exact products."],
-    card: {
-      kicker: "Beyond try-on",
-      title: "Try-on shows the shade.",
-      chips: ["We teach the technique", "We grade your attempt", "We sell the exact products"],
-      stack: true,
-      sub: "First lesson 14 units (10 analysis + 4 renders) \u00b7 every lesson after 4 \u00b7 sample trial 0",
-      caption: true,
-    },
   },
   {
     // C16: the sample trial's first analysis (same take as the trial scene, so the page and strip match): raw Double-lid reading, "Fix the eyelid" tap, edit sheet,
@@ -328,13 +350,16 @@ const SEGMENTS = [
     // C12 source (work-c12 frames-compare, mock --sample, 0 units): the technique crops (horizontal vs vertical) now come first on /compare, then the rule table.
     // top of the page on the eye step 0-3.1 s (original/answer flip), hold, scroll to the crops 13.8-14.1 s (hold to 17.4 s), scroll to the rule table 17.4-17.7 s (hold to the end)
     // C14: the crops beat (src 13.7-17.4 s) moved to the "gradient" scene; this scene goes from the eye step straight to the rule table (src 17.4-17.7 scroll, hold to the end)
+    // C18 re-take (work-c18 frames-compare, mock --sample, 0 units): the page now draws the technique overlay (lid area, crease, arrow) on both faces and has two
+    // big eye close-ups below the faces. Source: top 0-13.9 s (original/answer flip 0-3.1), scroll to the close-ups 13.9-14.4 (hold to 17.1), scroll to the
+    // "vertical gradient" block + rule table 17.2-17.8 (hold to 22.7). Line 1 (correction) stays on the top; line 2 (the two techniques) shows the close-ups.
     timeline: [
       { at: 0, src: [0, 3.1] },
       { at: { cue: 0, plus: 3.2 }, src: 5 },
-      { at: { cue: 1, plus: -0.1 }, src: [17.4, 17.7] },
-      { at: { cue: 1, plus: 0.9 }, src: 21 },
+      { at: { cue: 1, plus: -0.1 }, src: [13.8, 14.4] },
+      { at: { cue: 1, plus: 0.9 }, src: 15.5 },
     ],
-    zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 380 }],
+    zoom: [{ at: 0, y: 252 }, { at: { cue: 0, plus: 0.9 }, y: 300 }, { at: { cue: 1, plus: -0.1 }, y: 410 }, { at: { cue: 1, plus: 2.4 }, y: 500 }],
   },
   {
     // C14: the horizontal-vs-vertical beat moved here from the compare scene (right after the split beat). Source: the same compare recording
@@ -358,7 +383,8 @@ const SEGMENTS = [
           "<div class=\"vs\"><div><b>Horizontal</b>Our monolid technique<span class=\"plain\">shadow style 1</span></div><div><b>Vertical</b>Generic tutorial way<span class=\"plain\">shadow style 3</span></div></div>",
       },
     ],
-    timeline: [{ at: 0, src: [13.6, 14.15] }, { at: 0.9, src: 16 }],
+    // C18: the gradient pair now sits below the two technique close-ups: scroll src 17.2-17.8, hold to the end of the take
+    timeline: [{ at: 0, src: [17.1, 17.8] }, { at: 0.9, src: 20 }],
     zoomOverlay: {
       at: 0.5,
       top: { img: "model-c/eye-horizontal.jpg", arrow: "h", label: "Horizontal gradient · our monolid technique" },
@@ -965,7 +991,7 @@ async function makeZoomPanel(seg, dir) {
   const files = [];
   for (const [i, c] of [z.top, z.bottom].entries()) {
     const f = path.join(dir, `${seg.id}-zoompanel-${i}.png`);
-    await eyeStrip({ img: c.img, lm: LM(c.lm ?? "model-c"), w: ZW, h: SH, arrow: c.arrow, out: f, spanX: 1.2, radius: 20 });
+    await eyeStrip({ img: c.img, lm: LM(c.lm ?? "model-c"), w: ZW, h: SH, ov: { id: c.lm ?? "model-c", dir: c.arrow === "h" ? "horizontal" : "vertical", crease: false }, out: f, spanX: 1.2, radius: 20 });
     files.push(f);
   }
   const pill = (y, text) => `<g><rect x="16" y="${y}" width="${Math.round(text.length * 12.6 + 34)}" height="40" rx="20" fill="#1f1b1a" fill-opacity=".86"/><text x="33" y="${y + 27}" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="21" fill="#fff">${esc(text)}</text></g>`;
@@ -1011,7 +1037,7 @@ async function makeSplit(seg, dir) {
     for (const withArrow of [false, true]) {
       const f = path.join(dir, `${seg.id}-${side}-${withArrow ? "a" : "n"}.png`);
       const c = sp[side];
-      await eyeStrip({ img: c.img, lm: LM(c.lm), w: PW, h: PH, arrow: withArrow ? c.arrow : null, out: f });
+      await eyeStrip({ img: c.img, lm: LM(c.lm), w: PW, h: PH, arrow: null, ov: withArrow ? c.ov : null, out: f, spanX: 1.5 });
       strips[`${side}${withArrow ? "A" : "N"}`] = f;
     }
   }
