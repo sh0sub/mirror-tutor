@@ -9,7 +9,7 @@ import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { buildLesson } from "@/lib/lessons";
 import { comparePair, type CompareManifest } from "@/lib/demo/compare";
-import { EMBED_LESSON, embedFocusStep, embedMatch, embedProduct } from "@/lib/embed";
+import { EMBED_LESSON, embedFocusStep, embedMatch, embedProductFromQuery } from "@/lib/embed";
 import manifestJson from "@/public/demo/compare.json";
 
 const model = comparePair(manifestJson as CompareManifest)[0];
@@ -18,7 +18,7 @@ const model = comparePair(manifestJson as CompareManifest)[0];
 function EmbedInner() {
   const { lang } = useFlow();
   const params = useSearchParams();
-  const product = embedProduct(params.get("sku"));
+  const product = embedProductFromQuery({ sku: params.get("sku"), hex: params.get("hex"), name: params.get("name") });
   const plan = useMemo(() => buildLesson(EMBED_LESSON, model.profile), []);
   const [k, setK] = useState(() => embedFocusStep(model.profile, product));
   const step = plan.steps[k - 1];
@@ -64,7 +64,7 @@ function EmbedInner() {
       )}
       <p className="mt-auto text-center text-[11px] leading-snug text-muted">
         {t("embedFoot", lang)}{" "}
-        <a href="/?lang=en" target="_blank" rel="noopener" className="font-bold text-primary-strong underline underline-offset-2">
+        <a href={`/?lang=${lang}`} target="_blank" rel="noopener" className="font-bold text-primary-strong underline underline-offset-2">
           {t("embedOpen", lang)}
         </a>
       </p>

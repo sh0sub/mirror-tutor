@@ -177,7 +177,7 @@ npx vercel --prod --yes
 ## Limitations
 
 - **Grading error**: scores depend on lighting, angle and framing. The grader reports a confidence level and lowers it when the two photos are not comparable. Landmark polygon boundaries were checked against standard mesh indices, not exhaustively on real faces. It is a practice aid, not a measurement.
-- **Demo catalog is fictional**: 17 "MT Select" SKUs (one cushion per foundation ladder shade) with demo prices and stock. Real SKUs would be replaced by a partner product feed. No checkout is implemented.
+- **Demo catalog is fictional**: 18 "MT Select" SKUs (one cushion per foundation ladder shade) with demo prices and stock. Real SKUs would be replaced by a partner product feed. No checkout is implemented.
 - **Only the base color is personalized**: foundation shade (and blush intensity) follow the measured skin tone; eye and lip colors are fixed per lesson. The skin measurement is approximate (camera white balance, room light); the app shows a low-confidence hint when the cheeks disagree or the photo is very dark/bright, keeps the lesson default when detection fails, and demo mode keeps the default.
 - **Mock mode overlay is approximate**: it is a local drawing fitted to eye and mouth anchors, not YouCam output. Real results appear in live mode and on `/compare`.
 - Rule-table techniques are hand-written; the YouCam analysis only selects among them. `inner_double` is a user choice in the correction sheet, not an API value.

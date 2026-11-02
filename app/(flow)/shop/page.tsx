@@ -108,6 +108,7 @@ function ShopInner() {
               {m.noCloseMatch && m.matches.length > 0 && <Chip tone="warn">{t("noCloseMatch", lang)}</Chip>}
               {m.matches.length === 0 && <p className="rounded-xl bg-panel-2 p-3 text-sm text-muted">{t("noProducts", lang)} ({m.category})</p>}
               {m.matches.map(({ product: p, deltaE, textureMatch }) => {
+                const sameFinish = textureMatch && !!m.texture && p.texture === m.texture;
                 const inCart = cart.includes(p.sku);
                 return (
                   <article key={p.sku} className="flex items-center gap-3 rounded-[var(--radius-panel)] bg-panel-2 p-3">
@@ -127,6 +128,11 @@ function ShopInner() {
                           <span className="num">ΔE {deltaE.toFixed(1)}</span>
                         </Chip>
                         {!textureMatch && <Chip tone="warn">{t("textureMismatch", lang)}</Chip>}
+                        {sameFinish && (
+                          <Chip tone="ok" icon="check">
+                            {t("matchesFinish", lang)}
+                          </Chip>
+                        )}
                         <span className="num text-sm font-bold">
                           ₩{p.priceKrw.toLocaleString("ko-KR")} <span className="font-normal text-muted">· ${p.priceUsd}</span>
                         </span>
@@ -167,13 +173,15 @@ function ShopInner() {
         <p className="text-xs text-muted">{t("deltaNote", lang)}</p>
         </div>
       </main>
-      <BottomBar>
-        <Button className="w-full" disabled={cart.length === 0} onClick={() => cart[0] && setLeaving({ sku: cart[0] } as Product)}>
-          <Icon name="bag" className="h-4 w-4" />
-          {t("cart", lang)} <span className="num">{cart.length}</span> · {t("viewInStore", lang)}
-        </Button>
-        <p className="pt-1.5 text-center text-xs text-muted">{t("checkoutNote", lang)}</p>
-      </BottomBar>
+      {cart.length > 0 && (
+        <BottomBar>
+          <Button className="w-full" onClick={() => cart[0] && setLeaving({ sku: cart[0] } as Product)}>
+            <Icon name="bag" className="h-4 w-4" />
+            {t("cart", lang)} <span className="num">{cart.length}</span> · {t("viewInStore", lang)}
+          </Button>
+          <p className="pt-1.5 text-center text-xs text-muted">{t("checkoutNote", lang)}</p>
+        </BottomBar>
+      )}
 
       <Sheet open={leaving !== null} onClose={() => setLeaving(null)} title={t("viewInStore", lang)}>
         {(() => {

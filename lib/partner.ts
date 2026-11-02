@@ -16,6 +16,46 @@ export const INTEGRATION_SNIPPET = `<iframe src="${EMBED_ORIGIN}/embed/lesson?sk
   title="Learn this look" width="360" height="640"
   style="border:0" loading="lazy"></iframe>`;
 
+/** Swatch palette for "Try your own shade": demo shades, not a partner feed. */
+export const PARTNER_SHADES = [
+  { hex: "#C6505F", name: { ko: "피그 로즈", en: "Fig Rose" } },
+  { hex: "#C94F5E", name: { ko: "새틴 로즈", en: "Satin Rose" } },
+  { hex: "#D0425B", name: { ko: "체리", en: "Cherry" } },
+  { hex: "#B66C5F", name: { ko: "누드 브릭", en: "Nude Brick" } },
+  { hex: "#E8705A", name: { ko: "코랄", en: "Coral" } },
+  { hex: "#8E2C4A", name: { ko: "베리", en: "Berry" } },
+] as const;
+
+/** Iframe query for a retailer shade: the hex without '#', the name URL-encoded. */
+export function embedQuery(shade: { hex: string; name: string } | null): string {
+  if (!shade) return `sku=${PARTNER_SKU}`;
+  const q = [`hex=${shade.hex.replace(/^#/, "")}`];
+  if (shade.name) q.push(`name=${encodeURIComponent(shade.name)}`);
+  return q.join("&");
+}
+
+/** The copyable snippet for the current demo shade (the default is INTEGRATION_SNIPPET). */
+export function integrationSnippet(shade: { hex: string; name: string } | null): string {
+  return `<iframe src="${EMBED_ORIGIN}/embed/lesson?${embedQuery(shade)}"
+  title="Learn this look" width="360" height="640"
+  style="border:0" loading="lazy"></iframe>`;
+}
+
+export interface UnitEstimate {
+  first: number;
+  repeat: number;
+  /** Units for the month: first x 14 + repeat x 4, from the same pricing as the unit meter. */
+  total: number;
+}
+
+/** Cost calculator: both counts are the retailer's inputs (clamped to 0..1,000,000 whole sessions); the unit prices come from the unit guard. No traffic or conversion figure is assumed. */
+export function unitEstimate(firstSessions: number, repeatSessions: number, stepCount = 4): UnitEstimate {
+  const clamp = (n: number) => (Number.isFinite(n) ? Math.min(1_000_000, Math.max(0, Math.floor(n))) : 0);
+  const first = clamp(firstSessions);
+  const repeat = clamp(repeatSessions);
+  return { first, repeat, total: first * fullFlowCost(stepCount) + repeat * revisitFlowCost(stepCount) };
+}
+
 export interface UnitMeterRow {
   id: "first" | "next";
   units: number;

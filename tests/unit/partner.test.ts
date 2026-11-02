@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { DEFAULT_SESSION_CAP, INTEGRATION_SNIPPET, PARTNER_KPIS, PARTNER_SKU, unitMeter } from "@/lib/partner";
+import { DEFAULT_SESSION_CAP, INTEGRATION_SNIPPET, PARTNER_KPIS, PARTNER_SKU, unitEstimate, unitMeter } from "@/lib/partner";
 import { readConfig } from "@/lib/config";
 import { PRODUCTS } from "@/lib/shop";
 import { MESSAGES, t } from "@/lib/i18n";
@@ -35,5 +35,11 @@ describe("/partner concept page data", () => {
 
   it("the favicon asset exists", () => {
     expect(readFileSync("app/icon.svg", "utf8")).toContain("<svg");
+  });
+
+  it("cost calculator is inputs x the real unit prices, clamped, with no assumed traffic", () => {
+    expect(unitEstimate(1000, 500)).toEqual({ first: 1000, repeat: 500, total: 1000 * 14 + 500 * 4 });
+    expect(unitEstimate(-5, Number.NaN).total).toBe(0);
+    expect(unitEstimate(1e12, 0).first).toBe(1_000_000);
   });
 });

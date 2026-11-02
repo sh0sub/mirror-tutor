@@ -10,21 +10,25 @@ Makeup tutorials fit someone else's face. Mirror Tutor reads your features with 
 
 ## Inspiration
 
-Shoppers buy a shade, try the look from a tutorial filmed on someone else's face, and it comes out wrong. A gradient eyeshadow that works on a double eyelid can look muddy on a monolid, so the shopper guesses what to change, gets no feedback, and the shade becomes a regret. We wanted a tutorial that starts from your face, checks your result, and turns each step's color into the exact product to buy.
+**Try it in 30 seconds, no selfie, 0 units:** https://mirror-tutor.vercel.app/?lang=en - pick the Monolid sample, tap "Try with a sample model", and walk analysis, a 4-step lesson, grading and shop the step.
 
-Face Analyzer read our monolid stock model as double-lid on both eyes. The app lets you correct it (marked "Edited") and the whole lesson changes, and you can walk exactly that in the sample trial: pick the Monolid sample, see the analyzer read Double-lid, tap "Fix the eyelid", and the lesson switches to the horizontal gradient. **/compare** puts both faces side by side with the analyzer's raw reading and the corrected value, plus the same monolid eye drawn with a horizontal and a vertical gradient (both real YouCam renders).
+AI face analysis is right most of the time, and a brand that sells on it needs a one-tap human correction path, because a wrong eyelid reading changes the technique the shopper is taught. A gradient eyeshadow that works on a double eyelid can look muddy on a monolid, so a shopper who follows the wrong lesson guesses what to change, gets no feedback, and the shade becomes a regret. We wanted a tutorial that starts from your face, checks your result, and turns each step's color into the exact product to buy.
 
-**YouCam VTO output is the answer key we grade your real attempt against, per region with CIEDE2000.**
+Face Analyzer read our monolid stock model as double-lid on both eyes. The sample trial walks exactly that: the analyzer reads Double-lid, you tap "Fix the eyelid" (marked "Edited"), and the lesson switches to the horizontal gradient. **/compare** puts both faces side by side with the analyzer's raw reading and the corrected value, plus the same monolid eye drawn with a horizontal and a vertical gradient (both real YouCam renders).
+
+**This is not a wrapper:** the analyzer's output feeds a visible rule table instead of being displayed, and YouCam VTO output is the answer key we grade your real attempt against, per region with CIEDE2000.
 
 ## Why a brand pays
 
-Buyer: a beauty retailer or brand that sells YouCam-style try-on on its product pages. A virtual try-on answers "how does this shade look on me"; it does not answer "how do I wear it", and that is where shade regret starts.
+**Try it first:** https://mirror-tutor.vercel.app/partner (live widget in a fictional store; swap in your own lip shade with "Try your own shade", the iframe snippet follows) or the 30-second path above.
 
-- **Hypothesis, not measured:** a shopper who has seen the look on their own face, in the exact catalog shade, returns fewer products. We have not tested this. The only number we cite is context: the National Retail Federation figure of a 4.3% blended beauty return rate, as reported by PYMNTS (source under "Who would pay").
-- **What a retailer can drop in today:** `/embed/lesson?sku=...`, a chrome-less iframe (stepper, bare/finished slider, the SKU's shade matched to the lesson color with CIEDE2000). The live preview and the one-line snippet are on /partner. No retailer has used it; there is no pilot.
+Buyer: a beauty retailer or brand that sells YouCam-style try-on on its product pages. A virtual try-on answers "how does this shade look on me"; it does not answer "how do I wear it", and a wrong face reading would teach the wrong technique. That is why the correction path and the grading reference exist.
+
+- **What a retailer can drop in today:** `/embed/lesson?sku=...` (or `?hex=...&name=...` for a shade that is not in our demo catalog), a chrome-less iframe: stepper, bare/finished slider, the shade matched to the lesson color with CIEDE2000. The live preview, the editable shade, the one-line snippet and a cost calculator (your session counts x 14 first / 4 repeat units, no assumed traffic) are on /partner. The catalog there is a demo, not a partner feed. No retailer has used it; there is no pilot.
 - **Unit cost is known:** 14 YouCam units for a first lesson (10 analysis + 4 renders), 4 for each later lesson, session cap 20.
 - **Shoppers:** you see each step on your own face, your attempt is scored per region, and each step links to the product in that color.
 - **Perfect Corp:** a lesson is 4 Makeup VTO calls per engaged user instead of 1 try-on. Secondary point.
+- **Hypothesis, not measured:** a shopper who has seen the look on their own face, in the exact catalog shade, returns fewer products. We have not tested this. The only number we cite is context: the National Retail Federation figure of a 4.3% blended beauty return rate, as reported by PYMNTS (source under "Who would pay").
 
 ## How deeply we use YouCam
 
@@ -46,7 +50,7 @@ No selfie needed - 30 s walk-through. Open https://mirror-tutor.vercel.app/?lang
 2. **Technique:** a visible rule table maps each feature to a technique and a plain reason. Monolid gets a horizontal gradient shadow plus a liner visible 1.5 mm, a double lid gets crease shading. The monolid reason is a rule of thumb from public tutorials, not a Perfect Corp result: on a monolid the horizontal gradient reads as cleaner depth and the vertical blend is hidden by the lid fold, but both render, so /compare shows them next to each other.
 3. **Lesson:** 3 lessons x 4 steps. A step k is Makeup VTO with effects 1..k rendered cumulatively on one uploaded `file_id`, so each step is an answer image, with a before/after slider.
 4. **Grade and shop:** your real attempt is compared with that VTO answer per region (eye line, eyelid, cheek, lip) with CIEDE2000, with a one-line correction, then step colors are matched to catalog products (<= 5) and a share card is drawn.
-5. **Retailer view:** /partner shows a fictional store with the real `/embed/lesson` iframe live inside it, the one-line snippet, the unit meter and KPIs marked "hypothesis, no data yet". The store and partner are fictional; the widget is not.
+5. **Retailer view:** /partner shows a fictional store with the real `/embed/lesson` iframe live inside it, a "Try your own shade" control (demo catalog, not a partner feed), the one-line snippet, the unit meter, a cost calculator from your own inputs and KPIs marked "hypothesis, no data yet". The store and partner are fictional; the widget is not.
 
 This is not a wrapper: Face Analyzer output feeds a rule table instead of being displayed, VTO output is the grading reference, and the foundation shade is measured on the device from your cheeks and passed into the VTO foundation effect.
 
@@ -65,9 +69,11 @@ Demand context, not proof for our app: PYMNTS (27 Feb 2024, citing National Reta
 
 ## Accomplishments that we're proud of
 
-- The loop is closed: analyze -> technique -> answer image -> your attempt -> score -> product.
-- Techniques depend on the face and the rule table is visible, with its reason in plain words and labelled a rule of thumb.
-- 220 tests (28 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
+- **A misread caught and fixed:** the live analyzer read a monolid face as double-lid; the app shows the raw reading, lets the shopper correct it in one tap, and the whole lesson changes. Honest about the gap, and built for it.
+- **A real attempt graded, per region:** eye line, eyelid, cheeks and lips are each scored with CIEDE2000 against the VTO answer image, with a one-line correction.
+- **An embeddable widget:** a retailer can drop `/embed/lesson` into a product page with one iframe, even with its own shade (`?hex=`), at 0 units for the embed itself.
+- **A full lesson costs 14 YouCam units** (10 analysis + 4 renders), and each later lesson 4, bounded by a session cap of 20.
+- 225 tests (28 files) run offline against the real pattern catalog and recorded API bodies; typecheck and lint are clean.
 
 ## How we built it
 
@@ -79,7 +85,7 @@ Pipeline (`docs/pipeline.svg`): Face Analyzer (10 units, once) -> rule table (0)
 - **Unit guard:** units reserved before a task and released on error, session and daily caps, balance read from the credit endpoint, render cache keyed on image + effects.
 - **Grading:** MediaPipe Face Landmarker runs in the browser and computes per-region CIELAB means; the server computes CIEDE2000 and Claude (claude-opus-5-5) writes the one-line corrections from those numbers (text only). A fixed-box fallback grader runs if MediaPipe cannot.
 - **Skin shade:** measured in the browser from trimmed cheek and forehead pixels in CIELAB, nearest of six shades; the user can pick by hand.
-- **Shop the step:** a demo catalog of 17 fictional "MT Select" SKUs matched by color difference and texture.
+- **Shop the step:** a demo catalog of 18 fictional "MT Select" SKUs matched by color difference and texture.
 - **Privacy:** no image stored server-side, nothing logged, share card drawn on the device.
 
 ## Challenges we ran into

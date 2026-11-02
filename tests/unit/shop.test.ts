@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { deltaE2000, deltaEHex, hexToLab, rgbToHex } from "@/lib/color";
-import { PRODUCTS, matchEffect, matchStepEffects, storeUrl } from "@/lib/shop";
+import { INVISIBLE_DELTA, PRODUCTS, matchEffect, matchStepEffects, storeUrl } from "@/lib/shop";
 import { buildLesson } from "@/lib/lessons";
 import type { FaceProfile } from "@/lib/profile";
 
@@ -23,8 +23,8 @@ describe("color science", () => {
 });
 
 describe("F7 Shop the step", () => {
-  it("uses a 17-SKU pseudonymous catalog (MT Select, generic names only)", () => {
-    expect(PRODUCTS).toHaveLength(17);
+  it("uses an 18-SKU pseudonymous catalog (MT Select, generic names only)", () => {
+    expect(PRODUCTS).toHaveLength(18);
     for (const p of PRODUCTS) {
       expect(p.name.ko.startsWith("MT Select")).toBe(true);
       expect(p.name.en.startsWith("MT Select")).toBe(true);
@@ -47,6 +47,14 @@ describe("F7 Shop the step", () => {
     expect(m.matches[0].product.texture).toBe("gloss");
     const matteLip = buildLesson("daily-k", { ...mono, lipShape: "full" }).steps[3].effects[0];
     expect(matchEffect(matteLip).matches[0].product.sku).toBe("MT-VT-07");
+  });
+
+  it("the default satin lip step has a catalog SKU with the same finish first (green Matches finish)", () => {
+    const lip = buildLesson("daily-k", mono).steps[3].effects[0];
+    const top = matchEffect({ ...lip, palettes: [{ color: "#C94F5E", texture: "satin" }] }).matches[0];
+    expect(top.product.sku).toBe("MT-SL-05");
+    expect(top.textureMatch).toBe(true);
+    expect(top.deltaE).toBeLessThanOrEqual(INVISIBLE_DELTA);
   });
 
   it("no product within ΔE 5 → nearest 2 with noCloseMatch", () => {

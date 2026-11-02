@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AppBar, BottomBar, Button, ButtonLink, Icon, ModeBanner, Screen } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
@@ -12,7 +12,9 @@ import { valueLabel } from "@/lib/labels";
 
 /** M7 share card: built on a client canvas, never uploaded (privacy ⑥). Face blur on by default. */
 function ShareInner() {
-  const { lang, photo, renders, attempt, grade, gradedLesson, stored, completed, mode, sample } = useFlow();
+  const { lang, photo, renders, attempt, grade, gradedLesson, stored, completed, mode, sample, startSample } = useFlow();
+  const router = useRouter();
+  const [starting, setStarting] = useState(false);
   const lessonId = useSearchParams().get("lesson") ?? "daily-k";
   const lesson = getLesson(lessonId);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -79,6 +81,16 @@ function ShareInner() {
     } else await save();
   };
 
+  const startFromSample = async () => {
+    setStarting(true);
+    try {
+      await startSample();
+      router.push("/analyze");
+    } finally {
+      setStarting(false);
+    }
+  };
+
   const done = LESSONS.filter((l) => completed[l.id]).length;
   const nextLesson = LESSONS.find((l) => !completed[l.id] && l.id !== lessonId) ?? LESSONS.find((l) => !completed[l.id]);
 
@@ -89,8 +101,14 @@ function ShareInner() {
       <main className="flex flex-1 flex-col gap-4 px-4 py-4">
         <div className="relative mx-auto w-full max-w-[342px]">
           <canvas ref={canvasRef} className="aspect-[342/428] w-full rounded-[var(--radius-panel)] bg-panel" role="img" aria-label={`${lesson?.title[lang] ?? ""} ${score ?? ""}`} />
-          {!ready && <div className="skeleton absolute inset-0 rounded-[var(--radius-panel)]" aria-hidden />}
-          {!answer && <p className="absolute inset-0 flex items-center justify-center p-6 text-center text-sm text-muted">{t("noImage", lang)}</p>}
+          {answer && !ready && <div className="skeleton absolute inset-0 rounded-[var(--radius-panel)]" aria-hidden />}
+          {!answer && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-[var(--radius-panel)] bg-panel p-6 text-center" data-testid="share-empty">
+              <Icon name="sparkle" className="h-6 w-6 text-primary-strong" />
+              <p className="text-[15px] font-extrabold">{t("shareEmptyCta", lang)}</p>
+              <p className="text-sm leading-relaxed text-muted">{t("shareEmptyHint", lang)}</p>
+            </div>
+          )}
         </div>
         <p className="text-center text-xs text-muted">{t("cardLocal", lang)}</p>
         <div className="flex flex-col divide-y divide-line rounded-[var(--radius-panel)] bg-panel">
@@ -137,16 +155,23 @@ function ShareInner() {
         )}
       </main>
       <BottomBar>
-        <div className="flex gap-2">
-          <Button variant="ghost" className="flex-1" onClick={shareNative} disabled={!ready}>
-            <Icon name="share" className="h-4 w-4" />
-            {t("shareNative", lang)}
+        {!answer ? (
+          <Button className="w-full" onClick={startFromSample} disabled={starting}>
+            <Icon name="sparkle" className="h-4 w-4" />
+            {t("shareEmptyCta", lang)}
           </Button>
-          <Button className="flex-[1.4]" onClick={save} disabled={!ready}>
-            <Icon name="download" className="h-4 w-4" />
-            {t("save", lang)}
-          </Button>
-        </div>
+        ) : (
+          <div className="flex gap-2">
+            <Button variant="ghost" className="flex-1" onClick={shareNative} disabled={!ready}>
+              <Icon name="share" className="h-4 w-4" />
+              {t("shareNative", lang)}
+            </Button>
+            <Button className="flex-[1.4]" onClick={save} disabled={!ready}>
+              <Icon name="download" className="h-4 w-4" />
+              {t("save", lang)}
+            </Button>
+          </div>
+        )}
       </BottomBar>
     </Screen>
   );

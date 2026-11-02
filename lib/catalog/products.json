@@ -18,6 +18,7 @@
     { "sku": "MT-GT-02", "category": "lip_color", "name": { "ko": "MT Select 글로이 틴트 02 로즈", "en": "MT Select Glowy Tint 02 Rose" }, "shades": ["#CB4E5E"], "texture": "gloss", "priceKrw": 13000, "priceUsd": 9.5 },
     { "sku": "MT-GT-04", "category": "lip_color", "name": { "ko": "MT Select 글로이 틴트 04 체리", "en": "MT Select Glowy Tint 04 Cherry" }, "shades": ["#D0425B"], "texture": "gloss", "priceKrw": 13000, "priceUsd": 9.5 },
     { "sku": "MT-SL-11", "category": "lip_color", "name": { "ko": "MT Select 새틴 립 11 누드 브릭", "en": "MT Select Satin Lip 11 Nude Brick" }, "shades": ["#B66C5F"], "texture": "satin", "priceKrw": 14000, "priceUsd": 10 },
+    { "sku": "MT-SL-05", "category": "lip_color", "name": { "ko": "MT Select 새틴 립 05 로즈 레드", "en": "MT Select Satin Lip 05 Rose Red" }, "shades": ["#C94F5E"], "texture": "satin", "priceKrw": 14000, "priceUsd": 10 },
     { "sku": "MT-BL-01", "category": "blush", "name": { "ko": "MT Select 치크 블러셔 피치 핑크", "en": "MT Select Cheek Blush Peach Pink" }, "shades": ["#E59B9A"], "texture": "matte", "priceKrw": 11000, "priceUsd": 8 }
   ]
 }

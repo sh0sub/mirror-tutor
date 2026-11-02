@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { useFlow } from "./FlowProvider";
 import { t } from "@/lib/i18n";
 
@@ -203,11 +203,33 @@ export function UnitLine({ costKey }: { costKey: "analyzerCost" | "renderCost" }
   );
 }
 
+/** The first screen of a sample run explains it in full; later screens show a one-line chip (tap for the full text) so content is not pushed down. */
+let sampleBannerSeen = false;
+
 export function ModeBanner() {
   const { lang, credit, mode, sample } = useFlow();
+  const [open, setOpen] = useState(!sampleBannerSeen);
+  useEffect(() => {
+    sampleBannerSeen = true;
+  }, []);
   const demo = !sample && (mode === "demo" || credit?.demo);
   const mock = !sample && !demo && (mode === "mock" || credit?.mode === "mock");
   if (!sample && !demo && !mock) return null;
+  if (sample && !open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-expanded={false}
+        data-testid="sample-banner-chip"
+        className="mx-4 mt-2 flex min-h-10 items-center gap-2 rounded-full bg-warning-soft px-3 text-left text-xs font-medium text-warning"
+      >
+        <Icon name="info" className="h-4 w-4 flex-none" />
+        <span className="min-w-0 flex-1 truncate">{t("sampleBannerShort", lang)}</span>
+        <span className="flex-none font-bold underline underline-offset-2">{t("bannerMore", lang)}</span>
+      </button>
+    );
+  }
   return (
     <p role="status" className="mx-4 mt-3 flex items-start gap-2 rounded-xl bg-warning-soft px-3 py-2 text-xs font-medium text-warning">
       <Icon name="info" className="mt-0.5 h-4 w-4 flex-none" />
