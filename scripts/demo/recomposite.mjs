@@ -186,6 +186,21 @@ const SEGMENTS = [
     zoom: [{ at: 0, y: 498 }, { at: 0.95, y: 400 }],
   },
   {
+    // C17: positioning card right after the sample tap (narrated, ~4.5 s). Truthful: unit math from the app (10 analysis + 4 render first lesson, 4 renders after), no pilot claimed.
+    id: "claim",
+    lead: 0.15,
+    tail: 0.2,
+    lines: ["Try-on shows the shade. We teach the technique, grade it, and sell the exact products."],
+    card: {
+      kicker: "Beyond try-on",
+      title: "Try-on shows the shade.",
+      chips: ["We teach the technique", "We grade your attempt", "We sell the exact products"],
+      stack: true,
+      sub: "First lesson 14 units (10 analysis + 4 renders) \u00b7 every lesson after 4 \u00b7 sample trial 0",
+      caption: true,
+    },
+  },
+  {
     // C16: the sample trial's first analysis (same take as the trial scene, so the page and strip match): raw Double-lid reading, "Fix the eyelid" tap, edit sheet,
     // "Corrected to Monolid", rule table. Two 2.5 s zoom panels (raw reading, Edited chip). The live call moved to the "live" scene.
     id: "analyze",
@@ -398,15 +413,13 @@ const SEGMENTS = [
     heading: "Exact colors to products",
     chip: "CIEDE2000 matching · demo catalog",
     units: 14,
-    lines: [
-      "Love a color? Shop the step matches its exact shade to products, using CIEDE2000 color science.",
-      "This catalog is demo data. A partner feed would plug in real products.",
-    ],
-    ui: [{ callout: "Hex colors from the step → closest products (ΔE)<br><span class=\"plain\">Finish check: <b>Matches finish</b> on the first lip row</span>" }, { callout: "Demo catalog · real SKUs would come from a partner feed" }],
-    timeline: [{ at: 0, src: [0.8, 12.8] }],
+    // C17: the demo-data line is dropped to pay for the claim card (the callout, chip and footnote still say "demo catalog"; the partner scene says no partner has used it)
+    lines: ["Love a color? Shop the step matches its exact shade to products, using CIEDE2000 color science."],
+    ui: [{ callout: "Hex colors from the step → closest products (ΔE)<br><span class=\"plain\">Finish check: <b>Matches finish</b> on the first lip row</span><br><span class=\"mono\">Demo catalog · real SKUs would come from a partner feed</span>" }],
+    timeline: [{ at: 0, src: [0.8, 6.2] }, { at: { plus: -2.3 }, src: [9.6, 12.0] }],
     // C14 re-take (work-c14 frames-shop, mock --sample, 0 units): the app's sample chip sits under the app bar, the cart bar is gone until an item is added, the first lip row shows
     // the green "Matches finish" chip. List at css y ~567, "View in store" sheet at source 4.0-5.6 s (output = source - 0.8), scrolled rows + demo footnote from ~9.5 s.
-    zoom: [{ at: 0, y: 470 }, { at: 3.2, y: 498 }, { at: 4.9, y: 470 }, { at: { cue: 1 }, y: 400 }],
+    zoom: [{ at: 0, y: 470 }, { at: 3.2, y: 498 }, { at: 4.9, y: 470 }, { at: { plus: -2.3 }, y: 400 }],
   },
   {
     // C3: the /partner retailer view (concept screen, 0 units). C12: the widget is a live iframe on the real /embed/lesson route. C14: "Try your own shade" + the cost calculator.
@@ -646,7 +659,7 @@ function stageHtml(seg, si0, ci, uiOver = {}) {
   .badges{position:absolute;left:${ZX}px;top:${ZY + ZH + 16}px;width:${ZW}px;display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}
   .live{display:flex;align-items:center;gap:9px;background:#c8325b;color:#fff;border-radius:24px;padding:9px 18px;font-size:19px;font-weight:800;line-height:1.1;white-space:nowrap}
   .live i{width:11px;height:11px;border-radius:6px;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.35)}
-  .units{position:absolute;right:16px;top:${-(ZH + 16) + 16}px;box-shadow:0 2px 10px rgba(0,0,0,.18);display:flex;align-items:baseline;gap:8px;background:#fff;border:2px solid #c8325b;border-radius:24px;padding:6px 18px;font-size:17px;font-weight:700;color:#4a403d;white-space:nowrap}
+  .units{display:none;position:absolute;right:16px;top:${-(ZH + 16) + 16}px;box-shadow:0 2px 10px rgba(0,0,0,.18);display:flex;align-items:baseline;gap:8px;background:#fff;border:2px solid #c8325b;border-radius:24px;padding:6px 18px;font-size:17px;font-weight:700;color:#4a403d;white-space:nowrap}
   .units b{font-size:27px;font-weight:800;color:#a8264a;font-variant-numeric:tabular-nums}
   .left{position:absolute;left:64px;top:60px;width:${SCR_X - 64 - 52}px;display:flex;flex-direction:column;gap:22px}
   .kick{font-size:23px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a8264a}
@@ -1056,13 +1069,14 @@ function makeCard(seg, dir) {
     h1{margin:0;font-size:96px;line-height:1.08;font-weight:800;letter-spacing:-.02em;max-width:1800px;white-space:nowrap}
     .chips{display:flex;gap:24px;flex-wrap:wrap;justify-content:center}.chips.stack{flex-direction:column;align-items:center;gap:22px}.chip{background:#fcebe3;color:#a8264a;border-radius:44px;padding:20px 40px;font-size:44px;font-weight:800;border:3px solid #c8325b}.stack .chip{font-size:64px;padding:18px 54px}
     .s{font-size:32px;font-weight:600;color:#6b605c}
+    .capt{position:absolute;left:80px;right:80px;bottom:60px;text-align:center;font-size:38px;font-weight:600;color:#4a403d}
     .cta{display:flex;flex-direction:column;align-items:center;gap:14px;background:#c8325b;color:#fff;border-radius:36px;padding:34px 80px 38px;box-shadow:0 14px 40px rgba(200,50,91,.3)}.cta .u{font-size:124px;font-weight:800;letter-spacing:-.02em;line-height:1.05}.cta .t{font-size:58px;font-weight:700}
     .c.has-cta{gap:30px}.has-cta h1{font-size:72px}.has-cta .chip{font-size:44px;padding:16px 38px}.repo{font-size:54px;font-weight:800;color:#1f1b1a;letter-spacing:-.01em}.repo span{color:#a8264a}
-    </style></head><body><div class="c${c.cta ? " has-cta" : ""}"><div class="k">${esc(c.kicker)}</div><h1>${esc(c.title)}</h1>${c.cta ? `<div class="cta"><div class="u">${esc(c.cta.url)}</div><div class="t">${esc(c.cta.tap)}</div></div>` : ""}${c.repo ? `<div class="repo"><span>Code:</span> ${esc(c.repo)}</div>` : ""}<div class="chips${c.stack ? " stack" : ""}">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div></body></html>`,
+    </style></head><body><div class="c${c.cta ? " has-cta" : ""}"><div class="k">${esc(c.kicker)}</div><h1>${esc(c.title)}</h1>${c.cta ? `<div class="cta"><div class="u">${esc(c.cta.url)}</div><div class="t">${esc(c.cta.tap)}</div></div>` : ""}${c.repo ? `<div class="repo"><span>Code:</span> ${esc(c.repo)}</div>` : ""}<div class="chips${c.stack ? " stack" : ""}">${c.chips.map((x) => `<div class="chip">${esc(x)}</div>`).join("")}</div><div class="s">${esc(c.sub)}</div></div>${c.caption ? `<div class="capt">${esc(seg.lines[0])}</div>` : ""}</body></html>`,
   );
   screenshot(html, png, W, H);
   const out = path.join(dir, `${seg.id}.mp4`);
-  run(FFMPEG, ["-y", "-v", "error", "-loop", "1", "-framerate", String(FPS), "-i", png, "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-t", seg.duration.toFixed(3), "-vf", `scale=${W}:${H}:flags=lanczos,fps=${FPS},format=yuvj420p`, "-r", String(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuvj420p", "-color_range", "pc", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", out]); // yuvj420p/pc like the other segments (concat -c copy keeps the first segment's range)
+  run(FFMPEG, ["-y", "-v", "error", "-loop", "1", "-framerate", String(FPS), "-i", png, ...(seg.audio ? ["-i", seg.audio, "-af", "apad"] : ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"]), "-t", seg.duration.toFixed(3), "-vf", `scale=${W}:${H}:flags=lanczos,fps=${FPS},format=yuvj420p`, "-r", String(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuvj420p", "-color_range", "pc", "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", out]); // yuvj420p/pc like the other segments (concat -c copy keeps the first segment's range)
   seg.cutTimes = [];
   return out;
 }
@@ -1088,6 +1102,7 @@ function applyGeo(g) {
 const outs = [];
 for (const [si, seg] of SEGMENTS.entries()) {
   if (seg.card) {
+    if (seg.lines) await buildAudio(seg, audioDir);
     outs.push(makeCard(seg, segDir));
     log(`${seg.id}: title card, ${seg.duration.toFixed(2)}s`);
     continue;

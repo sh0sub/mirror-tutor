@@ -237,3 +237,11 @@ node scripts/demo/recomposite.mjs --src <record-video 작업 폴더> --work <임
 - 새 marin TTS 줄: hook, split, trial, analyze 1번, live 2번, partner 1번과 3번. partner 문구는 입력값 기준임을 밝힘("Example inputs, no promised lift"; 단가 0.05와 마진 6은 앱 기본 예시값이며 Perfect Corp 가격 아님).
 - 정직 표기: 분석기가 홑꺼풀을 쌍꺼풀로 읽었고 앱 수정 시트에서 고쳤다는 문구를 analyze 나레이션과 확대 패널 라벨에 그대로 둠.
 - 검증: 장면 전환 감지(gt 0.08) 29곳은 세그먼트 경계, 의도한 디졸브, 앱 스크롤/시트뿐. 1초 간격 밀집 프레임에서 어두운/빈/배너 프레임 없음(동의 시트 뒤 딤은 앱 화면), 자막은 나레이션 줄과 같은 문자열. 길이 175.31초(178초 미만).
+
+## 사이클 17 재합성 (176.0초, YouCam 유닛 0 사용, 새 TTS 줄 1개, 센트 단위)
+
+- 소스 프레임 디렉터리: `/private/tmp/claude-501/-Users-lsh-workspace/694b9d85-0502-4f7f-aee6-d069c0ec771f/scratchpad/submit/mirror-tutor/work-c17` (work-c16 복사본, phone 타임라인 경로만 work-c17로 변경, 재녹화 없음). 재합성 작업 디렉터리 `recomp-oai`, 직전 판 `.local/video/mirror-tutor-demo-live-c17prev.mp4`.
+- 확대 패널 아래 유닛 알약(`.units`)을 `display:none`으로 숨김(유닛 근거는 왼쪽 콜아웃과 앱 화면에 남음).
+- 새 `claim` 카드(샘플 탭 직후, 약 6초, 나레이션 포함): "Try-on shows the shade. We teach the technique, grade it, and sell the exact products." 칩 3개(기법 가르침, 시도 채점, 정확한 상품)와 유닛 계산(첫 레슨 14 = 분석 10 + 렌더 4, 이후 레슨 4, 샘플 체험 0). 파일럿 주장 없음. `makeCard`가 `lines`가 있으면 나레이션을 붙임.
+- 시간 보전: shop 장면의 "This catalog is demo data..." 줄을 뺌(13.6 -> 8.0초). 왼쪽 콜아웃에 "Demo catalog · real SKUs would come from a partner feed"를 옮겨 두었고 칩, 영상 끝의 데모 푸터, partner 장면의 "no partner has used it yet"가 그대로 남는다.
+- 검증: 장면 전환 감지 29곳은 세그먼트 경계, 의도한 디졸브, 앱 스크롤/시트뿐. 0.5초 간격 밝기 검사로 어두운 프레임 없음, 스켈레톤/배너/빈 프레임 없음, 자막은 나레이션 줄과 같은 문자열. 길이 175.98초(180초 미만).
