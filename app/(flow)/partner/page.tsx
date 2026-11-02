@@ -7,7 +7,7 @@ import { ProductArt } from "@/components/ProductArt";
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { PRODUCTS } from "@/lib/shop";
-import { PARTNER_KPIS, PARTNER_SHADES, PARTNER_SKU, embedQuery, integrationSnippet, unitEstimate, unitMeter } from "@/lib/partner";
+import { PARTNER_KPIS, PARTNER_SHADES, PARTNER_SKU, breakEven, embedQuery, integrationSnippet, unitEstimate, unitMeter } from "@/lib/partner";
 import { EMBED_NAME_MAX, customProduct, parseCustomShade } from "@/lib/embed";
 
 const demoProduct = PRODUCTS.find((p) => p.sku === PARTNER_SKU)!;
@@ -26,6 +26,9 @@ export default function PartnerPage() {
   const hexBad = hexInput.trim() !== "" && !shade;
   const product = shade ? customProduct(shade) : demoProduct;
   const estimate = unitEstimate(Number(first), Number(repeat));
+  const [price, setPrice] = useState("0.05");
+  const [margin, setMargin] = useState("6");
+  const be = breakEven(estimate.total, Number(price), Number(margin));
   const maxUnits = Math.max(...meter.rows.map((r) => r.units), meter.cap);
 
   const trySample = async () => {
@@ -48,6 +51,25 @@ export default function PartnerPage() {
           </Chip>
           <p className="max-w-[720px] text-[15px] leading-relaxed text-muted">{t("partnerIntro", lang)}</p>
         </div>
+
+        <section aria-labelledby="store-flow" className="flex min-w-0 flex-col gap-3 lg:col-span-2" data-testid="store-strip">
+          <h2 id="store-flow" className="text-[17px] font-extrabold">
+            {t("partnerStoreTitle", lang)}
+          </h2>
+          <ol className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            {(["partnerStore1", "partnerStore2", "partnerStore3"] as const).map((key, i) => (
+              <li key={key} className="flex items-start gap-3 rounded-[var(--radius-panel)] bg-panel p-3">
+                <span className="num flex h-7 w-7 flex-none items-center justify-center rounded-full bg-primary text-sm font-extrabold text-on-primary" aria-hidden>
+                  {i + 1}
+                </span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-sm font-extrabold">{t(key, lang)}</span>
+                  <span className="text-xs leading-relaxed text-muted">{t(`${key}Body` as "partnerStore1Body", lang)}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
 
         {/* fictional product page with the embedded widget */}
         <section aria-label="MT Select" className="flex min-w-0 flex-col gap-4 rounded-[var(--radius-panel)] border border-line bg-panel p-4">
@@ -79,12 +101,9 @@ export default function PartnerPage() {
 
         <div className="flex min-w-0 flex-col gap-6">
           <section aria-labelledby="try-shade" className="flex min-w-0 flex-col gap-3 rounded-[var(--radius-panel)] bg-panel p-4" data-testid="try-shade">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 id="try-shade" className="text-[17px] font-extrabold">
-                {t("partnerTryTitle", lang)}
-              </h2>
-              <Chip tone="warn">{t("partnerTryChip", lang)}</Chip>
-            </div>
+            <h2 id="try-shade" className="text-[17px] font-extrabold">
+              {t("partnerTryTitle", lang)}
+            </h2>
             <p className="text-xs text-muted">{t("partnerTryNote", lang)}</p>
             <div role="group" aria-label={t("partnerTryPalette", lang)} className="flex flex-wrap gap-1.5">
               {PARTNER_SHADES.map((c) => (
@@ -188,6 +207,24 @@ export default function PartnerPage() {
               {tf("partnerCalcTotal", lang, { n: estimate.total.toLocaleString(lang === "ko" ? "ko-KR" : "en-US") })}
             </p>
             <p className="text-xs text-muted">{t("partnerCalcNote", lang)}</p>
+            <div className="flex flex-col gap-3 border-t border-line pt-3" data-testid="break-even">
+              <h3 className="text-sm font-extrabold">{t("partnerBreakTitle", lang)}</h3>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <label className="flex flex-col gap-1 text-sm font-bold">
+                  {t("partnerBreakPrice", lang)}
+                  <input value={price} onChange={(e) => setPrice(e.target.value.replace(/[^\d.]/g, "").slice(0, 8))} inputMode="decimal" className="num min-h-12 rounded-xl border border-line bg-canvas px-3 text-[15px] font-medium" />
+                </label>
+                <label className="flex flex-col gap-1 text-sm font-bold">
+                  {t("partnerBreakMargin", lang)}
+                  <input value={margin} onChange={(e) => setMargin(e.target.value.replace(/[^\d.]/g, "").slice(0, 8))} inputMode="decimal" className="num min-h-12 rounded-xl border border-line bg-canvas px-3 text-[15px] font-medium" />
+                </label>
+              </div>
+              <p className="num text-sm font-bold" aria-live="polite">
+                {tf("partnerBreakCost", lang, { cost: be.cost.toLocaleString(lang === "ko" ? "ko-KR" : "en-US") })}
+                {be.orders !== null && <span className="block text-primary-strong">{tf("partnerBreakOrders", lang, { n: be.orders.toLocaleString(lang === "ko" ? "ko-KR" : "en-US") })}</span>}
+              </p>
+              <p className="text-xs text-muted">{t("partnerBreakNote", lang)}</p>
+            </div>
           </section>
 
           <section aria-labelledby="kpi" className="flex flex-col gap-3 rounded-[var(--radius-panel)] bg-panel p-4">

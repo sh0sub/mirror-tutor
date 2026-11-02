@@ -1,10 +1,11 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AppBar, BottomBar, Button, ButtonLink, Icon, ModeBanner, Screen } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
+import { SampleRecoveryCard, useNoSession, useSampleFill } from "@/components/SampleRecovery";
 import { CARD, drawShareCard, type CardContext } from "@/lib/share/card";
 import { loadHtmlImage } from "@/lib/client/image";
 import { getLesson, LESSONS } from "@/lib/lessons";
@@ -12,10 +13,10 @@ import { valueLabel } from "@/lib/labels";
 
 /** M7 share card: built on a client canvas, never uploaded (privacy ⑥). Face blur on by default. */
 function ShareInner() {
-  const { lang, photo, renders, attempt, grade, gradedLesson, stored, completed, mode, sample, startSample } = useFlow();
-  const router = useRouter();
-  const [starting, setStarting] = useState(false);
+  const { lang, photo, renders, attempt, grade, gradedLesson, stored, completed, mode, sample } = useFlow();
   const lessonId = useSearchParams().get("lesson") ?? "daily-k";
+  useSampleFill(lessonId, { attempt: true, grade: true });
+  const noSession = useNoSession();
   const lesson = getLesson(lessonId);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [blur, setBlur] = useState(true);
@@ -81,36 +82,28 @@ function ShareInner() {
     } else await save();
   };
 
-  const startFromSample = async () => {
-    setStarting(true);
-    try {
-      await startSample();
-      router.push("/analyze");
-    } finally {
-      setStarting(false);
-    }
-  };
-
   const done = LESSONS.filter((l) => completed[l.id]).length;
   const nextLesson = LESSONS.find((l) => !completed[l.id] && l.id !== lessonId) ?? LESSONS.find((l) => !completed[l.id]);
 
   return (
-    <Screen>
+    <Screen wide>
       <AppBar title={t("shareTitle", lang)} backHref={`/grade?lesson=${lessonId}`} />
       <ModeBanner />
-      <main className="flex flex-1 flex-col gap-4 px-4 py-4">
-        <div className="relative mx-auto w-full max-w-[342px]">
+      {/* lg: the card on the left (sticky), toggles + progress + next step on the right (same grid as /analyze); 390 stays one column */}
+      <main className="flex flex-1 flex-col gap-4 px-4 py-4 lg:grid lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:content-start lg:items-start lg:gap-x-8 lg:px-6">
+        <div className="flex flex-col gap-4 lg:sticky lg:top-[72px] lg:col-start-1 lg:row-start-1" data-testid="share-left">
+        <div className="relative mx-auto w-full max-w-[342px] lg:max-w-none">
           <canvas ref={canvasRef} className="aspect-[342/428] w-full rounded-[var(--radius-panel)] bg-panel" role="img" aria-label={`${lesson?.title[lang] ?? ""} ${score ?? ""}`} />
-          {answer && !ready && <div className="skeleton absolute inset-0 rounded-[var(--radius-panel)]" aria-hidden />}
-          {!answer && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-[var(--radius-panel)] bg-panel p-6 text-center" data-testid="share-empty">
-              <Icon name="sparkle" className="h-6 w-6 text-primary-strong" />
-              <p className="text-[15px] font-extrabold">{t("shareEmptyCta", lang)}</p>
-              <p className="text-sm leading-relaxed text-muted">{t("shareEmptyHint", lang)}</p>
+          {(answer ? !ready : !noSession) && <div className="skeleton absolute inset-0 rounded-[var(--radius-panel)]" aria-hidden />}
+          {!answer && noSession && (
+            <div className="absolute inset-0 flex flex-col justify-center rounded-[var(--radius-panel)] bg-panel" data-testid="share-empty">
+              <SampleRecoveryCard />
             </div>
           )}
         </div>
         <p className="text-center text-xs text-muted">{t("cardLocal", lang)}</p>
+        </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-2 lg:row-start-1" data-testid="share-side">
         <div className="flex flex-col divide-y divide-line rounded-[var(--radius-panel)] bg-panel">
           {[
             { label: t("blurFaces", lang), sub: "8px", value: blur, set: setBlur },
@@ -153,13 +146,11 @@ function ShareInner() {
             {toast}
           </p>
         )}
+        </div>
       </main>
-      <BottomBar>
+      <BottomBar className="lg:[&>*]:mx-auto lg:[&>*]:max-w-[480px]">
         {!answer ? (
-          <Button className="w-full" onClick={startFromSample} disabled={starting}>
-            <Icon name="sparkle" className="h-4 w-4" />
-            {t("shareEmptyCta", lang)}
-          </Button>
+          noSession ? <p className="py-2 text-center text-xs text-muted">{t("shareEmptyHint", lang)}</p> : <div className="skeleton h-12 rounded-full" aria-hidden />
         ) : (
           <div className="flex gap-2">
             <Button variant="ghost" className="flex-1" onClick={shareNative} disabled={!ready}>

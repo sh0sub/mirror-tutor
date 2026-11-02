@@ -56,6 +56,25 @@ export function unitEstimate(firstSessions: number, repeatSessions: number, step
   return { first, repeat, total: first * fullFlowCost(stepCount) + repeat * revisitFlowCost(stepCount) };
 }
 
+export interface BreakEven {
+  /** Monthly YouCam cost in the retailer's currency: units x the unit price they enter. */
+  cost: number;
+  /** Extra orders per month whose margin alone would cover that cost (rounded up); null when the margin is not a positive number. */
+  orders: number | null;
+}
+
+/**
+ * Illustrative break-even: only arithmetic on the retailer's own inputs (units from the calculator, their contract unit price, their margin per order).
+ * It does not assume a conversion lift, a return rate or any price of ours.
+ */
+export function breakEven(totalUnits: number, unitPrice: number, marginPerOrder: number): BreakEven {
+  const units = Number.isFinite(totalUnits) ? Math.max(0, totalUnits) : 0;
+  const price = Number.isFinite(unitPrice) ? Math.max(0, unitPrice) : 0;
+  const cost = Math.round(units * price * 100) / 100;
+  const orders = Number.isFinite(marginPerOrder) && marginPerOrder > 0 ? Math.ceil(cost / marginPerOrder) : null;
+  return { cost, orders };
+}
+
 export interface UnitMeterRow {
   id: "first" | "next";
   units: number;

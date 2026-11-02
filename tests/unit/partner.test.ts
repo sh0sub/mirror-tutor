@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { DEFAULT_SESSION_CAP, INTEGRATION_SNIPPET, PARTNER_KPIS, PARTNER_SKU, unitEstimate, unitMeter } from "@/lib/partner";
+import { DEFAULT_SESSION_CAP, INTEGRATION_SNIPPET, PARTNER_KPIS, PARTNER_SKU, breakEven, unitEstimate, unitMeter } from "@/lib/partner";
 import { readConfig } from "@/lib/config";
 import { PRODUCTS } from "@/lib/shop";
 import { MESSAGES, t } from "@/lib/i18n";
@@ -41,5 +41,11 @@ describe("/partner concept page data", () => {
     expect(unitEstimate(1000, 500)).toEqual({ first: 1000, repeat: 500, total: 1000 * 14 + 500 * 4 });
     expect(unitEstimate(-5, Number.NaN).total).toBe(0);
     expect(unitEstimate(1e12, 0).first).toBe(1_000_000);
+  });
+
+  it("break-even is plain arithmetic on the retailer's inputs, with no assumed lift", () => {
+    expect(breakEven(16_000, 0.05, 6)).toEqual({ cost: 800, orders: 134 });
+    expect(breakEven(16_000, 0.05, 0).orders).toBeNull();
+    expect(breakEven(Number.NaN, -1, 5)).toEqual({ cost: 0, orders: 0 });
   });
 });

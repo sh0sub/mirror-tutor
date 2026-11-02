@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { Lang } from "@/lib/rules/engine";
 import type { FaceProfile, ProfileKey, StoredProfile } from "@/lib/profile";
 import { clearProfile, loadProfile, saveProfile } from "@/lib/privacy/profileStore";
-import { fetchCredit, postEndSession, streamRender, type CreditInfo } from "@/lib/client/api";
+import { fetchCredit, postAnalyze, postEndSession, streamRender, type CreditInfo } from "@/lib/client/api";
 import type { StepResult } from "@/lib/services/render";
 import type { FaceAnchors } from "@/lib/regions";
 import type { GradeResult } from "@/lib/grade/types";
@@ -14,6 +14,7 @@ import type { FaceDetection } from "@/lib/client/landmarker";
 import type { FacePins } from "@/lib/facePins";
 import type { SkinMeasure } from "@/lib/skin/measure";
 import { nearestShade } from "@/lib/skin/shades";
+import { loadSampleSession, saveSampleSession } from "@/lib/demo/sampleSession";
 import { DEFAULT_SAMPLE, sampleAttemptFor, sampleModelById, sampleOwnAttempt, type SampleId } from "@/lib/demo/sample";
 import { EMPTY_LOG, clearPractice, loadConsent, loadPractice, recordPractice, saveConsent, savePractice, type PracticeLog } from "@/lib/practice";
 
@@ -68,7 +69,9 @@ interface FlowState {
   /** Which sample face the trial runs on (double-lid or monolid). */
   sampleId: SampleId;
   /** Load a sample model as the photo and enter sample mode (0 units; the server never calls YouCam for it). */
-  startSample: (id?: SampleId) => Promise<void>;
+  startSample: (id?: SampleId, opts?: { withProfile?: boolean }) => Promise<void>;
+  /** True while a reload/deep link restores a sample trial from sessionStorage (routes show a skeleton, not the "start a sample" card). */
+  restoring: boolean;
   /** Sample mode: use the simulated attempt photo (for the lesson's answer image) instead of a new selfie. */
   loadSampleAttempt: (answerImage?: string | null) => Promise<void>;
   mode: ServiceMode | null;
@@ -137,6 +140,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   sampleRef.current = sample;
   const [sampleId, setSampleId] = useState<SampleId>(DEFAULT_SAMPLE);
   const [sampleStored, setSampleStored] = useState<StoredProfile | null>(null);
+  const [restoring, setRestoring] = useState(false);
   const [attempt, setAttempt] = usePhoto();
   // One MediaPipe pass per photo (eye/mouth anchors + skin tone), awaited by render().
   const [detection, setDetection] = useState<{ blob: Blob; result: FaceDetection | null } | null>(null);
@@ -197,7 +201,32 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     setLangState(loadLang(window.localStorage, navigator.language, window.location.search));
     setHydrated(true);
     void fetchCredit().then(setCredit);
+    // A reload inside a sample trial (or a deep link in the same tab) comes back as the same trial; home always starts clean.
+    const snap = window.location.pathname === "/" ? null : loadSampleSession(window.sessionStorage);
+    if (snap) {
+      setRestoring(true);
+      void fetchBlob(sampleModelById(snap.id).original)
+        .then((blob) => {
+          setSampleId(snap.id);
+          setSampleStored(snap.stored);
+          setSample(true);
+          sampleRef.current = true;
+          setPhotoRaw(blob);
+          setMode("sample");
+        })
+        .catch(() => saveSampleSession(window.sessionStorage, null))
+        .finally(() => setRestoring(false));
+    } else if (window.location.pathname === "/") saveSampleSession(window.sessionStorage, null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once on mount
   }, []);
+
+  // Keep the snapshot current while a sample trial runs; leaving the trial (real photo, session end, home) clears it.
+  const wasSample = useRef(false);
+  useEffect(() => {
+    if (sample) saveSampleSession(window.sessionStorage, { id: sampleId, stored: sampleStored });
+    else if (wasSample.current) saveSampleSession(window.sessionStorage, null);
+    wasSample.current = sample;
+  }, [sample, sampleId, sampleStored]);
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -338,11 +367,13 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     [resetRun, setPhotoRaw],
   );
 
-  const startSample = useCallback(async (id: SampleId = DEFAULT_SAMPLE) => {
+  const startSample = useCallback(async (id: SampleId = DEFAULT_SAMPLE, opts?: { withProfile?: boolean }) => {
     const blob = await fetchBlob(sampleModelById(id).original);
+    // Deep-link recovery: the sample's pre-generated profile (0u, same as /analyze in sample mode) so /shop and /grade have a lesson plan at once.
+    const analyzed = opts?.withProfile ? await postAnalyze(null, id) : null;
     setSampleId(id);
     resetRun();
-    setSampleStored(null);
+    setSampleStored(analyzed?.ok ? { profile: analyzed.profile, edited: [], source: analyzed.source } : null);
     setSample(true);
     sampleRef.current = true;
     setPhotoRaw(blob);
@@ -371,10 +402,10 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   const value = useMemo<FlowState>(
     () => ({
       lang, setLang, consented, setConsented, practice, photo, setPhoto, stored: activeStored, hydrated, setStored, editProfile, deleteProfile,
-      anchors, facePins, skin, setSkinShade, sample, sampleId, startSample, loadSampleAttempt, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
+      anchors, facePins, skin, setSkinShade, sample, sampleId, startSample, restoring, loadSampleAttempt, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
       cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession,
     }),
-    [lang, setLang, consented, setConsented, practice, photo, setPhoto, anchors, facePins, skin, setSkinShade, sample, sampleId, startSample, loadSampleAttempt, activeStored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
+    [lang, setLang, consented, setConsented, practice, photo, setPhoto, anchors, facePins, skin, setSkinShade, sample, sampleId, startSample, restoring, loadSampleAttempt, activeStored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

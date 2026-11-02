@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AppBar, BottomBar, ButtonLink, Chip, Icon, ModeBanner, Screen } from "@/components/ui";
 import { SAMPLE_GRADES, sampleAttemptFor } from "@/lib/demo/sample";
 import { useFlow } from "@/components/FlowProvider";
+import { SampleRecoveryCard, useNoSession, useSampleFill } from "@/components/SampleRecovery";
 import { PhotoPins, type PhotoPin } from "@/components/PhotoPins";
 import { t } from "@/lib/i18n";
 import { postGrade } from "@/lib/client/api";
@@ -39,9 +40,11 @@ function useCountUp(on: boolean, ms: number): number {
 
 /** M4: answer (step 4) vs my attempt → per-region scores, one-line tips, confidence. 0 YouCam units. */
 function GradeInner() {
-  const { lang, attempt, renders, grade, setGrade, gradedLesson, setGradedLesson, markCompleted, sample } = useFlow();
+  const { lang, attempt, renders, grade, setGrade, gradedLesson, setGradedLesson, markCompleted, sample, photo } = useFlow();
   const router = useRouter();
   const lessonId = useSearchParams().get("lesson") ?? "daily-k";
+  useSampleFill(lessonId, { attempt: true });
+  const noSession = useNoSession();
   const answerState = renders[lessonId]?.[4];
   const answer = answerState?.status === "done" ? answerState.image : null;
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +55,8 @@ function GradeInner() {
 
   useEffect(() => {
     if (!attempt || !answer) {
+      // No session at all (cold deep link) → the recovery card; a sample trial fills answer + attempt itself (useSampleFill).
+      if (sample || !photo) return;
       router.replace(answer ? `/capture?for=attempt&lesson=${lessonId}` : `/lesson?id=${lessonId}`);
       return;
     }
@@ -85,7 +90,7 @@ function GradeInner() {
         if (r.comparable && r.total !== null) markCompleted(lessonId, r.total);
       }
     })();
-  }, [attempt, answer, lessonId, router, setGrade, setGradedLesson, markCompleted, sample]);
+  }, [attempt, answer, lessonId, router, setGrade, setGradedLesson, markCompleted, sample, photo]);
 
   const result: GradeResult | null = gradedLesson === lessonId ? grade : null;
   const pinsNow = attempt && attemptPins?.blob === attempt.blob ? attemptPins.pins : null;
@@ -121,10 +126,17 @@ function GradeInner() {
   const confLabel = result ? t(result.confidence === "high" ? "confHigh" : result.confidence === "medium" ? "confMedium" : "confLow", lang) : "";
 
   return (
-    <Screen>
+    <Screen wide>
       <AppBar title={t("gradeTitle", lang)} backHref={`/lesson?id=${lessonId}`} />
       <ModeBanner />
-      <main className="flex flex-1 flex-col gap-4 px-4 py-4">
+      {noSession ? (
+        <main className="flex flex-1 flex-col px-4 py-4">
+          <SampleRecoveryCard />
+        </main>
+      ) : (
+      // lg: both photos + the score on the left (sticky), per-region fixes on the right (same grid as /analyze); 390 stays one column
+      <main className="flex flex-1 flex-col gap-4 px-4 py-4 lg:grid lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:content-start lg:items-start lg:gap-x-8 lg:px-6">
+        <div className="flex flex-col gap-4 lg:sticky lg:top-[72px] lg:col-start-1 lg:row-start-1" data-testid="grade-left">
         <div className="grid grid-cols-2 gap-2">
           {[
             { src: answer, label: `${t("answer", lang)} · 4` },
@@ -144,6 +156,40 @@ function GradeInner() {
           )}
         </div>
 
+        {result && result.comparable && result.total !== null && (
+          <>
+            <section className="flex items-center gap-4 rounded-[var(--radius-panel)] bg-panel p-4" aria-label={`${result.total} / 100`}>
+              <div className="relative h-20 w-20 flex-none">
+                <svg viewBox="0 0 36 36" className="h-20 w-20 -rotate-90" aria-hidden>
+                  <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-panel-2)" strokeWidth="3.5" />
+                  <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-primary)" strokeWidth="3.5" strokeDasharray={`${(shown(result.total) / 100) * 97.4} 97.4`} strokeLinecap="round" />
+                </svg>
+                <span className="num absolute inset-0 flex flex-col items-center justify-center leading-none">
+                  <span className="text-2xl font-extrabold">{shown(result.total)}</span>
+                  <span className="mt-0.5 text-xs font-bold text-muted">{t("outOf100", lang)}</span>
+                </span>
+              </div>
+              <div className="flex min-w-0 flex-col gap-1">
+                <p className="text-xs font-bold text-muted">{t("gradeDone", lang)}</p>
+                <p className="text-lg font-extrabold">{scoreBand(result.total)[lang]}</p>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Chip tone={result.confidence === "high" ? "ok" : "warn"}>
+                    {t("confidence", lang)} {confLabel}
+                  </Chip>
+                  {result.confidenceReason && <span className="text-xs text-muted">{result.confidenceReason[lang]}</span>}
+                </div>
+              </div>
+            </section>
+            {sample && (
+              <p data-testid="sample-attempt-note" className="flex items-start gap-2 rounded-xl bg-panel-2 p-3 text-xs font-medium leading-relaxed text-muted">
+                <Icon name="info" className="mt-0.5 h-4 w-4 flex-none" />
+                {t("sampleAttemptNote", lang)}
+              </p>
+            )}
+          </>
+        )}
+        </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-2 lg:row-start-1" data-testid="grade-side">
         {!result && !error && sampleFast && (
           <div data-testid="sample-comparing" className="flex flex-col gap-2 rounded-[var(--radius-panel)] bg-panel p-4" role="status" aria-live="polite">
             <p className="text-sm font-bold text-muted">{t("gradeComparing", lang)}</p>
@@ -177,35 +223,6 @@ function GradeInner() {
 
         {result && result.comparable && result.total !== null && (
           <>
-            <section className="flex items-center gap-4 rounded-[var(--radius-panel)] bg-panel p-4" aria-label={`${result.total} / 100`}>
-              <div className="relative h-20 w-20 flex-none">
-                <svg viewBox="0 0 36 36" className="h-20 w-20 -rotate-90" aria-hidden>
-                  <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-panel-2)" strokeWidth="3.5" />
-                  <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-primary)" strokeWidth="3.5" strokeDasharray={`${(shown(result.total) / 100) * 97.4} 97.4`} strokeLinecap="round" />
-                </svg>
-                <span className="num absolute inset-0 flex flex-col items-center justify-center leading-none">
-                  <span className="text-2xl font-extrabold">{shown(result.total)}</span>
-                  <span className="mt-0.5 text-xs font-bold text-muted">{t("outOf100", lang)}</span>
-                </span>
-              </div>
-              <div className="flex min-w-0 flex-col gap-1">
-                <p className="text-xs font-bold text-muted">{t("gradeDone", lang)}</p>
-                <p className="text-lg font-extrabold">{scoreBand(result.total)[lang]}</p>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <Chip tone={result.confidence === "high" ? "ok" : "warn"}>
-                    {t("confidence", lang)} {confLabel}
-                  </Chip>
-                  {result.confidenceReason && <span className="text-xs text-muted">{result.confidenceReason[lang]}</span>}
-                </div>
-              </div>
-            </section>
-            {sample && (
-              <p data-testid="sample-attempt-note" className="flex items-start gap-2 rounded-xl bg-panel-2 p-3 text-xs font-medium leading-relaxed text-muted">
-                <Icon name="info" className="mt-0.5 h-4 w-4 flex-none" />
-                {t("sampleAttemptNote", lang)}
-              </p>
-            )}
-
             <ul className="flex flex-col gap-2">
               {result.regions.map((r) => (
                 <li key={r.region}>
@@ -246,7 +263,10 @@ function GradeInner() {
             <p className="text-center text-xs text-muted">{t(result?.grader === "landmark" ? "gradeFootnoteLandmark" : "gradeFootnote", lang)}</p>
           </>
         )}
+        </div>
       </main>
+      )}
+      {!noSession && (
       <BottomBar>
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
@@ -266,6 +286,7 @@ function GradeInner() {
           )}
         </div>
       </BottomBar>
+      )}
     </Screen>
   );
 }

@@ -8,6 +8,7 @@ import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { buildLesson, getLesson } from "@/lib/lessons";
 import { INVISIBLE_DELTA, matchStepEffects, PRODUCTS, storeUrl, type Product } from "@/lib/shop";
+import { SampleRecoveryCard, useNoSession, useSampleFill } from "@/components/SampleRecovery";
 import { ProductArt } from "@/components/ProductArt";
 import { CATEGORY_REGION, REGIONS } from "@/lib/regions";
 
@@ -22,12 +23,14 @@ function ShopInner() {
   const [leaving, setLeaving] = useState<Product | null>(null);
 
   const skinShade = mode === "demo" ? null : (skin?.shadeId ?? null); // foundation step → the personalized shade
+  useSampleFill(lessonId);
+  const noSession = useNoSession();
   const plan = useMemo(() => (stored && lesson ? buildLesson(lesson.id, stored.profile, { skinShade }) : null), [stored, lesson, skinShade]);
   if (!plan || !lesson) {
     return (
       <Screen>
         <AppBar title={t("shopTitle", lang)} backHref="/" />
-        <p className="p-6 text-center text-muted">{t("noImage", lang)}</p>
+        {noSession ? <SampleRecoveryCard className="m-4" /> : <div className="skeleton m-4 h-64 rounded-[var(--radius-panel)]" aria-hidden />}
       </Screen>
     );
   }
