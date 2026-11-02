@@ -2,6 +2,12 @@
 
 Track: **eCommerce VTO**. (Face Attribute & Ratio Analysis is a supporting input, not a separate track.)
 
+## Judge in 60 seconds
+
+- **Misread and fix:** Face Analyzer read our monolid stock model as double-lid; one tap corrects it and the technique changes (/compare?lang=en shows both lessons side by side).
+- **Answer key and grading:** Makeup VTO renders each step as the answer key; your real attempt is graded per region with CIEDE2000 (scores are deterministic on the landmark path, and the LLM only phrases the one-line correction text).
+- **Retailer fit, no pilot:** one iframe widget, 14 YouCam units for a first lesson and 4 after; no pilot exists, so /partner?lang=en carries a two-week A/B test plan (a plan, not a result).
+
 **Why a brand pays:** try-on shows the shade; Mirror Tutor teaches the technique on the shopper's own face, grades the real attempt, and ends in the exact products, as a drop-in widget priced at 14 YouCam units for a first lesson and 4 for each later one.
 
 ## Pitch
@@ -18,6 +24,8 @@ Buyer: a beauty retailer or brand that sells try-on on its product pages. Try-on
 - **Drop-in today:** `/embed/lesson?sku=...` (or `?hex=...&name=...` for a shade outside our demo catalog), a chrome-less iframe: stepper, bare/finished slider, the shade matched to the lesson color with CIEDE2000, then the lesson's own products to the cart (the store handles checkout).
 - **Worked example first:** /partner opens with 2,000 first lessons x 14 + 6,000 repeat visits x 4 = 52,000 units a month, and break-even is N = ceil(52,000 x your unit price / margin per order) extra orders. The counts are illustrative and no unit price is assumed.
 - **Break-even from your inputs:** /partner turns your session counts into monthly units and, with your own unit price and margin per order, into the extra orders needed to break even. Example inputs only, no assumed traffic, conversion or price. The KPI to measure is shop-the-step conversion against a plain product page; we found no independent data on eyelid-specific tutorial demand and claim none.
+
+- **Two-week retailer test (a plan, not a result):** 50/50 A/B on one lip SKU; primary metric add-to-cart per product-page session, secondary lesson completion to step 4 and shop-the-step clicks; n per arm = 16p(1-p)/d^2, about 6,144 sessions per arm at an illustrative 4% baseline and a 1 pt lift; success is a lift of 1 pt or more, otherwise stop; widget-arm cost is at most 86,016 units (14 per first lesson). The baseline is illustrative, not measured.
 
 ## Try it (no selfie, 0 units)
 
@@ -73,7 +81,7 @@ Pipeline (`docs/pipeline.svg`): Face Analyzer (10 units, once) -> rule table (0)
 - **Face Attribute & Ratio Analysis** (`POST /s2s/v2.0/task/face-attr-analysis`): five features, 10 units, with `face_angle_strictness_level: flexible`, because the default `high` rejected both stock test photos.
 - **Makeup VTO** (`POST /s2s/v2.0/task/makeup-vto`): `skin_smooth`, `foundation`, `eyebrows`, `eye_shadow`, `eye_liner`, `blush`, `contour`, `lip_color`. Request builders are tested against recorded live bodies (`docs/api-notes.md`).
 - **On-device measurement:** the foundation shade is read from the cheeks in the browser, and MediaPipe Face Landmarker computes per-region CIELAB means (eyeliner, eyelid, cheeks, lips) on landmark polygons; the photo never leaves the device for this step. No outcome is claimed from it.
-- **Grading:** those per-region CIELAB means feed the grader; the server computes CIEDE2000 and Claude (claude-opus-5-5) writes the one-line corrections from those numbers (text only). A fixed-box fallback grader runs if MediaPipe cannot.
+- **Grading:** those per-region CIELAB means feed the grader; the server computes CIEDE2000 and the scores, and Claude (claude-opus-5-5) writes only the one-line corrections from those numbers (text only). If MediaPipe cannot run, a fixed-box fallback grader is used and there Claude's vision scoring may set the region scores.
 - **Privacy:** no image stored server-side, nothing logged, share card drawn on the device. A reload keeps a sample trial in the tab's sessionStorage (sample id and the 5 attributes only).
 
 ## What's next
@@ -90,5 +98,5 @@ Next.js, React, TypeScript, Tailwind CSS, YouCam API (Face Attribute & Ratio Ana
 - Live demo: https://mirror-tutor.vercel.app/?lang=en (if the YouCam balance is low it shows pre-generated sample models and says so)
 - Retailer view: https://mirror-tutor.vercel.app/partner?lang=en ; widget: https://mirror-tutor.vercel.app/embed/lesson?sku=MT-VT-07&lang=en
 - Source code: https://github.com/sh0sub/mirror-tutor (public, MIT)
-- Video: YouTube link (add after upload). About 2:46 (166.4 s), faceless (stock photos only); it opens with the monolid vs double-lid split ("Same look, different lid", landmark technique overlay), then the hook and a short card ("Try-on shows the shade. We teach the technique, grade it, and sell the exact products."); the real tap on "Try with a sample model" follows, then the first analysis screen with zoom panels on the raw Double-lid reading and the Edited chip; the grade scene ends with the in-browser "Try it" shade chip (Lips to "Same as answer": lips 64 to 100, total 79 to 88, same CIEDE2000 grader, 0 units); the partner scene shows the worked-example monthly cost card (illustrative visit counts, no price assumed) and the calculator; the share scene states that a selfie is blurred by default while stock samples are not, and the shop scene says the catalog is a demo catalog with fictional SKUs; a later scene shows a live Face Analyzer call on a stock monolid face (unit counter 883 -> 873, 10 units; it read Double-lid again).
+- Video: YouTube link (add after upload). About 2:46 (166.4 s), faceless (stock photos only). It opens with the monolid vs double-lid split, then the hook, a real tap on the sample trial, the analyzer misread and its one-tap fix, the lesson, grading, shop and the retailer view; the live Face Analyzer call (10 units, 883 -> 873) is shown on a stock monolid face. Every scene is labelled live or pre-generated (0 units).
 - Test images: `public/demo/model-a`, `model-b` (Pexels License), `model-c` (Unsplash License); `model-a/sample-attempt.jpg` is a simulated attempt derived from model-a's answer image

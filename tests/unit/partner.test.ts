@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { EXAMPLE_FIRST_SESSIONS, EXAMPLE_REPEAT_SESSIONS, DEFAULT_SESSION_CAP, INTEGRATION_SNIPPET, PARTNER_KPIS, PARTNER_SKU, breakEven, unitEstimate, unitMeter } from "@/lib/partner";
+import { EXAMPLE_FIRST_SESSIONS, EXAMPLE_REPEAT_SESSIONS, DEFAULT_SESSION_CAP, INTEGRATION_SNIPPET, PARTNER_KPIS, PARTNER_SKU, breakEven, sampleSizePerArm, testUnitCeiling, TEST_BASELINE, TEST_LIFT, unitEstimate, unitMeter } from "@/lib/partner";
 import { readConfig } from "@/lib/config";
 import { PRODUCTS } from "@/lib/shop";
 import { MESSAGES, t } from "@/lib/i18n";
@@ -54,5 +54,20 @@ describe("/partner concept page data", () => {
     const page = readFileSync("app/(flow)/partner/page.tsx", "utf8");
     expect(page.indexOf('data-testid="partner-example"')).toBeLessThan(page.indexOf('data-testid="store-strip"'));
     for (const lang of ["ko", "en"] as const) expect(t("partnerExampleBreak", lang)).not.toMatch(/\$|원\s*\d|0\.05/);
+  });
+
+  it("the two-week test: n = 16p(1-p)/d^2, about 6,100 per arm at 4% and 1 pt, labelled a plan", () => {
+    expect(sampleSizePerArm(TEST_BASELINE, TEST_LIFT)).toBe(6144);
+    expect(sampleSizePerArm(0, 0.01)).toBe(0);
+    expect(sampleSizePerArm(0.04, 0)).toBe(0);
+    expect(testUnitCeiling(6144)).toBe(6144 * 14);
+    for (const lang of ["ko", "en"] as const) {
+      expect(t("partnerTestTag", lang)).toBeTruthy();
+      expect(t("partnerTestNote", lang)).toMatch(lang === "en" ? /not measured/ : /측정값이 아니/);
+    }
+    expect(MESSAGES.partnerTestTag.en).toMatch(/plan, not a result/i);
+    const page = readFileSync("app/(flow)/partner/page.tsx", "utf8");
+    expect(page.indexOf('data-testid="partner-example"')).toBeLessThan(page.indexOf('data-testid="retailer-test"'));
+    expect(page).toContain('scrolling="no"');
   });
 });

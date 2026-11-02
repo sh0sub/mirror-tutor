@@ -78,7 +78,9 @@ export const FACE_NAME: Record<FaceProfile["eyelid"], Text> = {
   hooded: { ko: "덮이는 눈꺼풀 얼굴", en: "Hooded-lid face" },
 };
 
-export function sourceCaption(raw: string): string {
-  // A source already wrapped in parentheses (the "(not recorded)" placeholder) must not get a second pair from the caller.
+export function sourceCaption(raw: string, notRecorded?: string): string {
+  // A "(not recorded)" source means the capture kept no raw value (the profile holds the default): show the caller's plain wording instead.
+  if (notRecorded && /^\(?\s*not recorded\s*\)?$/i.test(raw.trim())) return notRecorded;
+  // A source already wrapped in parentheses must not get a second pair from the caller.
   return Array.from(new Set(raw.split("/").map((s) => s.trim().replace(/^\(([^()]*)\)$/, "$1").trim()).filter(Boolean))).join(" / ");
 }

@@ -222,10 +222,13 @@ export default function AnalyzePage() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-muted">
-                          {ATTR_NAME[k][lang]} <span className="font-normal">· {k}</span>
+                          {ATTR_NAME[k][lang]}{" "}
+                          <code title={t("apiKeyTip", lang)} className="ml-0.5 rounded bg-panel-2 px-1 py-px font-mono text-[10px] font-medium text-muted">
+                            {k}
+                          </code>
                         </p>
                         <p className="text-[16px] font-extrabold leading-snug">{valueLabel(k, v, lang)}</p>
-                        {stored.source?.[k] && !stored.edited.includes(k) && <p className="text-xs text-muted">({sourceCaption(stored.source[k])})</p>}
+                        {stored.source?.[k] && !stored.edited.includes(k) && <p className="text-xs text-muted">({sourceCaption(stored.source[k], tf("sourceDefaultValue", lang, { v: valueLabel(k, v, lang) }))})</p>}
                         {stored.edited.includes(k) && (
                           <span className="mt-1 inline-flex">
                             <Chip tone="accent">{t("edited", lang)}</Chip>

@@ -97,3 +97,18 @@ export function unitMeter(stepCount = 4): { rows: UnitMeterRow[]; cap: number } 
 
 /** KPIs to measure. Names only: the page shows "no data yet" for each, never a made-up value. */
 export const PARTNER_KPIS = ["partnerKpi1", "partnerKpi2", "partnerKpi3"] as const;
+
+/** Two-week retailer test (a plan, not a result): illustrative baseline and the lift that would justify the widget. */
+export const TEST_BASELINE = 0.04;
+export const TEST_LIFT = 0.01;
+
+/** Sessions per arm for a two-proportion test at about 80% power and alpha 0.05: n = 16 p (1-p) / d^2 (Lehr's rule of thumb). */
+export function sampleSizePerArm(baseline: number, lift: number): number {
+  if (!(baseline > 0 && baseline < 1) || !(lift > 0)) return 0;
+  return Math.round((16 * baseline * (1 - baseline)) / (lift * lift));
+}
+
+/** Upper bound on widget-arm units: every session treated as a first lesson (14 units). */
+export function testUnitCeiling(perArm: number): number {
+  return unitEstimate(perArm, 0).total;
+}

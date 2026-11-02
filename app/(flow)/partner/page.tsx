@@ -7,11 +7,12 @@ import { ProductArt } from "@/components/ProductArt";
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { PRODUCTS } from "@/lib/shop";
-import { EXAMPLE_FIRST_SESSIONS, EXAMPLE_REPEAT_SESSIONS, PARTNER_KPIS, PARTNER_SHADES, PARTNER_SKU, breakEven, embedQuery, integrationSnippet, unitEstimate, unitMeter } from "@/lib/partner";
+import { EXAMPLE_FIRST_SESSIONS, EXAMPLE_REPEAT_SESSIONS, PARTNER_KPIS, PARTNER_SHADES, PARTNER_SKU, TEST_BASELINE, TEST_LIFT, breakEven, embedQuery, integrationSnippet, sampleSizePerArm, testUnitCeiling, unitEstimate, unitMeter } from "@/lib/partner";
 import { EMBED_NAME_MAX, customProduct, parseCustomShade } from "@/lib/embed";
 
 const demoProduct = PRODUCTS.find((p) => p.sku === PARTNER_SKU)!;
 const meter = unitMeter();
+const testPerArm = sampleSizePerArm(TEST_BASELINE, TEST_LIFT);
 
 /** Concept screen for the buyer (a beauty retailer): the lesson widget on a fictional product page, the integration line, the unit cost and the KPIs to measure. */
 export default function PartnerPage() {
@@ -104,7 +105,7 @@ export default function PartnerPage() {
               <Icon name="sparkle" className="h-4 w-4" />
               {t("partnerWidgetTitle", lang)}
             </p>
-            <iframe src={`/embed/lesson?${embedQuery(shade)}&lang=${lang}`} title={t("partnerWidgetTitle", lang)} className="mx-auto h-[640px] w-full max-w-[360px] rounded-xl border-0" loading="lazy" />
+            <iframe src={`/embed/lesson?${embedQuery(shade)}&lang=${lang}`} title={t("partnerWidgetTitle", lang)} scrolling="no" className="mx-auto h-[640px] w-full max-w-[360px] overflow-hidden rounded-xl border-0" loading="lazy" />
             <Button className="w-full" onClick={trySample} disabled={busy}>
               {t("partnerWidgetCta", lang)}
             </Button>
@@ -257,6 +258,24 @@ export default function PartnerPage() {
             </ul>
           </section>
         </div>
+
+        <section aria-labelledby="retailer-test" className="flex min-w-0 flex-col gap-2 rounded-[var(--radius-panel)] border-2 border-primary/30 bg-panel p-4 lg:col-span-2" data-testid="retailer-test">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="retailer-test" className="text-[17px] font-extrabold">
+              {t("partnerTestTitle", lang)}
+            </h2>
+            <Chip tone="warn">{t("partnerTestTag", lang)}</Chip>
+          </div>
+          <ul className="flex flex-col gap-1.5 text-sm leading-relaxed">
+            <li>{t("partnerTestDesign", lang)}</li>
+            <li className="font-bold">{t("partnerTestPrimary", lang)}</li>
+            <li>{t("partnerTestSecondary", lang)}</li>
+            <li className="num">{tf("partnerTestSize", lang, { p: String(TEST_BASELINE * 100), d: String(TEST_LIFT * 100), n: fmt(testPerArm) })}</li>
+            <li className="font-bold text-primary-strong">{tf("partnerTestRule", lang, { d: String(TEST_LIFT * 100) })}</li>
+            <li className="num">{tf("partnerTestCost", lang, { n: fmt(testPerArm), u: fmt(testUnitCeiling(testPerArm)) })}</li>
+          </ul>
+          <p className="text-xs leading-relaxed text-muted">{t("partnerTestNote", lang)}</p>
+        </section>
 
         <ButtonLink href="/" variant="ghost" className="w-full lg:col-span-2">
           {t("back", lang)}

@@ -137,6 +137,13 @@ function LessonInner() {
           }
         />
 
+        {showFixNudge && (
+          <p data-testid="lesson-uncorrected-line" className="mx-4 mt-2 flex items-start gap-1.5 text-xs font-bold leading-snug text-warning lg:mx-0">
+            <Icon name="warn" className="mt-px h-3.5 w-3.5 flex-none" />
+            {t("lessonUncorrectedLine", lang)}
+          </p>
+        )}
+
         <nav aria-label={t("stepsNav", lang)} className="flex items-center justify-between gap-1 px-4 py-3">
           {plan.steps.map((s) => {
             const st = steps[s.index];
