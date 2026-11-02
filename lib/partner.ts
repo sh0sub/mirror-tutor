@@ -41,6 +41,10 @@ export function integrationSnippet(shade: { hex: string; name: string } | null):
   style="border:0" loading="lazy"></iframe>`;
 }
 
+/** The worked example shown first on /partner (and pre-filled in the calculator): illustrative session counts, not traffic data. */
+export const EXAMPLE_FIRST_SESSIONS = 2000;
+export const EXAMPLE_REPEAT_SESSIONS = 6000;
+
 export interface UnitEstimate {
   first: number;
   repeat: number;

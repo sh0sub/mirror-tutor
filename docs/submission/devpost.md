@@ -16,6 +16,7 @@ Buyer: a beauty retailer or brand that sells try-on on its product pages. Try-on
 
 - **One checkable number:** a first lesson costs **14 YouCam units** (10 analysis + 4 renders), every later lesson **4**, session cap 20. The baseline it must beat is the **4.3%** blended beauty-retail return rate (PYMNTS, 27 Feb 2024, citing National Retail Federation data: https://www.pymnts.com/news/ecommerce/2024/perfect-corp-ar-try-on-reduces-returns-for-ecommerce-beauty-brands/). That rate is demand context, not a result for our app.
 - **Drop-in today:** `/embed/lesson?sku=...` (or `?hex=...&name=...` for a shade outside our demo catalog), a chrome-less iframe: stepper, bare/finished slider, the shade matched to the lesson color with CIEDE2000, then the lesson's own products to the cart (the store handles checkout).
+- **Worked example first:** /partner opens with 2,000 first lessons x 14 + 6,000 repeat visits x 4 = 52,000 units a month, and break-even is N = ceil(52,000 x your unit price / margin per order) extra orders. The counts are illustrative and no unit price is assumed.
 - **Break-even from your inputs:** /partner turns your session counts into monthly units and, with your own unit price and margin per order, into the extra orders needed to break even. Example inputs only, no assumed traffic, conversion or price. The KPI to measure is shop-the-step conversion against a plain product page; we found no independent data on eyelid-specific tutorial demand and claim none.
 
 ## Try it (no selfie, 0 units)
@@ -62,7 +63,7 @@ Also: Korean and English UI, per-session and daily unit caps, a render cache, an
 ## Accomplishments that we're proud of
 
 - A misread caught and fixed in one tap, and the whole lesson changes; a real attempt graded per region with CIEDE2000 against the VTO answer; an embeddable widget at 0 units.
-- 248 tests (32 files) run offline against recorded API bodies; typecheck and lint are clean.
+- 251 tests (32 files) run offline against recorded API bodies; typecheck and lint are clean.
 
 ## How we built it
 

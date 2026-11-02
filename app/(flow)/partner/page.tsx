@@ -7,7 +7,7 @@ import { ProductArt } from "@/components/ProductArt";
 import { useFlow } from "@/components/FlowProvider";
 import { t, tf } from "@/lib/i18n";
 import { PRODUCTS } from "@/lib/shop";
-import { PARTNER_KPIS, PARTNER_SHADES, PARTNER_SKU, breakEven, embedQuery, integrationSnippet, unitEstimate, unitMeter } from "@/lib/partner";
+import { EXAMPLE_FIRST_SESSIONS, EXAMPLE_REPEAT_SESSIONS, PARTNER_KPIS, PARTNER_SHADES, PARTNER_SKU, breakEven, embedQuery, integrationSnippet, unitEstimate, unitMeter } from "@/lib/partner";
 import { EMBED_NAME_MAX, customProduct, parseCustomShade } from "@/lib/embed";
 
 const demoProduct = PRODUCTS.find((p) => p.sku === PARTNER_SKU)!;
@@ -20,8 +20,8 @@ export default function PartnerPage() {
   const [busy, setBusy] = useState(false);
   const [hexInput, setHexInput] = useState("");
   const [nameInput, setNameInput] = useState("");
-  const [first, setFirst] = useState("1000");
-  const [repeat, setRepeat] = useState("500");
+  const [first, setFirst] = useState(String(EXAMPLE_FIRST_SESSIONS));
+  const [repeat, setRepeat] = useState(String(EXAMPLE_REPEAT_SESSIONS));
   const shade = parseCustomShade(hexInput, nameInput);
   const hexBad = hexInput.trim() !== "" && !shade;
   const product = shade ? customProduct(shade) : demoProduct;
@@ -29,6 +29,8 @@ export default function PartnerPage() {
   const [price, setPrice] = useState("0.05");
   const [margin, setMargin] = useState("6");
   const be = breakEven(estimate.total, Number(price), Number(margin));
+  const example = unitEstimate(EXAMPLE_FIRST_SESSIONS, EXAMPLE_REPEAT_SESSIONS);
+  const fmt = (n: number) => n.toLocaleString(lang === "ko" ? "ko-KR" : "en-US");
   const maxUnits = Math.max(...meter.rows.map((r) => r.units), meter.cap);
 
   const trySample = async () => {
@@ -51,6 +53,16 @@ export default function PartnerPage() {
           </Chip>
           <p className="max-w-[720px] text-[15px] leading-relaxed text-muted">{t("partnerIntro", lang)}</p>
         </div>
+
+        <section aria-labelledby="example" className="flex min-w-0 flex-col gap-1.5 rounded-[var(--radius-panel)] border-2 border-primary/30 bg-panel p-4 lg:col-span-2" data-testid="partner-example">
+          <h2 id="example" className="text-xs font-bold text-primary-strong">
+            {t("partnerExampleTitle", lang)}
+          </h2>
+          <p className="num text-3xl font-extrabold leading-tight">{tf("partnerExampleTotal", lang, { n: fmt(example.total) })}</p>
+          <p className="num text-sm font-bold">{tf("partnerExampleSessions", lang, { first: fmt(example.first), repeat: fmt(example.repeat) })}</p>
+          <p className="num text-sm font-bold text-primary-strong">{tf("partnerExampleBreak", lang, { n: fmt(example.total) })}</p>
+          <p className="text-xs leading-relaxed text-muted">{t("partnerExampleNote", lang)}</p>
+        </section>
 
         <section aria-labelledby="store-flow" className="flex min-w-0 flex-col gap-3 lg:col-span-2" data-testid="store-strip">
           <h2 id="store-flow" className="text-[17px] font-extrabold">

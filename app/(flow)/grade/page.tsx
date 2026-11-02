@@ -79,11 +79,16 @@ function TryShades({
               data-testid={`shade-${region}-${c.id}`}
               aria-pressed={on}
               aria-label={`${c.label} ${c.hex}`}
-              title={c.label}
+              title={`${c.label} ${c.hex}`}
               onClick={() => onPick(c.id === "sim" ? null : c.hex)}
-              className={`flex h-11 w-11 flex-none items-center justify-center rounded-full border-2 ${on ? "border-ink" : "border-line-strong/40"}`}
+              className={`flex h-11 flex-none items-center justify-center gap-1.5 rounded-full border-2 ${on ? "border-ink pl-1 pr-3" : "w-11 border-line-strong/40"}`}
             >
-              <span className="block h-8 w-8 rounded-full" style={{ background: c.hex }} />
+              <span className="block h-8 w-8 flex-none rounded-full border border-ink/10" style={{ background: c.hex }} />
+              {on && (
+                <span className="num whitespace-nowrap text-xs font-bold leading-tight" data-testid={`shade-name-${region}`}>
+                  {c.label} <span className="font-medium text-muted">{c.hex}</span>
+                </span>
+              )}
             </button>
           );
         })}
@@ -92,6 +97,18 @@ function TryShades({
         {picked ? `${t("tryColorRecomputed", lang)} · ΔE2000 · ${chips.find((c) => c.hex === picked)?.label ?? ""}` : t("tryColorOriginal", lang)}
       </p>
     </div>
+  );
+}
+
+/** "+12" / "−5" / "±0" next to a region score after the visitor re-picks that region's shade. */
+function DeltaBadge({ d, lang, region }: { d: number; lang: "ko" | "en"; region: GradeRegion }) {
+  const up = d > 0;
+  const text = d > 0 ? `+${d}` : d < 0 ? `−${-d}` : "±0";
+  const label = d > 0 ? tf("tryColorDeltaUp", lang, { n: d }) : d < 0 ? tf("tryColorDeltaDown", lang, { n: -d }) : t("tryColorDeltaSame", lang);
+  return (
+    <span data-testid={`delta-${region}`} role="status" aria-label={label} title={label} className={`num rounded-full px-2 py-0.5 text-xs font-extrabold ${d === 0 ? "bg-panel-2 text-muted" : up ? "bg-success-soft text-success" : "bg-warning-soft text-warning"}`}>
+      {text}
+    </span>
   );
 }
 
@@ -184,6 +201,11 @@ function GradeInner() {
   const sampleFast = sample && !!SAMPLE_GRADES[sampleAttemptFor(answer) ?? ""];
   const count = useCountUp(!!result?.comparable && sampleFast, COUNT_MS);
   const shown = (n: number) => (sampleFast ? Math.round(n * count) : n);
+  /** Score change vs the simulated attempt's own score, only for regions the visitor re-picked. */
+  const delta = (region: GradeRegion, score: number): number | null => {
+    const base = baseResult?.regions.find((x) => x.region === region);
+    return picks[region] && base ? score - base.score : null;
+  };
   const confLabel = result ? t(result.confidence === "high" ? "confHigh" : result.confidence === "medium" ? "confMedium" : "confLow", lang) : "";
 
   return (
@@ -216,6 +238,24 @@ function GradeInner() {
             ),
           )}
         </div>
+
+        {result?.comparable && result.regions.some((r) => r.answerHex && r.attemptHex) && (
+          <section data-testid="grade-legend" aria-label={t("gradeLegendTitle", lang)} className="flex flex-col gap-1.5 rounded-xl bg-panel-2 p-3">
+            <p className="text-xs font-bold text-muted">{t("gradeLegendTitle", lang)}</p>
+            <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+              {result.regions.map((r) =>
+                r.answerHex && r.attemptHex ? (
+                  <li key={r.region} className="flex min-w-0 items-center gap-1.5 text-xs font-bold">
+                    <span className="h-4 w-4 flex-none rounded-full border border-line-strong/50" style={{ background: r.answerHex }} role="img" aria-label={`${t("gradeLegendAnswer", lang)} ${r.answerHex}`} />
+                    <span className="h-4 w-4 flex-none rounded-full border border-line-strong/50" style={{ background: r.attemptHex }} role="img" aria-label={`${t("gradeLegendAttempt", lang)} ${r.attemptHex}`} />
+                    <span className="min-w-0">{REGION_NAME[r.region][lang]}</span>
+                  </li>
+                ) : null,
+              )}
+            </ul>
+            <p className="text-xs text-muted">{t("gradeLegendKey", lang)}</p>
+          </section>
+        )}
 
         {result && result.comparable && result.total !== null && (
           <>
@@ -304,7 +344,10 @@ function GradeInner() {
                     <span className="min-w-0 flex-1">
                       <span className="flex items-baseline justify-between gap-2">
                         <span className="font-bold">{REGION_NAME[r.region][lang]}</span>
-                        <span className="num text-lg font-extrabold">{shown(r.score)}</span>
+                        <span className="flex items-center gap-2">
+                          {delta(r.region, r.score) !== null && <DeltaBadge d={delta(r.region, r.score)!} lang={lang} region={r.region} />}
+                          <span className="num text-lg font-extrabold">{shown(r.score)}</span>
+                        </span>
                       </span>
                       <span className="mt-1 block h-1.5 rounded-full bg-panel-2">
                         <span className={`block h-1.5 rounded-full ${r.score >= 80 ? "bg-success" : "bg-warning"}`} style={{ width: `${shown(r.score)}%`, transition: sampleFast ? "none" : "width 400ms" }} />
@@ -349,7 +392,7 @@ function GradeInner() {
             <ButtonLink href={`/capture?for=attempt&lesson=${lessonId}`} variant="ghost" className="flex-1">
               {t("retake", lang)}
             </ButtonLink>
-            <ButtonLink href={`/shop?lesson=${lessonId}&step=4`} className="flex-[1.4]">
+            <ButtonLink href={`/shop?lesson=${lessonId}&step=1`} className="flex-[1.4]">
               <Icon name="bag" className="h-4 w-4" />
               {t("seeProducts", lang)}
             </ButtonLink>

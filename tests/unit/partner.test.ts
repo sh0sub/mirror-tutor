@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { DEFAULT_SESSION_CAP, INTEGRATION_SNIPPET, PARTNER_KPIS, PARTNER_SKU, breakEven, unitEstimate, unitMeter } from "@/lib/partner";
+import { EXAMPLE_FIRST_SESSIONS, EXAMPLE_REPEAT_SESSIONS, DEFAULT_SESSION_CAP, INTEGRATION_SNIPPET, PARTNER_KPIS, PARTNER_SKU, breakEven, unitEstimate, unitMeter } from "@/lib/partner";
 import { readConfig } from "@/lib/config";
 import { PRODUCTS } from "@/lib/shop";
 import { MESSAGES, t } from "@/lib/i18n";
@@ -47,5 +47,12 @@ describe("/partner concept page data", () => {
     expect(breakEven(16_000, 0.05, 6)).toEqual({ cost: 800, orders: 134 });
     expect(breakEven(16_000, 0.05, 0).orders).toBeNull();
     expect(breakEven(Number.NaN, -1, 5)).toEqual({ cost: 0, orders: 0 });
+  });
+
+  it("the worked example at the top is 2,000 first + 6,000 repeat = 52,000 units, with no assumed price", () => {
+    expect(unitEstimate(EXAMPLE_FIRST_SESSIONS, EXAMPLE_REPEAT_SESSIONS).total).toBe(52_000);
+    const page = readFileSync("app/(flow)/partner/page.tsx", "utf8");
+    expect(page.indexOf('data-testid="partner-example"')).toBeLessThan(page.indexOf('data-testid="store-strip"'));
+    for (const lang of ["ko", "en"] as const) expect(t("partnerExampleBreak", lang)).not.toMatch(/\$|원\s*\d|0\.05/);
   });
 });

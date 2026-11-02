@@ -80,6 +80,20 @@ body {
   }
 }
 
+/* /analyze monolid sample: the Eyelid card pulses twice when the page nudges the visitor to it. */
+@keyframes mt-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+.mt-pulse {
+  animation: mt-pulse 0.9s ease-in-out 2;
+}
+
 .skeleton {
   background: linear-gradient(90deg, var(--color-panel-2), var(--color-line), var(--color-panel-2));
   background-size: 200% 100%;

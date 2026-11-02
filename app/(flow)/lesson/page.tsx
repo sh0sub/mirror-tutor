@@ -71,6 +71,15 @@ function LessonInner() {
     void render(id);
   }, [photo, stored, id, renders, render, router]);
 
+  // A6: on the eye step the nudge sits under the photo, behind the fixed bottom bar on a phone → bring it fully into view (once per step visit).
+  const nudgeRef = useRef<HTMLDivElement>(null);
+  const nudgeActive = !!plan && !!photo && plan.steps[k - 1]?.region === "eye_lid" && monoSampleNeedsFix(sample, sampleId, stored);
+  useEffect(() => {
+    if (!nudgeActive) return;
+    const id = window.setTimeout(() => nudgeRef.current?.scrollIntoView({ block: "nearest", behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }), 350);
+    return () => window.clearTimeout(id);
+  }, [nudgeActive, k]);
+
   if (!plan || !lesson || !photo) return <Screen>{null}</Screen>;
   const step = plan.steps[k - 1];
   const state = steps[k];
@@ -182,10 +191,10 @@ function LessonInner() {
             </p>
             <p className="mt-1 text-[16px] font-bold leading-snug">{step.instruction[lang]}</p>
             {showFixNudge && (
-              <div data-testid="lesson-fix-nudge" className="mt-2 flex flex-col gap-2 rounded-xl bg-warning-soft p-3 text-sm font-bold text-warning">
-                <p className="flex items-start gap-2 leading-snug">
+              <div ref={nudgeRef} data-testid="lesson-fix-nudge" className="mt-2 flex scroll-mb-44 flex-col gap-2 rounded-xl bg-warning-soft p-3 text-sm font-bold text-warning">
+                <p className="flex items-start gap-2 whitespace-normal break-words leading-snug">
                   <Icon name="warn" className="mt-0.5 h-4 w-4 flex-none" />
-                  {t("lessonFixNudge", lang)}
+                  <span className="min-w-0 flex-1">{t("lessonFixNudge", lang)}</span>
                 </p>
                 <Button variant="ghost" className="self-start" onClick={() => setFixOpen(true)}>
                   <Icon name="pencil" className="h-4 w-4" />

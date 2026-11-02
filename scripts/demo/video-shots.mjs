@@ -307,7 +307,7 @@ export const SEGMENTS = [
       "The catalog is demo data; a partner feed would supply real products.",
     ],
     actions: [
-      { tap: { sel: "a", text: "See products" } },
+      { tap: { sel: "a", text: "Shop these" } },
       { wait: "location.pathname === '/shop' && !!document.querySelector('section[aria-label] button[aria-pressed]')" },
       { scrollPast: "header ~ p[role=status]" }, // mock/sample banner (absent in live mode) goes behind the app bar
       { sleep: 1.6 },

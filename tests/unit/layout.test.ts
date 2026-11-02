@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { MESSAGES } from "@/lib/i18n";
 
 const src = (p: string) => readFileSync(path.resolve(import.meta.dirname, "../..", p), "utf8");
 
@@ -46,5 +47,25 @@ describe("responsive layout guards", () => {
     expect(s).toContain("lang-pending");
     expect(src("app/globals.css")).toContain("html.lang-pending body");
     expect(src("components/FlowProvider.tsx")).toContain('classList.remove("lang-pending")');
+  });
+});
+
+describe("C21 guidance on the monolid trial and the grade try-it", () => {
+  it("analyze scrolls to and pulses the Eyelid card once; the lesson nudge scrolls into view above the bottom bar", () => {
+    const a = src("app/(flow)/analyze/page.tsx");
+    expect(a).toContain("scrollIntoView");
+    expect(a).toContain("mt-pulse");
+    expect(src("app/globals.css")).toContain("@keyframes mt-pulse");
+    const l = src("app/(flow)/lesson/page.tsx");
+    expect(l).toContain("scroll-mb-44");
+    expect(l).toContain("nudgeRef.current?.scrollIntoView");
+  });
+
+  it("grade shows the picked shade name+hex, a score delta badge, a region color legend and the 'Shop these 4 colors' button", () => {
+    const g = src("app/(flow)/grade/page.tsx");
+    expect(g).toContain("shade-name-");
+    expect(g).toContain("delta-${region}");
+    expect(g).toContain('data-testid="grade-legend"');
+    expect(MESSAGES.seeProducts.en).toBe("Shop these 4 colors");
   });
 });

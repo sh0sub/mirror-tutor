@@ -79,6 +79,24 @@ export default function AnalyzePage() {
   const monoSample = sample && sampleId === "model-c" && phase.kind === "done" && !!stored;
   const needsFix = monoSample && stored!.profile.eyelid !== "monolid" && !stored!.edited.includes("eyelid");
   const fixed = monoSample && stored!.profile.eyelid === "monolid" && stored!.edited.includes("eyelid");
+  // A6: the Eyelid card is the proof of the monolid claim; on a short phone it sits under the fold, so once per visit scroll it into view and pulse it.
+  const fixNoticeRef = useRef<HTMLDivElement>(null);
+  const eyelidCardRef = useRef<HTMLButtonElement>(null);
+  const nudged = useRef(false);
+  const [pulse, setPulse] = useState(false);
+  useEffect(() => {
+    if (!needsFix || nudged.current) return;
+    const id = window.setTimeout(() => {
+      nudged.current = true;
+      const card = eyelidCardRef.current;
+      if (card && card.getBoundingClientRect().bottom > window.innerHeight - 150) {
+        const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+        fixNoticeRef.current?.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+      }
+      setPulse(true);
+    }, 600);
+    return () => window.clearTimeout(id);
+  }, [needsFix]);
   const doneChip = phase.kind === "done" && !!stored;
   const badge = useMemo(
     () => (doneChip ? { node: <Chip tone="ok">{t("analyzeDone", lang)}</Chip>, w: estimateLabelWidth(t("analyzeDone", lang), 12, 10) + 18, h: 24 } : undefined),
@@ -173,7 +191,7 @@ export default function AnalyzePage() {
         {phase.kind === "done" && stored && (
           <>
             {needsFix && (
-              <div data-testid="sample-mono-fix" role="status" className="flex flex-col gap-2 rounded-[var(--radius-panel)] border border-primary/30 bg-peach-soft p-3">
+              <div ref={fixNoticeRef} data-testid="sample-mono-fix" role="status" className="flex scroll-mt-20 flex-col gap-2 rounded-[var(--radius-panel)] border border-primary/30 bg-peach-soft p-3">
                 <p className="flex items-start gap-2 text-sm font-bold leading-snug text-ink">
                   <Icon name="info" className="mt-0.5 h-4 w-4 flex-none text-primary-strong" />
                   {t("sampleMonoFix", lang)}
@@ -195,8 +213,11 @@ export default function AnalyzePage() {
                   <li key={k} className={wide ? "min-[380px]:col-span-2" : undefined}>
                     <button
                       type="button"
+                      ref={wide ? eyelidCardRef : undefined}
+                      data-testid={wide ? "eyelid-card" : undefined}
+                      data-pulse={wide && needsFix && pulse ? "on" : undefined}
                       onClick={() => setEditing(k)}
-                      className={`flex h-full min-h-[72px] w-full items-center gap-2 rounded-[var(--radius-panel)] border bg-panel p-3 text-left hover:bg-panel-2 ${wide ? "border-peach" : "border-transparent"} ${wide && needsFix ? "ring-2 ring-primary" : ""}`}
+                      className={`flex h-full min-h-[72px] w-full items-center gap-2 rounded-[var(--radius-panel)] border bg-panel p-3 text-left hover:bg-panel-2 ${wide ? "border-peach" : "border-transparent"} ${wide && needsFix ? "ring-2 ring-primary" : ""} ${wide && needsFix && pulse ? "mt-pulse" : ""}`}
                       aria-label={`${ATTR_NAME[k][lang]}: ${valueLabel(k, v, lang)}. ${t("editTitle", lang)}`}
                     >
                       <div className="min-w-0 flex-1">
