@@ -5,7 +5,7 @@
 **Mirror Tutor teaches makeup on your own face.** YouCam Face Analyzer reads your features, a hand-written rule table picks the technique for them, YouCam Makeup VTO renders every lesson step on your photo as the answer key, and you grade your real attempt against it.
 
 Entry to the Perfect Corp **YouCam API VTO Hackathon** (track: eCommerce VTO).
-Live demo: https://mirror-tutor.vercel.app (see [Demo mode](#demo-mode-and-unit-guard)).
+Live demo: https://mirror-tutor.vercel.app/?lang=en (see [Demo mode](#demo-mode-and-unit-guard)).
 
 **Try it in 30 seconds (0 units, no selfie)**
 1. No selfie needed - 30 s walk-through. Open https://mirror-tutor.vercel.app/?lang=en (English UI; non-Korean browsers start in English anyway) and tap the filled button "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛"). "Use my own selfie" is the secondary button. Above it, pick a sample face: **Monolid** (default) or **Double-lid**.
@@ -139,7 +139,7 @@ YOUCAM_MODE=live npx tsx scripts/demo/generate.ts   # pre-generate public/demo/m
 ## Tests
 
 ```bash
-npm test    # vitest: unit + integration (tests/), no network, no units (204 tests in 27 files)
+npm test    # vitest: unit + integration (tests/), no network, no units (235 tests in 30 files)
 ```
 
 Covers the rule table and lesson labels against the real pattern catalog, quality gate, unit guard, request builders against recorded live response bodies, privacy sanitizing, grading, shop matching, share card layout, i18n and an end-to-end core flow on the mock transport.

@@ -140,13 +140,37 @@ function CaptureInner() {
   const pass = camera === "on" && q?.pass;
   const issue = shown?.issues[0];
   const pct = Math.round((shown?.faceWidth ?? 0) * 100);
+  const cameraOff = camera === "off" && hydrated && (consented || forAttempt);
 
   return (
-    <Screen>
+    <Screen wide>
       <AppBar title={forAttempt ? t("captureAttemptTitle", lang) : t("captureTitle", lang)} backHref={forAttempt ? `/lesson${lesson ? `?id=${lesson}` : ""}` : "/"} />
       <ModeBanner />
-      <main className="flex flex-1 flex-col">
-        <div className="relative mx-auto mt-3 aspect-[3/4] w-full overflow-hidden bg-ink">
+      <main className={`flex flex-1 flex-col ${cameraOff ? "" : "lg:grid lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:items-center lg:gap-10 lg:px-8"}`}>
+        {cameraOff && (
+          <section className="mx-auto my-6 w-full max-w-[560px] lg:max-w-[700px] px-4 lg:my-16" aria-live="polite">
+            <div className="rounded-2xl border border-line bg-panel p-6 text-center shadow-sm lg:p-10">
+              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-peach-soft text-primary-strong">
+                <Icon name="camera" className="h-7 w-7" />
+              </span>
+              <p className="mx-auto mt-4 max-w-[34ch] break-keep text-base font-bold leading-snug">{forAttempt ? t("cameraOff", lang) : t("cameraOffCard", lang)}</p>
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+                {!forAttempt && (
+                  <Button className="flex-[3]" onClick={trySample} disabled={sampleBusy} data-testid="camera-off-sample">
+                    <Icon name="user" className="h-4 w-4" />
+                    {t("sampleTry", lang)}
+                  </Button>
+                )}
+                <Button variant={forAttempt ? "primary" : "ghost"} className="flex-[2] whitespace-nowrap" onClick={() => fileRef.current?.click()} disabled={busy}>
+                  <Icon name="upload" className="h-4 w-4" />
+                  {t("upload", lang)}
+                </Button>
+              </div>
+              {!forAttempt && <p className="mt-3 text-xs text-muted">{t("sampleTryHint", lang)}</p>}
+            </div>
+          </section>
+        )}
+        <div className={`relative mx-auto mt-3 aspect-[3/4] w-full overflow-hidden bg-ink lg:mt-6 lg:rounded-2xl ${cameraOff ? "hidden" : ""}`}>
           <video
             ref={videoRef}
             playsInline
@@ -155,10 +179,10 @@ function CaptureInner() {
             style={{ transform: `scale(${-digitalZoom}, ${digitalZoom})` }} /* mirrored preview + digital zoom */
             aria-label={t("captureTitle", lang)}
           />
-          {camera !== "on" && (
+          {camera === "starting" && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center text-canvas">
               <Icon name="camera" className="h-10 w-10" />
-              <p className="text-sm">{camera === "starting" ? t("checking", lang) : t("cameraOff", lang)}</p>
+              <p className="text-sm">{t("checking", lang)}</p>
             </div>
           )}
           {/* guide oval: dashed = 60% target width; solid = current face width */}
@@ -219,20 +243,31 @@ function CaptureInner() {
             </div>
           )}
         </div>
-        <p className="break-keep px-4 pt-4 text-center text-sm text-muted">{forAttempt ? t("captureAttemptHint", lang) : t("captureHint", lang)}</p>
-        {!forAttempt && (
-          <button
-            type="button"
-            onClick={trySample}
-            disabled={sampleBusy}
-            className="mx-auto mt-1 inline-flex min-h-12 items-center gap-1.5 px-4 text-sm font-bold text-primary-strong underline underline-offset-4 disabled:text-muted"
-          >
-            <Icon name="user" className="h-4 w-4" />
-            {t("sampleTry", lang)}
-          </button>
+        {!cameraOff && (
+          <div className="flex flex-col lg:items-start lg:gap-3">
+            <p className="break-keep px-4 pt-4 text-center text-sm text-muted lg:px-0 lg:pt-0 lg:text-left lg:text-base">{forAttempt ? t("captureAttemptHint", lang) : t("captureHint", lang)}</p>
+            {!forAttempt && (
+              <>
+                <button
+                  type="button"
+                  onClick={trySample}
+                  disabled={sampleBusy}
+                  className="mx-auto mt-1 inline-flex min-h-12 items-center gap-1.5 px-4 text-sm font-bold text-primary-strong underline underline-offset-4 disabled:text-muted lg:hidden"
+                >
+                  <Icon name="user" className="h-4 w-4" />
+                  {t("sampleTry", lang)}
+                </button>
+                <Button variant="soft" className="hidden lg:inline-flex" onClick={trySample} disabled={sampleBusy}>
+                  <Icon name="user" className="h-4 w-4" />
+                  {t("sampleTry", lang)}
+                </Button>
+                <p className="hidden text-sm text-muted lg:block">{t("sampleTryHint", lang)}</p>
+              </>
+            )}
+          </div>
         )}
       </main>
-      <BottomBar>
+      <BottomBar className={cameraOff ? "hidden" : ""}>
         <div className="flex gap-2">
           <Button variant="ghost" className="flex-1 whitespace-nowrap px-3" onClick={() => fileRef.current?.click()} disabled={busy}>
             <Icon name="upload" className="h-4 w-4" />

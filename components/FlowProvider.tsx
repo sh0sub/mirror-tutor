@@ -232,6 +232,10 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = lang;
   }, [lang]);
 
+  useEffect(() => {
+    if (hydrated) document.documentElement.classList.remove("lang-pending");
+  }, [hydrated]);
+
   const refreshCredit = useCallback(() => void fetchCredit().then(setCredit), []);
 
   const setStored = useCallback((p: StoredProfile | null) => {

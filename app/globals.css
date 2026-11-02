@@ -91,3 +91,14 @@ body {
   word-break: keep-all;
   overflow-wrap: break-word;
 }
+
+/* first paint in English for non-Korean browsers: see LANG_PRELOAD in layout.tsx */
+html.lang-pending body {
+  visibility: hidden;
+  animation: lang-reveal 0s 1.2s forwards;
+}
+@keyframes lang-reveal {
+  to {
+    visibility: visible;
+  }
+}

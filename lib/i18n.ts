@@ -39,6 +39,7 @@ const DICT = {
   looksGood: { ko: "좋아요", en: "Looks good" },
   shutter: { ko: "촬영", en: "Take photo" },
   upload: { ko: "사진 올리기", en: "Upload photo" },
+  cameraOffCard: { ko: "이 기기에서는 카메라를 쓸 수 없어요. 샘플 모델로 바로 체험하거나 사진을 올려 보세요.", en: "No camera on this device. Try the full flow with a sample model, or upload a photo." },
   cameraOff: { ko: "카메라를 쓸 수 없어요. 사진을 올려 주세요.", en: "Camera unavailable. Please upload a photo." },
   checking: { ko: "사진 확인 중…", en: "Checking photo…" },
   analyzeTitle: { ko: "내 얼굴 읽기", en: "Reading your face" },

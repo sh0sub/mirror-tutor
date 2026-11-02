@@ -31,4 +31,20 @@ describe("responsive layout guards", () => {
   it("lesson: summary card keeps a bottom margin so the intensity chips clear the sticky bar", () => {
     expect(src("app/(flow)/lesson/page.tsx")).toContain("mx-4 mb-4 flex flex-col gap-3");
   });
+
+  it("C1 capture: camera-off swaps the black box for a card with a filled sample CTA beside Upload; lg puts the CTA beside the preview", () => {
+    const s = src("app/(flow)/capture/page.tsx");
+    expect(s).toContain("<Screen wide>");
+    expect(s).toContain('data-testid="camera-off-sample"');
+    expect(s).toContain('cameraOff ? "hidden" : ""'); // video box and ring hidden
+    expect(s).toMatch(/lg:grid lg:grid-cols-\[minmax\(0,420px\)_minmax\(0,1fr\)\]/);
+  });
+
+  it("S1 first paint: layout pre-sets the English pending class using the same rules as loadLang", () => {
+    const s = src("app/layout.tsx");
+    expect(s).toContain('getItem("mt.lang")');
+    expect(s).toContain("lang-pending");
+    expect(src("app/globals.css")).toContain("html.lang-pending body");
+    expect(src("components/FlowProvider.tsx")).toContain('classList.remove("lang-pending")');
+  });
 });

@@ -2,11 +2,19 @@
 
 Track: **eCommerce VTO**. (Face Attribute & Ratio Analysis is a supporting input, not a separate track.)
 
-## Tagline (<= 200 characters)
+## Pitch
 
-Makeup tutorials fit someone else's face. Mirror Tutor reads your features with YouCam, renders every lesson step on your own photo, then grades your real attempt and shows the products.
+- **Problem:** makeup tutorials are filmed on someone else's face, so a monolid and a double lid get the same advice, and a shopper who tries a shade still does not know how to wear it.
+- **YouCam features used:** Face Attribute & Ratio Analysis reads the eyelid, eye, lip, face and brow (a visible rule table turns that into the technique, and you can correct a misread), and Makeup VTO renders every lesson step on your own photo as the answer key your real attempt is graded against.
+- **Buyer metric:** a retailer that sells try-on gets a drop-in widget that ends in the lesson's own products, so the number to watch is shop-the-step conversion and returns (beauty returns run 4.3%), at a known cost of 4 YouCam units per extra lesson.
 
-(Character count: 186.)
+## Why a brand pays
+
+Buyer: a beauty retailer or brand that sells try-on on its product pages. Try-on answers "how does this shade look on me", not "how do I wear it".
+
+- **One checkable number:** a first lesson costs **14 YouCam units** (10 analysis + 4 renders), every later lesson **4**, session cap 20. The baseline it must beat is the **4.3%** blended beauty-retail return rate (PYMNTS, 27 Feb 2024, citing National Retail Federation data: https://www.pymnts.com/news/ecommerce/2024/perfect-corp-ar-try-on-reduces-returns-for-ecommerce-beauty-brands/). That rate is demand context, not a result for our app.
+- **Drop-in today:** `/embed/lesson?sku=...` (or `?hex=...&name=...` for a shade outside our demo catalog), a chrome-less iframe: stepper, bare/finished slider, the shade matched to the lesson color with CIEDE2000, then the lesson's own products to the cart (the store handles checkout).
+- **Break-even from your inputs:** /partner turns your session counts into monthly units and, with your own unit price and margin per order, into the extra orders needed to break even. Example inputs only, no assumed traffic, conversion or price. The KPI to measure is shop-the-step conversion against a plain product page; we found no independent data on eyelid-specific tutorial demand and claim none.
 
 ## Try it (no selfie, 0 units)
 
@@ -15,16 +23,7 @@ Makeup tutorials fit someone else's face. Mirror Tutor reads your features with 
 - **Two faces side by side:** https://mirror-tutor.vercel.app/compare?lang=en
 - Deep links (`/shop`, `/grade`, `/share`) opened cold or reloaded offer the same one-tap sample trial, so no page is a dead end.
 
-## Honest notes (read these first)
-
-- **Analyzer misread, corrected by hand:** Face Analyzer read our monolid stock model as double-lid. The Monolid sample replays this: the analysis shows the real, wrong reading, the fix is the visitor's tap ("Fix the eyelid", marked "Edited"), and the corrected lesson is real pre-generated renders. Without the fix the same sample plays the lesson for the uncorrected reading, also real renders. /compare shows both.
-- **No pilot:** no retailer, user test or measured lift exists. The idea that a shopper who has seen the look on their own face in the exact catalog shade returns fewer products is a hypothesis, untested. The monolid horizontal-gradient rule is a rule of thumb from public tutorials, not a Perfect Corp result.
-- **Demo catalog:** 18 fictional "MT Select" SKUs, not a partner feed. The store on /partner is fictional; the `/embed/lesson` widget is real.
-- **Live vs pre-generated:** the sample trial and /compare play back real YouCam calls captured live (14 units for the first lesson) at 0 units, and a banner says so on every screen. A selfie on the live site runs the live path.
-- **Simulated attempt:** the sample grade scores a labelled, simulated attempt (the answer image with each region shifted off-shade by `scripts/demo/make-sample-attempt.ts`). Scores are real CIEDE2000 differences between those two images (total 79 for both samples), computed offline with the on-device landmark grader. Grading your own selfie runs live.
-- **Faces:** all are Pexels or Unsplash License stock photos, not real users.
-
-## How deeply we use YouCam
+## How we use YouCam
 
 | YouCam API | What we do with it | Units |
 |---|---|---|
@@ -36,18 +35,17 @@ Makeup tutorials fit someone else's face. Mirror Tutor reads your features with 
 
 **This is not a wrapper:** the analyzer's output feeds a visible rule table instead of being displayed, VTO output is the grading reference, and the foundation shade is measured on the device from your cheeks and passed into the VTO foundation effect.
 
+## Honest notes
+
+- **Analyzer misread, corrected by hand:** Face Analyzer read our monolid stock model as double-lid. The Monolid sample shows that real, wrong reading, the fix is the visitor's tap ("Fix the eyelid", marked "Edited"), and /compare shows both lessons.
+- **No pilot:** no retailer, user test or measured lift exists; fewer returns after seeing the look in the exact shade is a hypothesis. The monolid horizontal-gradient rule is a rule of thumb from public tutorials, not a Perfect Corp result.
+- **Demo catalog:** 18 fictional "MT Select" SKUs and a fictional store on /partner; the `/embed/lesson` widget itself is real.
+- **Pre-generated sample vs live:** the sample trial and /compare play back real YouCam calls captured live (14 units for the first lesson) at 0 units, and a banner says so on every screen. A selfie on the live site runs the live path.
+- **Simulated attempt:** the sample grade scores a labelled, simulated attempt (the answer image with each region shifted off-shade). The CIEDE2000 differences are real (total 79 for both samples); grading your own selfie runs live on your device.
+
 ## Inspiration
 
 A gradient eyeshadow that works on a double eyelid can look muddy on a monolid, and a wrong eyelid reading from AI changes the technique the shopper is taught. We wanted a tutorial that starts from your face, lets you correct the reading in one tap, checks your result, and turns each step's color into the exact product to buy.
-
-## Why a brand pays
-
-Buyer: a beauty retailer or brand that sells try-on on its product pages. Try-on answers "how does this shade look on me", not "how do I wear it".
-
-- **Drop-in today:** `/embed/lesson?sku=...` (or `?hex=...&name=...` for a shade outside our demo catalog), a chrome-less iframe: stepper, bare/finished slider, the shade matched to the lesson color with CIEDE2000. Flow in a store: product page widget, lesson, add the lesson's own products to the cart (the store handles checkout).
-- **Unit cost is known:** 14 YouCam units for a first lesson (10 analysis + 4 renders), 4 for each later lesson, session cap 20. /partner turns your session counts into monthly units and, with your own unit price and margin per order, into the extra orders needed to break even. Example inputs only, no assumed traffic, conversion or price.
-- **Pricing and KPI (hypothesis):** per session, set to cover YouCam units plus margin; measure shop-the-step conversion against a plain product page.
-- **Demand context, not proof for our app:** PYMNTS (27 Feb 2024, citing National Retail Federation data) reports "the blended return rate for beauty retail purchases is 4.3%". Source: https://www.pymnts.com/news/ecommerce/2024/perfect-corp-ar-try-on-reduces-returns-for-ecommerce-beauty-brands/. We found no independent data on eyelid-specific tutorial demand and claim none.
 
 ## How it works
 
@@ -61,7 +59,7 @@ Also: Korean and English UI, per-session and daily unit caps, a render cache, an
 ## Accomplishments that we're proud of
 
 - A misread caught and fixed in one tap, and the whole lesson changes; a real attempt graded per region with CIEDE2000 against the VTO answer; an embeddable widget at 0 units.
-- 233 tests (30 files) run offline against recorded API bodies; typecheck and lint are clean.
+- 235 tests (30 files) run offline against recorded API bodies; typecheck and lint are clean.
 
 ## How we built it
 
