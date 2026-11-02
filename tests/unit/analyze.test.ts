@@ -68,7 +68,7 @@ describe("analyzeFace service (mock transport)", () => {
     expect(r.mode).toBe("mock");
     expect(r.profile.eyelid).toBe("monolid");
     expect(r.recommendation.lessonId).toBe("daily-k");
-    expect(r.units).toMatchObject({ spent: 10, sessionSpent: 10, sessionCap: 20, remaining: 990 });
+    expect(r.units).toMatchObject({ spent: 10, sessionSpent: 10, sessionCap: 24, remaining: 990 });
     expect(t.calls).toMatchObject({ createFile: 1, put: 1, runTask: { "face-attr-analysis": 1 } });
     const clean = (await sanitizeImage(img)).bytes;
     expect(rt.fileIds.get(sha256(clean))).toMatch(/^mock-file-/);

@@ -4,6 +4,7 @@ import { LESSONS } from "./lessons";
 import { ISSUE_MESSAGE, guideText, type GuideKey } from "./quality/messages";
 import table from "./rules/techniques.json";
 import type { Text } from "./rules/engine";
+import { BASE_RULES, CONCERN_NAME, LEVEL_NAME } from "./skin/concerns";
 
 /** One ko/en pair with a stable id ("dict.start", "rules.eye.monolid.why", …). */
 export interface I18nEntry {
@@ -35,6 +36,9 @@ export function collectEntries(): I18nEntry[] {
   walk("value", VALUE_LABEL, out);
   walk("hint", VALUE_HINT, out);
   walk("rules", { eye: table.eye, eyeShape: table.eyeShape, lip: table.lip, cheek: table.cheek, contour: table.contour, brow: table.brow }, out);
+  walk("skin.concern", CONCERN_NAME, out);
+  walk("skin.level", LEVEL_NAME, out);
+  walk("skin.rule", BASE_RULES, out);
   for (const l of LESSONS) {
     walk(`lesson.${l.id}`, { title: l.title, summary: l.summary }, out);
     for (const s of l.steps) walk(`lesson.${l.id}.${s.id}`, { title: s.title, instruction: s.instruction }, out);

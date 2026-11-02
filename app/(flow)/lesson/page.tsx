@@ -14,6 +14,8 @@ import { monoSampleNeedsFix } from "@/lib/demo/sample";
 import { techniqueDir } from "@/lib/eyeOverlay";
 import { guideText } from "@/lib/quality/messages";
 import { regionBoxes } from "@/lib/regions";
+import { baseChanges } from "@/lib/skin/concerns";
+import { skinReasonLine } from "@/components/SkinCheckCard";
 import { stepDotKind, type StepDotKind } from "@/lib/stepper";
 
 /** The 3:4 photo is object-cover in the box, so only this fraction of its height is visible (box 4:5 → 0.9375, 7:8 → 0.857). */
@@ -41,7 +43,7 @@ function dotClass(s: StepState | undefined, kind: StepDotKind) {
 
 /** M3 lesson player: skeleton → sequential reveal, before/after slider, step card with "왜 당신은" reasons and hex swatches. */
 function LessonInner() {
-  const { lang, photo, anchors, eyeOverlay, skin, stored, renders, render, mode, scales, setStepScale, sample, sampleId, loadSampleAttempt, editProfile } = useFlow();
+  const { lang, photo, anchors, eyeOverlay, skin, stored, renders, render, mode, scales, setStepScale, sample, sampleId, loadSampleAttempt, editProfile, skinCheck } = useFlow();
   const [attemptBusy, setAttemptBusy] = useState(false);
   const router = useRouter();
   const id = useSearchParams().get("id") ?? "daily-k";
@@ -94,6 +96,8 @@ function LessonInner() {
   const eyelid = stored?.profile.eyelid ?? "double";
   // A1: a visitor who skipped the correction on /analyze would get the double-lid technique here, so nudge on the eye step
   const showFixNudge = step.region === "eye_lid" && monoSampleNeedsFix(sample, sampleId, stored);
+  // Skin check (opt-in) -> the Base step's reason chip and prep tips; nothing changes for a visitor who skipped it.
+  const skinChanges = step.region === "base" ? baseChanges(skinCheck) : [];
   const boxes = regionBoxes(step.region, mode === "demo" ? null : anchors);
 
   return (
@@ -249,6 +253,23 @@ function LessonInner() {
             </div>
             <p className="text-xs text-muted">{t(sample ? "samplePreviewCost" : "intensityCost", lang)}</p>
           </fieldset>
+          {skinChanges.length > 0 && (
+            <div className="rounded-xl bg-peach-soft p-3" data-testid="skin-reason">
+              <p className="flex min-h-10 items-center gap-2 text-sm font-extrabold text-primary-strong">
+                <Icon name="sparkle" className="h-4 w-4 flex-none" />
+                {t("whyYou", lang)}: {t("skinCheckChip", lang)} · {skinReasonLine(lang, skinChanges)}
+              </p>
+              <ul className="mt-1 flex flex-col gap-1.5 text-sm leading-relaxed">
+                {skinChanges.map((c) => (
+                  <li key={c.key}>
+                    {c.change[lang]}
+                    <span className="mt-0.5 block text-xs text-muted">{c.why[lang]}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-1 text-xs text-muted">{t("skinCheckRender", lang)}</p>
+            </div>
+          )}
           {step.reasons.length > 0 && (
             <div className="rounded-xl bg-peach-soft p-3">
               <button type="button" onClick={() => setWhyOpen((v) => !v)} aria-expanded={whyOpen} className="flex min-h-10 w-full items-center gap-2 text-left text-sm font-extrabold text-primary-strong">

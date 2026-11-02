@@ -1,6 +1,7 @@
 "use client";
 
 import type { AnalyzeResult } from "../services/analyze";
+import type { SkinResult } from "../services/skin";
 import type { RenderSummary, StepResult } from "../services/render";
 import type { GradeResult } from "../grade/types";
 import type { LandmarkMeasure } from "../grade/landmarks";
@@ -106,5 +107,21 @@ export async function postEndSession(): Promise<void> {
     await fetch("/api/session", { method: "DELETE" });
   } catch {
     /* best effort */
+  }
+}
+
+/** Opt-in Skin check. image null → the sample face's pre-generated result (0 units, no upload). */
+export async function postSkin(image: Blob | null, sampleId?: string): Promise<SkinResult> {
+  const form = new FormData();
+  if (image) form.set("image", image, "selfie.jpg");
+  else {
+    form.set("sample", "1");
+    if (sampleId) form.set("sampleId", sampleId);
+  }
+  try {
+    const res = await fetch("/api/skin", { method: "POST", body: form });
+    return (await res.json()) as SkinResult;
+  } catch {
+    return { ok: false, status: 0, code: "network", guide: "retry", demoAvailable: false };
   }
 }

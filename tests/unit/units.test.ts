@@ -30,9 +30,9 @@ describe("unit pricing (fixed by plan + official docs)", () => {
     expect(lessonRenderCost(5)).toBe(5);
   });
 
-  it("flow A = 14u, flow B = 4u; a 20u session fits one full flow plus 6 re-renders", () => {
+  it("flow A = 14u, flow B = 4u; a 24u session fits one full flow plus 10 re-renders, or the opt-in skin check plus 1", () => {
     expect(fullFlowCost()).toBe(14);
     expect(revisitFlowCost()).toBe(4);
-    expect(20 - fullFlowCost()).toBe(6);
+    expect(24 - fullFlowCost()).toBe(10);
   });
 });

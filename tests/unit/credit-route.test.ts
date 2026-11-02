@@ -10,7 +10,7 @@ describe("GET /api/credit", () => {
   it("reports mock mode, balance and session usage, and sets an anonymous session cookie", async () => {
     setRuntime(createRuntime(readConfig({ YOUCAM_MODE: "mock" }), createMockTransport({ credit: 742 })));
     const res = await GET(new Request("http://x/api/credit"));
-    expect(await res.json()).toEqual({ mode: "mock", demo: false, remaining: 742, sessionSpent: 0, sessionCap: 20 });
+    expect(await res.json()).toEqual({ mode: "mock", demo: false, remaining: 742, sessionSpent: 0, sessionCap: 24 });
     expect(res.headers.get("set-cookie")).toMatch(/^mt_sid=[0-9a-f-]{36}; Path=\/; HttpOnly/);
   });
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppBar, BottomBar, Button, ButtonLink, Chip, Icon, ModeBanner, Screen, Sheet, UnitLine } from "@/components/ui";
 import { useFlow } from "@/components/FlowProvider";
+import { SkinCheckCard } from "@/components/SkinCheckCard";
 import { PhotoPins, type PhotoPin } from "@/components/PhotoPins";
 import { estimateLabelWidth } from "@/lib/pinLayout";
 import { t, tf, type MsgKey } from "@/lib/i18n";
@@ -222,10 +223,7 @@ export default function AnalyzePage() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-muted">
-                          {ATTR_NAME[k][lang]}{" "}
-                          <code title={t("apiKeyTip", lang)} className="ml-0.5 rounded bg-panel-2 px-1 py-px font-mono text-[10px] font-medium text-muted">
-                            {k}
-                          </code>
+                          {ATTR_NAME[k][lang]}
                         </p>
                         <p className="text-[16px] font-extrabold leading-snug">{valueLabel(k, v, lang)}</p>
                         {stored.source?.[k] && !stored.edited.includes(k) && <p className="text-xs text-muted">({sourceCaption(stored.source[k], tf("sourceDefaultValue", lang, { v: valueLabel(k, v, lang) }))})</p>}
@@ -276,6 +274,8 @@ export default function AnalyzePage() {
                 <Icon name="pencil" className="h-4 w-4 flex-none text-muted" />
               </button>
             )}
+
+            <SkinCheckCard allowRun={mode !== "demo" && !sample && !!photo} />
 
             <button type="button" onClick={() => setRulesOpen(true)} className="min-h-12 self-start text-sm font-bold text-primary-strong underline underline-offset-4">
               {t("ruleTable", lang)}
@@ -389,6 +389,19 @@ export default function AnalyzePage() {
       </Sheet>
 
       <Sheet open={rulesOpen} onClose={() => setRulesOpen(false)} title={t("ruleTableTitle", lang)}>
+        <div className="mb-3 rounded-xl bg-panel-2 p-3" data-testid="api-fields">
+          <p className="text-xs font-bold text-muted">{t("apiFieldsTitle", lang)}</p>
+          <ul className="mt-1 grid grid-cols-1 gap-x-4 gap-y-1 text-sm min-[380px]:grid-cols-2">
+            {CARD_ORDER.map((k) => (
+              <li key={k} className="flex items-baseline justify-between gap-2">
+                <span className="font-bold">{ATTR_NAME[k][lang]}</span>
+                <code title={t("apiKeyTip", lang)} className="rounded bg-panel px-1 py-px font-mono text-[11px] text-muted">
+                  {k}
+                </code>
+              </li>
+            ))}
+          </ul>
+        </div>
         <table className="w-full text-left text-sm">
           <tbody>
             {eyelidRuleRowsLabeled(lang).map((r) => (

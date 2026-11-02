@@ -4,7 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { Lang } from "@/lib/rules/engine";
 import type { FaceProfile, ProfileKey, StoredProfile } from "@/lib/profile";
 import { clearProfile, loadProfile, saveProfile } from "@/lib/privacy/profileStore";
-import { fetchCredit, postAnalyze, postEndSession, streamRender, type CreditInfo } from "@/lib/client/api";
+import { fetchCredit, postAnalyze, postEndSession, postSkin, streamRender, type CreditInfo } from "@/lib/client/api";
+import type { SkinCheck } from "@/lib/skin/concerns";
+import type { GuideKey } from "@/lib/quality/messages";
 import type { StepResult } from "@/lib/services/render";
 import type { FaceAnchors } from "@/lib/regions";
 import type { GradeResult } from "@/lib/grade/types";
@@ -62,6 +64,12 @@ interface FlowState {
   skin: SkinState | null;
   /** Override the measured shade (0 units; lessons re-render on next open, 1 unit per uncached step). */
   setSkinShade: (id: string) => void;
+  /** Opt-in Skin check of the current photo (memory only). Sample trials get the pre-generated result automatically (0 units). */
+  skinCheck: SkinCheck | null;
+  skinBusy: boolean;
+  skinError: GuideKey | null;
+  /** Live: one Skin Analysis call (9 units) on the visitor's photo. Sample: the pre-generated result. */
+  runSkinCheck: () => Promise<void>;
   stored: StoredProfile | null;
   hydrated: boolean;
   setStored: (p: StoredProfile | null) => void;
@@ -161,6 +169,8 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setDetection(null);
     setShadeOverride(null);
+    setSkinCheck(null); // a new photo is a new face: the skin reading does not carry over
+    setSkinError(null);
     if (!photo) return;
     let live = true;
     void detectFor(photo.blob).then((result) => live && setDetection({ blob: photo.blob, result }));
@@ -185,6 +195,9 @@ export function FlowProvider({ children }: { children: ReactNode }) {
       overridden: shadeOverride !== null && shadeOverride !== measuredId,
     };
   }, [photo, sample, detection, shadeOverride]);
+  const [skinCheck, setSkinCheck] = useState<SkinCheck | null>(null);
+  const [skinBusy, setSkinBusy] = useState(false);
+  const [skinError, setSkinError] = useState<GuideKey | null>(null);
   const [stored, setStoredState] = useState<StoredProfile | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [mode, setMode] = useState<ServiceMode | null>(null);
@@ -240,6 +253,16 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     if (hydrated) document.documentElement.classList.remove("lang-pending");
   }, [hydrated]);
 
+  // Sample trials replay the pre-generated Skin Analysis result as soon as a sample face is loaded (0 units, no upload).
+  useEffect(() => {
+    if (!sample || !photo) return;
+    let live = true;
+    void postSkin(null, sampleId).then((r) => live && r.ok && setSkinCheck(r.skin));
+    return () => {
+      live = false;
+    };
+  }, [sample, sampleId, photo]);
+
   const refreshCredit = useCallback(() => void fetchCredit().then(setCredit), []);
 
   const setStored = useCallback((p: StoredProfile | null) => {
@@ -278,6 +301,20 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const activeStored = sample ? sampleStored : stored;
+
+  const runSkinCheck = useCallback(async () => {
+    if (!photo || sampleRef.current) return; // the sample path loads on its own
+    setSkinBusy(true);
+    setSkinError(null);
+    try {
+      const r = await postSkin(photo.blob);
+      if (r.ok) setSkinCheck(r.skin);
+      else setSkinError(r.guide);
+    } finally {
+      setSkinBusy(false);
+      refreshCredit();
+    }
+  }, [photo, refreshCredit]);
 
   const render = useCallback(
     async (lessonId: string, steps?: number[], stepScales?: Record<number, number>) => {
@@ -360,6 +397,8 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     setGradedLesson(null);
     setCompleted({});
     setMode(null);
+    setSkinCheck(null);
+    setSkinError(null);
   }, [setAttempt]);
 
   /** A real photo always leaves sample mode (the saved profile comes back). */
@@ -404,16 +443,18 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     setCart([]);
     setCompleted({});
     setMode(null);
+    setSkinCheck(null);
+    setSkinError(null);
     await postEndSession();
   }, [setPhoto, setAttempt]);
 
   const value = useMemo<FlowState>(
     () => ({
       lang, setLang, consented, setConsented, practice, photo, setPhoto, stored: activeStored, hydrated, setStored, editProfile, deleteProfile,
-      anchors, eyeOverlay, facePins, skin, setSkinShade, sample, sampleId, startSample, restoring, loadSampleAttempt, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
+      anchors, eyeOverlay, facePins, skin, setSkinShade, skinCheck, skinBusy, skinError, runSkinCheck, sample, sampleId, startSample, restoring, loadSampleAttempt, mode, setMode, renders, render, scales, setStepScale, attempt, setAttempt, grade, setGrade, gradedLesson, setGradedLesson,
       cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession,
     }),
-    [lang, setLang, consented, setConsented, practice, photo, setPhoto, anchors, eyeOverlay, facePins, skin, setSkinShade, sample, sampleId, startSample, restoring, loadSampleAttempt, activeStored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
+    [lang, setLang, consented, setConsented, practice, photo, setPhoto, anchors, eyeOverlay, facePins, skin, setSkinShade, skinCheck, skinBusy, skinError, runSkinCheck, sample, sampleId, startSample, restoring, loadSampleAttempt, activeStored, hydrated, setStored, editProfile, deleteProfile, mode, renders, render, scales, setStepScale, attempt, setAttempt, grade, gradedLesson, cart, addToCart, completed, markCompleted, credit, refreshCredit, endSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

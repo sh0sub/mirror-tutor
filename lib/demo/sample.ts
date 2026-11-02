@@ -1,5 +1,7 @@
 import manifestJson from "../../public/demo/compare.json";
 import gradesJson from "../../public/demo/sample-grades.json";
+import skinJson from "../../public/demo/skin.json";
+import type { SkinCheck, SkinReading } from "../skin/concerns";
 import type { CompareManifest, CompareModel } from "./compare";
 import type { GradeResult } from "../grade/types";
 import type { GradePins } from "../facePins";
@@ -69,4 +71,12 @@ export function sampleRecommendation(profile: FaceProfile): Recommendation {
 /** Monolid sample whose eyelid the visitor has not corrected yet (the analyzer's raw Double-lid reading is still in use). */
 export function monoSampleNeedsFix(sample: boolean, sampleId: SampleId, stored: { profile: FaceProfile; edited: readonly string[] } | null): boolean {
   return sample && sampleId === "model-c" && !!stored && stored.profile.eyelid !== "monolid" && !stored.edited.includes("eyelid");
+}
+
+/**
+ * The sample face's Skin Analysis result: a real YouCam call captured once per sample (public/demo/skin.json, 9u each) and replayed
+ * at 0 units. The Skin check card labels it as pre-generated.
+ */
+export function sampleSkinCheck(id: SampleId): SkinCheck {
+  return { readings: (skinJson as unknown as Record<string, SkinReading[]>)[id], source: "sample" };
 }

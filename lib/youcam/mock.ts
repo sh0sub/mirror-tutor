@@ -2,8 +2,9 @@ import type { YouCamTransport } from "./client";
 import { YouCamHttpError } from "./client";
 import type { Effect } from "./makeupVto";
 import { mockRenderEffects } from "./mockRender";
-import type { CreditResponse, FaceAttrResults, FeatureCostResponse, TaskStatusResponse } from "./types";
+import type { CreditResponse, FaceAttrResults, FeatureCostResponse, SkinAnalysisResults, TaskStatusResponse } from "./types";
 import faceMonolid from "../../fixtures/youcam/face-attr-analysis.monolid.spec.json";
+import skinModelA from "../../fixtures/youcam/live/skin-analysis.model-a.json";
 import featureCost from "../../fixtures/youcam/feature-cost.spec.json";
 
 /**
@@ -14,6 +15,8 @@ import featureCost from "../../fixtures/youcam/feature-cost.spec.json";
 export interface MockOptions {
   /** Face Analyzer results to return (default: monolid fixture). */
   faceResults?: FaceAttrResults;
+  /** Skin Analysis results to return (default: the model-a live capture). */
+  skinResults?: SkinAnalysisResults;
   /** How many polls report `running` before success. */
   runningPolls?: number;
   /** Starting balance reported by getCredit. */
@@ -32,7 +35,7 @@ export interface MockTransport extends YouCamTransport {
   readonly charged: number;
 }
 
-const COST: Record<string, number> = { "face-attr-analysis": 10, "makeup-vto": 1 };
+const COST: Record<string, number> = { "face-attr-analysis": 10, "makeup-vto": 1, "skin-analysis": 9 };
 
 export function createMockTransport(opts: MockOptions = {}): MockTransport {
   const files = new Map<string, Uint8Array | null>();
@@ -108,6 +111,10 @@ export function createMockTransport(opts: MockOptions = {}): MockTransport {
       }
       if (feature === "face-attr-analysis") {
         const results = (opts.faceResults ?? (faceMonolid.data.results as FaceAttrResults)) as unknown as R;
+        return { status: 200, data: { task_status: "success", results } };
+      }
+      if (feature === "skin-analysis") {
+        const results = (opts.skinResults ?? (skinModelA.results as SkinAnalysisResults)) as unknown as R;
         return { status: 200, data: { task_status: "success", results } };
       }
       return { status: 200, data: { task_status: "success", results: { url: `mock://result/${taskId}` } as unknown as R } };

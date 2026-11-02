@@ -18,7 +18,7 @@ export function readConfig(env: Env = process.env) {
     apiKey,
     anthropicKey: env.ANTHROPIC_API_KEY?.trim() || "",
     graderModel: env.GRADER_MODEL?.trim() || "claude-opus-5-5",
-    sessionCap: int(env, "SESSION_UNIT_CAP", 20),
+    sessionCap: int(env, "SESSION_UNIT_CAP", 24),
     dailyCap: int(env, "DAILY_UNIT_CAP", 120),
     demoThreshold: int(env, "DEMO_MODE_THRESHOLD", 150),
     mockCredit: int(env, "MOCK_CREDIT", 1000),

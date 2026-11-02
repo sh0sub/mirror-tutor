@@ -49,11 +49,96 @@
 
 남은 확인: 이 label들이 실제로 의도한 모양(가로 그라데이션 등)으로 렌더되는지는 VTO 실호출 이미지로 눈으로 확인해야 한다. colorNum 불일치를 서버가 거부하는지는 스파이크의 프로브 2건이 기록한다.
 
+## Skin Analysis 실호출 (2026-11-02, C24, 스톡 얼굴 model-a·model-c 각 1회 = 18u)
+
+OpenAPI: `docs.perfectcorp.com/_bundle/reference/ai_skin_analysis.yaml`. 요청은 `POST /s2s/v2.0/task/skin-analysis`, 폴링은 `GET …/task/skin-analysis/{task_id}`. SD와 HD 항목은 섞을 수 없다. 기본 응답 형식은 `zip`이라 `format: "json"`을 명시했다. 단가는 `feature-cost`의 "AI Skin Analysis V2.0 SD (1-4 concerns)" = **9u** (5-8 = 12, 9-12 = 14, 13-16 = 16; HD는 12/16/20/22).
+
+요청 본문 (실제로 성공한 것, file id 제거):
+
+```json
+{
+  "src_file_id": "[redacted]",
+  "dst_actions": [
+    "dark_circle_v2",
+    "redness",
+    "oiliness",
+    "pore"
+  ],
+  "format": "json"
+}
+```
+
+응답 `data.results` (model-a, URL 제거; model-c는 `fixtures/youcam/live/skin-analysis.model-c.json`):
+
+```json
+{
+  "output": [
+    {
+      "ui_score": 67,
+      "mask_urls": [
+        "[redacted]"
+      ],
+      "raw_score": 54.94899898767471,
+      "type": "dark_circle_v2"
+    },
+    {
+      "ui_score": 89,
+      "mask_urls": [
+        "[redacted]"
+      ],
+      "raw_score": 92.88670349121094,
+      "type": "oiliness"
+    },
+    {
+      "ui_score": 99,
+      "mask_urls": [
+        "[redacted]"
+      ],
+      "raw_score": 100,
+      "type": "redness"
+    },
+    {
+      "ui_score": 75,
+      "mask_urls": [
+        "[redacted]"
+      ],
+      "raw_score": 66.95197260379791,
+      "type": "pore"
+    },
+    {
+      "score": 82.5,
+      "type": "all"
+    },
+    {
+      "score": 31,
+      "type": "skin_age"
+    },
+    {
+      "mask_urls": [
+        "[redacted]"
+      ],
+      "type": "resize_image"
+    }
+  ]
+}
+```
+
+확인한 것:
+
+- 결과는 `results.output[]`이고 항목마다 `type`, `ui_score`(정수 1-100), `raw_score`, `mask_urls[]`(마스크 이미지 URL, 2시간 유효)를 가진다. 요청하지 않은 `all`(종합 점수), `skin_age`, `resize_image`도 함께 온다. 문서 예시의 region 필드는 SD 4항목에서는 오지 않았다.
+- **점수는 높을수록 깨끗하다.** 붉은기가 없는 얼굴에서 `redness` 99. 우리가 쓰는 기준 70 미만 = 눈에 띔, 85 미만 = 약간, 그 이상 = 깨끗함은 YouCam 값이 아니라 **우리 규칙**이다(`lib/skin/concerns.ts`).
+- 한 번의 호출이 9u를 썼다(잔량 873 -> 864 -> 855). 폴링 2초 간격으로 성공했다. 업로드는 Face Analyzer와 같은 File API라서, 같은 사진이면 `file_id`를 재사용한다.
+- model-a: 다크서클 67(눈에 띔), 모공 75(약간), 유분 89, 붉은기 99. model-c: 다크서클 79(약간), 모공 81(약간), 유분 91, 붉은기 99. **두 샘플 모두 붉은기·유분은 깨끗하게 읽혀서 실호출로는 그 두 규칙(그린 프라이머, 매트 프라이머+얇은 파운데이션)이 발동하는 얼굴을 보지 못했다.** 두 규칙은 `tests/unit/skinAnalysis.test.ts`의 모의 결과로만 검증했다.
+- API가 사진을 잘못 읽었는지는 이 두 장만으로는 판단할 수 없다. 사진 조명과 해상도에 따라 값이 달라지므로 앱도 "사진으로 읽은 추정값"이라고 표시한다.
+- 앱은 이 값으로 렌더(VTO)를 바꾸지 않는다. VTO는 색만 칠해서 컨실러·프라이머를 보여 줄 수 없고, 베이스 단계의 설명과 "왜 당신은" 이유 줄만 바뀐다.
+- 샘플 체험은 이 두 번의 실호출을 `public/demo/skin.json`으로 재생한다(0u, 호출 없음; `tests/unit/skinAnalysis.test.ts`가 transport 호출 0회를 확인).
+
 ## 쓴 유닛
 
 | 날짜 | 내용 | 유닛 |
 |---|---|---|
 | 2026-10-27 | 문서·공개 카탈로그 확인 | 0 |
+| 2026-11-02 | Skin Analysis SD 4항목 × 샘플 2명 (C24) | 18 |
 
 ## 실호출 결과 (scripts/spike/run.ts)
 

@@ -117,7 +117,7 @@ export default function Home() {
         }
       />
       <ModeBanner />
-      <main className="flex flex-1 flex-col gap-6 px-4 py-6">
+      <main className={`flex flex-1 flex-col gap-6 px-4 py-6 ${returning ? "" : "max-lg:pb-28"}`}>
         {!hydrated ? (
           <div className="skeleton h-40 rounded-[var(--radius-panel)]" aria-busy="true" />
         ) : stored && rec ? (

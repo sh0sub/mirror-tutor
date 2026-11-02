@@ -1,9 +1,9 @@
-import { fullFlowCost, revisitFlowCost } from "./units";
+import { fullFlowCost, revisitFlowCost, SKIN_COST } from "./units";
 
 /** Data for the /partner concept page: the retailer's view of Mirror Tutor. No invented numbers. */
 
 /** Default per-session unit cap (tests pin it to readConfig). */
-export const DEFAULT_SESSION_CAP = 20;
+export const DEFAULT_SESSION_CAP = 24;
 
 /** The product the fictional page sells (a catalog SKU, so the lesson's lip color is a real match). */
 export const PARTNER_SKU = "MT-VT-07";
@@ -80,16 +80,17 @@ export function breakEven(totalUnits: number, unitPrice: number, marginPerOrder:
 }
 
 export interface UnitMeterRow {
-  id: "first" | "next";
+  id: "first" | "next" | "skin";
   units: number;
 }
 
-/** Units per session, derived from the same pricing code the unit guard uses (14 first, 4 after). */
+/** Units per session, derived from the same pricing code the unit guard uses (14 first, 4 after, plus 9 for the opt-in skin check). */
 export function unitMeter(stepCount = 4): { rows: UnitMeterRow[]; cap: number } {
   return {
     rows: [
       { id: "first", units: fullFlowCost(stepCount) },
       { id: "next", units: revisitFlowCost(stepCount) },
+      { id: "skin", units: SKIN_COST },
     ],
     cap: DEFAULT_SESSION_CAP,
   };

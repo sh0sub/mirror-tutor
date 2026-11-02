@@ -41,3 +41,26 @@ export function fullFlowCost(stepCount = 4): number {
 export function revisitFlowCost(stepCount = 4): number {
   return lessonRenderCost(stepCount);
 }
+
+/**
+ * Skin Analysis V2.0 SD (opt-in "Skin check"): 1-4 concerns 9u, 5-8 12u, 9-12 14u, 13-16 16u
+ * (GET /s2s/v2.0/credit/feature-cost, fixtures/youcam/live/feature-cost.json). One task per photo.
+ */
+export function skinAnalysisCost(concernCount: number): number {
+  if (!Number.isInteger(concernCount) || concernCount < 1 || concernCount > 16) {
+    throw new RangeError(`Skin Analysis SD accepts 1-16 concerns, got ${concernCount}`);
+  }
+  if (concernCount <= 4) return 9;
+  if (concernCount <= 8) return 12;
+  if (concernCount <= 12) return 14;
+  return 16;
+}
+
+/** The 4 base-relevant concerns Mirror Tutor asks for (dark circles, redness, oiliness, pores). */
+export const SKIN_CONCERN_COUNT = 4;
+export const SKIN_COST = skinAnalysisCost(SKIN_CONCERN_COUNT); // 9
+
+/** Full flow plus the opt-in skin check: 10 + 9 + 4 = 23u (session cap 24). */
+export function fullFlowWithSkinCost(stepCount = 4): number {
+  return fullFlowCost(stepCount) + SKIN_COST;
+}

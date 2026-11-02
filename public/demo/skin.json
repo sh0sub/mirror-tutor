@@ -1,0 +1,48 @@
+{
+  "generatedAt": "2026-11-02",
+  "note": "Real YouCam Skin Analysis V2.0 SD results (dark_circle_v2, redness, oiliness, pore), captured once per sample face (9u each) and replayed at 0 units. score = ui_score, 1-100, higher = clearer.",
+  "model-a": [
+    {
+      "key": "dark_circle",
+      "score": 67,
+      "level": "noticeable"
+    },
+    {
+      "key": "redness",
+      "score": 99,
+      "level": "clear"
+    },
+    {
+      "key": "oiliness",
+      "score": 89,
+      "level": "clear"
+    },
+    {
+      "key": "pores",
+      "score": 75,
+      "level": "mild"
+    }
+  ],
+  "model-c": [
+    {
+      "key": "dark_circle",
+      "score": 79,
+      "level": "mild"
+    },
+    {
+      "key": "redness",
+      "score": 99,
+      "level": "clear"
+    },
+    {
+      "key": "oiliness",
+      "score": 91,
+      "level": "clear"
+    },
+    {
+      "key": "pores",
+      "score": 81,
+      "level": "mild"
+    }
+  ]
+}

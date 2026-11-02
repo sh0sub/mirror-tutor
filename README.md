@@ -2,15 +2,15 @@
 
 **YouCam VTO output is the answer key we grade your real attempt against, per region with CIEDE2000.**
 
-**Mirror Tutor teaches makeup on your own face.** YouCam Face Analyzer reads your features, a hand-written rule table picks the technique for them, YouCam Makeup VTO renders every lesson step on your photo as the answer key, and you grade your real attempt against it.
+**Mirror Tutor teaches makeup on your own face.** YouCam Face Analyzer reads your features, an opt-in YouCam Skin Analysis check reads your skin, hand-written rule tables pick the technique and the base prep for them, YouCam Makeup VTO renders every lesson step on your photo as the answer key, and you grade your real attempt against it.
 
-Entry to the Perfect Corp **YouCam API VTO Hackathon** (track: eCommerce VTO).
+Entry to the Perfect Corp **YouCam API "Skin AI & eCommerce VTO" Hackathon** (track: eCommerce VTO). Three YouCam APIs: Face Analyzer, Skin Analysis (opt-in) and Makeup VTO.
 Live demo: https://mirror-tutor.vercel.app/?lang=en (see [Demo mode](#demo-mode-and-unit-guard)).
 
 **Try it in 30 seconds (0 units, no selfie)**
 1. No selfie needed - 30 s walk-through. Open https://mirror-tutor.vercel.app/?lang=en (English UI; non-Korean browsers start in English anyway) and tap the filled button "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛"). "Use my own selfie" is the secondary button. Above it, pick a sample face: **Monolid** (default) or **Double-lid**.
    - Monolid: Face Analyzer reads this monolid face as Double-lid (its real reading); tap "Fix the eyelid", pick Monolid, and the lesson switches to the horizontal-gradient shadow (real pre-generated YouCam renders of both readings, 0 units).
-2. Walk analysis, the 4-step lesson, grading and shop the step; every image is a real pre-generated YouCam result; the graded attempt is a simulated, deliberately off-shade copy of the answer image (labelled on screen), so the scores are not 100s. The sample result shows after a short comparing beat because its grade was computed offline with the same landmark grader (live selfie grading still runs on your device).
+2. Walk analysis (including the pre-generated skin check card), the 4-step lesson (its Base step shows a "Why this fits you" reason from the skin check), grading and shop the step; every image is a real pre-generated YouCam result; the graded attempt is a simulated, deliberately off-shade copy of the answer image (labelled on screen), so the scores are not 100s. The sample result shows after a short comparing beat because its grade was computed offline with the same landmark grader (live selfie grading still runs on your device).
 3. Open /compare for the monolid vs double-lid split, and "Retailer view (concept)" for /partner.
 
 **Why a brand pays (hypothesis, not measured)**
@@ -25,6 +25,7 @@ Live demo: https://mirror-tutor.vercel.app/?lang=en (see [Demo mode](#demo-mode-
 
 **Why this is not a wrapper**
 - Face Analyzer output feeds a rule table (`lib/rules`): monolid and double-lid faces get different techniques.
+- Skin Analysis scores feed a second rule table (`lib/skin/concerns.ts`): dark circles -> peach corrector, redness -> green primer, oiliness -> mattifying primer plus a thinner foundation, pores -> blurring primer pressed in. The tips are text; the VTO render only paints colour.
 - Lesson step k renders effects 1..k cumulatively on one uploaded `file_id` with Makeup VTO.
 - The VTO output is the CIEDE2000 grading reference for your real attempt.
 - The foundation shade measured on the device is passed into the VTO foundation effect.
@@ -36,13 +37,13 @@ Makeup tutorials are filmed on someone else's face. The same eyeshadow looks dif
 ## Solution
 
 1. **Capture** a selfie with a live quality gate (face width at least 60% of the frame, enough light, frontal, zoom) so the YouCam input requirements are met before any unit is spent.
-2. **Analyze** with YouCam Face Attribute & Ratio Analysis: eyelid, eye shape, lip shape, face shape, brow shape. You can correct any value. In parallel the browser measures cheek skin tone on MediaPipe landmarks (0 units) and picks a foundation shade from a 6-step ladder (13N to 27W, `lib/skin/shades.json`); you can override it.
+2. **Analyze** with YouCam Face Attribute & Ratio Analysis: eyelid, eye shape, lip shape, face shape, brow shape. You can correct any value. Optionally, tap "Run skin check" (YouCam Skin Analysis SD: dark circles, redness, oiliness, pores; 9 units) and each concern that is not clear changes the lesson's Base step; the sample trial shows a pre-generated result for 0 units. In parallel the browser measures cheek skin tone on MediaPipe landmarks (0 units) and picks a foundation shade from a 6-step ladder (13N to 27W, `lib/skin/shades.json`); you can override it.
 3. **Pick techniques** from a rule table (`lib/rules/techniques.json`, `lib/rules/engine.ts`), for example monolid -> horizontal gradient shadow + liner visible 1.5 mm. Every step shows a "why you" reason. The monolid reason is a rule of thumb, not a validated result: on a monolid the horizontal gradient reads as cleaner depth and the vertical blend is hidden by the lid fold, but both render, and /compare shows them side by side.
 4. **Learn** with 3 lessons x 4 steps. YouCam Makeup VTO renders each step cumulatively on your photo (before/after slider).
 5. **Grade** your own attempt photo: per-region score (eye line, eyelid, cheek, lip) plus a one-line correction.
 6. **Shop the step**: the hex colors used in a step are matched to a demo catalog by color difference (CIEDE2000 <= 5). Then a share card.
 7. **/compare**: a monolid face and a double-lid face (pre-generated with real YouCam calls) get the same look; the page opens on the eye step where their techniques split. The monolid face's eyelid was corrected on M2 after Face Analyzer read it as a double lid, and the page says so. A what-if panel previews the other rule-table branches (inner double, hooded, lip shapes) as text for 0 units.
-8. **/partner**: the retailer view (concept; reachable from a visible button beside the sample button on home and from a "Next: retailer view" card at the end of the sample trial): the real `/embed/lesson?sku=` iframe live inside a fictional product page, its one-line iframe snippet (no SDK; `frame-ancestors` is open on /embed only), the unit-cost meter (14 then 4) and the KPIs to measure, all marked as hypothesis with no numbers.
+8. **/partner**: the retailer view (concept; reachable from a visible button beside the sample button on home and from a "Next: retailer view" card at the end of the sample trial): the real `/embed/lesson?sku=` iframe live inside a fictional product page, its one-line iframe snippet (no SDK; `frame-ancestors` is open on /embed only), the unit-cost meter (14 first, 4 after, +9 for the optional skin check) and the KPIs to measure, all marked as hypothesis with no numbers.
 9. **Home**: returning users see a practice streak, past results and a bottom tab bar; all of it is stored on the device only. "View in store" in Shop the step opens a confirmation sheet before leaving the app.
 
 ## YouCam APIs used
@@ -53,12 +54,13 @@ Server `https://yce-api-01.makeupar.com`, `Authorization: Bearer <API key>`. Det
 |---|---|---|
 | Upload (presigned PUT) | `POST /s2s/v2.0/file` | no SKU in `feature-cost`; not counted by our unit guard |
 | Face Attribute & Ratio Analysis (5 features) | `POST /s2s/v2.0/task/face-attr-analysis` | 10 per call (1-5 features tier; 6-14 = 20, 15-28 = 30) |
+| Skin Analysis SD (opt-in, 4 concerns: `dark_circle_v2`, `redness`, `oiliness`, `pore`; `format: json`) | `POST /s2s/v2.0/task/skin-analysis` | 9 per call (1-4 concerns tier; 5-8 = 12, 9-12 = 14, 13-16 = 16) |
 | Makeup VTO (one lesson step) | `POST /s2s/v2.0/task/makeup-vto` | 1 per step |
 | Task polling | `GET /s2s/v2.0/task/{feature}/{task_id}` | 0 |
 | Balance | `GET /s2s/v1.0/client/credit` | 0 |
 | Unit prices | `GET /s2s/v2.0/credit/feature-cost` | 0 |
 
-Unit budget: one first-time flow is 10 (analysis) + 4 (one lesson) = **14 units**. Re-grading, shopping, sharing and the compare page cost 0. Returning users reuse the on-device profile, so only the 4 VTO units apply.
+Unit budget: one first-time flow is 10 (analysis) + 4 (one lesson) = **14 units**; the opt-in skin check adds **9** (23 in all, under the 24-unit session cap). Re-grading, shopping, sharing and the compare page cost 0. Returning users reuse the on-device profile, so only the 4 VTO units apply.
 
 The Makeup VTO effects used: `skin_smooth`, `foundation`, `eyebrows`, `eye_shadow`, `eye_liner`, `blush`, `contour`, `lip_color` (see `lib/lessons/*.json`).
 
@@ -82,23 +84,28 @@ flowchart LR
   end
   subgraph Next["Next.js API routes (Vercel, in-memory only)"]
     AN["/api/analyze\nEXIF strip (sharp)"]
+    SK["/api/skin\nopt-in, 9u"]
     RN["/api/render\nLRU cache 2 h"]
     GR["/api/grade\nDE2000 vs answer"]
-    UG["Unit guard\nsession cap 20u"]
+    UG["Unit guard\nsession cap 24u"]
     RULES["Rule table\ntechniques.json"]
   end
-  YC["YouCam API\nFace Analyzer / Makeup VTO"]
+  YC["YouCam API\nFace Analyzer / Skin Analysis / Makeup VTO"]
   CL["Claude (claude-opus-5-5)\none-line corrections"]
 
   CAP -- "selfie JPEG" --> AN
   AN -- "presigned PUT + task" --> YC
   AN --> RULES
+  CAP -. "opt-in" .-> SK
+  SK -- "skin-analysis (SD, 4 concerns)" --> YC
+  SK -- "base tips (rule table)" --> Device
   RULES -- "profile" --> LS
   LS -- "lesson effects" --> RN
   RN -- "same file_id, 1u/step" --> YC
   YC -- "result image (fetched server-side)" --> RN
   RN -- "answer images" --> Device
   UG -.-> AN
+  UG -.-> SK
   UG -.-> RN
   CAP -- "attempt photo" --> MP
   MP -- "Lab means only" --> GR
@@ -109,7 +116,7 @@ flowchart LR
 
 What leaves the device:
 
-- Selfie (EXIF stripped on the server) -> our API route -> YouCam (Face Analyzer, Makeup VTO). YouCam keeps uploaded files for up to 30 days, and the consent screen says so.
+- Selfie (EXIF stripped on the server) -> our API route -> YouCam (Face Analyzer, Skin Analysis, Makeup VTO). YouCam keeps uploaded files for up to 30 days, and the consent screen says so.
 - Skin tone is measured in the browser on the capture photo; only the chosen shade id (e.g. `23N`) is sent to `/api/render`, never the measured color or landmarks.
 - Landmark mesh and pixels of the attempt photo are processed in the browser. The server receives the answer and attempt images (in memory, to sanitize and compute color differences) and 4 region Lab means. In the normal path Claude gets only those numbers (text-only call). If MediaPipe cannot run, the F6 fallback sends fixed-box region crops to Claude vision, or grades locally with no Claude call when no key is set.
 - Share card is drawn on a client canvas and is never uploaded.
@@ -139,7 +146,7 @@ YOUCAM_MODE=live npx tsx scripts/demo/generate.ts   # pre-generate public/demo/m
 ## Tests
 
 ```bash
-npm test    # vitest: unit + integration (tests/), no network, no units (251 tests in 32 files)
+npm test    # vitest: unit + integration (tests/), no network, no units (273 tests in 33 files)
 ```
 
 Covers the rule table and lesson labels against the real pattern catalog, quality gate, unit guard, request builders against recorded live response bodies, privacy sanitizing, grading, shop matching, share card layout, i18n and an end-to-end core flow on the mock transport.
@@ -158,7 +165,7 @@ npx vercel --prod --yes
 
 ## Demo mode and unit guard
 
-- Per-session cap of 20 units (default `SESSION_UNIT_CAP`) and a global daily cap (default `DAILY_UNIT_CAP`=120). Units are reserved before a task starts and released on error.
+- Per-session cap of 24 units (default `SESSION_UNIT_CAP`) and a global daily cap (default `DAILY_UNIT_CAP`=120). Units are reserved before a task starts and released on error.
 - If the remaining balance is below `DEMO_MODE_THRESHOLD` (default 150), the app serves the pre-generated sample models in `public/demo/` instead of calling YouCam.
 - Remaining balance is cached for 5 minutes. State is in process memory, so on serverless the caps are per instance (best effort).
 - Test inputs: `public/demo/model-a`, `model-b` (stock photos, Pexels License), `model-c` (monolid, Unsplash License; see its SOURCE.md); all sample faces are Pexels and Unsplash License stock photos or your own selfie.

@@ -3,7 +3,7 @@
 <defs><marker id="ap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#c8325b"/></marker><marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#59636e"/></marker></defs>
 <rect width="1280" height="330" fill="#ffffff"/>
 <text x="40" y="44" font-size="24" font-weight="700" fill="#1f2328">From your face to a product: the YouCam pipeline and what each hop costs</text>
-<text x="40" y="68" font-size="14" fill="#59636e">Pink boxes are YouCam API calls. Arrow labels are units spent on that hop. First lesson 14 units (10 + 4), later lessons 4, sample and compare views 0.</text>
+<text x="40" y="68" font-size="14" fill="#59636e">Pink boxes are YouCam API calls. Arrow labels are units spent on that hop. First lesson 14 units (10 + 4), later lessons 4, optional skin check +9, sample and compare views 0.</text>
 <rect x="15" y="110" width="170" height="110" rx="12" fill="#fdecef" stroke="#c8325b" stroke-width="2"/>
 <text x="27" y="140" font-size="15" font-weight="700" fill="#1f2328">YouCam Analyzer</text>
 <text x="27" y="166" font-size="12.5" fill="#59636e">face-attr-analysis</text>
@@ -42,5 +42,6 @@
 <text x="1045" y="153" font-size="13" font-weight="700" text-anchor="middle" fill="#59636e">0 units</text>
 <text x="1045" y="187" font-size="11" text-anchor="middle" fill="#59636e">no API call</text>
 <text x="40" y="270" font-size="14" fill="#1f2328">The Face Analyzer output is not displayed, it selects the technique. The VTO render is not a picture, it is the grading reference.</text>
-<text x="40" y="294" font-size="13" fill="#59636e">Per-session cap 20 units and a daily cap are enforced server-side; the render cache is keyed on image + effects.</text>
+<text x="40" y="288" font-size="13" fill="#59636e">Optional skin check: YouCam Skin Analysis (9 units) scores dark circles, redness, oiliness and pores; a rule table changes the Base step.</text>
+<text x="40" y="308" font-size="13" fill="#59636e">Per-session cap 24 units and a daily cap are enforced server-side; the render cache is keyed on image + effects.</text>
 </svg>

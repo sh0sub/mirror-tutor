@@ -11,9 +11,10 @@ describe("/partner concept page data", () => {
     expect(m.rows).toEqual([
       { id: "first", units: 14 },
       { id: "next", units: 4 },
+      { id: "skin", units: 9 },
     ]);
     expect(m.cap).toBe(readConfig({}).sessionCap);
-    expect(DEFAULT_SESSION_CAP).toBe(20);
+    expect(DEFAULT_SESSION_CAP).toBe(24);
   });
 
   it("the snippet names a real catalog SKU and the page says no SDK is published", () => {
@@ -52,7 +53,7 @@ describe("/partner concept page data", () => {
   it("the worked example at the top is 2,000 first + 6,000 repeat = 52,000 units, with no assumed price", () => {
     expect(unitEstimate(EXAMPLE_FIRST_SESSIONS, EXAMPLE_REPEAT_SESSIONS).total).toBe(52_000);
     const page = readFileSync("app/(flow)/partner/page.tsx", "utf8");
-    expect(page.indexOf('data-testid="partner-example"')).toBeLessThan(page.indexOf('data-testid="store-strip"'));
+    expect(page.indexOf('data-testid="store-strip"')).toBeLessThan(page.indexOf('data-testid="partner-example"'));
     for (const lang of ["ko", "en"] as const) expect(t("partnerExampleBreak", lang)).not.toMatch(/\$|원\s*\d|0\.05/);
   });
 

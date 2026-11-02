@@ -1,0 +1,62 @@
+{
+  "request": {
+    "src_file_id": "[redacted]",
+    "dst_actions": [
+      "dark_circle_v2",
+      "redness",
+      "oiliness",
+      "pore"
+    ],
+    "format": "json"
+  },
+  "results": {
+    "output": [
+      {
+        "ui_score": 79,
+        "mask_urls": [
+          "[redacted]"
+        ],
+        "raw_score": 87.66627609729767,
+        "type": "dark_circle_v2"
+      },
+      {
+        "ui_score": 99,
+        "mask_urls": [
+          "[redacted]"
+        ],
+        "raw_score": 100,
+        "type": "redness"
+      },
+      {
+        "ui_score": 91,
+        "mask_urls": [
+          "[redacted]"
+        ],
+        "raw_score": 94.4390869140625,
+        "type": "oiliness"
+      },
+      {
+        "ui_score": 81,
+        "mask_urls": [
+          "[redacted]"
+        ],
+        "raw_score": 81.08054089546204,
+        "type": "pore"
+      },
+      {
+        "score": 87.5,
+        "type": "all"
+      },
+      {
+        "score": 23,
+        "type": "skin_age"
+      },
+      {
+        "mask_urls": [
+          "[redacted]"
+        ],
+        "type": "resize_image"
+      }
+    ]
+  }
+}

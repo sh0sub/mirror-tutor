@@ -73,6 +73,14 @@ export interface FaceAttrResults {
 }
 
 /**
+ * Skin Analysis (SD) results with `format: "json"` (live probe 2026-11-02, docs/api-notes.md). `ui_score` is a 1-100 health score:
+ * higher = clearer skin (redness 99 on a face without visible redness). Region-less SD items; `all`, `skin_age` and `resize_image` come along unrequested.
+ */
+export interface SkinAnalysisResults {
+  output?: Array<{ type?: string; ui_score?: number; raw_score?: number; score?: number; region?: string; mask_urls?: string[] }>;
+}
+
+/**
  * Makeup VTO results. The OpenAPI schema (TaskStatusResponseBodySingleUrlResultsV2) says
  * `results.url`, while the prose in the same document shows `results[].download_url`.
  * (미확인) We accept both shapes; spike #2 records the real one.
