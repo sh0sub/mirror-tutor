@@ -82,6 +82,17 @@ export default function ComparePage() {
         <div className="lg:col-span-2">
           <p className="text-lg font-extrabold">{plan.title[lang]}</p>
           <p className="text-sm text-muted">{t("compareIntro", lang)}</p>
+          {gradient && (
+            <p data-testid="evidence-line" className="mt-2 flex items-start gap-2 rounded-xl bg-peach-soft p-3 text-sm font-bold leading-snug text-primary-strong">
+              <Icon name="check" className="mt-0.5 h-4 w-4 flex-none" />
+              <span>
+                {t("compareEvidence", lang)}{" "}
+                <a href="#gradient-pair" className="whitespace-nowrap underline underline-offset-2">
+                  {t("compareEvidenceLink", lang)} ↓
+                </a>
+              </span>
+            </p>
+          )}
         </div>
 
         <div role="tablist" aria-label={t("stepsNav", lang)} className="grid grid-cols-4 gap-1.5 lg:col-span-2">
@@ -156,7 +167,7 @@ export default function ComparePage() {
           </button>
         </div>
         {gradient && (
-          <section aria-labelledby="gradient" className="flex flex-col gap-2 rounded-[var(--radius-panel)] bg-panel p-3" data-testid="gradient-pair">
+          <section id="gradient-pair" aria-labelledby="gradient" className="flex scroll-mt-20 flex-col gap-2 rounded-[var(--radius-panel)] bg-panel p-3" data-testid="gradient-pair">
             <h2 id="gradient" className="text-sm font-extrabold">
               {t("gradientTitle", lang)}
             </h2>

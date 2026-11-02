@@ -7,13 +7,15 @@ import { SAMPLE_GRADES, sampleAttemptFor } from "@/lib/demo/sample";
 import { useFlow } from "@/components/FlowProvider";
 import { SampleRecoveryCard, useNoSession, useSampleFill } from "@/components/SampleRecovery";
 import { PhotoPins, type PhotoPin } from "@/components/PhotoPins";
-import { t } from "@/lib/i18n";
+import { t, tf } from "@/lib/i18n";
 import { postGrade } from "@/lib/client/api";
 import { measureLandmarksInBrowser } from "@/lib/client/landmarker";
 import { urlToBlob } from "@/lib/client/image";
 import { REGION_NAME, scoreBand, type GradeResult } from "@/lib/grade/types";
 import type { GradePins } from "@/lib/facePins";
 import { estimateLabelWidth } from "@/lib/pinLayout";
+import { regradeWithShades, shadeChips, type ShadePicks } from "@/lib/grade/tryColor";
+import type { GradeRegion } from "@/lib/regions";
 
 /** The sample trial's result appears after this short "comparing" beat (the scores are precomputed), then the total counts up for COUNT_MS. */
 const SAMPLE_COMPARE_MS = 350;
@@ -38,6 +40,61 @@ function useCountUp(on: boolean, ms: number): number {
   return p;
 }
 
+/** Sample "try it" row under a region: shade chips around the answer color + the simulated attempt's own color. Picking one recomputes ΔE2000, the region score and the total in this browser. */
+function TryShades({
+  region,
+  lang,
+  answerHex,
+  simulatedHex,
+  picked,
+  onPick,
+}: {
+  region: GradeRegion;
+  lang: "ko" | "en";
+  answerHex?: string;
+  simulatedHex?: string;
+  picked?: string;
+  onPick: (hex: string | null) => void;
+}) {
+  if (!answerHex || !simulatedHex) return null;
+  const chips = [{ id: "sim", label: t("tryColorOriginal", lang), hex: simulatedHex }, ...shadeChips(answerHex).map((c) => ({ id: c.id, label: c.label[lang], hex: c.hex }))];
+  const regionName = REGION_NAME[region][lang];
+  return (
+    <div className="flex flex-col gap-1.5 border-t border-line px-3 pb-3 pt-2.5" data-testid={`try-${region}`}>
+      <p className="flex items-center justify-between gap-2 text-xs font-bold text-muted">
+        <span>{t("tryColorTitle", lang)}</span>
+        {picked && (
+          <button type="button" onClick={() => onPick(null)} className="min-h-8 rounded-full px-2 text-xs font-bold text-primary underline underline-offset-2">
+            {t("tryColorReset", lang)}
+          </button>
+        )}
+      </p>
+      <div role="group" aria-label={tf("tryColorRegion", lang, { region: regionName })} className="flex flex-wrap gap-2">
+        {chips.map((c) => {
+          const on = c.id === "sim" ? !picked : picked === c.hex;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              data-testid={`shade-${region}-${c.id}`}
+              aria-pressed={on}
+              aria-label={`${c.label} ${c.hex}`}
+              title={c.label}
+              onClick={() => onPick(c.id === "sim" ? null : c.hex)}
+              className={`flex h-11 w-11 flex-none items-center justify-center rounded-full border-2 ${on ? "border-ink" : "border-line-strong/40"}`}
+            >
+              <span className="block h-8 w-8 rounded-full" style={{ background: c.hex }} />
+            </button>
+          );
+        })}
+      </div>
+      <p className={`text-xs font-medium ${picked ? "text-primary" : "text-muted"}`} aria-live="polite">
+        {picked ? `${t("tryColorRecomputed", lang)} · ΔE2000 · ${chips.find((c) => c.hex === picked)?.label ?? ""}` : t("tryColorOriginal", lang)}
+      </p>
+    </div>
+  );
+}
+
 /** M4: answer (step 4) vs my attempt → per-region scores, one-line tips, confidence. 0 YouCam units. */
 function GradeInner() {
   const { lang, attempt, renders, grade, setGrade, gradedLesson, setGradedLesson, markCompleted, sample, photo } = useFlow();
@@ -52,6 +109,9 @@ function GradeInner() {
   // Score-label points from the attempt photo's own landmarks (never the first photo's). null → no overlay.
   const [attemptPins, setAttemptPins] = useState<{ blob: Blob; pins: GradePins | null } | null>(null);
   const started = useRef<Blob | null>(null);
+  // Sample "try it": shade the visitor picked per region (absent = the simulated attempt's own color). Reset with a new attempt photo.
+  const [picks, setPicks] = useState<ShadePicks>({});
+  useEffect(() => setPicks({}), [attempt]);
 
   useEffect(() => {
     if (!attempt || !answer) {
@@ -92,7 +152,8 @@ function GradeInner() {
     })();
   }, [attempt, answer, lessonId, router, setGrade, setGradedLesson, markCompleted, sample, photo]);
 
-  const result: GradeResult | null = gradedLesson === lessonId ? grade : null;
+  const baseResult: GradeResult | null = gradedLesson === lessonId ? grade : null;
+  const result = useMemo<GradeResult | null>(() => (baseResult ? regradeWithShades(baseResult, picks) : null), [baseResult, picks]);
   const pinsNow = attempt && attemptPins?.blob === attempt.blob ? attemptPins.pins : null;
   const scorePins = useMemo<PhotoPin[] | null>(() => {
     if (!result?.comparable || !pinsNow) return null;
@@ -223,14 +284,19 @@ function GradeInner() {
 
         {result && result.comparable && result.total !== null && (
           <>
+            {sampleFast && (
+              <p data-testid="try-hint" className="text-xs font-medium leading-relaxed text-muted">
+                {t("tryColorHint", lang)}
+              </p>
+            )}
             <ul className="flex flex-col gap-2">
               {result.regions.map((r) => (
-                <li key={r.region}>
+                <li key={r.region} className="rounded-[var(--radius-panel)] bg-panel">
                   <button
                     type="button"
                     onClick={() => setFocus(focus === r.region ? null : r.region)}
                     aria-expanded={focus === r.region}
-                    className="flex min-h-16 w-full items-start gap-3 rounded-[var(--radius-panel)] bg-panel p-3 text-left"
+                    className="flex min-h-16 w-full items-start gap-3 rounded-[var(--radius-panel)] p-3 text-left"
                   >
                     <span className={`mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-full ${r.score >= 80 ? "bg-success-soft text-success" : "bg-warning-soft text-warning"}`}>
                       <Icon name={r.score >= 80 ? "check" : "warn"} className="h-4 w-4" />
@@ -257,6 +323,16 @@ function GradeInner() {
                       </span>
                     </span>
                   </button>
+                  {sampleFast && (
+                    <TryShades
+                      region={r.region}
+                      lang={lang}
+                      answerHex={r.answerHex}
+                      simulatedHex={baseResult?.regions.find((x) => x.region === r.region)?.attemptHex}
+                      picked={picks[r.region]}
+                      onPick={(hex) => setPicks((p) => (hex ? { ...p, [r.region]: hex } : Object.fromEntries(Object.entries(p).filter(([k]) => k !== r.region))))}
+                    />
+                  )}
                 </li>
               ))}
             </ul>

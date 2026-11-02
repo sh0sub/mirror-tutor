@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFlow } from "@/components/FlowProvider";
 import { Button, ButtonLink, Icon } from "@/components/ui";
 import { SAMPLE_GRADES, sampleAttemptFor } from "@/lib/demo/sample";
@@ -44,6 +44,14 @@ export function useSampleFill(lessonId: string, need: { attempt?: boolean; grade
 export function SampleRecoveryCard({ className = "" }: { className?: string }) {
   const { lang, startSample } = useFlow();
   const [busy, setBusy] = useState(false);
+  // `?sample` in the link (e.g. /grade?sample) starts the 0-unit trial on arrival, so a shared link lands on the working screen.
+  const auto = useRef(false);
+  useEffect(() => {
+    if (auto.current || !new URLSearchParams(window.location.search).has("sample")) return;
+    auto.current = true;
+    setBusy(true);
+    void startSample(undefined, { withProfile: true }).finally(() => setBusy(false));
+  }, [startSample]);
   return (
     <section data-testid="sample-recovery" className={`flex flex-col items-center gap-3 rounded-[var(--radius-panel)] bg-panel p-6 text-center ${className}`}>
       <Icon name="sparkle" className="h-6 w-6 text-primary-strong" />

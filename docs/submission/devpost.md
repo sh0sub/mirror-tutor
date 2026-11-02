@@ -2,6 +2,8 @@
 
 Track: **eCommerce VTO**. (Face Attribute & Ratio Analysis is a supporting input, not a separate track.)
 
+**Why a brand pays:** try-on shows the shade; Mirror Tutor teaches the technique on the shopper's own face, grades the real attempt, and ends in the exact products, as a drop-in widget priced at 14 YouCam units for a first lesson and 4 for each later one.
+
 ## Pitch
 
 - **Problem:** makeup tutorials are filmed on someone else's face, so a monolid and a double lid get the same advice, and a shopper who tries a shade still does not know how to wear it.
@@ -21,6 +23,7 @@ Buyer: a beauty retailer or brand that sells try-on on its product pages. Try-on
 - **30-second walk-through:** https://mirror-tutor.vercel.app/?lang=en - pick **Monolid** (the analyzer misreads it, you fix it) or **Double-lid**, tap the filled button "Try with a sample model · 0 units" (KO: "샘플 모델로 체험하기 · 0 유닛"), then walk analysis, a 4-step lesson, grading and shop the step. To use your own photo instead, tap "Use my own selfie" (asks for consent).
 - **Retailer view (live widget in a fictional store):** https://mirror-tutor.vercel.app/partner?lang=en - the "In your store" strip, your own lip shade, the iframe snippet, a cost calculator and an illustrative break-even from your own inputs.
 - **Two faces side by side:** https://mirror-tutor.vercel.app/compare?lang=en - opens on the eye step with a default-on "Show technique" toggle: lid area, crease guide and gradient direction drawn from face landmarks on both faces (the lid area and crease are landmark approximations, the direction is our rule table; the same overlay appears on lesson step 3).
+- **Interactive grader (0 units):** https://mirror-tutor.vercel.app/grade?sample&lang=en - starts the sample trial by itself and lands on the grade. Under each region, "Try it: change the attempt color" offers shade chips; pick one and the CIEDE2000 difference, the region score and the total are recomputed in your browser with the same function the live grader uses. The attempt photo is a labelled simulation and stays unchanged; only the numbers are recomputed.
 - Deep links (`/shop`, `/grade`, `/share`) opened cold or reloaded offer the same one-tap sample trial, so no page is a dead end.
 
 ## How we use YouCam
@@ -59,7 +62,7 @@ Also: Korean and English UI, per-session and daily unit caps, a render cache, an
 ## Accomplishments that we're proud of
 
 - A misread caught and fixed in one tap, and the whole lesson changes; a real attempt graded per region with CIEDE2000 against the VTO answer; an embeddable widget at 0 units.
-- 235 tests (30 files) run offline against recorded API bodies; typecheck and lint are clean.
+- 248 tests (32 files) run offline against recorded API bodies; typecheck and lint are clean.
 
 ## How we built it
 
@@ -68,7 +71,8 @@ Pipeline (`docs/pipeline.svg`): Face Analyzer (10 units, once) -> rule table (0)
 - **Next.js 15 + TypeScript** on Vercel. Images are processed in memory only; EXIF is stripped with `sharp`.
 - **Face Attribute & Ratio Analysis** (`POST /s2s/v2.0/task/face-attr-analysis`): five features, 10 units, with `face_angle_strictness_level: flexible`, because the default `high` rejected both stock test photos.
 - **Makeup VTO** (`POST /s2s/v2.0/task/makeup-vto`): `skin_smooth`, `foundation`, `eyebrows`, `eye_shadow`, `eye_liner`, `blush`, `contour`, `lip_color`. Request builders are tested against recorded live bodies (`docs/api-notes.md`).
-- **Grading:** MediaPipe Face Landmarker runs in the browser and computes per-region CIELAB means; the server computes CIEDE2000 and Claude (claude-opus-5-5) writes the one-line corrections from those numbers (text only). A fixed-box fallback grader runs if MediaPipe cannot.
+- **On-device measurement:** the foundation shade is read from the cheeks in the browser, and MediaPipe Face Landmarker computes per-region CIELAB means (eyeliner, eyelid, cheeks, lips) on landmark polygons; the photo never leaves the device for this step. No outcome is claimed from it.
+- **Grading:** those per-region CIELAB means feed the grader; the server computes CIEDE2000 and Claude (claude-opus-5-5) writes the one-line corrections from those numbers (text only). A fixed-box fallback grader runs if MediaPipe cannot.
 - **Privacy:** no image stored server-side, nothing logged, share card drawn on the device. A reload keeps a sample trial in the tab's sessionStorage (sample id and the 5 attributes only).
 
 ## What's next
